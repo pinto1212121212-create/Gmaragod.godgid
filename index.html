@@ -534,6 +534,76 @@
   .meforesh-content strong { color: var(--gold-bright); }
   .meforesh-content em { color: var(--parchment); background: rgba(232,183,109,0.08); padding: 0 3px; border-radius: 2px; font-style: normal; }
 
+  /* ===== Kushya animated diagrams (תוספות) ===== */
+  .kviz {
+    margin: 2px 0 16px;
+    padding: 11px 10px 9px;
+    background: linear-gradient(180deg, rgba(143,169,196,0.12), rgba(20,16,10,0.45));
+    border: 1px solid rgba(143,169,196,0.4);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .kviz-head {
+    font-size: 12px; font-weight: 700; color: var(--tosafot);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+  }
+  .kviz-stage {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    gap: 9px; flex-wrap: wrap; min-height: 86px; padding: 8px 2px 2px;
+  }
+  .kviz-cap {
+    font-size: 12px; color: var(--gold); text-align: center;
+    margin-top: 9px; font-weight: 500; line-height: 1.55;
+  }
+  .kviz-cap strong { color: var(--gold-bright); }
+  .knode {
+    position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: rgba(244,234,213,0.06); border: 1.5px solid var(--parchment-dim);
+    border-radius: 10px; padding: 7px 9px; min-width: 54px;
+    font-size: 11px; font-weight: 600; color: var(--parchment-soft); text-align: center; line-height: 1.3;
+  }
+  .knode .kemoji { font-size: 22px; line-height: 1; }
+  .knode.good { border-color: var(--sage); color: var(--sage-glow); background: rgba(136,178,122,0.13); }
+  .knode.bad  { border-color: var(--crimson); color: var(--crimson-glow); background: rgba(193,74,90,0.13); }
+  .knode.gold { border-color: var(--gold); color: var(--gold-bright); background: rgba(232,183,109,0.13); }
+  .karrow { color: var(--gold); font-size: 22px; font-weight: 700; }
+  .kverdict {
+    position: absolute; top: -9px; left: -9px; width: 22px; height: 22px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; opacity: 0; z-index: 3;
+  }
+  .kverdict.good { background: var(--sage); color: var(--ink); }
+  .kverdict.bad  { background: var(--crimson); color: #fff; }
+  .ktag { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 20px; }
+  .ktag.red   { background: var(--crimson); color: #fff; }
+  .ktag.green { background: var(--sage); color: var(--ink); }
+  .kstamp {
+    position: absolute; top: -13px; left: 50%; background: var(--crimson); color: #fff;
+    font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.45); white-space: nowrap; z-index: 3;
+  }
+  .kbar {
+    position: relative; width: 86%; height: 34px; border: 1.5px solid var(--gold);
+    border-radius: 8px; overflow: hidden; background: rgba(244,234,213,0.05);
+  }
+  .kbar-fill {
+    position: absolute; top: 0; right: 0; height: 100%; width: 0;
+    background: linear-gradient(270deg, var(--crimson), var(--crimson-glow)); opacity: .55;
+  }
+  .kbar-lbl { position: absolute; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 700; color: var(--parchment); z-index: 2; }
+  .kchip { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 8px; }
+  .kchip.ok { background: rgba(136,178,122,0.18); color: var(--sage-glow); border: 1px solid var(--sage); animation: kFade 3.5s ease-in-out infinite; }
+  .kchip.no { background: rgba(193,74,90,0.18); color: var(--crimson-glow); border: 1px solid var(--crimson); }
+
+  @keyframes kFade   { 0%,15%{opacity:0} 35%,100%{opacity:1} }
+  @keyframes kPulse  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.13)} }
+  @keyframes kFloatUp{ 0%,30%{transform:translateY(0);opacity:1} 75%{transform:translateY(-34px);opacity:0} 100%{opacity:0} }
+  @keyframes kShake  { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 50%{transform:translateX(4px)} 75%{transform:translateX(-3px)} }
+  @keyframes kBleed  { 0%,18%{width:0} 68%,100%{width:100%} }
+  @keyframes kAppear { 0%,50%{opacity:0;transform:scale(.4)} 66%{opacity:1;transform:scale(1.25)} 80%,100%{opacity:1;transform:scale(1)} }
+  @keyframes kFlash  { 0%,100%{opacity:.25} 50%{opacity:1} }
+  @keyframes kStampC { 0%,40%{transform:translateX(-50%) translateY(-22px) scale(1.5);opacity:0} 56%{transform:translateX(-50%) translateY(0) scale(1);opacity:1} 70%{transform:translateX(-50%) scale(1.12)} 85%,100%{transform:translateX(-50%) scale(1);opacity:1} }
+
   .modal-empty {
     text-align: center;
     padding: 30px 20px;
@@ -1279,6 +1349,15 @@ amudim['42b'].tosafot = [
   {
     dh: 'הא במאן',
     content: `
+      <div class="kviz">
+        <div class="kviz-head">🎬 הקושיה בתנועה — של מי הברייתא ״שיריים מעכבן״?</div>
+        <div class="kviz-stage">
+          <div class="knode"><span class="kverdict bad" style="animation:kAppear 4.5s infinite .3s">✗</span><span class="kemoji">⚡</span>ר״מ<br><span style="opacity:.7">עבודה אחת מספיקה</span></div>
+          <div class="knode"><span class="kverdict bad" style="animation:kAppear 4.5s infinite 1.6s">✗</span><span class="kemoji">👥</span>חכמים<br><span style="opacity:.7">צריך כל 4</span></div>
+          <div class="knode"><span class="kverdict good" style="animation:kAppear 4.5s infinite 2.9s">✓</span><span class="kemoji">🧩</span>שיטה ג׳<br><span style="opacity:.7">שיריים=חלק מהקרבן</span></div>
+        </div>
+        <div class="kviz-cap">הברייתא לא מתאימה לר״מ ולא לחכמים — ולכן חייבת להיות <strong>שיטה שלישית</strong></div>
+      </div>
       <p><strong>הקשר בגמרא:</strong> במהלך הסוגיה הגמרא מצטטת ברייתא שאומרת <em>״שיריים מעכבן״</em> — השיריים של המנחה מעכבים את כפרת הקרבן. כלומר, אם השיריים נפסלו — הכפרה לא חלה.</p>
 
       <p><strong>הקושיה:</strong> תוספות שואלים — <em>מי</em> בדיוק התנא של הברייתא הזאת? לפי שיטת ר׳ מאיר היא לא יכולה להיות, כי הוא לא צריך שהשיריים יהיו תקפים — די לו במחשבת פיגול בעבודה אחת. ולפי חכמים גם זה לא הולך — הם דורשים מחשבת פיגול בכל ארבע העבודות, לא דרך השיריים.</p>
@@ -1291,6 +1370,16 @@ amudim['42b'].tosafot = [
   {
     dh: 'הקומץ',
     content: `
+      <div class="kviz">
+        <div class="kviz-head">🎬 הקושיה בתנועה — למה דווקא קומץ + לבונה?</div>
+        <div class="kviz-stage">
+          <div class="knode gold" style="animation:kPulse 3s ease-in-out infinite"><span class="kemoji">🤚</span>קומץ</div>
+          <div class="knode gold" style="animation:kPulse 3s ease-in-out infinite .5s"><span class="kemoji">🌿</span>לבונה</div>
+          <span class="karrow">←</span>
+          <div class="knode good"><span class="kemoji">🍞</span>מתירים את<br>אותם שיריים</div>
+        </div>
+        <div class="kviz-cap">זוג מושלם: שניהם מתירים את <strong>אותו דבר</strong>, נשרפים יחד, ותלויים זה בזה</div>
+      </div>
       <p><strong>הקשר בגמרא:</strong> הגמרא מתמקדת במחלוקת על קומץ ולבונה דווקא, למרות שהמשנה מונה שבעה דברים שאינם מתפגלים.</p>
 
       <p><strong>הקושיה:</strong> תוספות שואלים — אם הכלל אמור לחול על כל שבעת הדברים, למה הגמרא בוחרת להציג את כל המחלוקת דרך קומץ ולבונה דווקא? היה צריך להציג את המקרה הכי כללי, או לפחות את הראשון ברשימה. למה הזוג הזה?</p>
@@ -1308,6 +1397,18 @@ amudim['42b'].tosafot = [
   {
     dh: 'ר״מ אומר',
     content: `
+      <div class="kviz">
+        <div class="kviz-head">🎬 הקושיה בתנועה — איך ״שתיקה״ מתפגלת?</div>
+        <div class="kviz-stage" style="flex-direction:column;gap:6px">
+          <div class="kbar">
+            <div class="kbar-fill" style="animation:kBleed 4s ease-in-out infinite"></div>
+            <span class="kbar-lbl" style="right:9%">מחשבת פיגול</span>
+            <span class="kbar-lbl" style="right:60%">שתיקה</span>
+          </div>
+          <div style="font-size:11px;color:var(--parchment-dim)">⟵ מהלך הקמיצה</div>
+        </div>
+        <div class="kviz-cap">לר״מ: המחשבה בתחילת הקמיצה ״צובעת״ את <strong>כל</strong> הפעולה — גם החלק השקט</div>
+      </div>
       <p><strong>הקשר בגמרא:</strong> ר׳ מאיר אומר שפיגול חל גם כשהכהן עשה <em>מקצת</em> הקמיצה במחשבת פיגול ואת השאר בשתיקה. זה החידוש המהפכני שלו.</p>
 
       <p><strong>הקושיה:</strong> איך זה ייתכן? יש לנו כלל שמחשבת פיגול חייבת להיות <em>בעת המעשה</em>. בשלב השני — כשהכהן עושה את חצי הקמיצה השני — אין מחשבה! הוא שותק. אז מה גורם לפיגול בחלק הזה?</p>
@@ -1324,6 +1425,15 @@ amudim['42b'].tosafot = [
   {
     dh: 'אילו דברים',
     content: `
+      <div class="kviz">
+        <div class="kviz-head">🎬 הקושיה בתנועה — על מי ״נחתם״ הפיגול?</div>
+        <div class="kviz-stage">
+          <div class="knode"><span class="kverdict bad" style="top:-9px;right:-9px;left:auto;animation:kFlash 3s ease-in-out infinite">✗</span><span class="kemoji">🤚</span>קומץ<br><span style="opacity:.7">המתיר = תהליך</span></div>
+          <span class="karrow">←</span>
+          <div class="knode good"><span class="kstamp" style="animation:kStampC 3s ease-in-out infinite">פיגול</span><span class="kemoji">🍞</span>שיריים<br><span style="opacity:.7">המוצר הסופי</span></div>
+        </div>
+        <div class="kviz-cap">הפיגול חל על ה<strong>מוצר</strong> (שיריים) — לא על המתיר, שהוא רק תהליך</div>
+      </div>
       <p><strong>הקשר בגמרא:</strong> המשנה מציגה את הכלל הגדול — דברים שהם בעצמם ״מתירים״ אינם מתפגלים. הקומץ למשל הוא המתיר של השיריים.</p>
 
       <p><strong>הקושיה הראשונה:</strong> תוספות תוהים על ה״סתירה הלוגית״ — אם הקומץ הוא המתיר, ואם מחשבת פיגול בו פוסלת את השיריים — אז למה הקומץ עצמו לא נפסל? אותה מחשבה שגורמת לפיגול אצל השיריים — למה לא גורמת לפיגול אצל הקומץ?</p>
@@ -1498,6 +1608,17 @@ amudim['43a'].tosafot = [
   {
     dh: 'כל שיש לו מתירין',
     content: `
+      <div class="kviz">
+        <div class="kviz-head">🎬 הקושיה בתנועה — שני תנאים לפיגול</div>
+        <div class="kviz-stage">
+          <div class="knode gold" style="animation:kPulse 3.4s ease-in-out infinite"><span class="kemoji">🔑</span>תנאי א׳<br><span style="opacity:.7">יש מתיר כלשהו</span></div>
+          <span class="karrow">←</span>
+          <div class="knode gold" style="animation:kPulse 3.4s ease-in-out infinite 1.1s"><span class="kemoji">🎯</span>תנאי ב׳<br><span style="opacity:.7">המתיר הרלוונטי</span></div>
+          <span class="karrow">←</span>
+          <div class="knode good" style="animation:kFade 3.4s ease-in-out infinite 1.7s"><span class="kemoji">✓</span>פיגול חל</div>
+        </div>
+        <div class="kviz-cap">צריך את <strong>שני</strong> התנאים: גם שיהיה מתיר, וגם שהוא המתיר הנכון לפעולה</div>
+      </div>
       <p><strong>הקשר בגמרא:</strong> בסיום המשנה מופיע כלל גורף — ״כל שיש לו מתירין בין לאדם בין למזבח חייבין עליו משום פיגול״. כלומר: אם יש לדבר מישהו שמתיר אותו — בין לאכילה, בין להקטרה — הוא יכול להיות פיגול.</p>
 
       <p><strong>הקושיה:</strong> תוספות מקשים — אם הכלל באמת כולל ״בין לאדם בין למזבח״ באופן שווה, איך זה מסתדר עם מקרים בגמרא שבהם נראה שצריך דווקא סוג מסוים של מתיר? למשל, יש מקומות שבהם רואים שצריך מתיר לאכילה ספציפי. אם שני הסוגים שווים — למה ההלכה לפעמים מבדילה?</p>
@@ -1513,6 +1634,17 @@ amudim['43a'].tosafot = [
   {
     dh: 'דם האשם מתירו',
     content: `
+      <div class="kviz">
+        <div class="kviz-head">🎬 הקושיה בתנועה — דם האשם כ״מפתח״</div>
+        <div class="kviz-stage">
+          <div class="knode bad" style="animation:kPulse 3s ease-in-out infinite"><span class="kemoji">🔑</span>דם האשם</div>
+          <span class="karrow">←</span>
+          <div class="knode"><span class="kverdict good" style="animation:kAppear 3s ease-in-out infinite 1.2s">🔓</span><span class="kemoji">🫒</span>לוג שמן<br><span style="opacity:.7">קרבן עצמאי</span></div>
+          <span class="karrow">←</span>
+          <div class="knode good" style="animation:kFade 3s ease-in-out infinite 1.6s"><span class="kemoji">👆</span>בהונות<br>+ הקטרה</div>
+        </div>
+        <div class="kviz-cap">הדם הוא ה<strong>מפתח</strong> שמכניס את השמן לתהליך — וזה בדיוק תפקיד של ״מתיר״</div>
+      </div>
       <p><strong>הקשר בגמרא:</strong> ר׳ מאיר טוען שלוג שמן של מצורע <em>כן</em> מתפגל — בניגוד לר׳ שמעון. הסיבה: ״דם האשם מתירו״ — הדם של קרבן האשם של המצורע הוא ה״מתיר״ של השמן.</p>
 
       <p><strong>הקושיה הראשונה:</strong> תוספות שואלים — אם דם האשם הוא המתיר, הוא מתיר רק לדבר אחד (השמן). אבל בדרך כלל המושג ״מתיר״ מדבר על משהו שמתיר דבר <em>אחר</em> ונפרד. כאן השמן הוא חלק מתהליך המצורע, לא דבר נפרד עצמאי.</p>
@@ -1527,6 +1659,19 @@ amudim['43a'].tosafot = [
   {
     dh: 'פקע פיגולו',
     content: `
+      <div class="kviz">
+        <div class="kviz-head">🎬 הקושיה בתנועה — ״פקע פיגולו ממנו״</div>
+        <div class="kviz-stage" style="gap:6px">
+          <div class="knode">
+            <span class="ktag red" style="position:absolute;top:-12px;left:-6px;animation:kFloatUp 4s ease-in-out infinite 1.4s">פיגול</span>
+            <span class="ktag green" style="position:absolute;top:-12px;left:-6px;animation:kAppear 4s ease-in-out infinite 2.7s">כשר</span>
+            <span class="kemoji">🤚</span>קומץ
+          </div>
+          <span class="karrow">←</span>
+          <div class="knode" style="border:none;background:none"><span class="kemoji" style="animation:kPulse 1.5s ease-in-out infinite">🔥</span>אש המזבח</div>
+        </div>
+        <div class="kviz-cap">הקומץ עולה לאש → האש <strong>מנתקת</strong> את מחשבת הפיגול → חוזר להיות כשר</div>
+      </div>
       <p><strong>הקשר בגמרא:</strong> עולא משליך פצצה — ״קומץ פיגול שהעלהו על המזבח, פקע פיגולו ממנו״. כלומר: קומץ שכבר נעשה פיגול, ובטעות עלה לאש — הפיגול שלו ״ברח״!</p>
 
       <p><strong>הקושיה הראשונה:</strong> איך מציאות הלכתית של ״פיגול״ — שזה איסור חמור עם עונש כרת! — יכולה פתאום ״לפקוע״ בגלל שהקומץ עלה לאש? איסורים אינם מתבטלים מעצמם. צריך מקור מהתורה שיגיד שהאש מסלקת איסור.</p>
@@ -1543,6 +1688,20 @@ amudim['43a'].tosafot = [
   {
     dh: 'נותר וטמא',
     content: `
+      <div class="kviz">
+        <div class="kviz-head">🎬 הקושיה בתנועה — מה האש ״מאפסת״?</div>
+        <div class="kviz-stage" style="gap:14px">
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <div class="kchip ok">פיגול → ✓</div>
+            <div class="kchip ok" style="animation-delay:.3s">נותר → ✓</div>
+            <div class="kchip ok" style="animation-delay:.6s">טמא → ✓</div>
+            <div class="kchip no">🐷 חזיר → ✗</div>
+          </div>
+          <span class="karrow">←</span>
+          <div class="knode" style="border:none;background:none"><span class="kemoji" style="animation:kPulse 1.5s ease-in-out infinite">🔥</span>אש</div>
+        </div>
+        <div class="kviz-cap">האש מאפסת רק <strong>״מאכל מזבח״</strong> שנפסל במקרה — אבל חזיר מעולם לא היה ראוי</div>
+      </div>
       <p><strong>הקשר בגמרא:</strong> ר׳ יוחנן הרחיב את החידוש של עולא: לא רק פיגול נמחק על המזבח — גם <em>נותר</em> (בשר שעבר זמן) ו<em>טמא</em> (בשר שנגע בטומאה) — שלושתם מאבדים את האיסור על המזבח.</p>
 
       <p><strong>הקושיה הראשונה:</strong> תוספות תוהים — עולא דיבר על פיגול, איסור שמקורו <em>במחשבה</em>. אבל נותר וטמא הם איסורים מסוג שונה לחלוטין: נותר תלוי <em>בזמן</em> (זמן הקרבן עבר), טמא תלוי <em>במצב פיזי</em> (מגע בטומאה). למה ר׳ יוחנן מקבץ אותם יחד עם פיגול?</p>
@@ -1557,6 +1716,20 @@ amudim['43a'].tosafot = [
   {
     dh: 'אטו מזבח מקווה הוא',
     content: `
+      <div class="kviz">
+        <div class="kviz-head">🎬 הקושיה בתנועה — מזבח מול מקווה</div>
+        <div class="kviz-stage" style="gap:20px">
+          <div style="text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center">
+            <div class="knode gold" style="animation:kPulse 3s ease-in-out infinite"><span class="kemoji">💧</span>מקווה</div>
+            <div style="font-size:11px;color:var(--sage-glow)">טהור <strong>ושלם</strong> ✓</div>
+          </div>
+          <div style="text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center">
+            <div class="knode" style="border-color:var(--flame)"><span class="kemoji" style="animation:kPulse 1.5s ease-in-out infinite">🔥</span>מזבח</div>
+            <div style="font-size:11px;color:var(--warm)">טהור אך <strong>נשרף</strong> 🌫️</div>
+          </div>
+        </div>
+        <div class="kviz-cap">רבינא: האש דומה למקווה רק בהסרת האיסור — אבל מקווה <strong>משמר</strong>, ואש <strong>משמידה</strong></div>
+      </div>
       <p><strong>הקשר בגמרא:</strong> רב חסדא, שומע את החידוש של ר׳ יוחנן, חורק שיניים ומתפרץ: ״אטו מזבח מקווה הוא?!״ — האם המזבח הפך למקווה?!</p>
 
       <p><strong>הקושיה הראשונה:</strong> תוספות שואלים — למה רב חסדא כל-כך מזועזע? אם הרעיון של ר׳ יוחנן מבוסס — מה הבעיה?</p>
