@@ -1,0 +1,3012 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>זבחים — אנימציה לכל המסכת</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1410;
+    --ink-2: #221a14;
+    --parchment: #f4ead5;
+    --parchment-soft: #e8dcc0;
+    --parchment-dim: #b8a888;
+    --gold: #e8b76d;
+    --gold-bright: #f5d39a;
+    --gold-deep: #8a6638;
+    --gold-shadow: #5a4220;
+    --crimson: #c14a5a;
+    --crimson-glow: #e87080;
+    --sage: #88b27a;
+    --sage-glow: #a5cc97;
+    --sky: #7fb3d5;
+    --sky-glow: #a5cce0;
+    --warm: #e89a6d;
+    --flame: #ff9844;
+    --rashi: #c89568;
+    --tosafot: #8fa9c4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--parchment);
+    font-family: 'Heebo', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(232,183,109,0.1) 0%, transparent 60%),
+      linear-gradient(180deg, #1a1410 0%, #221a14 60%, #1a1410 100%);
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 12px 16px 110px;
+  }
+
+  /* ===== Header with navigator ===== */
+  header {
+    text-align: center;
+    padding: 8px 0 14px;
+    border-bottom: 1px solid rgba(232,183,109,0.18);
+    margin-bottom: 16px;
+  }
+
+  .masechet-name {
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    font-weight: 700;
+  }
+
+  .daf-nav {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .nav-arrow {
+    background: rgba(232,183,109,0.15);
+    border: 1px solid var(--gold);
+    color: var(--gold-bright);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .nav-arrow:active { transform: scale(0.92); }
+  .nav-arrow:disabled { opacity: 0.3; }
+
+  .daf-display {
+    text-align: center;
+    cursor: pointer;
+  }
+  .daf-display:active { opacity: 0.7; }
+
+  .daf-display h1 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-weight: 900;
+    font-size: clamp(18px, 5vw, 22px);
+    color: var(--parchment);
+  }
+
+  .daf-display .perek-name {
+    font-size: 11px;
+    color: var(--parchment-dim);
+    margin-top: 2px;
+  }
+
+  /* ===== Action bar (Translation/Rashi/Tosafot) ===== */
+  .action-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .action-btn {
+    padding: 12px 8px;
+    border-radius: 10px;
+    border: 1.5px solid;
+    background: rgba(20,16,10,0.5);
+    color: var(--parchment);
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .action-btn:active { transform: scale(0.97); }
+
+  .action-btn.trans {
+    border-color: var(--gold);
+    color: var(--gold-bright);
+  }
+  .action-btn.trans:hover { background: rgba(232,183,109,0.15); }
+
+  .action-btn.rashi {
+    border-color: var(--rashi);
+    color: var(--rashi);
+  }
+  .action-btn.rashi:hover { background: rgba(200,149,104,0.15); }
+
+  .action-btn.tos {
+    border-color: var(--tosafot);
+    color: var(--tosafot);
+  }
+  .action-btn.tos:hover { background: rgba(143,169,196,0.15); }
+
+  .action-btn .count {
+    background: rgba(0,0,0,0.3);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .action-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ===== Translation modal styling ===== */
+  .modal.trans { border-top-color: var(--gold); }
+  .modal.trans .modal-title { color: var(--gold-bright); }
+
+  .trans-section-header {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--gold);
+    margin: 18px 0 10px;
+    padding: 8px 12px;
+    background: rgba(232,183,109,0.1);
+    border-radius: 6px;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+
+  .trans-section-header:first-child { margin-top: 0; }
+
+  .trans-entry {
+    margin-bottom: 12px;
+    background: rgba(20,16,10,0.6);
+    border-radius: 10px;
+    padding: 12px 14px;
+    border-right: 2px solid var(--gold-deep);
+  }
+
+  .trans-aram {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 17px;
+    line-height: 1.85;
+    color: var(--gold-bright);
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed rgba(232,183,109,0.3);
+  }
+
+  .trans-heb {
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: var(--parchment-soft);
+  }
+  .trans-heb strong { color: var(--gold-bright); }
+
+  .trans-summary {
+    font-style: italic;
+    font-size: 14px;
+    color: var(--parchment-dim);
+    padding: 10px 14px;
+    background: rgba(232,183,109,0.04);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border-right: 2px dashed var(--gold-deep);
+    line-height: 1.65;
+  }
+
+  .trans-note {
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: rgba(127,179,213,0.06);
+    border: 1px dashed var(--sky);
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: var(--parchment-dim);
+    line-height: 1.6;
+  }
+  .trans-note strong { color: var(--sky-glow); }
+
+  /* ===== Stage ===== */
+  .stage { position: relative; min-height: 60vh; }
+  .scene { display: none; }
+  .scene.active {
+    display: block;
+    animation: gentleFade 0.3s ease-out both;
+  }
+  @keyframes gentleFade { from { opacity: 0; } to { opacity: 1; } }
+
+  .scene-tag {
+    display: inline-block;
+    background: var(--gold-deep);
+    color: var(--parchment);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  .scene-tag.q { background: var(--crimson); }
+  .scene-tag.a { background: var(--sage); color: var(--ink); }
+  .scene-tag.surprise { background: var(--flame); color: var(--ink); }
+
+  .scene-title {
+    font-family: 'Heebo', sans-serif;
+    font-weight: 900;
+    font-size: clamp(20px, 5.4vw, 26px);
+    color: var(--gold-bright);
+    margin-bottom: 12px;
+    line-height: 1.25;
+  }
+  .scene-title .accent { color: var(--parchment); }
+  .scene-title .flame-c { color: var(--flame); }
+  .scene-title .water-c { color: var(--sky-glow); }
+
+  .story {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--parchment-soft);
+    margin-bottom: 12px;
+  }
+  .story p { margin-bottom: 11px; }
+  .story strong { color: var(--gold-bright); font-weight: 700; }
+  .story em { color: var(--parchment); background: rgba(232,183,109,0.1); padding: 0 4px; border-radius: 3px; font-style: normal; }
+
+  .pic {
+    margin: 14px 0;
+    padding: 14px 10px;
+    background: radial-gradient(ellipse at center, rgba(232,183,109,0.08), transparent 75%);
+    border-radius: 12px;
+    text-align: center;
+  }
+  .pic svg { max-width: 100%; height: auto; }
+  .pic-caption {
+    font-size: 12px;
+    color: var(--gold);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  .bubble {
+    background: rgba(232,183,109,0.1);
+    border: 2px solid var(--gold);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--parchment);
+  }
+  .bubble.question { border-color: var(--crimson); background: rgba(193,74,90,0.08); }
+  .bubble.answer { border-color: var(--sage); background: rgba(136,178,122,0.08); }
+  .bubble.surprise { border-color: var(--flame); background: rgba(255,152,68,0.1); }
+
+  .bubble-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    background: var(--gold);
+    color: var(--ink);
+  }
+  .bubble.question .bubble-label { background: var(--crimson); color: var(--parchment); }
+  .bubble.answer .bubble-label { background: var(--sage); color: var(--ink); }
+  .bubble.surprise .bubble-label { background: var(--flame); color: var(--ink); }
+
+  .keyidea {
+    background: linear-gradient(135deg, rgba(232,183,109,0.12), rgba(232,183,109,0.04));
+    border: 2px dashed var(--gold);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    text-align: center;
+  }
+  .keyidea-label {
+    font-size: 12px;
+    color: var(--gold-bright);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .keyidea p { font-size: 15px; line-height: 1.6; color: var(--parchment); }
+  .keyidea strong { color: var(--gold-bright); }
+
+  /* List items */
+  .m-item {
+    display: grid;
+    grid-template-columns: 28px 32px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(20,16,10,0.4);
+    border-right: 2px solid var(--gold);
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .m-item .m-num { font-size: 13px; color: var(--gold); text-align: center; font-weight: 700; }
+  .m-item svg { width: 28px; height: 28px; color: var(--gold); }
+  .m-name { font-weight: 700; font-size: 15px; color: var(--parchment); }
+  .m-note { font-size: 11.5px; color: var(--parchment-dim); margin-top: 2px; }
+
+  .vs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .vs-card { padding: 10px; border-radius: 10px; text-align: center; }
+  .vs-card.a { background: rgba(232,183,109,0.1); border: 1.5px solid var(--gold); }
+  .vs-card.b { background: rgba(127,179,213,0.1); border: 1.5px solid var(--sky); }
+  .vs-card .emoji { font-size: 26px; margin-bottom: 4px; }
+  .vs-card h5 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .vs-card.a h5 { color: var(--gold-bright); }
+  .vs-card.b h5 { color: var(--sky-glow); }
+  .vs-card p { font-size: 12.5px; color: var(--parchment-soft); line-height: 1.5; }
+
+  .sage-quote {
+    background: rgba(20,16,10,0.5);
+    border-left: 3px solid var(--gold-bright);
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin: 10px 0;
+  }
+  .sage-quote .sage-name { font-weight: 700; color: var(--gold-bright); font-size: 13px; margin-bottom: 4px; }
+  .sage-quote p { font-size: 14px; line-height: 1.6; color: var(--parchment); }
+
+  /* ===== Empty state for stubs ===== */
+  .stub {
+    text-align: center;
+    padding: 50px 20px;
+  }
+  .stub-icon { font-size: 56px; margin-bottom: 14px; opacity: 0.5; }
+  .stub h3 {
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--gold-bright);
+    margin-bottom: 8px;
+  }
+  .stub p {
+    color: var(--parchment-dim);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 360px;
+    margin: 0 auto 20px;
+  }
+  .stub .stub-perek {
+    background: rgba(232,183,109,0.08);
+    border: 1px solid rgba(232,183,109,0.25);
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-top: 10px;
+  }
+  .stub .stub-perek-label {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    margin-bottom: 4px;
+  }
+  .stub .stub-perek-name {
+    font-size: 16px;
+    color: var(--parchment);
+    font-weight: 700;
+  }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    max-height: 90vh;
+    background: var(--ink-2);
+    border-top: 2px solid;
+    border-radius: 18px 18px 0 0;
+    z-index: 51;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+  .modal.open { transform: translateY(0); }
+  .modal.rashi { border-top-color: var(--rashi); }
+  .modal.tos { border-top-color: var(--tosafot); }
+
+  .modal-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(232,183,109,0.4);
+    border-radius: 2px;
+    margin: 10px auto 0;
+  }
+
+  .modal-header {
+    padding: 12px 18px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(232,183,109,0.15);
+  }
+  .modal-title {
+    font-family: 'Heebo', sans-serif;
+    font-weight: 900;
+    font-size: 20px;
+  }
+  .modal.rashi .modal-title { color: var(--rashi); }
+  .modal.tos .modal-title { color: var(--tosafot); }
+
+  .modal-close {
+    background: rgba(232,183,109,0.15);
+    border: none;
+    color: var(--parchment);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .modal-close:active { transform: scale(0.92); }
+
+  .modal-content {
+    overflow-y: auto;
+    padding: 16px 18px 24px;
+    flex: 1;
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .meforesh-entry {
+    padding: 12px 14px;
+    background: rgba(20,16,10,0.5);
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  .modal.rashi .meforesh-entry { border-right: 3px solid var(--rashi); }
+  .modal.tos .meforesh-entry { border-right: 3px solid var(--tosafot); }
+
+  .meforesh-dh {
+    display: inline-block;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .modal.rashi .meforesh-dh { background: var(--rashi); color: var(--ink); }
+  .modal.tos .meforesh-dh { background: var(--tosafot); color: var(--ink); }
+
+  .meforesh-content {
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--parchment-soft);
+  }
+  .meforesh-content p { margin-bottom: 10px; }
+  .meforesh-content p:last-child { margin-bottom: 0; }
+  .meforesh-content strong { color: var(--gold-bright); }
+  .meforesh-content em { color: var(--parchment); background: rgba(232,183,109,0.08); padding: 0 3px; border-radius: 2px; font-style: normal; }
+
+  .modal-empty {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--parchment-dim);
+  }
+  .modal-empty .e-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.5; }
+
+  /* ===== Daf picker modal ===== */
+  .picker-modal {
+    position: fixed;
+    inset: 0;
+    background: var(--ink-2);
+    z-index: 60;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+  .picker-modal.open { transform: translateY(0); }
+
+  .picker-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(232,183,109,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .picker-title {
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--gold-bright);
+  }
+
+  .picker-content {
+    overflow-y: auto;
+    padding: 14px 18px 24px;
+    flex: 1;
+  }
+
+  .perek-section {
+    margin-bottom: 16px;
+  }
+
+  .perek-header {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--gold);
+    margin-bottom: 8px;
+    padding: 0 4px;
+  }
+
+  .daf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+    gap: 6px;
+  }
+
+  .daf-btn {
+    padding: 10px 4px;
+    background: rgba(20,16,10,0.5);
+    border: 1px solid rgba(232,183,109,0.2);
+    border-radius: 6px;
+    color: var(--parchment);
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .daf-btn:active { transform: scale(0.95); }
+  .daf-btn.current {
+    background: var(--gold);
+    color: var(--ink);
+    border-color: var(--gold);
+  }
+  .daf-btn.has-content::after {
+    content: "•";
+    display: block;
+    color: var(--sage-glow);
+    font-size: 11px;
+    margin-top: -2px;
+  }
+
+  /* ===== Bottom navigation ===== */
+  .nav {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background: linear-gradient(180deg, transparent, var(--ink) 40%);
+    padding: 22px 18px 18px;
+    z-index: 10;
+  }
+
+  .nav-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .nav-btn {
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  }
+  .nav-btn:active { transform: scale(0.92); }
+  .nav-btn:disabled { opacity: 0.3; }
+
+  .progress {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(232,183,109,0.3);
+    transition: background 0.25s, width 0.25s, border-radius 0.25s;
+    cursor: pointer;
+  }
+  .dot.active {
+    background: var(--gold);
+    width: 20px;
+    border-radius: 4px;
+  }
+
+  .scene-counter {
+    text-align: center;
+    font-size: 11px;
+    color: var(--parchment-dim);
+    margin-top: 10px;
+  }
+
+  /* ===== Tabs ===== */
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 4px;
+    background: rgba(20,16,10,0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(232,183,109,0.18);
+  }
+
+  .tab {
+    padding: 10px 8px;
+    background: transparent;
+    border: none;
+    color: var(--parchment-dim);
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.25s, color 0.25s;
+  }
+  .tab:active { transform: scale(0.97); }
+  .tab.active {
+    background: var(--gold-deep);
+    color: var(--parchment);
+  }
+
+  /* Hide masechet-only sections when in tutorial mode */
+  body.tutorial-mode .masechet-only { display: none; }
+
+  /* ===== Tutorial: terms (clickable Aramaic) ===== */
+  .term {
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 5px;
+    transition: background 0.2s;
+    border-bottom: 2px dotted;
+    display: inline-block;
+  }
+  .term.statement { background: rgba(232,183,109,0.15); border-color: var(--gold); color: var(--gold-bright); }
+  .term.question { background: rgba(193,74,90,0.15); border-color: var(--crimson); color: var(--crimson-glow); }
+  .term.answer { background: rgba(136,178,122,0.15); border-color: var(--sage); color: var(--sage-glow); }
+  .term.source { background: rgba(127,179,213,0.15); border-color: var(--sky); color: var(--sky-glow); }
+  .term.distinction { background: rgba(176,143,196,0.15); border-color: #b08fc4; color: #b08fc4; }
+  .term.conclusion { background: rgba(232,154,109,0.15); border-color: var(--warm); color: var(--warm); }
+  .term:active { transform: scale(0.95); }
+
+  /* ===== Tutorial: gemara text block ===== */
+  .gem-block {
+    background: rgba(244,234,213,0.04);
+    border: 1px solid rgba(232,183,109,0.25);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 12px 0;
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 18px;
+    line-height: 2;
+    color: var(--parchment);
+  }
+
+  /* ===== Tutorial: step-by-step ===== */
+  .step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    background: rgba(20,16,10,0.5);
+    border-radius: 10px;
+    border-right: 3px solid var(--gold);
+  }
+  .step-num {
+    font-weight: 700;
+    color: var(--gold);
+    font-size: 16px;
+    text-align: center;
+    padding-top: 2px;
+  }
+  .step-aram {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 17px;
+    color: var(--gold-bright);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .step-trans {
+    font-size: 13px;
+    color: var(--parchment-soft);
+    margin-bottom: 6px;
+  }
+  .step-fn {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .step-fn.statement { background: rgba(232,183,109,0.2); color: var(--gold-bright); }
+  .step-fn.question { background: rgba(193,74,90,0.2); color: var(--crimson-glow); }
+  .step-fn.answer { background: rgba(136,178,122,0.2); color: var(--sage-glow); }
+  .step-fn.source { background: rgba(127,179,213,0.2); color: var(--sky-glow); }
+  .step-fn.distinction { background: rgba(176,143,196,0.2); color: #b08fc4; }
+  .step-fn.conclusion { background: rgba(232,154,109,0.2); color: var(--warm); }
+  .step-expl {
+    font-size: 14px;
+    color: var(--parchment-soft);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+  .step-expl strong { color: var(--gold-bright); }
+  .step-expl em { color: var(--parchment); font-style: normal; }
+
+  /* ===== Tutorial: vocab cards ===== */
+  .vocab-card {
+    background: rgba(20,16,10,0.4);
+    border: 1px solid rgba(232,183,109,0.2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .vocab-aram {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold-bright);
+    margin-bottom: 4px;
+  }
+  .vocab-pron {
+    font-size: 11px;
+    color: var(--parchment-dim);
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+  .vocab-mean {
+    font-size: 14.5px;
+    color: var(--parchment);
+    margin-bottom: 6px;
+  }
+  .vocab-fn {
+    font-size: 12px;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .vocab-example {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: rgba(244,234,213,0.04);
+    border-right: 2px solid var(--gold);
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .vocab-example em {
+    font-family: 'Frank Ruhl Libre', serif;
+    color: var(--gold-bright);
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  /* ===== Tutorial: patterns ===== */
+  .pattern {
+    background: rgba(232,183,109,0.05);
+    border-radius: 10px;
+    padding: 12px;
+    margin: 12px 0;
+  }
+  .pattern-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--gold-bright);
+    margin-bottom: 8px;
+  }
+  .pattern-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .pattern-step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 10px;
+    border-radius: 6px;
+  }
+  .pattern-step.q { background: rgba(193,74,90,0.1); border-right: 2px solid var(--crimson); }
+  .pattern-step.a { background: rgba(136,178,122,0.1); border-right: 2px solid var(--sage); }
+  .pattern-step.s { background: rgba(127,179,213,0.1); border-right: 2px solid var(--sky); }
+  .pattern-step.d { background: rgba(176,143,196,0.1); border-right: 2px solid #b08fc4; }
+  .pattern-step .p-icon { font-size: 16px; text-align: center; }
+  .pattern-step .p-label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--parchment);
+  }
+  .pattern-step .p-label small {
+    display: block;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--parchment-dim);
+    margin-top: 2px;
+  }
+  .pattern-arrow {
+    text-align: center;
+    color: var(--gold);
+    font-size: 11px;
+  }
+
+  /* ===== Tutorial: tip box ===== */
+  .tip {
+    background: linear-gradient(135deg, rgba(232,183,109,0.12), rgba(232,183,109,0.04));
+    border: 1px dashed var(--gold);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 12px 0;
+  }
+  .tip-label {
+    font-size: 12px;
+    color: var(--gold-bright);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .tip p {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--parchment-soft);
+  }
+
+  /* ===== Tutorial: legend ===== */
+  .legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin: 10px 0;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    padding: 7px 9px;
+    border-radius: 6px;
+  }
+  .legend-item .l-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-item.statement { background: rgba(232,183,109,0.08); }
+  .legend-item.statement .l-dot { background: var(--gold); }
+  .legend-item.question { background: rgba(193,74,90,0.08); }
+  .legend-item.question .l-dot { background: var(--crimson); }
+  .legend-item.answer { background: rgba(136,178,122,0.08); }
+  .legend-item.answer .l-dot { background: var(--sage); }
+  .legend-item.source { background: rgba(127,179,213,0.08); }
+  .legend-item.source .l-dot { background: var(--sky); }
+  .legend-item.distinction { background: rgba(176,143,196,0.08); }
+  .legend-item.distinction .l-dot { background: #b08fc4; }
+  .legend-item.conclusion { background: rgba(232,154,109,0.08); }
+  .legend-item.conclusion .l-dot { background: var(--warm); }
+
+  /* ===== Term modal ===== */
+  .modal.term { border-top-color: var(--gold); }
+  .modal.term .modal-title { color: var(--gold-bright); }
+
+  .modal-aram-big {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gold-bright);
+    margin-bottom: 6px;
+  }
+  .modal-pron {
+    font-size: 11px;
+    color: var(--parchment-dim);
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+  .modal-fn-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .modal-mean-text {
+    font-size: 15px;
+    color: var(--parchment);
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  .modal-use {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--parchment-soft);
+  }
+  .modal-use strong { color: var(--gold-bright); }
+  .modal-use em { color: var(--parchment); font-style: normal; }
+
+  /* ===== Kid-friendly explanation boxes ===== */
+  .kid-box {
+    margin: 14px 0;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border-right: 4px solid;
+  }
+  .kid-box.setup { background: rgba(232,183,109,0.1); border-color: var(--gold); }
+  .kid-box.question { background: rgba(193,74,90,0.1); border-color: var(--crimson); }
+  .kid-box.answer { background: rgba(136,178,122,0.1); border-color: var(--sage); }
+  .kid-box.bigidea { background: rgba(127,179,213,0.1); border-color: var(--sky); }
+  .kid-box.surprise { background: rgba(255,152,68,0.1); border-color: var(--flame); }
+
+  .kid-box .kid-icon {
+    font-size: 36px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .kid-box .kid-label {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+  .kid-box.setup .kid-label { color: var(--gold-bright); }
+  .kid-box.question .kid-label { color: var(--crimson-glow); }
+  .kid-box.answer .kid-label { color: var(--sage-glow); }
+  .kid-box.bigidea .kid-label { color: var(--sky-glow); }
+  .kid-box.surprise .kid-label { color: var(--flame); }
+
+  .kid-box p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--parchment);
+    margin-bottom: 10px;
+  }
+  .kid-box p:last-child { margin-bottom: 0; }
+  .kid-box strong { color: var(--gold-bright); }
+  .kid-box em { color: var(--parchment-soft); font-style: italic; }
+
+  @keyframes flicker { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+  .flame-anim { animation: flicker 2s ease-in-out infinite; }
+
+  @media (max-width: 380px) {
+    .vs-grid { grid-template-columns: 1fr; }
+    .action-btn { font-size: 13px; padding: 10px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header>
+    <div class="masechet-name">מסכת זבחים</div>
+    <div class="daf-nav masechet-only">
+      <button class="nav-arrow" id="prevDafBtn" title="דף קודם">‹</button>
+      <div class="daf-display" id="dafDisplay">
+        <h1 id="dafTitle">—</h1>
+        <div class="perek-name" id="perekName">—</div>
+      </div>
+      <button class="nav-arrow" id="nextDafBtn" title="דף הבא">›</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="masechet">📚 לימוד הדף</button>
+      <button class="tab" data-tab="tutorial">🎓 איך לקרוא גמרא</button>
+    </div>
+  </header>
+
+  <div class="action-bar masechet-only">
+    <button class="action-btn trans" id="transBtn">
+      <span>📖 הדף</span>
+    </button>
+    <button class="action-btn rashi" id="rashiBtn">
+      <span>📜 רש״י</span>
+      <span class="count" id="rashiCount">0</span>
+    </button>
+    <button class="action-btn tos" id="tosBtn">
+      <span>📚 תוספות</span>
+      <span class="count" id="tosCount">0</span>
+    </button>
+  </div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="scene-counter" id="counter"></div>
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-btn" id="prevSceneBtn">◀</button>
+    <div class="progress" id="progress"></div>
+    <button class="nav-btn" id="nextSceneBtn">▶</button>
+  </div>
+</nav>
+
+<!-- Modals -->
+<div class="modal-overlay" id="modalOverlay"></div>
+
+<div class="modal trans" id="transModal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-title">📖 תרגום הדף</div>
+    <button class="modal-close" data-close="trans">✕</button>
+  </div>
+  <div class="modal-content" id="transContent"></div>
+</div>
+
+<div class="modal rashi" id="rashiModal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-title">📜 רש״י על הדף</div>
+    <button class="modal-close" data-close="rashi">✕</button>
+  </div>
+  <div class="modal-content" id="rashiContent"></div>
+</div>
+
+<div class="modal tos" id="tosModal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-title">📚 תוספות על הדף</div>
+    <button class="modal-close" data-close="tos">✕</button>
+  </div>
+  <div class="modal-content" id="tosContent"></div>
+</div>
+
+<div class="modal term" id="termModal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-title">📖 מילה במילון</div>
+    <button class="modal-close" data-close="term">✕</button>
+  </div>
+  <div class="modal-content" id="termContent"></div>
+</div>
+
+<!-- Daf picker -->
+<div class="picker-modal" id="pickerModal">
+  <div class="picker-header">
+    <div class="picker-title">בחר דף</div>
+    <button class="modal-close" data-close="picker">✕</button>
+  </div>
+  <div class="picker-content" id="pickerContent"></div>
+</div>
+
+<script>
+// =======================================================
+// PEREK DATA
+// =======================================================
+const perakim = [
+  { num: 1, name: 'כל הזבחים שלא לשמן', start: 2, startAmud: 'a' },
+  { num: 2, name: 'כל הזבחים שקבלו דמן', start: 13, startAmud: 'a' },
+  { num: 3, name: 'כל הפסולין', start: 27, startAmud: 'a' },
+  { num: 4, name: 'בית שמאי', start: 36, startAmud: 'b' },
+  { num: 5, name: 'איזהו מקומן', start: 47, startAmud: 'a' },
+  { num: 6, name: 'קדשי קדשים', start: 58, startAmud: 'a' },
+  { num: 7, name: 'חטאת העוף', start: 64, startAmud: 'b' },
+  { num: 8, name: 'כל הזבחים שנתערבו', start: 70, startAmud: 'a' },
+  { num: 9, name: 'המזבח מקדש', start: 83, startAmud: 'a' },
+  { num: 10, name: 'כל התדיר', start: 89, startAmud: 'a' },
+  { num: 11, name: 'דם חטאת', start: 92, startAmud: 'a' },
+  { num: 12, name: 'טבול יום', start: 98, startAmud: 'b' },
+  { num: 13, name: 'השוחט והמעלה', start: 106, startAmud: 'a' },
+  { num: 14, name: 'פרת חטאת', start: 112, startAmud: 'a' }
+];
+
+function getPerekFor(daf, amud) {
+  let p = perakim[0];
+  for (const perek of perakim) {
+    if (perek.start < daf || (perek.start === daf && perek.startAmud === 'a' && amud === 'a') || (perek.start === daf && perek.startAmud === amud)) {
+      p = perek;
+    } else {
+      break;
+    }
+  }
+  return p;
+}
+
+// =======================================================
+// AMUDIM DATA - generate stubs, then override
+// =======================================================
+const amudim = {};
+
+// Generate stubs for all 238 amudim (daf 2 to 120, both sides)
+for (let d = 2; d <= 120; d++) {
+  for (const a of ['a', 'b']) {
+    if (d === 120 && a === 'b') continue; // Zevachim ends at 120b - we'll include it
+    const ref = `${d}${a}`;
+    amudim[ref] = {
+      daf: d,
+      amud: a,
+      scenes: [],
+      rashi: [],
+      tosafot: []
+    };
+  }
+}
+amudim['120b'] = { daf: 120, amud: 'b', scenes: [], rashi: [], tosafot: [] };
+
+// =======================================================
+// FULL CONTENT: Daf 42b
+// =======================================================
+amudim['42b'].scenes = [
+  {
+    tag: 'פתיחה',
+    title: 'מה זה <span class="accent">פיגול</span>?',
+    html: `
+      <div class="story">
+        <p>בבית המקדש הכהן מקריב קרבן. אם הוא חושב מחשבת פסול (למשל ״אני אוכל את זה מחר במקום היום״) באחת העבודות — הקרבן נפסל. זה נקרא <strong>פיגול</strong>.</p>
+        <p>בקרבן בעלי-חיים יש <strong>ארבע עבודות יסוד</strong>: שחיטה, קבלת הדם, הולכת הדם, וזריקת הדם. השאלה: כמה מחשבות פסולות צריך כדי לפגל?</p>
+      </div>
+      <div class="keyidea">
+        <div class="keyidea-label">🎯 השאלה המרכזית בדף</div>
+        <p>אם הכהן חשב פיגול בחלק מהעבודות וחלק עשה בכשרות — מהו דין הקרבן?</p>
+      </div>
+    `
+  },
+  {
+    tag: 'מחלוקת',
+    title: 'ר׳ מאיר נגד <span class="accent">חכמים</span>',
+    html: `
+      <div class="vs-grid">
+        <div class="vs-card a">
+          <div class="emoji">⚡</div>
+          <h5>ר׳ מאיר</h5>
+          <p>די במחשבת פסול ב<strong>עבודה אחת</strong> כדי לפסול את כל הקרבן</p>
+        </div>
+        <div class="vs-card b">
+          <div class="emoji">⚖️</div>
+          <h5>חכמים</h5>
+          <p>צריך מחשבת פסול ב<strong>כל ארבע</strong> העבודות</p>
+        </div>
+      </div>
+      <div class="story">
+        <p>זאת מחלוקת יסודית: ר׳ מאיר רואה את הקרבן כיחידה אחת — נקודה אחת של פסול מכתימה את כולו. חכמים רואים את הקרבן כצירוף של ארבעה שלבים — כל אחד עומד בפני עצמו.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'מקצת',
+    title: 'מחשבה ב<span class="accent">מקצת</span> העבודה',
+    html: `
+      <div class="story">
+        <p>הגמרא מעמיקה: מה הדין כשהכהן עשה מקצת המעשה במחשבת פסול ומקצת בשתיקה?</p>
+      </div>
+      <div class="bubble">
+        <div class="bubble-label">ר׳ מאיר</div>
+        <strong>״אין בו כרת עד שיפגל בשתיקה את הקומץ ואת הלבונה במחשבה״</strong> — די במחשבה אחת שמשפיעה גם על המעשה הנמשך בשתיקה.
+      </div>
+      <div class="bubble answer">
+        <div class="bubble-label">חכמים</div>
+        חולקים. צריך לפגל במפורש בכל מעשה ומעשה.
+      </div>
+    `
+  },
+  {
+    tag: 'משנה',
+    title: '״אלו דברים <span class="accent">שאין חייבין</span>״',
+    html: `
+      <div class="story">
+        <p>בסוף הדף מתחילה משנה חדשה. <strong>שבעה דברים</strong> שגם אם פיגלו בהם — לא חייבים עליהם כרת:</p>
+      </div>
+      <div class="m-item"><div class="m-num">1</div><div></div><div><div class="m-name">הקומץ</div><div class="m-note">מתיר את שיירי המנחה</div></div></div>
+      <div class="m-item"><div class="m-num">2</div><div></div><div><div class="m-name">הקטורת</div><div class="m-note">אין לה ״שיריים״ שיותרו</div></div></div>
+      <div class="m-item"><div class="m-num">3</div><div></div><div><div class="m-name">הלבונה</div><div class="m-note">כקומץ — מתיר את השיריים</div></div></div>
+      <div class="m-item"><div class="m-num">4</div><div></div><div><div class="m-name">מנחת כהנים</div><div class="m-note">כולה כליל</div></div></div>
+      <div class="m-item"><div class="m-num">5</div><div></div><div><div class="m-name">מנחת כהן משיח</div><div class="m-note">חביתי כהן גדול</div></div></div>
+      <div class="m-item"><div class="m-num">6</div><div></div><div><div class="m-name">מנחת נסכים</div><div class="m-note">אין לה מתיר עצמאי</div></div></div>
+      <div class="m-item"><div class="m-num">7</div><div></div><div><div class="m-name">הדם</div><div class="m-note">בעצמו המתיר של הבשר</div></div></div>
+      <div class="keyidea">
+        <div class="keyidea-label">⚖️ העיקרון</div>
+        <p><strong>״כל שיש לו מתירין״</strong> — מתפגל. <strong>״כל שאין לו מתירין״</strong> — אינו מתפגל.</p>
+      </div>
+    `
+  }
+];
+
+amudim['42b'].rashi = [
+  { dh: 'פיגול בקומץ', content: 'רש״י מסביר כאן באיזה מקרה הגמרא דנה — מי הוא הכהן הקומץ ובאיזה רגע נכנסה מחשבת הפסול. <strong>בקיצור:</strong> מדובר במצב שהכהן חושב על המנחה במהלך הקמיצה ש״אוכל ממנה מחר״ (חוץ לזמנו) או ״במקום אחר״ (חוץ למקומו).' },
+  { dh: 'הקומץ והלבונה', content: 'רש״י מבהיר ששני אלה <em>שניהם יחד</em> ה״מתירים״ של המנחה. הקומץ — הוא חופן הקמח שעולה למזבח. הלבונה — קטורת ריחנית שנלווית אליו. שניהם נשרפים, ורק אז שאר הקמח מותר לאכילת הכהנים.' },
+  { dh: 'במקצת', content: 'רש״י מסביר את המושג: כשהכהן עשה <strong>חלק</strong> מהקמיצה במחשבה ו<strong>חלק</strong> בשתיקה. ר׳ מאיר אומר שגם זה פיגול — המחשבה הראשונה ״צובעת״ גם את החלק השני שנעשה בשתיקה.' },
+  { dh: 'שאין חייבין', content: 'רש״י מדגיש שהמשנה אומרת ״אין חייבין״ — כלומר אין חיוב <em>כרת</em> על אכילתם. הם עדיין נפסלים בפיגול במובן שלא יקריבו אותם, אבל אין כרת לאוכלם.' }
+];
+
+amudim['42b'].tosafot = [
+  {
+    dh: 'הא במאן',
+    content: `
+      <p><strong>הקשר בגמרא:</strong> במהלך הסוגיה הגמרא מצטטת ברייתא שאומרת <em>״שיריים מעכבן״</em> — השיריים של המנחה מעכבים את כפרת הקרבן. כלומר, אם השיריים נפסלו — הכפרה לא חלה.</p>
+
+      <p><strong>הקושיה:</strong> תוספות שואלים — <em>מי</em> בדיוק התנא של הברייתא הזאת? לפי שיטת ר׳ מאיר היא לא יכולה להיות, כי הוא לא צריך שהשיריים יהיו תקפים — די לו במחשבת פיגול בעבודה אחת. ולפי חכמים גם זה לא הולך — הם דורשים מחשבת פיגול בכל ארבע העבודות, לא דרך השיריים.</p>
+
+      <p><strong>התירוץ:</strong> תוספות מציעים שזאת <strong>שיטה שלישית</strong> — דעת יחיד שלא הוצגה במחלוקת המרכזית. שיטה זו רואה את השיריים כחלק אינטגרלי מהמנחה — לא ״תוצר לוואי״ אלא חלק מהקרבן עצמו. ולכן ״עיכוב״ שלהם משמעותי כמו עיכוב של עבודה.</p>
+
+      <p><strong>השלכה:</strong> מהדיון הזה למדים שיש לפחות שלוש שיטות בסוגיית פיגול במנחה: ר׳ מאיר (אחת מספיקה), חכמים (צריך הכל), ושיטה שלישית (השיריים כחלק מהמערכת).</p>
+    `
+  },
+  {
+    dh: 'הקומץ',
+    content: `
+      <p><strong>הקשר בגמרא:</strong> הגמרא מתמקדת במחלוקת על קומץ ולבונה דווקא, למרות שהמשנה מונה שבעה דברים שאינם מתפגלים.</p>
+
+      <p><strong>הקושיה:</strong> תוספות שואלים — אם הכלל אמור לחול על כל שבעת הדברים, למה הגמרא בוחרת להציג את כל המחלוקת דרך קומץ ולבונה דווקא? היה צריך להציג את המקרה הכי כללי, או לפחות את הראשון ברשימה. למה הזוג הזה?</p>
+
+      <p><strong>התירוץ:</strong> תוספות מסבירים שהבחירה אינה אקראית — קומץ ולבונה הם <strong>״מודל פדגוגי״ מושלם</strong>:</p>
+
+      <p>• שניהם מתירים את <em>אותו הדבר</em> — השיריים<br>
+      • שניהם נשרפים יחד על המזבח<br>
+      • הם תלויים זה בזה — שניהם חייבים לעלות כדי שהשיריים יהיו מותרים<br>
+      • אם פיגלת באחד מהם — מה הדין של השני?</p>
+
+      <p><strong>השלכה:</strong> שאר חמשת הדברים במשנה (קטורת, מנחת כהנים וכו׳) אינם מצטרפים לזוגות כאלה — הם מקרים מבודדים. רק קומץ ולבונה יוצרים את ה״ניסיון״ ההלכתי שמדגים את הכלל בצורה הכי חדה.</p>
+    `
+  },
+  {
+    dh: 'ר״מ אומר',
+    content: `
+      <p><strong>הקשר בגמרא:</strong> ר׳ מאיר אומר שפיגול חל גם כשהכהן עשה <em>מקצת</em> הקמיצה במחשבת פיגול ואת השאר בשתיקה. זה החידוש המהפכני שלו.</p>
+
+      <p><strong>הקושיה:</strong> איך זה ייתכן? יש לנו כלל שמחשבת פיגול חייבת להיות <em>בעת המעשה</em>. בשלב השני — כשהכהן עושה את חצי הקמיצה השני — אין מחשבה! הוא שותק. אז מה גורם לפיגול בחלק הזה?</p>
+
+      <p><strong>תירוץ ראשון — ״צביעת המעשה״:</strong> ר׳ מאיר סובר שמחשבה אחת בתחילת הפעולה ״מתפשטת״ ומתפרשת על כל הפעולה. כאילו המחשבה ״מצפינה״ את כל הקמיצה — גם החלק שיעשה אחר-כך בשתיקה. כל עוד הכהן לא ביטל אותה במפורש.</p>
+
+      <p><strong>תירוץ שני — ״יחידת מעשה אחת״:</strong> או שזה בנוי על עיקרון אחר — הקמיצה היא <em>מעשה אחד</em> מבחינה הלכתית, גם אם יש לה שלבים. ולכן מספיק שתהיה מחשבת פיגול ברגע אחד שלה.</p>
+
+      <p><strong>ההבדל המעשי בין התירוצים:</strong> אם הכהן ביטל את המחשבה במפורש באמצע — לפי התירוץ הראשון החלק השני כשר. לפי השני — גם ביטול לא יעזור, כי המעשה כבר ״נצבע״ בתחילתו.</p>
+
+      <p><strong>קושיה נוספת ותירוצה:</strong> אם זה כך — איך חכמים חולקים? תוספות מסבירים שחכמים סוברים שהמעשה <em>מתחלק לשלבים</em>, וכל שלב הוא ״מעשה״ עצמאי לעניין פיגול. כל שלב צריך מחשבה משלו.</p>
+    `
+  },
+  {
+    dh: 'אילו דברים',
+    content: `
+      <p><strong>הקשר בגמרא:</strong> המשנה מציגה את הכלל הגדול — דברים שהם בעצמם ״מתירים״ אינם מתפגלים. הקומץ למשל הוא המתיר של השיריים.</p>
+
+      <p><strong>הקושיה הראשונה:</strong> תוספות תוהים על ה״סתירה הלוגית״ — אם הקומץ הוא המתיר, ואם מחשבת פיגול בו פוסלת את השיריים — אז למה הקומץ עצמו לא נפסל? אותה מחשבה שגורמת לפיגול אצל השיריים — למה לא גורמת לפיגול אצל הקומץ?</p>
+
+      <p><strong>הקושיה השנייה:</strong> גם אם הקומץ הוא ״המתיר״ — הוא בכל זאת חפץ פיזי שיכול להיות בעל פסול. למה הסטטוס שלו כ״מתיר״ מציל אותו מפיגול?</p>
+
+      <p><strong>התירוץ:</strong> תוספות מסבירים שזה לא ״סתירה״ אלא תכונה מהותית של ההגדרה ההלכתית של פיגול. פיגול הוא <em>תוצאה</em> של מתיר פסול — הוא חל על ה<strong>מוצר הסופי</strong> (השיריים) של מעשה פסול. המתיר עצמו, בהגדרה, אינו ״מוצר״ אלא ״תהליך״. ולכן הוא לא יכול להיות פיגול במובן ההלכתי.</p>
+
+      <p><strong>השלכה:</strong> זה מסביר גם את שאר הרשימה במשנה: קטורת, מנחת כהנים ומנחת כהן משיח — כולן ״עולות לאש״ בלי להותיר מוצר. לעומת זאת, מנחת ישראל יש בה ״תוצר״ (השיריים) ולכן <em>היא</em> יכולה להיות פיגול.</p>
+    `
+  }
+];
+
+// =======================================================
+// FULL CONTENT: Daf 43a
+// =======================================================
+amudim['43a'].scenes = [
+  {
+    tag: 'פתיחה',
+    title: 'דף חדש — <span class="accent">פצצה בגמרא</span>',
+    html: `
+      <div class="story">
+        <p>הדף ממשיך את המשנה מדף מ״ב על שבעת הדברים שלא מתפגלים, ופותח בכלל גדול: <strong>״כל שיש לו מתירין — בין לאדם בין למזבח — חייבין עליו משום פיגול״</strong>.</p>
+        <p>ואז הגמרא משליכה חידוש מפתיע: <strong>עולא טוען שהאש של המזבח יכולה למחוק את הפיגול עצמו!</strong> 🔥</p>
+      </div>
+      <div class="pic">
+        <svg viewBox="0 0 240 140" width="100%" height="140">
+          <g transform="translate(120, 80)">
+            <rect x="-35" y="0" width="70" height="40" stroke="var(--gold)" stroke-width="2" fill="rgba(232,183,109,0.08)"/>
+            <rect x="-40" y="-6" width="80" height="8" stroke="var(--gold)" stroke-width="2" fill="rgba(232,183,109,0.15)"/>
+            <g class="flame-anim">
+              <path d="M 0 -6 Q -12 -32 -2 -50 Q 0 -36 0 -28 Q 6 -42 14 -38 Q 10 -22 0 -6 Z" fill="var(--flame)" opacity="0.85"/>
+              <path d="M -6 -10 Q -12 -28 -4 -38 Q -2 -28 -2 -24 Q 0 -32 4 -30 Q 2 -20 -6 -10 Z" fill="var(--gold-bright)" opacity="0.7"/>
+            </g>
+          </g>
+          <text x="40" y="40" fill="var(--crimson-glow)" font-size="32" font-weight="700">?</text>
+          <text x="200" y="40" fill="var(--crimson-glow)" font-size="32" font-weight="700">?</text>
+        </svg>
+        <div class="pic-caption">האש המטהרת — שאלת הדף</div>
+      </div>
+    `
+  },
+  {
+    tag: 'מחלוקות',
+    title: 'שתי מחלוקות <span class="accent">במשנה</span>',
+    html: `
+      <div class="story">
+        <p>במשנה יש שתי מחלוקות פנימיות:</p>
+        <p><strong>מחלוקת 1 — נסכים:</strong></p>
+      </div>
+      <div class="vs-grid">
+        <div class="vs-card a">
+          <div class="emoji">🍷</div>
+          <h5>ר׳ מאיר</h5>
+          <p>רק נסכים <strong>בפני עצמם</strong> לא מתפגלים</p>
+        </div>
+        <div class="vs-card b">
+          <div class="emoji">🍷🐄</div>
+          <h5>חכמים</h5>
+          <p>אפילו נסכים <strong>עם קרבן</strong> לא מתפגלים</p>
+        </div>
+      </div>
+      <div class="story">
+        <p><strong>מחלוקת 2 — לוג שמן של מצורע:</strong></p>
+      </div>
+      <div class="vs-grid">
+        <div class="vs-card a">
+          <div class="emoji">🌿</div>
+          <h5>ר׳ שמעון</h5>
+          <p>לוג שמן <strong>לא</strong> מתפגל</p>
+        </div>
+        <div class="vs-card b">
+          <div class="emoji">🩸</div>
+          <h5>ר׳ מאיר</h5>
+          <p>לוג שמן <strong>כן</strong> מתפגל — דם האשם מתירו</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    tag: 'פצצה',
+    title: 'עולא משליך <span class="flame-c">פצצה</span>',
+    html: `
+      <div class="sage-quote">
+        <div class="sage-name">📜 עולא אומר</div>
+        <p><strong>״קומץ פיגול שהעלהו על המזבח — פקע פיגולו ממנו״</strong></p>
+        <p style="margin-top: 6px; font-size: 12px; color: var(--parchment-dim);">קומץ שכבר נעשה פיגול, ובטעות עלה על המזבח — הפיגול ״ברח״ ממנו!</p>
+      </div>
+      <div class="story">
+        <p>הגיון של עולא: אם הקומץ הזה יכול להפוך דברים אחרים לפיגול (את השיריים), <strong>קל וחומר</strong> שצריך להיות יכול להיות פיגול בעצמו. אבל המשנה אומרת שלא — אז למה?</p>
+      </div>
+      <div class="bubble answer">
+        <div class="bubble-label">💡 התשובה</div>
+        כי <strong>האש של המזבח</strong> ״מנקה״ אותו. ברגע שהוא עולה לאש — הפיגול בורח.
+      </div>
+    `
+  },
+  {
+    tag: 'הרחבה',
+    title: 'ר׳ יוחנן <span class="flame-c">מרחיב</span>',
+    html: `
+      <div class="sage-quote">
+        <div class="sage-name">📜 רב יצחק בשם ר׳ יוחנן</div>
+        <p><strong>״פיגול, נותר וטמא — שעלו על גבי המזבח, פקע איסורן מהן״</strong></p>
+      </div>
+      <div class="story">
+        <p>ר׳ יוחנן מזהה <strong>שלושה איסורים</strong> שהאש מטהרת:</p>
+      </div>
+      <div class="m-item"><div class="m-num">1</div><div></div><div><div class="m-name">פיגול</div><div class="m-note">קרבן שנפסל במחשבת חוץ לזמנו</div></div></div>
+      <div class="m-item"><div class="m-num">2</div><div></div><div><div class="m-name">נותר</div><div class="m-note">בשר שנשאר אחרי הזמן</div></div></div>
+      <div class="m-item"><div class="m-num">3</div><div></div><div><div class="m-name">טמא</div><div class="m-note">בשר שנגע בטומאה</div></div></div>
+      <div class="keyidea">
+        <div class="keyidea-label">🔥 העיקרון</div>
+        <p>אסור להעלות את אלה לכתחילה. <strong>אבל אם כבר עלו</strong> — האש מתקנת, האיסור מסתלק.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'התנגדות',
+    title: '״<span class="accent">מזבח</span> נעשה <span class="water-c">מקווה</span>?״',
+    html: `
+      <div class="sage-quote">
+        <div class="sage-name">😱 רב חסדא קופץ</div>
+        <p style="font-size: 17px; color: var(--crimson-glow); font-weight: 700;">״אטו מזבח מקווה הוא?!״</p>
+        <p style="margin-top: 6px; font-size: 12px; color: var(--parchment-dim);">מה זה?! המזבח הפך למקווה?!</p>
+      </div>
+      <div class="story">
+        <p>רב חסדא מקשה: <strong>מים</strong> זה כלי טיהור. <strong>אש</strong> זה כלי השמדה. הם הפכים! איך אש יכולה לעשות את העבודה של מים?</p>
+      </div>
+      <div class="bubble question">
+        <div class="bubble-label">❓ הקושיה החריפה</div>
+        אם כל מה שעולה לאש מתטהר — אז המזבח הוא כמו מקווה! זה רעיון חדש לגמרי שאין לו מקור.
+      </div>
+    `
+  },
+  {
+    tag: 'מסקנה',
+    title: 'רבינא <span class="accent">פותר</span>',
+    html: `
+      <div class="story">
+        <p>אחרי דיון, <strong>רבינא</strong> מסכים עם ר׳ יוחנן אבל מסביר את ההבדל:</p>
+      </div>
+      <div class="vs-grid">
+        <div class="vs-card b">
+          <div class="emoji">💧</div>
+          <h5>מקווה</h5>
+          <p>מטהר אותך <strong>בשלמותך</strong> — נכנס שלם, יצא שלם וטהור</p>
+        </div>
+        <div class="vs-card a">
+          <div class="emoji">🔥</div>
+          <h5>אש המזבח</h5>
+          <p>מטהרת רק על-ידי <strong>השמדה</strong> — הקרבן ״נטהר״ ע״י שריפה</p>
+        </div>
+      </div>
+      <div class="keyidea">
+        <div class="keyidea-label">💎 הפשרה</div>
+        <p>שניהם יכולים לטהר — <strong>אבל ייחודה של מקווה</strong> שהיא משאירה אותך שלם, ללא מחיר.</p>
+      </div>
+    `
+  }
+];
+
+amudim['43a'].rashi = [
+  { dh: 'אלו דברים שאין חייבין', content: 'רש״י מסביר שכל הדברים הללו אינם מתפגלים כי <em>אין להם מתיר אחר</em> — הם בעצמם המתירים. הקומץ והלבונה מתירים את השיריים; הקטורת מנחת כהנים ומנחת כהן משיח כולן עולות לאש ואין מהן אכילה.' },
+  { dh: 'הנסכים הבאים בעצמן', content: 'רש״י מבהיר במה מדובר: יין ושמן שמקריבים <strong>בלי קרבן בעלי-חיים</strong>. אלה נסכים שבאים בפני עצמם, כגון בנדבת יחיד. למה לא מתפגלים? כי גם הם בעצמם המתירים.' },
+  { dh: 'דם האשם מתירו', content: 'רש״י על שיטת ר׳ מאיר ביחס ללוג שמן של מצורע. <strong>איך הדם מתיר את השמן?</strong> הדם של קרבן האשם של המצורע נותן על אזנו ובהונו, ורק אחר כך נותנים מהשמן. אז יש כאן שני שלבים — והדם הוא ה״מתיר״ של השמן.' },
+  { dh: 'קומץ פיגול', content: 'רש״י על דברי עולא — מסביר את המקרה במדויק: הכהן כבר עשה את המנחה לפיגול במחשבה, ואז הקריב את הקומץ הזה על המזבח. עולא חידש שהאש מסירה את הפיגול מהקומץ עצמו, גם אם הוא היה אסור במקור.' },
+  { dh: 'אטו מזבח', content: 'רש״י מסביר את התרעמותו של רב חסדא — הוא מזועזע מהרעיון שהאש יכולה ״לטהר״ כמו מקווה. <em>״אטו״</em> = ״האם״ בארמית, בלשון תמיהה. כלומר: ״האם באמת אתה מציע שמזבח = מקווה?!״' }
+];
+
+amudim['43a'].tosafot = [
+  {
+    dh: 'כל שיש לו מתירין',
+    content: `
+      <p><strong>הקשר בגמרא:</strong> בסיום המשנה מופיע כלל גורף — ״כל שיש לו מתירין בין לאדם בין למזבח חייבין עליו משום פיגול״. כלומר: אם יש לדבר מישהו שמתיר אותו — בין לאכילה, בין להקטרה — הוא יכול להיות פיגול.</p>
+
+      <p><strong>הקושיה:</strong> תוספות מקשים — אם הכלל באמת כולל ״בין לאדם בין למזבח״ באופן שווה, איך זה מסתדר עם מקרים בגמרא שבהם נראה שצריך דווקא סוג מסוים של מתיר? למשל, יש מקומות שבהם רואים שצריך מתיר לאכילה ספציפי. אם שני הסוגים שווים — למה ההלכה לפעמים מבדילה?</p>
+
+      <p><strong>התירוץ:</strong> הכלל של המשנה מתאר את הרמה <em>הראשונה</em> — מי בכלל ״ראוי״ להיות פיגול. ויש שני קריטריונים מצטרפים:</p>
+
+      <p>• <strong>קריטריון א׳ — כלל:</strong> שיהיה איזשהו מתיר — אחרת אין על מה לדבר, אין פיגול<br>
+      • <strong>קריטריון ב׳ — פרטי:</strong> שיהיה המתיר ה<em>רלוונטי</em> לפעולה הספציפית שאוכלים או מקטירים</p>
+
+      <p><strong>השלכה:</strong> שני התנאים צריכים להתקיים. בלי הראשון — אין הליך פיגול בכלל. בלי השני — יש פיגול אבל לא חל על המעשה הספציפי.</p>
+    `
+  },
+  {
+    dh: 'דם האשם מתירו',
+    content: `
+      <p><strong>הקשר בגמרא:</strong> ר׳ מאיר טוען שלוג שמן של מצורע <em>כן</em> מתפגל — בניגוד לר׳ שמעון. הסיבה: ״דם האשם מתירו״ — הדם של קרבן האשם של המצורע הוא ה״מתיר״ של השמן.</p>
+
+      <p><strong>הקושיה הראשונה:</strong> תוספות שואלים — אם דם האשם הוא המתיר, הוא מתיר רק לדבר אחד (השמן). אבל בדרך כלל המושג ״מתיר״ מדבר על משהו שמתיר דבר <em>אחר</em> ונפרד. כאן השמן הוא חלק מתהליך המצורע, לא דבר נפרד עצמאי.</p>
+
+      <p><strong>הקושיה השנייה:</strong> ואם השמן זקוק למתיר — הרי הוא הופך ל״מותר״. אבל למצורע השמן הוא חלק מהתהליך, לא ״מותר לאכילה״ במובן הרגיל של ״מותר לכהנים״.</p>
+
+      <p><strong>התירוץ:</strong> תוספות מסבירים שהשמן הוא <em>קרבן עצמאי</em> מבחינה הלכתית, אף שהוא בא יחד עם האשם. יש לו ״גוף״ של קרבן בפני עצמו: יש בו מתן בהונות (נותנים שמן על אזן ובוהן של המצורע), יש בו הקטרה. הדם של האשם הוא ה<strong>״מפתח״</strong> שמכניס אותו לתהליך — בלעדיו, השמן לא יכול לפעול. וזה בדיוק התפקיד של ״מתיר״.</p>
+
+      <p><strong>השלכה:</strong> ההיגיון של ר׳ מאיר הוא ״תהליך פותח״ במקום ״התרת אכילה״ — שמתיר זה כל מה שמכניס לתהליך. ר׳ שמעון חולק כי הוא מתמקד יותר במשמעות המסורתית של ״מתיר״ — דבר שמתיר אכילה ספציפית.</p>
+    `
+  },
+  {
+    dh: 'פקע פיגולו',
+    content: `
+      <p><strong>הקשר בגמרא:</strong> עולא משליך פצצה — ״קומץ פיגול שהעלהו על המזבח, פקע פיגולו ממנו״. כלומר: קומץ שכבר נעשה פיגול, ובטעות עלה לאש — הפיגול שלו ״ברח״!</p>
+
+      <p><strong>הקושיה הראשונה:</strong> איך מציאות הלכתית של ״פיגול״ — שזה איסור חמור עם עונש כרת! — יכולה פתאום ״לפקוע״ בגלל שהקומץ עלה לאש? איסורים אינם מתבטלים מעצמם. צריך מקור מהתורה שיגיד שהאש מסלקת איסור.</p>
+
+      <p><strong>הקושיה השנייה:</strong> ועוד — מהמשנה לכאורה משמע שהקומץ <em>בכלל לא מתפגל</em>. אז על מה עולא מדבר? אם מלכתחילה לא היה פיגול — מה זה אומר ש״פקע פיגולו״?</p>
+
+      <p><strong>תירוץ ראשון:</strong> תוספות מציעים שעולא לא דיבר על קומץ ש״נעשה פיגול״ סתם, אלא על מקרה ייחודי — הכהן הקריב את המנחה במחשבת פיגול, ומחשבה זו פסלה את <em>השיריים</em>. הקומץ עצמו אינו פיגול עצמאי (כי המשנה אומרת), אבל הוא <em>מקושר</em> למחשבת הפיגול. עולא חידש: ברגע שהקומץ הזה — הקשור למחשבת פיגול — עולה למזבח, האש ״מנתקת״ את הקשר וחוזר להיות קומץ ״רגיל״.</p>
+
+      <p><strong>תירוץ אלטרנטיבי:</strong> או שעולא מדבר על מקרה שבו יש פיגול גמור על הקומץ — והחידוש שלו: בניגוד למשמעות הפשוטה של המשנה, יש מקרים שבהם הקומץ <em>כן</em> נחשב פיגול. ובכל זאת, האש מפקיעה אותו.</p>
+
+      <p><strong>השלכה:</strong> יש כאן עקרון חדש בעולם הקודש — <strong>״טהרה תהליכית״</strong>. האש לא רק שורפת אלא <em>משנה את המעמד ההלכתי</em> של הדבר. זה רעיון מהפכני שיפותח בהמשך הסוגיה.</p>
+    `
+  },
+  {
+    dh: 'נותר וטמא',
+    content: `
+      <p><strong>הקשר בגמרא:</strong> ר׳ יוחנן הרחיב את החידוש של עולא: לא רק פיגול נמחק על המזבח — גם <em>נותר</em> (בשר שעבר זמן) ו<em>טמא</em> (בשר שנגע בטומאה) — שלושתם מאבדים את האיסור על המזבח.</p>
+
+      <p><strong>הקושיה הראשונה:</strong> תוספות תוהים — עולא דיבר על פיגול, איסור שמקורו <em>במחשבה</em>. אבל נותר וטמא הם איסורים מסוג שונה לחלוטין: נותר תלוי <em>בזמן</em> (זמן הקרבן עבר), טמא תלוי <em>במצב פיזי</em> (מגע בטומאה). למה ר׳ יוחנן מקבץ אותם יחד עם פיגול?</p>
+
+      <p><strong>הקושיה השנייה (חמורה יותר):</strong> טומאה היא איסור עם תורה שלמה של דיני טהרה. יש מקווה, יש הזאה, יש אפר פרה אדומה. איך פתאום אש המזבח ״מחליפה״ את כל המערכת הזאת?</p>
+
+      <p><strong>התירוץ:</strong> תוספות מסבירים שר׳ יוחנן מזהה <strong>מכנה משותף עמוק</strong>: כל שלושת האיסורים האלה — פיגול, נותר וטמא — הם איסורים שחלים על <em>״מאכל המזבח״</em> — דברים שכבר נכנסו למערכת ההקרבה. וברגע שמאכל המזבח עולה לאש, הוא חוזר למצבו היסודי — והאיסורים שדבקו בו במהלך התהליך נמחקים.</p>
+
+      <p><strong>תחימה חשובה:</strong> זה לא חל על כל איסור! חזיר שעלה למזבח לא יהפוך לטהור. הכלל חל רק על דברים ש<em>מלכתחילה ראויים</em> לאש המזבח, אבל נפסלו מסיבה מקרית (זמן, טומאה, מחשבה). אצל חזיר — הוא לעולם לא היה ״מאכל מזבח״, אז אין כאן ״חזרה למצב יסודי״.</p>
+    `
+  },
+  {
+    dh: 'אטו מזבח מקווה הוא',
+    content: `
+      <p><strong>הקשר בגמרא:</strong> רב חסדא, שומע את החידוש של ר׳ יוחנן, חורק שיניים ומתפרץ: ״אטו מזבח מקווה הוא?!״ — האם המזבח הפך למקווה?!</p>
+
+      <p><strong>הקושיה הראשונה:</strong> תוספות שואלים — למה רב חסדא כל-כך מזועזע? אם הרעיון של ר׳ יוחנן מבוסס — מה הבעיה?</p>
+
+      <p><strong>הקושיה השנייה:</strong> ועוד — אם רב חסדא חולק על ר׳ יוחנן, ובסופו של דבר רבינא מקבל את עמדת ר׳ יוחנן (עם תיקון) — אז למה הגמרא מביאה את ההתנגדות הזאת בכלל? איך זה תורם?</p>
+
+      <p><strong>התירוץ:</strong> תוספות מסבירים שההתנגדות של רב חסדא היא <strong>קריטית להבנת המסקנה הסופית</strong>. הוא מציב בעיה אמיתית — אם אש מטהרת ״כמו מקווה״, יש לזה השלכות אדירות לתורת הטהרות. אנשים יוכלו לטעון ש״מספיק לשרוף את הבגד הטמא״, או שכל אש מסוג אחר מטהרת. רב חסדא מגן על העיקרון שמקווה הוא כלי טיהור <em>ייחודי</em>.</p>
+
+      <p><strong>הפשרה של רבינא:</strong> רבינא לא דוחה את ההתנגדות — הוא <em>מתעדן</em> אותה. הוא אומר: כן, האש פעולתה דומה למקווה ב<strong>מובן צר</strong> — היא יכולה להסיר איסור מדבר שכבר נמצא ״במערכת הקודש״. <em>אבל יש למקווה ייחוד שאין לאש — השימור.</em> המקווה משאיר את הדבר שלם וטהור. האש דורשת השמדה.</p>
+
+      <p><strong>השלכה מעשית:</strong> בזכות הניסוח הזה, מה שלמדנו מר׳ יוחנן <strong>חל רק בהקשר המזבח</strong> (״מאכל מזבח״), ולא הופך לכלל גורף בתורת הטהרות. רב חסדא קיבל את התשובה כי היא תוחמת את הכלל למקום הנכון — ולא יוצרת ״הפתעות״ בשאר ההלכה.</p>
+    `
+  }
+];
+
+// =======================================================
+// CHAPTER STARTS - basic stubs with chapter context
+// (You can add more content here over time)
+// =======================================================
+
+// Add a simple topic line for each daf based on its perek
+function addPerekContext() {
+  for (const ref in amudim) {
+    const a = amudim[ref];
+    if (a.scenes.length > 0) continue; // skip if has content
+
+    const perek = getPerekFor(a.daf, a.amud);
+    a.scenes = [{
+      tag: `פרק ${perek.num}`,
+      title: `דף ${heb(a.daf)} ע״${a.amud === 'a' ? 'א' : 'ב'} — <span class="accent">${perek.name}</span>`,
+      html: `
+        <div class="stub">
+          <div class="stub-icon">📜</div>
+          <h3>תוכן עוד לא נכתב</h3>
+          <p>זהו תשתית מוכנה. ניתן להוסיף סצנות אנימציה, רש״י ותוספות לדף הזה.</p>
+          <div class="stub-perek">
+            <div class="stub-perek-label">הפרק שבו דף זה</div>
+            <div class="stub-perek-name">פרק ${perek.num} — ${perek.name}</div>
+          </div>
+        </div>
+      `
+    }];
+  }
+}
+
+function heb(n) {
+  const ones = ['', 'א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט'];
+  const tens = ['', 'י', 'כ', 'ל', 'מ', 'נ', 'ס', 'ע', 'פ', 'צ'];
+  const hundreds = ['', 'ק', 'ק״ק'];
+
+  if (n < 10) return ones[n];
+  if (n === 15) return 'ט״ו';
+  if (n === 16) return 'ט״ז';
+  if (n < 100) {
+    const t = Math.floor(n / 10);
+    const o = n % 10;
+    if (o === 0) return tens[t];
+    return tens[t] + '״' + ones[o];
+  }
+  // 100+
+  const h = Math.floor(n / 100);
+  const rest = n % 100;
+  if (rest === 0) return hundreds[h];
+  if (rest < 10) return hundreds[h] + '״' + ones[rest];
+  const t = Math.floor(rest / 10);
+  const o = rest % 10;
+  if (o === 0) return hundreds[h] + tens[t];
+  return hundreds[h] + tens[t] + ones[o];
+}
+
+addPerekContext();
+
+// =======================================================
+// TRANSLATION: Daf 44a — Full content
+// =======================================================
+amudim['44a'].translation = [
+  { type: 'section', title: 'המשך — אכילת מעשר ותרומה בטומאה' },
+  { type: 'quote',
+    aramaic: 'אמר זעירי: קלות — טומאת שרץ. חמורות — טומאת מת',
+    translation: '<strong>זעירי מסביר את הברייתא מסוף דף מ״ג:</strong> ה״קלות״ — זאת טומאת שרץ (טומאה שניה). ה״חמורות״ — זאת טומאת מת (אבי-אבות הטומאה).'
+  },
+  { type: 'quote',
+    aramaic: 'אילו נאמר טומאת שרץ ונאמר מעשר ותרומה ולא נאמרה טומאת מת — הייתי אומר על הקלות (=טומאת שרץ ומעשר) בלאו, ועל החמורות (=טומאת שרץ ותרומה) במיתה. ומדקלות על החמורות במיתה — חמורות נמי על הקלות במיתה',
+    translation: '<strong>החילוק:</strong> אילו התורה היתה מזכירה רק את טומאת שרץ — היינו חושבים: <br>• טמא-שרץ שאוכל מעשר (״הקל על הקל״) — רק לאו<br>• טמא-שרץ שאוכל תרומה (״הקל על החמור״) — חיוב מיתה<br>וב<em>קל וחומר</em>: אם הקל (שרץ) על החמור (תרומה) במיתה — אז גם החמור (מת) על הקל (מעשר) במיתה.'
+  },
+  { type: 'quote',
+    aramaic: 'לכך נאמרו חמורות',
+    translation: '<strong>למה התורה הזכירה גם טומאת מת:</strong> כדי <em>למנוע</em> את הקל וחומר הזה. התורה גילתה במפורש שטמא-מת שאוכל מעשר — רק לאו, לא מיתה.'
+  },
+
+  { type: 'section', title: 'דין הפיגול חל על דברים עם ״מתירין״' },
+  { type: 'quote',
+    aramaic: 'תנו רבנן: או אינו מביא אלא כיוצא בשלמים — מה שלמים מיוחדין נאכלין לשני ימים ולילה אחד, אף כל נאכל לשני ימים ולילה אחד. נאכל ליום ולילה מנין?',
+    translation: '<strong>ברייתא — לימוד דיני פיגול מקרבן שלמים:</strong><br>פיגול נאמר במפורש בתורה רק לגבי שלמים. אז אולי פיגול חל רק על קרבנות הדומים לשלמים (שנאכלים לשני ימים ולילה)? <br><strong>שאלה:</strong> מנין שזה כולל גם קרבנות הנאכלים יום אחד בלבד (כמו חטאת)?'
+  },
+  { type: 'quote',
+    aramaic: 'תלמוד לומר ״מבשר״ — כל ששירין נאכלין',
+    translation: '<strong>תשובה:</strong> מהמילה ״מבשר״ — כל קרבן שיש לו ״שיירים״ (חלקים שנאכלים אחרי שחלק עלה למזבח).'
+  },
+  { type: 'quote',
+    aramaic: 'עולה שאין שיריה נאכלין — מנין? תלמוד לומר ״זבח״',
+    translation: '<strong>שאלה:</strong> ומנין לכלול גם <em>עולה</em>, שאין לה שיריים (כי כולה עולה לאש)? <strong>תשובה:</strong> מהמילה ״זבח״.'
+  },
+  { type: 'quote',
+    aramaic: 'מנין לרבות העופות והמנחות, עד שאני מרבה לוג שמן של מצורע? תלמוד לומר ״אשר הם מקדישים לי״',
+    translation: '<strong>שאלה:</strong> ומנין לכלול עופות, מנחות, ואפילו לוג שמן של מצורע? <strong>תשובה:</strong> מהמילים ״אשר הם מקדישים לי״ — כל מה שמקדישים.'
+  },
+  { type: 'quote',
+    aramaic: 'ואתי נותר חילול חילול מטומאה, ואתי פיגול עון עון מנותר',
+    translation: '<strong>גזירות שוות:</strong> נותר נלמד מטומאה (״חילול-חילול״ — בשני המקרים יש לשון ״חילול״). ופיגול נלמד מנותר (״עון-עון״). שלושת הדינים — פיגול, נותר, טמא — מקושרים זה לזה.'
+  },
+  { type: 'quote',
+    aramaic: 'ומאחר שסופו לרבות כל דבר, למה נאמר שלמים מעתה?',
+    translation: '<strong>שאלה:</strong> אם בסוף לומדים שפיגול חל על הכל — למה התורה הזכירה דווקא שלמים?'
+  },
+  { type: 'quote',
+    aramaic: 'לומר לך: מה שלמים מיוחדים שיש להן מתירין בין לאדם בין למזבח — אף כל שיש לו מתירין בין לאדם בין למזבח חייבין עליהן משום פיגול',
+    translation: '<strong>תשובה:</strong> מקרבן שלמים לומדים שפיגול חל רק על דברים שיש להם <strong>מתיר</strong> — בין לאדם בין למזבח. כי לשלמים יש מתיר (הדם) שמתיר את הבשר לאכילה ואת האמורים להקטרה. <em>זה הכלל של המשנה!</em>'
+  },
+
+  { type: 'section', title: 'הפירוט — איזה קרבנות?' },
+  { type: 'quote',
+    aramaic: 'ומוציא אני את הקומץ ואת הלבונה והקטרת ומנחת כהנים ומנחת כהן משיח ומנחת נסכים והדם',
+    translation: '<strong>מי <em>לא</em> כלול:</strong> אותם דברים שנאמרו במשנה — קומץ, לבונה, קטורת, מנחת כהנים, מנחת כהן משיח, מנחת נסכים, ודם. כי אין להם מתיר אחר.'
+  },
+  { type: 'quote',
+    aramaic: 'ר״ש אומר: מה שלמים מיוחדין שיש בו על מזבח החיצון וחייבין עליו — אף כל שישנן על מזבח החיצון חייבין עליו משום פיגול. יצאו פרים הנשרפים ושעירים הנשרפים, הואיל שאין על מזבח החיצון כשלמים — אין חייבין עליו משום פיגול',
+    translation: '<strong>ר׳ שמעון מצמצם:</strong> פיגול חל רק על קרבנות שמוקטרים על המזבח <em>החיצוני</em> (כמו שלמים). יוצאים מהכלל פרים ושעירים הנשרפים — דמם נכנס למזבח <em>הפנימי</em>, ולכן לא חל עליהם פיגול.'
+  },
+
+  { type: 'section', title: 'דיון: ״כיוצא בשלמים״ — מה זה?' },
+  { type: 'quote',
+    aramaic: '[אמר מר] כיוצא בשלמים מאי ניהו? בכור — דנאכל לשני ימים ולילה אחד',
+    translation: '<strong>שאלה:</strong> מה נכלל ב״קרבנות כיוצא בשלמים״? <strong>תשובה:</strong> בכור, שגם הוא נאכל לשני ימים ולילה.'
+  },
+  { type: 'quote',
+    aramaic: 'במאי אתי? אי במה מצינו, איכא למיפרך: מה לשלמים שהן טעונין סמיכה ונסכים ותנופת חזה ושוק!',
+    translation: '<strong>שאלה:</strong> איך לומדים מבכור משלמים? אם ב״מה מצינו״ (היקש פשוט) — קשה, כי לשלמים יש דינים מיוחדים: סמיכה, נסכים, ותנופת חזה ושוק. בכור לא דומה!'
+  },
+  { type: 'quote',
+    aramaic: 'אלא מ״אם האכל יאכל״ — הני תרי כללי דסמיכי אהדדי נינהו',
+    translation: '<strong>תשובה:</strong> לומדים מהפסוק ״אם האכל יאכל״. יש כאן שני ״כללים״ צמודים עם ״פרט״ — וזה דורש מידת ״כלל ופרט וכלל״.'
+  },
+  { type: 'quote',
+    aramaic: 'אמר רבא: כדאמרי במערבא — כל מקום שאתה מוצא שני כללות הסמוכים זה לזה, הטל פרט ביניהם ודונם בכלל ופרט',
+    translation: '<strong>כלל חשוב — בשם רבא:</strong> ״כך אומרים בארץ ישראל: בכל מקום שיש שני כללים סמוכים — שים ביניהם את הפרט ודרוש כך.״ זאת תורה דרשנית חשובה.'
+  },
+
+  { type: 'section', title: 'לוג שמן של מצורע — מי התנא?' },
+  { type: 'quote',
+    aramaic: 'עד שאני מרבה לוג שמן של מצורע — הא מני? רבי מאיר היא',
+    translation: '<strong>שאלה:</strong> הברייתא כללה לוג שמן של מצורע — מי התנא? <strong>תשובה ראשונה:</strong> זה ר׳ מאיר.'
+  },
+  { type: 'quote',
+    aramaic: 'אימא סיפא: ומוציא אני מנחת נסכים והדם — אתאן לרבנן',
+    translation: '<strong>קושיה:</strong> אבל בהמשך הברייתא נשמטו ״מנחת נסכים״ — וזו שיטת חכמים, לא של ר׳ מאיר! התנא לא יכול להיות אותו אחד.'
+  },
+  { type: 'quote',
+    aramaic: 'דתניא: נסכי בהמה חייבין עליהן משום פיגול מפני שדם הזבח מתירן ליקרב — דברי רבי מאיר. אמרו לו: והלא אדם מביא את זבחיו היום ונסכין מיכן עד עשרה ימים! אמר להן: אף אני לא אמרתי אלא בבאין עם הזבח',
+    translation: '<strong>ברייתא מבהירה:</strong> ר׳ מאיר אומר שנסכי בהמה כן מתפגלים, כי הדם של הקרבן מתיר אותם. חכמים מקשים: אדם יכול להביא קרבן היום והנסכים עוד 10 ימים! ר׳ מאיר מתרץ: אני מדבר רק כשבאים יחד באותו יום.'
+  },
+
+  { type: 'section', title: 'תשובה שנייה — רב יוסף' },
+  { type: 'quote',
+    aramaic: 'אמר רב יוסף: הא מני — רבי היא. דאמר: לוג שמן של מצורע — מתנותיו שרו ליה. ומדמתנותיו שרו ליה — מתנותיו מפגלי ליה',
+    translation: '<strong>רב יוסף:</strong> הברייתא כתבית כשיטת רבי (=רבי יהודה הנשיא). לפי רבי: מתנות הדם של האשם מתירות את השמן. ומאחר שהן ה״מתיר״ — הן יכולות לפגל אותו.'
+  },
+  { type: 'quote',
+    aramaic: 'דתניא: לוג שמן של מצורע — מועלין בו עד שיזרוק הדם, נזרק הדם — לא נהנין ולא מועלין. רבי אומר: מועלין עד שיתן מתנותיו',
+    translation: '<strong>הברייתא של רבי:</strong> בדיני מעילה (שימוש בקודש): <br>• <strong>חכמים:</strong> מועלין בלוג השמן עד זריקת דם האשם.<br>• <strong>רבי:</strong> מועלין עד נתינת המתנות (מתן בהונות) — שזה מאוחר יותר.'
+  },
+
+  { type: 'section', title: 'קושיית ר׳ ירמיה' },
+  { type: 'quote',
+    aramaic: 'אמרוה קמיה דרבי ירמיה, אמר: גברא רבא כרב יוסף לימא כי הא מילתא?! הרי לוג הבא בפני עצמו, דלכ״ע מתנותיו שרו ליה — ולא מפגלין ליה!',
+    translation: '<strong>ר׳ ירמיה מקשה:</strong> ״אדם גדול כרב יוסף יאמר דבר כזה?!״ — הרי גם בלוג שמן הבא <em>בפני עצמו</em> (לא ביום האשם), כל החכמים מסכימים שהמתנות מתירות אותו — אבל הוא <em>לא</em> מתפגל!'
+  }
+];
+
+// =======================================================
+// TRANSLATION: Daf 44b — Full content
+// =======================================================
+amudim['44b'].translation = [
+  { type: 'section', title: 'המשך הקושיה — לוג הבא בפני עצמו' },
+  { type: 'quote',
+    aramaic: 'דתניא: לוג שמן של מצורע חייבין עליו משום פיגול מפני שדם מתירו לבהונות — דברי ר״מ. אמרו לו לר״מ: והלא אדם מביא אשמו עכשיו ולוג מיכן ועד עשרה ימים! אמר להן: אף אני לא אמרתי אלא בבא עם האשם',
+    translation: '<strong>הברייתא:</strong> ר״מ אומר שלוג השמן כן מתפגל — הדם מתירו לבהונות (לתת שמן על אזן ובוהן המצורע). חכמים: הרי אפשר להביא את האשם היום ולוג עוד 10 ימים! ר״מ: אני מדבר רק כשבא יחד עם האשם. <em>מסקנה: לוג הבא בפני עצמו לא מתפגל.</em>'
+  },
+
+  { type: 'section', title: 'שני תירוצים על קושיית ר׳ ירמיה' },
+  { type: 'quote',
+    aramaic: 'אלא א״ר ירמיה: לעולם ר״מ היא, וסמי מיכן ״נסכים״',
+    translation: '<strong>תירוץ ר׳ ירמיה עצמו:</strong> הברייתא היא כשיטת ר׳ מאיר. צריך <em>למחוק</em> את המילה ״נסכים״ מהברייתא (כי היא לא מתאימה לשיטתו).'
+  },
+  { type: 'quote',
+    aramaic: 'אמר אביי: לעולם לא תסמי. ותנא לוג הבא עם האשם, והוא הדין לנסכים הבאין עם הזבח. והדר תנא נסכים הבאין בפני עצמן, והוא הדין ללוג הבא בפני עצמו',
+    translation: '<strong>תירוץ אביי:</strong> אין צורך למחוק. הברייתא מדברת בשני מקרים: <br>(1) לוג הבא <em>עם</em> האשם — מתפגל. כך גם נסכים הבאים עם הזבח. <br>(2) נסכים הבאים <em>בפני עצמם</em> — לא מתפגלים. כך גם לוג הבא בפני עצמו. הברייתא מלמדת את שתי האפשרויות.'
+  },
+
+  { type: 'section', title: 'דברים אחרים שחל עליהם פיגול — מקור' },
+  { type: 'quote',
+    aramaic: 'חטאת העוף — דמה מתיר את בשרה לכהנים. מנא הני מילי?',
+    translation: '<strong>שאלה:</strong> מנין שחטאת העוף מתפגלת? הרי היא לא ״כיוצא בשלמים״.'
+  },
+  { type: 'quote',
+    aramaic: 'דתני לוי: ״כל קרבנם״ — לרבות לוג שמן של מצורע',
+    translation: '<strong>הברייתא של לוי על במדבר יח:</strong> ״כל קרבנם״ — המילה ״כל״ מרבה את לוג שמן של מצורע (שהוא חלק מתהליך טיהור המצורע).'
+  },
+  { type: 'quote',
+    aramaic: 'סלקא דעתך אמינא: ״מן האש״ כתב רחמנא, והאי לאו מותר מן האש הוא — קמ״ל',
+    translation: '<strong>החידוש:</strong> היה אפשר לחשוב שלוג השמן לא נכלל, כי הוא לא ״נותר מן האש״ (לא נשרף על המזבח). קמ״ל — הוא בכל זאת נכלל.'
+  },
+  { type: 'quote',
+    aramaic: '״לכל מנחתם״ — לרבות מנחת עומר ומנחת הקנאות',
+    translation: '<strong>הרחבה נוספת:</strong> ״לכל מנחתם״ מרבה את מנחת העומר (לפסח) ומנחת הקנאות (של סוטה). <em>החידוש:</em> היה אפשר לחשוב שהן לא נכללות כי הן לא לכפרה אלא לתפקיד אחר (להתיר תבואה חדשה, או לבדוק את הסוטה).'
+  },
+  { type: 'quote',
+    aramaic: '״ולכל חטאתם״ — לרבות חטאת העוף',
+    translation: '<strong>חטאת העוף:</strong> ״ולכל חטאתם״ — המילה ״כל״ מרבה גם חטאת העוף. <em>החידוש:</em> היה אפשר לחשוב שהיא ״נבילה״ (כי מליקה אינה שחיטה תקנית), אבל היא בכל זאת נכללת.'
+  },
+  { type: 'quote',
+    aramaic: '״לכל אשמם״ — לרבות אשם נזיר ואשם מצורע',
+    translation: '<strong>אשמים מיוחדים:</strong> ״לכל אשמם״ מרבה אשם נזיר ואשם מצורע. <em>החידוש:</em> אלה לא אשמות של חטא — אלא של מצב (טומאת נזיר, מצורע). היינו חושבים שלכהנים לא נותנים מהם. קמ״ל — כן.'
+  },
+  { type: 'quote',
+    aramaic: '״אשר ישיבו״ — זה גזל הגר. ״לך הוא יהיה״ — אפילו לקדש בו את האשה',
+    translation: '<strong>גזל הגר:</strong> אם גזל מגר ונשבע על שקר, וכשרצה לעשות תשובה — הגר כבר מת בלי יורשים — נותן את הגזל ועוד חומש לכהן. הוא רכוש הכהן לכל דבר, אפילו לקדש בו אישה.'
+  },
+
+  { type: 'section', title: 'ר׳ אלעזר — פיגול בחוץ ובפנים' },
+  { type: 'quote',
+    aramaic: 'תניא, ר׳ אלעזר אומר משום רבי יוסי הגלילי: פיגל בדבר הנעשה בחוץ — פיגל. פיגל בדבר הנעשה בפנים — לא פיגל',
+    translation: '<strong>ר׳ אלעזר משם ר׳ יוסי הגלילי — חידוש גדול:</strong> מחשבת פיגול חלה רק כשמכוונים על עבודה הנעשית <em>בחוץ</em> (בעזרה). מחשבת פיגול על עבודה הנעשית <em>בפנים</em> (בהיכל) — לא חלה.'
+  },
+  { type: 'quote',
+    aramaic: 'כיצד? היה עומד בחוץ ואמר ״הריני שוחט להזות מדמו למחר״ — לא פיגל. שמחשבה בחוץ בדבר הנעשה בפנים — לא פיגל',
+    translation: '<strong>דוגמה:</strong> שוחט בחוץ (העזרה — מקום השחיטה), אבל מתכוון להזות בפנים (היכל) למחר. <em>לא פיגול</em> — כי המחשבה היא על עבודה פנימית.'
+  },
+  { type: 'quote',
+    aramaic: 'היה עומד בפנים ואמר ״הריני מזה על מנת להקטיר אימורים ולשפוך שירים למחר״ — לא פיגל. שמחשבה בפנים בדבר הנעשה בחוץ',
+    translation: '<strong>דוגמה הפוכה:</strong> בפנים מזה דם, מתכוון להקטיר/לשפוך בחוץ למחר. <em>גם זה לא פיגול</em> — מחשבה בפנים על עבודה בחוץ.'
+  },
+  { type: 'quote',
+    aramaic: 'אבל היה עומד בחוץ ואמר ״הריני שוחט לשפוך שירים למחר או להקטיר אימורים למחר״ — פיגל. שמחשבה בחוץ בדבר הנעשה בחוץ',
+    translation: '<strong>פיגול כן:</strong> בחוץ שוחט, מתכוון לעבודה אחרת בחוץ למחר — <em>פיגול גמור!</em> שניהם בחוץ.'
+  },
+
+  { type: 'section', title: 'מקור הדין — ר׳ יהושע בן לוי' },
+  { type: 'quote',
+    aramaic: 'אמר ר׳ יהושע בן לוי: מאי קרא? ״כאשר יורם משור זבח השלמים״',
+    translation: '<strong>ר׳ יהושע בן לוי מביא מקור:</strong> מהפסוק ״כאשר יורם משור זבח השלמים״ (ויקרא ד).'
+  },
+  { type: 'quote',
+    aramaic: 'וכי מה למדנו משור זבח השלמים מעתה? אלא מקיש פר כהן משיח לשור זבח השלמים — מה שור זבח השלמים עד שיהו מעשיו ומחשבותיו על מזבח החיצון, אף פר כהן משיח עד שיהו מחשבותיו ומעשיו על המזבח החיצון',
+    translation: '<strong>שאלה:</strong> אבל אמורים של פר כהן משיח כתובים מפורש בתורה — למה צריך ללמוד משלמים? <strong>תשובה:</strong> ההיקש (השוואה) ללמדנו עיקרון: כמו ששלמים מתפגל רק אם המעשים והמחשבות הם על המזבח <em>החיצוני</em> — כך גם פר כהן משיח. <em>זה המקור לכלל של ר׳ אלעזר.</em>'
+  },
+
+  { type: 'section', title: 'הלכה' },
+  { type: 'quote',
+    aramaic: 'אמר רב נחמן אמר רבה בר אבוה אמר רב: הלכה כרבי אלעזר שאמר משום רבי יוסי',
+    translation: '<strong>פסק הלכה — שרשרת:</strong> רב → רבה בר אבוה → רב נחמן: הלכה כר׳ אלעזר משם ר׳ יוסי הגלילי. <em>פיגול חל רק על מחשבה בחוץ על עבודה בחוץ.</em>'
+  }
+];
+
+// =======================================================
+// TRANSLATION: Daf 42a — Full content
+// =======================================================
+amudim['42a'].translation = [
+  { type: 'section', title: 'הנושא: פיגול במקצת המתירים' },
+  { type: 'summary', text: 'הדף ממשיך סוגיה שהתחילה בדף מ״א ע״ב. הנושא: האם פיגול חל כשעשו רק חלק מההזיות (״מתנות״) של הקרבן במחשבת פיגול והשאר בכשרות?' },
+
+  { type: 'section', title: 'קושיה על ריש לקיש — קרבנות פנימיים' },
+  { type: 'quote',
+    aramaic: 'מיתיבי: במה דברים אמורים? בדמים הניתנין על מזבח החיצון. אבל דמים הניתנין על המזבח הפנימי — כגון ארבעים ושלש של יום הכיפורים ואחד עשר של פר כהן משיח ואחד עשר של פר העלם דבר של ציבור — פיגל בין בראשונה ובין בשניה ובין בשלישית, רבי מאיר אומר פיגול וחייבין עליו כרת. וחכמים אומרים אין בו כרת עד שיפגל בכל המתיר.',
+    translation: '<strong>הברייתא:</strong> הכלל ש״מחשבה אחת מספיקה לפגל״ נכון רק בדמים שמזים על המזבח <em>החיצוני</em>. בקרבנות שדמם נכנס למזבח הפנימי — יש 43 הזיות ביום הכיפורים, או 11 בפר כהן משיח ובפר העלם דבר. <br><strong>ר׳ מאיר:</strong> פיגול בכל אחת מהן — חייבים כרת. <br><strong>חכמים:</strong> צריך פיגול ב<em>כל</em> המתירים.'
+  },
+  { type: 'summary', text: '<strong>הקושיה על ריש לקיש:</strong> ר׳ מאיר כאן מחייב כרת אפילו אם פיגל רק בסט השני או השלישי — לא רק בראשון! זה סותר את ריש לקיש שאמר שכל ההמשך נעשה ״על דעת ראשונה״.' },
+
+  { type: 'section', title: 'תירוץ א׳ — ר׳ יצחק בר אבין' },
+  { type: 'quote',
+    aramaic: 'אמר רב יצחק בר אבין: הכא במאי עסקינן — כגון שפיגל בשחיטה, דחד מתיר הוא',
+    translation: '<strong>ר׳ יצחק בר אבין:</strong> מדובר במקרה ייחודי — הדם נשפך אחרי כל סט הזיות, ומביאים בעל-חיים חדש לכל המשך. הכהן פיגל ב<em>שחיטה</em> של הראשון/השני/השלישי. השחיטה היא מתיר עצמאי שלם.'
+  },
+  { type: 'quote',
+    aramaic: 'אי הכי מאי טעמא דרבנן?',
+    translation: '<strong>קושיה:</strong> אם זה כך, למה חכמים פוטרים?'
+  },
+  { type: 'quote',
+    aramaic: 'אמר רבא: מאן חכמים? רבי אליעזר היא',
+    translation: '<strong>רבא:</strong> ״חכמים״ כאן זה לא חכמים סתם — זה ר׳ אליעזר.'
+  },
+  { type: 'quote',
+    aramaic: 'דתנן: הקומץ והלבונה והקטורת ומנחת כהנים ומנחת כהן משיח ומנחת נסכים שהקריב מאחת מהן כזית בחוץ — חייב. ור׳ אליעזר פוטר עד שיקריב את כולן',
+    translation: '<strong>משנה במקום אחר:</strong> אם הקריב כזית מאחד מהדברים האלה בחוץ — חייב כרת. <strong>ר׳ אליעזר חולק:</strong> רק אם הקריב את כולם.'
+  },
+  { type: 'quote',
+    aramaic: 'והאמר רבא ומודה רבי אליעזר בדמים',
+    translation: '<strong>קושיה:</strong> אבל רבא בעצמו אמר שר׳ אליעזר מודה בדם! אז התירוץ הזה לא מתאים.'
+  },
+
+  { type: 'section', title: 'תירוץ ב׳ — רבא' },
+  { type: 'quote',
+    aramaic: 'אלא אמר רבא: כגון שפיגל בראשונה ושתק בשניה וחזר ופיגל בשלישית',
+    translation: '<strong>רבא נותן תירוץ חדש:</strong> המקרה הוא — הכהן פיגל מפורש בראשון ובשלישי, אבל בסט השני <em>שתק</em> (לא חשב פיגול ולא חשב כשרות).'
+  },
+  { type: 'summary', text: '<strong>החידוש של ר׳ מאיר:</strong> היינו חושבים שהשתיקה בסט השני מבטלת את הפיגול (כי לא חזר וחשב). קמ״ל — לא! המחשבה הראשונה ממשיכה לחול גם בסט השני בשתיקה.' },
+
+  { type: 'section', title: 'הקושיה של רב אשי' },
+  { type: 'quote',
+    aramaic: 'מתקיף לה רב אשי: מידי שתק קתני?!',
+    translation: '<strong>רב אשי מקשה:</strong> אבל הברייתא לא אומרת שהוא ״שתק״ בסט השני! היא אומרת ״פיגל בין בראשון בין בשני בין בשלישי״ — משמע שפיגל מפורש בכל אחד!'
+  },
+
+  { type: 'section', title: 'תירוץ ג׳ — רב אשי (גרסה ראשונה)' },
+  { type: 'quote',
+    aramaic: 'אלא אמר רב אשי: הכא במאי עסקינן — כגון שפיגל בראשונה ובשניה ובשלישית',
+    translation: '<strong>גרסת רש״י בזבחים:</strong> המקרה הוא שפיגל בכל שלושת הסטים הראשונים, אבל לא ברביעי (השיריים). התנא סובר שהשיריים ״מעכבים״ — או שמונה את 4 הקרנות בנפרד מ-7 ההזיות על ה״טהרו״.'
+  },
+  { type: 'quote',
+    aramaic: 'מהו דתימא אי ס״ד כל העושה על דעת ראשונה הוא עושה, מהדר פיגולי בכל חדא וחדא למה לי? קמ״ל',
+    translation: '<strong>החידוש:</strong> היה אפשר לחשוב שאם המחשבה הראשונה ״מתפשטת״, אז למה צריך לפגל מפורשות בכל סט? קמ״ל — שגם אם פיגל בכולן, החידוש הוא שמספיק שלוש מתוך ארבע (כי השיריים אינם מעכבים).'
+  }
+];
+
+// =======================================================
+// TRANSLATION: Daf 42b — Full content
+// =======================================================
+amudim['42b'].translation = [
+  { type: 'section', title: 'המשך מ-42א — קושיה לא פתורה' },
+  { type: 'quote',
+    aramaic: '(דף מב,ב) והא בין בין קתני!',
+    translation: '<strong>קושיה אחרונה:</strong> אבל הברייתא אמרה ״בין בראשונה <em>בין</em> בשניה <em>בין</em> בשלישית״ — לשון של ״או״, משמע שדי באחת מהן! הלא משמע שכל אחד עומד בפני עצמו, לא שצריך פיגול בשלושתם!'
+  },
+  { type: 'summary', text: '<strong>״קשיא״</strong> — הסוגיה משאירה את הקושיה הזאת פתוחה, ללא תירוץ. (קשיא אינו ״תיובתא״ — שיטת רב אשי לא נדחית סופית, אבל הקושיה לא נפתרה.)' },
+
+  { type: 'section', title: 'דיון חדש על ר׳ מאיר וכרת' },
+  { type: 'quote',
+    aramaic: 'אמר מר: רבי מאיר אומר פיגול וחייבין עליו כרת. מכדי כרת לא מיחייב עד שיקרבו כל מתיריו!',
+    translation: '<strong>קושיה גדולה:</strong> ר׳ מאיר אמר ש״פיגול וחייבים עליו כרת״. אבל הלא ידוע לנו כלל: <em>אין כרת אלא אם כן כל המתירים קרבו!</em>'
+  },
+  { type: 'quote',
+    aramaic: 'דאמר מר: כהרצאת כשר כך הרצאת פסול. מה הרצאת כשר עד שיקרבו כל מתיריו, אף הרצאת פסול עד שיקרבו כל מתיריו',
+    translation: '<strong>הכלל ממקור אחר:</strong> ״כהרצאת כשר כך הרצאת פסול״ — כפי שקרבן כשר זקוק לכל ארבע העבודות כדי להתקבל, כך גם הפיכת קרבן לפיגול דורשת את כל ארבע העבודות.'
+  },
+  { type: 'quote',
+    aramaic: 'והא כיון דחשיב ביה בפנים פסולה — כמאן דלא אדי דמי! כי הדר מדי בהיכל מיא בעלמא הוא דקא אדי',
+    translation: '<strong>החדדת הקושיה:</strong> ברגע שהכהן פיגל בהזיה אחת, שאר הדם נפסל. אם הוא ממשיך להזות — זה ״כמים בעלמא״! אז איך נחשב שכל ארבע העבודות נעשו?'
+  },
+
+  { type: 'section', title: 'תירוץ א׳ — רבה' },
+  { type: 'quote',
+    aramaic: 'אמר רבה: משכחת לה בארבעה פרים ובד׳ שעירים',
+    translation: '<strong>רבה:</strong> אפשר לקיים את שני הכללים אם מדובר ב<strong>ארבעה פרים וארבעה שעירים</strong> נפרדים (ביום הכיפורים). הדם של הראשון נשפך אחרי שפיגלו בו, מביאים פר חדש לסט השני, וכן הלאה — ארבע מערכות נפרדות.'
+  },
+
+  { type: 'section', title: 'תירוץ ב׳ — רבא' },
+  { type: 'quote',
+    aramaic: 'רבא אמר: אפילו תימא בפר אחד ושעיר אחד — לפיגולו מרצה',
+    translation: '<strong>רבא:</strong> אפשר אפילו בפר אחד ושעיר אחד. עיקרון: כשפיגלו בשחיטה — הזריקות שאחריה ״מרצות לפיגול״ (מצטרפות להפיכת הקרבן לפיגול גם אם הן ״פסולות״ בעצמן). אותו דבר אם פיגלו בהזיה הראשונה — שאר ההזיות מצטרפות.'
+  },
+
+  { type: 'section', title: 'סתירה: כמה הזיות בסך הכל?' },
+  { type: 'quote',
+    aramaic: 'ארבעים ושלש?! והא תניא ארבעים ושבע!',
+    translation: '<strong>קושיה:</strong> ר׳ מאיר אמר 43 הזיות, אבל ברייתא אחרת אומרת 47!'
+  },
+  { type: 'quote',
+    aramaic: 'הא כמאן דאמר מערבין לקרנות, והא כמאן דאמר אין מערבין לקרנות',
+    translation: '<strong>תירוץ:</strong> זאת מחלוקת. ר׳ מאיר (43) סובר ש״מערבין לקרנות״ — מערבבים את הדם של הפר והשעיר ומזים יחד. הברייתא של 47 סוברת שלא — מזים בנפרד.'
+  },
+  { type: 'quote',
+    aramaic: 'והא תניא ארבעים ושמונה!',
+    translation: '<strong>עוד סתירה:</strong> ברייתא שלישית אומרת 48!'
+  },
+  { type: 'quote',
+    aramaic: 'הא כמאן דאמר שיריים מעכבין, הא כמאן דאמר אין שיריים מעכבין',
+    translation: '<strong>תירוץ:</strong> זאת מחלוקת על השיריים — אם השארית שנשפכת ביסוד נחשבת ל״עוד הזיה״ הכרחית או לא.'
+  },
+
+  { type: 'section', title: 'פיגול בקומץ ובלבונה — קושיה על ריש לקיש' },
+  { type: 'quote',
+    aramaic: 'מיתיבי: במה דברים אמורים? בקמיצה, במתן כלי, ובהילוך. אבל בא לו להקטרה — נתן את הקומץ במחשבה ואת הלבונה בשתיקה, או שנתן את הקומץ בשתיקה ואת הלבונה במחשבה — רבי מאיר אומר פיגול וחייבין עליו כרת. וחכמים אומרים אין בו כרת עד שיפגל בכל המתיר',
+    translation: '<strong>הברייתא:</strong> במנחה — בקמיצה, בנתינה לכלי שרת, ובהולכה — די במחשבה באחת מאלה לפגל. אבל בהקטרה (כשמעלים את הקומץ והלבונה לאש) יש מחלוקת: <br><strong>אם:</strong> הכהן נתן את הקומץ במחשבת פיגול ואת הלבונה בשתיקה — <em>או להפך</em> — <br><strong>ר׳ מאיר:</strong> פיגול וחייבים כרת. <br><strong>חכמים:</strong> אין כרת עד שיפגל בשניהם.'
+  },
+  { type: 'quote',
+    aramaic: 'קתני מיהא: את הקומץ בשתיקה ואת הלבונה במחשבה — ופליג',
+    translation: '<strong>הקושיה על ריש לקיש:</strong> הברייתא מציינת מקרה שבו ר׳ מאיר מחייב כרת גם כשהקומץ נעשה <em>קודם</em> בשתיקה, ורק אחר כך נחשבה מחשבת פיגול בלבונה! זה סותר את ריש לקיש — לפי דבריו צריך שהמחשבה תקדם!'
+  },
+
+  { type: 'section', title: 'נסיון תירוץ' },
+  { type: 'quote',
+    aramaic: 'אימא: כבר נתן את הלבונה במחשבה',
+    translation: '<strong>תירוץ:</strong> אולי הכוונה היא שהלבונה נתנה במחשבת פיגול <em>קודם</em>, ורק אחר כך נתן את הקומץ בשתיקה. אז המחשבה הראשונה (בלבונה) ״צובעת״ את הקומץ.'
+  },
+  { type: 'quote',
+    aramaic: 'חדא: דהיינו רישא! ועוד: הא תניא — ואחר כך',
+    translation: '<strong>שתי קושיות על התירוץ:</strong><br>(1) זה זהה למקרה הראשון בברייתא — למה הברייתא חוזרת על עצמה?<br>(2) ברייתא אחרת אומרת מפורש ״ואחר כך״ — סדר הפעולות הוא: קודם הקומץ, אחר כך הלבונה. ולא להפך.'
+  },
+  { type: 'summary', text: '<strong>״קשיא״</strong> — שתי הקושיות נשארות לא פתורות. הסוגיה מסיימת כאן עם השארת הספק.' }
+];
+
+// =======================================================
+// TRANSLATION: Daf 43a — Full content
+// =======================================================
+amudim['43a'].translation = [
+  { type: 'section', title: 'המשנה — דברים שאין חייבים עליהם פיגול' },
+  { type: 'quote',
+    aramaic: '(משנה) ואלו דברים שאין חייבין עליהם משום פיגול: הקומץ, והקטרת, והלבונה, ומנחת כהנים, ומנחת כהן משיח, והדם',
+    translation: '<strong>המשנה מונה:</strong> דברים שלא חייבים עליהם כרת על פיגול (בעיקר כי אין להם מתיר אחר):<br>(1) הקומץ של מנחת ישראל<br>(2) הקטורת<br>(3) הלבונה<br>(4) מנחת כהנים (התנדבות)<br>(5) מנחת כהן משיח (חביתי כהן גדול)<br>(6) הדם'
+  },
+  { type: 'quote',
+    aramaic: 'והנסכים הבאין בפני עצמן — דברי רבי מאיר. וחכמים אומרים אף הבאין עם הבהמה',
+    translation: '<strong>נסכים:</strong> <br><strong>ר׳ מאיר:</strong> רק נסכים שבאים בנפרד מקרבן בהמה (בנדבה) אינם מתפגלים. <br><strong>חכמים:</strong> אפילו נסכים שבאים יחד עם בהמה — לא מתפגלים.'
+  },
+  { type: 'quote',
+    aramaic: 'לוג שמן של מצורע — ר׳ שמעון אומר אין חייבין עליו משום פיגול. ורבי מאיר אומר חייבין עליו משום פיגול, שדם האשם מתירו',
+    translation: '<strong>לוג שמן של מצורע:</strong> <br><strong>ר׳ שמעון:</strong> אין פיגול. <br><strong>ר׳ מאיר:</strong> יש פיגול! כי דם האשם של המצורע הוא ה״מתיר״ של השמן (הדם נותן לכהן רשות לתת מהשמן על אזן ובוהן המצורע).'
+  },
+
+  { type: 'section', title: 'הכלל הגדול של המשנה' },
+  { type: 'quote',
+    aramaic: 'וכל שיש לו מתירין — בין לאדם בין למזבח — חייבין עליו משום פיגול',
+    translation: '<strong>הכלל המרכזי:</strong> כל דבר שיש לו ״מתיר״ — בין שמתיר אותו לאכילת אדם, בין שמתיר אותו להקטרה על המזבח — חייבים עליו כרת על פיגול.'
+  },
+  { type: 'quote',
+    aramaic: 'העולה — דמה מתיר את בשרה למזבח ועורה לכהנים. עולת העוף — דמה מתיר את בשרה למזבח. חטאת העוף — דמה מתיר את בשרה לכהנים. פרים הנשרפים ושעירים הנשרפים — דמן מתיר את אימוריהן ליקרב',
+    translation: '<strong>דוגמאות:</strong><br>• <strong>עולה:</strong> הדם מתיר את הבשר להעלאה למזבח, ואת העור לכהנים.<br>• <strong>עולת העוף:</strong> הדם מתיר את הבשר למזבח.<br>• <strong>חטאת העוף:</strong> הדם מתיר את הבשר לכהנים.<br>• <strong>פרים ושעירים הנשרפים:</strong> הדם מתיר את האמורים (אברים פנימיים) להקטרה.'
+  },
+  { type: 'quote',
+    aramaic: 'ר׳ שמעון אומר: כל שאינו על המזבח החיצון כשלמים — אין חייבין עליו משום פיגול',
+    translation: '<strong>ר׳ שמעון מצמצם:</strong> פיגול חל רק על דברים שמוקטרים על המזבח <em>החיצוני</em>, כמו שלמים (שמהם למדנו את דין פיגול בתורה).'
+  },
+
+  { type: 'section', title: 'הגמרא — חידוש עולא' },
+  { type: 'quote',
+    aramaic: 'אמר עולא: קומץ פיגול שהעלו על גבי המזבח — פקע פיגולו ממנו. אם אחרים מביא לידי פיגול — הוא עצמו לא כל שכן?',
+    translation: '<strong>עולא קובע חידוש:</strong> אם קומץ-פיגול (שכבר נחשב פיגול) הועלה למזבח — הפיגול ״פוקע״ ממנו. <br><strong>נימוקו:</strong> ״אם אחרים מביא לידי פיגול — הוא עצמו לא כל שכן?״ — כלומר: אם הקומץ הזה מסוגל להפוך את <em>השיריים</em> לפיגול, קל וחומר שהוא עצמו [נחשב יסודית כשר/מתקבל]!'
+  },
+  { type: 'quote',
+    aramaic: 'מאי קאמר? הכי קאמר: אם אינו מתקבל, היאך מביא אחרים לידי פיגול?',
+    translation: '<strong>פירוש החידוש:</strong> אם הקומץ עצמו לא ״מתקבל״ (אינו ראוי בעיקרון), הוא לא היה יכול להעניק לשיריים סטטוס של ״פיגול״. עצם זה שיש לו כוח לעשות פיגול לשיריים — מוכיח שהוא נחשב בסיסית מתקבל. ולכן האש סולקת ממנו את הפיגול.'
+  },
+
+  { type: 'section', title: 'מה החידוש בדיוק?' },
+  { type: 'quote',
+    aramaic: 'מאי קא משמע לן? אי דאין חייבין עליו משום פיגול — תנינא: אלו דברים שאין חייבין עליהם משום פיגול: הקומץ...',
+    translation: '<strong>קושיה:</strong> מה החידוש של עולא? אם הוא מתכוון שאין חיוב כרת — זה כתוב מפורש במשנה!'
+  },
+  { type: 'quote',
+    aramaic: 'אלא דאם עלו לא ירדו. תנינא: הלן והיוצא והטמא ושנשחט חוץ לזמנו וחוץ למקומו — אם עלו לא ירדו',
+    translation: '<strong>אולי החידוש הוא:</strong> שאם עלה למזבח — לא מורידים. <strong>אבל זה כבר כתוב במשנה אחרת:</strong> הלן, יוצא, טמא, או חוץ למקומו וזמנו — אם עלו לא ירדו!'
+  },
+  { type: 'quote',
+    aramaic: 'ואלא דאם ירדו יעלו. הא נמי תנינא: כשם שאם עלו לא ירדו, כך אם ירדו לא יעלו',
+    translation: '<strong>אולי החידוש הוא:</strong> שאם ירדו — מעלים אותם שוב! <strong>אבל גם זה כתוב במשנה — להפך:</strong> ״אם ירדו לא יעלו״!'
+  },
+
+  { type: 'section', title: 'התירוץ הסופי — האש כבר נאחזה' },
+  { type: 'quote',
+    aramaic: 'לא צריכא: שמשלה בהן האור',
+    translation: '<strong>התירוץ:</strong> המקרה הוא ש״משלה בהן האור״ — האש כבר אחזה בקומץ. ברגע זה הוא נחשב חלק מ״מאכל המזבח״, ואם נפל — מעלים אותו בחזרה.'
+  },
+  { type: 'quote',
+    aramaic: 'הא נמי אמרה עולא חדא זימנא! דאמר עולא: לא שנו אלא שלא משלה בהן האור, אבל משלה בהן האור — יעלו',
+    translation: '<strong>קושיה:</strong> אבל עולא כבר אמר את זה במקום אחר! הוא קבע שהדין ש״אם ירדו לא יעלו״ הוא רק כשאין אש; אם יש אש — מעלים. אז למה לחזור?'
+  },
+  { type: 'quote',
+    aramaic: 'מהו דתימא: הני מילי אבר דמחבר, אבל קומץ דמיפרת — אימא לא. קמ״ל',
+    translation: '<strong>התירוץ הסופי:</strong> הייתי חושב שהדין הזה חל רק על אבר של עולה (יחידה אחת — האש שאחזה בקצה הסך-הכל אחזה בכולו). אבל בקומץ — הקמח מפורר, כל גרגיר עצמאי. אז אולי הדין לא חל בו? <strong>קמ״ל</strong> — עולא בא לחדש שגם בקומץ הדין חל גם בחלקים שלא נאחזו.'
+  },
+
+  { type: 'section', title: 'הלכה למעשה — רב אחאי' },
+  { type: 'quote',
+    aramaic: 'אמר רב אחאי: הלכך — האי קומץ פיגול, דפלגיה מחית אארעא ופלגיה אסקיה אמערכה ומשלה בו האור — מסיקנא ליה לכוליה לכתחלה',
+    translation: '<strong>רב אחאי פוסק:</strong> מכאן: אם חצי קומץ-פיגול מונח על הארץ וחצי על המערכה, והאש אחזה בחלק שעל המערכה — מעלים את <em>כל</em> הקומץ למזבח, ואפילו <strong>לכתחילה</strong> (לא רק בדיעבד).'
+  }
+];
+
+// =======================================================
+// TRANSLATION: Daf 43b — Full content (the NEXT daf)
+// =======================================================
+amudim['43b'].translation = [
+  { type: 'section', title: 'איסורים שעוברים על המזבח — ר׳ יוחנן' },
+  { type: 'quote',
+    aramaic: 'אמר רבי יצחק אמר רבי יוחנן: הפיגול והנותר והטמא שהעלן לגבי מזבח — פקע איסור מהן',
+    translation: '<strong>ר׳ יצחק בשם ר׳ יוחנן:</strong> שלושה איסורים — <em>פיגול</em>, <em>נותר</em> (בשר קרבן שעבר זמנו), ו<em>טמא</em> (בשר שנגע בטומאה) — אם העלו אותם על המזבח, האיסור פוקע מהם.'
+  },
+  { type: 'quote',
+    aramaic: 'אמר רב חסדא: מרי דיכי! מזבח מקוה טהרה?!',
+    translation: '<strong>רב חסדא מתפרץ בתמיהה:</strong> ״מרי דיכי [אבותינו]! האם המזבח נעשה מקווה טהרה?!״ — איך אש מטהרת איסורים כמו שמקווה מטהר?!'
+  },
+  { type: 'quote',
+    aramaic: 'אמר רבי זירא: שמשלה בהן האור',
+    translation: '<strong>ר׳ זירא מיישב:</strong> המקרה הוא שהאש <em>כבר אחזה</em> בהם. אז הם כבר נחשבים ״מאכל המזבח״, ואין כאן שאלה של ״מקווה״ — זה דין מיוחד של המזבח.'
+  },
+
+  { type: 'section', title: 'קושיה מהברייתא — ״וטומאתו עליו״' },
+  { type: 'quote',
+    aramaic: 'מתיב ר׳ יצחק בר ביסנא: אחרים אומרים — ״וטומאתו עליו״ — מי שטומאה פורחת ממנו. יצא בשר שאין טומאה פורחת ממנו',
+    translation: '<strong>ר׳ יצחק בר ביסנא מקשה מברייתא:</strong> ״אחרים״ (=ר׳ מאיר) דורשים את הפסוק ״וטומאתו עליו״ (ויקרא ז:כ) — מדובר במי שטומאה ״פורחת״ ממנו (יכול להיטהר). <strong>״יצא בשר״</strong> — בשר טמא אינו יכול להיטהר.'
+  },
+  { type: 'quote',
+    aramaic: 'ואם איתא — הרי טומאה פורחת ממנו על ידי האור!',
+    translation: '<strong>הקושיה:</strong> אבל אם ר׳ יוחנן צודק — הרי הטומאה <em>כן</em> פורחת מהבשר על-ידי האש (המזבח)! זה סותר את ברייתת ר׳ מאיר!'
+  },
+
+  { type: 'section', title: 'שלושה תירוצים' },
+  { type: 'quote',
+    aramaic: 'אמר רבא: על ידי מקוה קאמרינן',
+    translation: '<strong>תירוץ ראשון — רבא:</strong> כשהברייתא אומרת ״טומאה פורחת״, היא מתכוונת <strong>על-ידי מקווה</strong>. הבשר לא יכול להיטהר במקווה — אבל באש כן.'
+  },
+  { type: 'quote',
+    aramaic: 'מידי מקוה כתיב?!',
+    translation: '<strong>דחייה:</strong> הפסוק לא הזכיר ״מקווה״! התנא אומר שטומאה לא פורחת <em>בכלל</em>, בשום אמצעי.'
+  },
+  { type: 'quote',
+    aramaic: 'אלא אמר רב פפא: בבשר שלמים עסקינן, דלא חזי להקרבה',
+    translation: '<strong>תירוץ שני — רב פפא:</strong> הברייתא מדברת על בשר <strong>שלמים</strong>, שלא עולה למזבח (אלא נאכל). אכן הוא לא יכול ״לפרוח״ ממנו טומאה — לא במקווה ולא באש. אבל בשר עולה — כן.'
+  },
+  { type: 'quote',
+    aramaic: 'רבינא אמר: ״וטומאתו עליו״ — מי שטומאה פורחת ממנו כשהוא שלם. יצא בשר, שאין טומאה פורחת כשהוא שלם — אלא כשהוא חסר',
+    translation: '<strong>תירוץ שלישי — רבינא:</strong> ״טומאתו עליו״ מדבר על מי שטומאה פורחת ממנו <strong>כשהוא שלם</strong>. <br>• אדם — נכנס למקווה ויוצא שלם וטהור.<br>• בשר — הטומאה ״פורחת״ ממנו רק כשהוא <em>חסר</em> (כשהאש שרפה חלק). אש לא משאירה אותו שלם.'
+  },
+
+  { type: 'section', title: 'ניתוח ״וטומאתו עליו״' },
+  { type: 'quote',
+    aramaic: 'גופא: ״וטומאתו עליו״ — בטומאת הגוף הכתוב מדבר',
+    translation: '<strong>הברייתא עצמה (לעיון):</strong> ״וטומאתו עליו״ מדבר ב<strong>טומאת הגוף</strong> (טומאת אדם), לא בטומאת בשר.'
+  },
+  { type: 'summary', text: '<strong>הברייתא נותנת ארבעה תירוצים שונים</strong> למה לפרש כך:<br>(1) <strong>גזירה שווה:</strong> ״טומאתו״ כאן כמו ״טומאתו״ בטומאת מת.<br>(2) <strong>ר׳ יוסי:</strong> ״קדשים״ ברבים, ״טומאה״ ביחיד — סימן לטומאת הגוף.<br>(3) <strong>רבי:</strong> מדרש על ״ואכל״.<br>(4) <strong>ר׳ מאיר (אחרים):</strong> כפי שראינו — ״פורחת״ מתאים לאדם.' },
+
+  { type: 'section', title: 'הגאון של רבא — שני חכמים שאי-אפשר בלעדיהם' },
+  { type: 'quote',
+    aramaic: 'אמר רבא: כל קרא דלא מפרש ליה רב יצחק בר אבודימי וכל מתניתא דלא מפרשא לה רב זעירי — לא מיפרשא',
+    translation: '<strong>אמירה מפורסמת של רבא:</strong> ״כל פסוק שר׳ יצחק בר אבודימי לא מפרש, וכל ברייתא שזעירי לא מפרש — לא מתפרשים!״ <em>(שבחם בפירוש המקורות הוא ייחודי.)</em>'
+  },
+  { type: 'quote',
+    aramaic: 'הואיל ופתח הכתוב בלשון נקבה וסיים בלשון נקבה ולשון זכר באמצע — בטומאת הגוף הכתוב מדבר',
+    translation: '<strong>הסבר ר׳ יצחק בר אבודימי על שיטת רבי:</strong> הפסוק הבא (״ונפש אשר תאכל...״) פותח בלשון <em>נקבה</em> (״נפש״) ומסיים בלשון נקבה, אבל באמצע יש ״ואכל״ בלשון <em>זכר</em>. זה מלמד שהתורה לא מקפידה על המין — ולכן ״טומאתו״ (זכר) במשפט הקודם בכל זאת יכול להתייחס לאדם.'
+  },
+
+  { type: 'section', title: 'הסוגיה הבאה: מעשר ותרומה בטומאה' },
+  { type: 'summary', text: '<strong>הברייתא מתחילה דיון חדש:</strong> ״אם נאמרו קלות למה נאמרו חמורות, ואם נאמר חמורות למה נאמר קלות?״ — שאלה על למה התורה הזכירה גם איסורי כרת קלים וגם חמורים. הסוגיה תמשיך להתפתח בדף מ״ד, ותעסוק באכילת מעשר ותרומה בטומאת הגוף, ובחילוק בין טומאת שרץ לטומאת מת.' }
+];
+
+// =======================================================
+// KID-FRIENDLY INTRO SCENES — super simple explanations
+// (Added to the START of each daf's scenes so they show first)
+// =======================================================
+
+amudim['42b'].scenes.unshift({
+  tag: '🧒 הסבר פשוט',
+  title: 'מה קורה <span class="accent">בדף הזה</span>?',
+  html: `
+    <div class="kid-box setup">
+      <div class="kid-icon">🎯</div>
+      <div class="kid-label">הסיפור בקצרה</div>
+      <p>הכהן עומד להקריב קרבן בבית-המקדש. כדי שהקרבן יהיה בסדר, הוא צריך לעשות <strong>4 עבודות בסדר</strong>: שחיטה, קבלת הדם בכלי, הולכה אל המזבח, וזריקת הדם.</p>
+      <p>אבל פתאום הכהן חושב מחשבה לא טובה: <em>״אני אוכל את הבשר מחר במקום היום.״</em> זה אסור! המחשבה הזאת נקראת <strong>פיגול</strong> — והיא יכולה להרוס את הקרבן.</p>
+    </div>
+
+    <div class="kid-box question">
+      <div class="kid-icon">❓</div>
+      <div class="kid-label">השאלה הגדולה</div>
+      <p>אם הכהן חשב את המחשבה הרעה <strong>רק פעם אחת</strong> (בעבודה אחת מתוך הארבע) — האם זה מספיק להרוס את כל הקרבן?</p>
+      <p>או שצריך לחשוב את המחשבה הזאת <strong>בכל ארבע העבודות</strong> כדי שהקרבן ייפסל?</p>
+    </div>
+
+    <div class="kid-box answer">
+      <div class="kid-icon">💡</div>
+      <div class="kid-label">שתי דעות</div>
+      <p>🟡 <strong>ר׳ מאיר:</strong> מספיק פעם אחת! גם מחשבה רעה אחת — והכל נפסל.</p>
+      <p>🔵 <strong>חכמים:</strong> צריך מחשבה רעה בכל ארבע העבודות. אחת לבד לא מספיקה.</p>
+    </div>
+
+    <div class="kid-box surprise">
+      <div class="kid-icon">🤔</div>
+      <div class="kid-label">סוגיה משנה</div>
+      <p>מה אם הכהן <strong>חשב</strong> את המחשבה הרעה בחצי מהעבודה, ו<strong>שתק</strong> בחצי השני?</p>
+      <p>ר׳ מאיר אומר: גם זה פיגול! המחשבה הראשונה ״מתפשטת״ גם לחלק שעשה בשתיקה.</p>
+    </div>
+
+    <div class="kid-box bigidea">
+      <div class="kid-icon">🌟</div>
+      <div class="kid-label">הרעיון הגדול</div>
+      <p>הקרבן הוא <em>דבר אחד שלם</em> או <em>צירוף של שלבים נפרדים</em>?</p>
+      <p>ר׳ מאיר: דבר אחד. נקודה רעה אחת מקלקלת הכל.<br>
+      חכמים: שלבים נפרדים — כל אחד עצמאי.</p>
+    </div>
+
+    <div class="kid-box setup" style="margin-top: 18px;">
+      <div class="kid-icon">📜</div>
+      <div class="kid-label">בסוף הדף מתחילה משנה חדשה</div>
+      <p>בסוף הדף מופיעה רשימה של <strong>7 דברים שלא יכולים להיות פיגול</strong> — קומץ, קטורת, לבונה, ועוד. למה? כי הם בעצמם ה״מתירים״ — אין מי שמתיר אותם, אז הם לא יכולים להפוך לפיגול.</p>
+    </div>
+  `
+});
+
+amudim['43a'].scenes.unshift({
+  tag: '🧒 הסבר פשוט',
+  title: 'הסיפור של <span class="flame-c">האש המטהרת</span>',
+  html: `
+    <div class="kid-box setup">
+      <div class="kid-icon">🎯</div>
+      <div class="kid-label">הסיפור בקצרה</div>
+      <p>הכהן עשה <strong>פיגול</strong> בקומץ של מנחה (חופן קמח שעולה למזבח). עכשיו הקומץ הזה <strong>אסור</strong>, לא יכול לעלות למזבח, ואסור לאכול ממנו.</p>
+      <p>אבל אופס! 😱 בטעות הוא <strong>שם אותו על האש של המזבח!</strong></p>
+    </div>
+
+    <div class="kid-box question">
+      <div class="kid-icon">❓</div>
+      <div class="kid-label">השאלה</div>
+      <p>מה קורה לקומץ עכשיו? האם הוא <strong>עדיין אסור</strong>, או שהאש ״ניקתה״ ממנו את האיסור?</p>
+    </div>
+
+    <div class="kid-box answer">
+      <div class="kid-icon">🔥</div>
+      <div class="kid-label">התשובה של עולא</div>
+      <p>״<strong>האש ניקתה את הקומץ!</strong>״ ✨</p>
+      <p>ברגע שהאש אחזה בו — הוא חזר להיות כשר. הפיגול ״ברח״ ממנו.</p>
+    </div>
+
+    <div class="kid-box answer">
+      <div class="kid-icon">🌊</div>
+      <div class="kid-label">ר׳ יוחנן מרחיב את הרעיון</div>
+      <p>״לא רק פיגול!״ האש מנקה <strong>3 איסורים</strong>:</p>
+      <p>1️⃣ <strong>פיגול</strong> — מחשבה רעה<br>
+      2️⃣ <strong>נותר</strong> — בשר שעבר זמנו<br>
+      3️⃣ <strong>טמא</strong> — בשר שנגע בטומאה</p>
+      <p>כל השלושה — אם עלו לאש, האיסור נמחק!</p>
+    </div>
+
+    <div class="kid-box surprise">
+      <div class="kid-icon">🤯</div>
+      <div class="kid-label">רב חסדא לא מסכים!</div>
+      <p>״<strong>מה?! המזבח הוא מקווה?!</strong>״</p>
+      <p>(מקווה = בריכת מים מיוחדת לטהרה. אש = ההפך! היא שורפת ומשמידה!)</p>
+      <p>״איך אש יכולה לטהר?! אש ומים זה הפכים!״</p>
+    </div>
+
+    <div class="kid-box bigidea">
+      <div class="kid-icon">✨</div>
+      <div class="kid-label">רבינא פותר את הסתירה</div>
+      <p>״כן, גם אש וגם מים יכולים לטהר — אבל בדרכים <em>שונות</em>:״</p>
+      <p>💧 <strong>מקווה:</strong> נכנס שלם, יוצא שלם <em>וטהור</em>. נשמר!</p>
+      <p>🔥 <strong>אש:</strong> מטהרת — אבל דרך <em>השמדה</em>. הקומץ נטהר אבל נשרף בדרך.</p>
+    </div>
+
+    <div class="kid-box bigidea">
+      <div class="kid-icon">🌟</div>
+      <div class="kid-label">הרעיון הגדול</div>
+      <p>שני הפכים (אש ומים) יכולים לעשות את <em>אותה פעולה</em> (טהרה) — אבל ה<strong>מחיר שונה</strong>:</p>
+      <p>מים — בלי מחיר. הטהר נשאר שלם.<br>
+      אש — במחיר. הטהר נשרף בדרך.</p>
+    </div>
+  `
+});
+
+// =======================================================
+// TUTORIAL SCENES - "How to read gemara"
+// =======================================================
+const tutorialScenes = [
+  {
+    tag: 'פתיחה',
+    title: 'למה גמרא <span class="accent">נראית קשה</span>?',
+    html: `
+      <div class="story">
+        <p>אם פתחת פעם דף גמרא וזה הרגיש כמו חומה — אתה לא לבד. הגמרא נכתבה ב<strong>ארמית</strong> (לא עברית!), בלי סימני פיסוק, בלי גופנים מודגשים, ובלי הסברים כשעוברים מנושא לנושא.</p>
+        <p>אבל יש בה <strong>שיטה</strong>. כשמכירים את המבנה ואת המילים המיוחדות שמרכיבות אותה — היא נפתחת.</p>
+      </div>
+      <div class="tip">
+        <div class="tip-label">💡 הסוד הגדול</div>
+        <p>הגמרא היא <strong>שיחה</strong>. שואלים, עונים, מקשים, מתרצים. ברגע שיודעים אילו מילים מסמנות שאלה, אילו מילים מסמנות תשובה, ואילו מילים מסמנות סתירה — אפשר לעקוב אחרי השיחה.</p>
+      </div>
+      <div class="story">
+        <p>במדריך הזה תלמד:</p>
+        <p>1. <strong>אנטומיה של דף</strong> — איפה הגמרא, איפה רש״י, איפה תוספות<br>
+        2. <strong>״כפתורי השיחה״</strong> — המילים שמסמנות שאלה, תשובה, מקור, חילוק<br>
+        3. <strong>המהלכים השכיחים</strong> — איך שיחה בגמרא מתפתחת<br>
+        4. <strong>קריאה מעשית</strong> — נפענח קטע אמיתי מדף מ״ג ע״א צעד-צעד</p>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 1',
+    title: 'אנטומיה <span class="accent">של דף הגמרא</span>',
+    html: `
+      <div class="story"><p>דף הגמרא של ש״ס וילנה בנוי בשלוש עמודות:</p></div>
+      <div style="text-align: center; margin: 16px 0;">
+        <svg viewBox="0 0 240 200" width="240" height="200" style="max-width:100%;">
+          <rect x="10" y="10" width="220" height="180" stroke="var(--gold)" stroke-width="1.5" fill="rgba(244,234,213,0.04)"/>
+          <rect x="20" y="35" width="62" height="145" fill="rgba(200,149,104,0.1)" stroke="#c89568" stroke-width="1"/>
+          <text x="51" y="28" text-anchor="middle" fill="#c89568" font-size="11" font-weight="700">רש״י</text>
+          ${[45,51,57,63,69,75,81,87,93,99,105].map(y => `<line x1="25" y1="${y}" x2="${75 + (y%2)*2}" y2="${y}" stroke="#c89568" stroke-width="0.5" opacity="0.6"/>`).join('')}
+          <rect x="89" y="35" width="62" height="145" fill="rgba(244,234,213,0.05)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="120" y="28" text-anchor="middle" fill="var(--gold-bright)" font-size="11" font-weight="700">גמרא</text>
+          ${[47,55,63,71,79,87,95,103,111].map(y => `<line x1="94" y1="${y}" x2="${144 + (y%2)*2}" y2="${y}" stroke="var(--gold-bright)" stroke-width="0.9"/>`).join('')}
+          <rect x="158" y="35" width="62" height="145" fill="rgba(143,169,196,0.08)" stroke="#8fa9c4" stroke-width="1"/>
+          <text x="189" y="28" text-anchor="middle" fill="#8fa9c4" font-size="11" font-weight="700">תוספות</text>
+          ${[45,51,57,63,69,75,81,87,93,99].map(y => `<line x1="163" y1="${y}" x2="${213 + (y%2)*2}" y2="${y}" stroke="#8fa9c4" stroke-width="0.5" opacity="0.6"/>`).join('')}
+        </svg>
+      </div>
+      <div class="story">
+        <p><strong>אמצע</strong> — הגמרא עצמה (אותיות גדולות, גופן רגיל)<br>
+        <strong>פנים</strong> (לכיוון הספרייה) — <strong style="color: #c89568;">רש״י</strong> בגופן צפוף<br>
+        <strong>חוץ</strong> (לכיוון הקורא) — <strong style="color: #8fa9c4;">תוספות</strong></p>
+      </div>
+      <div class="tip">
+        <div class="tip-label">💡 שלב ראשון בלימוד</div>
+        <p>תמיד מתחילים עם <strong>הגמרא במרכז</strong>. רש״י ותוספות הם <em>פירושים</em> — קוראים אותם רק כשמשהו לא ברור, או כדי להעמיק.</p>
+      </div>
+      <div class="story">
+        <p>בדף יש גם <em>מתני׳</em> (=משנה) בתחילת כל סוגיה — היא הבסיס, ו<em>גמ׳</em> (=גמרא) — הדיון של האמוראים עליה.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 2',
+    title: '״כפתורי השיחה״ — <span class="accent">6 צבעים</span>',
+    html: `
+      <div class="story">
+        <p>בכל דיון בגמרא יש 6 סוגי תפקידים. בלימוד שלנו נצבע כל סוג בצבע שונה:</p>
+      </div>
+      <div class="legend">
+        <div class="legend-item statement"><div class="l-dot"></div>הצהרה</div>
+        <div class="legend-item question"><div class="l-dot"></div>שאלה / קושיה</div>
+        <div class="legend-item answer"><div class="l-dot"></div>תשובה / תירוץ</div>
+        <div class="legend-item source"><div class="l-dot"></div>מקור</div>
+        <div class="legend-item distinction"><div class="l-dot"></div>חילוק</div>
+        <div class="legend-item conclusion"><div class="l-dot"></div>מסקנה</div>
+      </div>
+      <div class="story">
+        <p>כל סוג מסומן ב״מילת מפתח״. <strong>תלחץ על המילים למטה</strong> כדי לראות את התרגום והפונקציה:</p>
+      </div>
+      <div class="gem-block">
+        <span class="term statement" data-term="amar">אמר ר׳ יוחנן</span>: פיגול וטמא ונותר שעלו על המזבח — פקע איסורן. <span class="term question" data-term="metiv">מתיב</span> רב חסדא: <span class="term question" data-term="atu">אטו</span> מזבח מקווה הוא? <span class="term answer" data-term="amar-lei">אמר ליה</span>: <span class="term distinction" data-term="shani">שאני</span> מזבח — שאני מקווה.
+      </div>
+      <div class="tip">
+        <div class="tip-label">💡 איך לזכור</div>
+        <p>אל תשנן את כל המילים מראש! פשוט תתחיל ללמוד, וכשתפגוש מילה לא מוכרת — תבדוק. בתוך 2-3 שבועות, רוב המילים יהיו מוכרות לך טבעית.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 3א',
+    title: 'מילים של <span style="color: var(--gold-bright);">הצהרה</span>',
+    html: `
+      <div class="story"><p>אלה המילים שמכניסות אמירה של חכם או ציטוט מהמקרא:</p></div>
+      <div class="vocab-card">
+        <div class="vocab-aram">אמר ר׳ פלוני</div>
+        <div class="vocab-pron">amar rabi ploni</div>
+        <div class="vocab-mean">״אמר ר׳ פלוני״ - מציג אמרה של אמורא</div>
+        <div class="vocab-fn">📌 פונקציה: פתיחת אמירה</div>
+        <div class="vocab-example">לדוגמה: <em>״אמר עולא: קומץ פיגול שהעלהו על המזבח, פקע פיגולו ממנו״</em><br>→ עולא מציג חידוש חדש משלו</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">אמר ליה</div>
+        <div class="vocab-pron">amar lei</div>
+        <div class="vocab-mean">״אמר לו״ — מציג תגובה בדיון בין שני חכמים</div>
+        <div class="vocab-fn">📌 פונקציה: תגובה/תשובה</div>
+        <div class="vocab-example">לדוגמה: <em>״אמר ליה רב חסדא לעולא: ...״</em><br>→ רב חסדא משיב לעולא</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">תניא</div>
+        <div class="vocab-pron">tanya</div>
+        <div class="vocab-mean">״שנינו בברייתא״ — מציג מקור תנאי</div>
+        <div class="vocab-fn">📌 פונקציה: הבאת מקור מוסמך</div>
+        <div class="vocab-example">לדוגמה: <em>״תניא: הקומץ והקטרת והלבונה...״</em><br>→ ברייתא שמובאת כראיה</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">תני</div>
+        <div class="vocab-pron">tani</div>
+        <div class="vocab-mean">״לימד״ — חכם מסר מסורת</div>
+        <div class="vocab-fn">📌 פונקציה: מסירת מסורת</div>
+        <div class="vocab-example">לדוגמה: <em>״תני ר׳ חייא: ...״</em><br>→ ר׳ חייא מסר ברייתא זו</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">אמר קרא</div>
+        <div class="vocab-pron">amar kra</div>
+        <div class="vocab-mean">״הפסוק אמר״ — ציטוט מהמקרא</div>
+        <div class="vocab-fn">📌 פונקציה: ראיה מהתורה</div>
+        <div class="vocab-example">לדוגמה: <em>״אמר קרא: וזרקו על המזבח״</em></div>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 3ב',
+    title: 'מילים של <span style="color: var(--crimson-glow);">שאלה</span>',
+    html: `
+      <div class="story"><p>אלה הדגלים הכי חשובים — הם מסמנים שמישהו מקשה:</p></div>
+      <div class="vocab-card">
+        <div class="vocab-aram">מקשי / מתיב</div>
+        <div class="vocab-pron">makshi / metiv</div>
+        <div class="vocab-mean">״מקשה / מתריס״ — חכם מקשה על אמירה קודמת</div>
+        <div class="vocab-fn">❓ פונקציה: קושיה ישירה</div>
+        <div class="vocab-example">לדוגמה: <em>״מתיב רב חסדא: אטו מזבח מקווה הוא?״</em><br>→ רב חסדא מקשה על ר׳ יוחנן</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">איתיביה</div>
+        <div class="vocab-pron">eitivei</div>
+        <div class="vocab-mean">״הקשה לו [מברייתא]״ — קושיה ממקור תנאי</div>
+        <div class="vocab-fn">❓ פונקציה: קושיה ממקור</div>
+        <div class="vocab-example">לדוגמה: <em>״איתיביה ר׳ אבא לעולא: והתניא...״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">מאי טעמא</div>
+        <div class="vocab-pron">mai ta'ama</div>
+        <div class="vocab-mean">״מה הסיבה?״ — דורש הסבר</div>
+        <div class="vocab-fn">❓ פונקציה: בקשת נימוק</div>
+        <div class="vocab-example">לדוגמה: <em>״...אמר ר׳ מאיר חייב. מאי טעמא?״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">אטו</div>
+        <div class="vocab-pron">atu</div>
+        <div class="vocab-mean">״האם?״ — תמיהה ריטורית, מבטא התנגדות</div>
+        <div class="vocab-fn">❓ פונקציה: תמיהה</div>
+        <div class="vocab-example">לדוגמה: <em>״אטו מזבח מקווה הוא?״</em><br>→ ״האם באמת המזבח הוא מקווה?!״ (לא יכול להיות!)</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">והא תניא</div>
+        <div class="vocab-pron">veha tanya</div>
+        <div class="vocab-mean">״אבל הלא נשנה!״ — מצביע על סתירה</div>
+        <div class="vocab-fn">❓ פונקציה: סתירה ממקור</div>
+        <div class="vocab-example">לדוגמה: <em>״...אמר רב. והא תניא: ההפך!״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">מנא הני מילי</div>
+        <div class="vocab-pron">mena hani milei</div>
+        <div class="vocab-mean">״מנין הדברים האלה?״ — דורש מקור</div>
+        <div class="vocab-fn">❓ פונקציה: בקשת מקור</div>
+        <div class="vocab-example">לדוגמה: <em>״...אסור. מנא הני מילי?״</em></div>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 3ג',
+    title: 'מילים של <span style="color: var(--sage-glow);">תשובה</span> ו<span style="color: #b08fc4;">חילוק</span>',
+    html: `
+      <div class="vocab-card">
+        <div class="vocab-aram">שאני</div>
+        <div class="vocab-pron">shani</div>
+        <div class="vocab-mean">״שונה!״ — מציג חילוק בין מקרה למקרה</div>
+        <div class="vocab-fn">🔀 פונקציה: חילוק</div>
+        <div class="vocab-example">לדוגמה: <em>״שאני התם דקא משני קרא״</em><br>→ ״שונה שם, כי הפסוק שינה״</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">הני מילי</div>
+        <div class="vocab-pron">hani milei</div>
+        <div class="vocab-mean">״הדברים האלה [רק במקרה מסוים]״</div>
+        <div class="vocab-fn">🔀 פונקציה: צמצום</div>
+        <div class="vocab-example">לדוגמה: <em>״הני מילי בקרבן יחיד, אבל בקרבן ציבור...״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">לא קשיא</div>
+        <div class="vocab-pron">lo kashya</div>
+        <div class="vocab-mean">״אין קושיה!״ — מנהיג את התירוץ</div>
+        <div class="vocab-fn">✓ פונקציה: פתיחת תירוץ</div>
+        <div class="vocab-example">לדוגמה: <em>״לא קשיא, כאן בלפני הקרבה כאן באחרי...״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">תיובתא</div>
+        <div class="vocab-pron">teyuvta</div>
+        <div class="vocab-mean">״הפרכה גמורה״ — הקושיה ניצחה</div>
+        <div class="vocab-fn">🛑 פונקציה: דחיית עמדה</div>
+        <div class="vocab-example">לדוגמה: <em>״תיובתא דרב, תיובתא״</em><br>→ רב נדחה</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">קשיא</div>
+        <div class="vocab-pron">kashya</div>
+        <div class="vocab-mean">״קשה!״ — קושיה נשארה <em>פתוחה</em></div>
+        <div class="vocab-fn">⚠️ פונקציה: קושיה תלויה</div>
+        <div class="vocab-example">לפעמים פוסקים מבחינים בין ״תיובתא״ ל״קשיא״ — הראשון פוסק נגד, השני משאיר ספק.</div>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 4',
+    title: 'המהלכים <span class="accent">השכיחים</span>',
+    html: `
+      <div class="story"><p>ברגע שמכירים את אבני הבניין — אפשר לזהות תבניות. 4 המהלכים הנפוצים:</p></div>
+      <div class="pattern">
+        <div class="pattern-title">תבנית 1: שאלה ותשובה</div>
+        <div class="pattern-flow">
+          <div class="pattern-step s"><div class="p-icon">📌</div><div class="p-label">הצהרה<small>אמר ר׳ X: דין מסוים</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step q"><div class="p-icon">❓</div><div class="p-label">קושיה<small>מקשי / מתיב</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step a"><div class="p-icon">✓</div><div class="p-label">תירוץ<small>אמר ליה / לא קשיא</small></div></div>
+        </div>
+      </div>
+      <div class="pattern">
+        <div class="pattern-title">תבנית 2: סתירה בין מקורות</div>
+        <div class="pattern-flow">
+          <div class="pattern-step s"><div class="p-icon">📜</div><div class="p-label">מקור א׳<small>תניא / אמר רב</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step s"><div class="p-icon">📜</div><div class="p-label">מקור ב׳ סותר<small>והא תניא</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step d"><div class="p-icon">🔀</div><div class="p-label">חילוק<small>שאני / הני מילי</small></div></div>
+        </div>
+      </div>
+      <div class="pattern">
+        <div class="pattern-title">תבנית 3: בקשת מקור</div>
+        <div class="pattern-flow">
+          <div class="pattern-step s"><div class="p-icon">📌</div><div class="p-label">דין<small>אסור / חייב / כשר</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step q"><div class="p-icon">❓</div><div class="p-label">מנא הני מילי?<small>איפה כתוב?</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step s"><div class="p-icon">📜</div><div class="p-label">אמר קרא<small>פסוק כמקור</small></div></div>
+        </div>
+      </div>
+      <div class="pattern">
+        <div class="pattern-title">תבנית 4: ניסיון ראיה ודחייה</div>
+        <div class="pattern-flow">
+          <div class="pattern-step q"><div class="p-icon">💡</div><div class="p-label">לימא מסייע ליה<small>בוא נביא ראיה</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step s"><div class="p-icon">📜</div><div class="p-label">המקור<small>תניא / מתני׳</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step d"><div class="p-icon">🛑</div><div class="p-label">דחייה<small>לא — שאני התם</small></div></div>
+        </div>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 5',
+    title: 'קריאה <span class="accent">מעשית</span>',
+    html: `
+      <div class="story"><p>עכשיו ננתח קטע אמיתי מדף מ״ג ע״א. נקרא אותו צעד-צעד:</p></div>
+      <div class="gem-block">
+        <span class="term statement" data-term="amar">אמר עולא</span>: קומץ פיגול שהעלהו על המזבח — פקע פיגולו ממנו. <span class="term question" data-term="metiv">מתיב</span> רב חסדא: <span class="term question" data-term="atu">אטו</span> מזבח מקווה הוא? <span class="term answer" data-term="amar-lei">אמר ליה</span>: <span class="term distinction" data-term="shani">שאני</span> מזבח...
+      </div>
+      <div class="story"><p>בוא נפענח:</p></div>
+      <div class="step"><div class="step-num">1</div><div>
+        <div class="step-aram">אמר עולא:</div>
+        <div class="step-trans">״עולא אמר:״</div>
+        <div class="step-fn statement">הצהרה — אמורא פותח דין חדש</div>
+        <div class="step-expl">המילה <strong>״אמר״</strong> מסמנת שאמורא הולך לומר משהו. <strong>״עולא״</strong> = שם האמורא, מתלמידי ר׳ יוחנן.</div>
+      </div></div>
+      <div class="step"><div class="step-num">2</div><div>
+        <div class="step-aram">קומץ פיגול שהעלהו על המזבח</div>
+        <div class="step-trans">״קומץ של פיגול שהעלו אותו על המזבח״</div>
+        <div class="step-fn statement">תיאור המקרה</div>
+        <div class="step-expl">תיאור פיזי: <strong>״קומץ פיגול״</strong> = קומץ שכבר נעשה פיגול (אסור). <strong>״שהעלהו על המזבח״</strong> = ובטעות שמו אותו על האש.</div>
+      </div></div>
+      <div class="step"><div class="step-num">3</div><div>
+        <div class="step-aram">פקע פיגולו ממנו</div>
+        <div class="step-trans">״פג ממנו הפיגול שלו״</div>
+        <div class="step-fn statement">הכרעת הדין</div>
+        <div class="step-expl">החידוש של עולא! <strong>״פקע״</strong> בארמית = פג, התבטל. <em>האיסור עזב את הקומץ</em>. רעיון מהפכני.</div>
+      </div></div>
+      <div class="step"><div class="step-num">4</div><div>
+        <div class="step-aram">מתיב רב חסדא:</div>
+        <div class="step-trans">״רב חסדא הקשה:״</div>
+        <div class="step-fn question">פתיחת קושיה</div>
+        <div class="step-expl"><strong>״מתיב״</strong> = הקשה. ברגע שאתה רואה אותה: <em>תוקפת קושיה</em>. רב חסדא מתנגד לעולא.</div>
+      </div></div>
+      <div class="step"><div class="step-num">5</div><div>
+        <div class="step-aram">אטו מזבח מקווה הוא?</div>
+        <div class="step-trans">״האם המזבח הוא מקווה?!״</div>
+        <div class="step-fn question">קושיה ריטורית</div>
+        <div class="step-expl"><strong>״אטו״</strong> = ״האם?״ בלשון תמיהה. רב חסדא אומר: ״עולא, אתה מציע שהמזבח מטהר כמו מקווה? לא הגיוני!״</div>
+      </div></div>
+      <div class="step"><div class="step-num">6</div><div>
+        <div class="step-aram">[רבינא:] שאני מזבח...</div>
+        <div class="step-trans">״המזבח שונה...״</div>
+        <div class="step-fn distinction">חילוק / הבחנה</div>
+        <div class="step-expl"><strong>״שאני״</strong> מסמנת חילוק. רבינא אומר: ״כן, יש דמיון, אבל יש הבדל קריטי״. מכאן ימשיך ההסבר.</div>
+      </div></div>
+      <div class="tip">
+        <div class="tip-label">💡 מה למדנו</div>
+        <p>שמת לב? <strong>הזיהוי של 4 מילים בלבד</strong> (אמר, מתיב, אטו, שאני) נתן לך את כל המבנה: <em>הצהרה → קושיה → חילוק</em>. זאת <strong>תבנית 1</strong>!</p>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 6',
+    title: 'איך ללמוד דף <span class="accent">בפועל</span>',
+    html: `
+      <div class="story"><p>עכשיו שאתה מבין את הקוד, הנה המתודה לכל דף:</p></div>
+      <div class="step"><div class="step-num">1</div><div>
+        <div class="step-aram">קרא את המשנה תחילה</div>
+        <div class="step-fn source">מתני׳</div>
+        <div class="step-expl">המשנה היא הבסיס. <strong>הבן אותה במלואה</strong> לפני שתעבור לגמרא. אם משהו לא ברור — פנה לרש״י על המשנה.</div>
+      </div></div>
+      <div class="step"><div class="step-num">2</div><div>
+        <div class="step-aram">קרא את הגמרא בלי רש״י קודם</div>
+        <div class="step-fn statement">סקירה ראשונה</div>
+        <div class="step-expl">קרא לאט. שים לב למילות המפתח (אמר, מתיב, שאני). נסה להבין <strong>השלד</strong>: על מה השאלה, מה התשובה?</div>
+      </div></div>
+      <div class="step"><div class="step-num">3</div><div>
+        <div class="step-aram">חזור עם רש״י</div>
+        <div class="step-fn answer">הבהרה</div>
+        <div class="step-expl">עכשיו תתחיל מההתחלה ותלך פסוק-פסוק. כל מילה לא מובנת — קפוץ לרש״י. רש״י תמיד יגיד לך <strong>מי מדבר ועל מה</strong>.</div>
+      </div></div>
+      <div class="step"><div class="step-num">4</div><div>
+        <div class="step-aram">סמן את ה״מהלך״</div>
+        <div class="step-fn distinction">סינתזה</div>
+        <div class="step-expl">סגור את הספר וספר לעצמך: ״מה הדיון בעצם?״ אמרה X, קושיה Y, תירוץ Z. אם לא יכול לסכם — חזור.</div>
+      </div></div>
+      <div class="step"><div class="step-num">5</div><div>
+        <div class="step-aram">רק בסוף — תוספות</div>
+        <div class="step-fn question">העמקה</div>
+        <div class="step-expl">תוספות מקשים על הסוגיה ועל רש״י. <strong>אל תיגש לתוספות לפני שאתה שולט בגמרא ורש״י</strong> — אחרת תאבד את הראש.</div>
+      </div></div>
+      <div class="tip">
+        <div class="tip-label">💡 כלל זהב</div>
+        <p><strong>אל תקפוץ בשיעורים.</strong> עדיף ללמוד דף אחד באמת ולשבת עליו 3 שעות מאשר 5 דפים במעוף. כל דף שמבינים <em>באמת</em> פותח את הבא.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'סיכום',
+    title: 'סיכום <span class="accent">המדריך</span>',
+    html: `
+      <div class="story"><p>הנה כל המדריך בעמוד אחד:</p></div>
+      <div class="pattern">
+        <div class="pattern-title">🎯 שלוש שאלות ששואלים על כל משפט בגמרא</div>
+        <div class="pattern-flow">
+          <div class="pattern-step s"><div class="p-icon">1</div><div class="p-label">מי המדבר?<small>אמורא? תנא? פסוק?</small></div></div>
+          <div class="pattern-step q"><div class="p-icon">2</div><div class="p-label">מה הוא עושה?<small>הצהיר? הקשה? תירץ?</small></div></div>
+          <div class="pattern-step d"><div class="p-icon">3</div><div class="p-label">איפה זה משתלב?<small>ראיה? סתירה? המשך?</small></div></div>
+        </div>
+      </div>
+      <div class="story">
+        <p style="margin-top: 14px;"><strong>הכלי החזק ביותר</strong> שיש לך הוא לסמן (בעיפרון או במחשבה) את <em>מילות המפתח</em>. ברגע שאתה רואה ״מתיב״ — אתה יודע שמשהו הולך להישבר. ברגע שאתה רואה ״לא קשיא״ — מסדרים.</p>
+      </div>
+      <div class="tip">
+        <div class="tip-label">📚 משאבים נוספים</div>
+        <p>• <strong>שטיינזלץ</strong> — תרגום ופירוש מלא לכל הש״ס<br>
+        • <strong>ספריא.אורג</strong> — הש״ס עם תרגום וקישורים<br>
+        • <strong>חברותא</strong> — אין תחליף ללימוד עם בן אדם</p>
+      </div>
+      <div class="story" style="text-align: center; margin-top: 18px;">
+        <p style="font-size: 18px; color: var(--gold-bright); font-weight: 700;">בהצלחה בלימוד! 📖✨</p>
+      </div>
+    `
+  }
+];
+
+// =======================================================
+// TERMS DICTIONARY for clickable Aramaic words
+// =======================================================
+const terms = {
+  'amar': {
+    aram: 'אמר ר׳ X',
+    pron: 'amar Rabi X',
+    fn: 'statement',
+    fnLabel: 'הצהרה',
+    mean: 'מילת מפתח שמכניסה אמרה של אמורא או חכם',
+    use: '<strong>שימוש:</strong> בכל פעם שתראה ״אמר רב/ר׳ X״ - דע שעכשיו מציגים אמרה של אותו חכם. זה הקול שלו, לא של עורך הגמרא.'
+  },
+  'amar-lei': {
+    aram: 'אמר ליה',
+    pron: 'amar lei',
+    fn: 'answer',
+    fnLabel: 'תגובה',
+    mean: '״אמר לו״ - בדרך כלל תשובה לקושיה',
+    use: '<strong>שימוש:</strong> ברגע שתראה את זה אחרי קושיה - דע שעכשיו מגיע <em>תירוץ</em>.'
+  },
+  'metiv': {
+    aram: 'מתיב / מקשי',
+    pron: 'metiv / makshi',
+    fn: 'question',
+    fnLabel: 'קושיה',
+    mean: '״הקשה״ - מישהו מתריס נגד אמרה קודמת',
+    use: '<strong>שימוש:</strong> דגל אדום! משהו מתחיל לקרוס. נסה להבין: <em>מה הקושיה?</em> ב 99% מהמקרים היא ממקור שעולה לסתור.'
+  },
+  'atu': {
+    aram: 'אטו',
+    pron: 'atu',
+    fn: 'question',
+    fnLabel: 'תמיהה',
+    mean: '״האם?״ בלשון תמיהה ריטורית',
+    use: '<strong>שימוש:</strong> כשאתה רואה ״אטו״ - יש כאן <em>אבסורד מובלע</em>. ״אטו X כך?״ אומר ״לא יכול להיות ש-X״.'
+  },
+  'shani': {
+    aram: 'שאני',
+    pron: 'shani',
+    fn: 'distinction',
+    fnLabel: 'חילוק',
+    mean: '״שונה!״ - מציג הבדל בין מקרים',
+    use: '<strong>שימוש:</strong> זאת המילה החביבה על תוספות. ״שאני X״ אומר ״הדבר הזה שונה, ולכן הכלל לא חל עליו״.'
+  }
+};
+
+// =======================================================
+// STATE & RENDERING
+// =======================================================
+const state = {
+  tab: 'masechet',
+  ref: '42b',
+  sceneIdx: 0,
+  modal: null
+};
+
+function getAllRefs() {
+  return Object.keys(amudim).sort((a, b) => {
+    const da = parseInt(a);
+    const db = parseInt(b);
+    if (da !== db) return da - db;
+    return a.endsWith('a') ? -1 : 1;
+  });
+}
+
+const allRefs = getAllRefs();
+
+function getCurrentIdx() { return allRefs.indexOf(state.ref); }
+
+function goToRef(ref) {
+  if (!amudim[ref]) return;
+  state.ref = ref;
+  state.sceneIdx = 0;
+  renderAll();
+  window.scrollTo(0, 0);
+}
+
+function renderHeader() {
+  const amud = amudim[state.ref];
+  const perek = getPerekFor(amud.daf, amud.amud);
+  document.getElementById('dafTitle').textContent =
+    `דף ${heb(amud.daf)} ע״${amud.amud === 'a' ? 'א' : 'ב'}`;
+  document.getElementById('perekName').textContent =
+    `פרק ${perek.num} — ${perek.name}`;
+
+  const idx = getCurrentIdx();
+  document.getElementById('prevDafBtn').disabled = idx === 0;
+  document.getElementById('nextDafBtn').disabled = idx === allRefs.length - 1;
+}
+
+function renderActionBar() {
+  const amud = amudim[state.ref];
+  document.getElementById('rashiCount').textContent = amud.rashi.length;
+  document.getElementById('tosCount').textContent = amud.tosafot.length;
+  document.getElementById('rashiBtn').classList.toggle('disabled', amud.rashi.length === 0);
+  document.getElementById('tosBtn').classList.toggle('disabled', amud.tosafot.length === 0);
+}
+
+function renderScenes() {
+  const stage = document.getElementById('stage');
+  const scenes = state.tab === 'masechet' ? amudim[state.ref].scenes : tutorialScenes;
+
+  stage.innerHTML = '';
+  scenes.forEach((scene, i) => {
+    const div = document.createElement('section');
+    div.className = 'scene' + (i === state.sceneIdx ? ' active' : '');
+    div.innerHTML = `
+      <div class="scene-tag ${scene.tagClass || ''}">${scene.tag}</div>
+      <h2 class="scene-title">${scene.title}</h2>
+      ${scene.html}
+    `;
+    stage.appendChild(div);
+  });
+
+  renderProgress();
+}
+
+function renderProgress() {
+  const scenes = state.tab === 'masechet' ? amudim[state.ref].scenes : tutorialScenes;
+  const progressEl = document.getElementById('progress');
+  const counterEl = document.getElementById('counter');
+
+  progressEl.innerHTML = '';
+  for (let i = 0; i < scenes.length; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === state.sceneIdx ? ' active' : '');
+    dot.addEventListener('click', () => {
+      state.sceneIdx = i;
+      renderScenes();
+    });
+    progressEl.appendChild(dot);
+  }
+
+  counterEl.textContent = scenes.length > 1
+    ? `${state.sceneIdx + 1} / ${scenes.length}`
+    : '';
+
+  document.getElementById('prevSceneBtn').disabled = state.sceneIdx === 0;
+  document.getElementById('nextSceneBtn').disabled = state.sceneIdx === scenes.length - 1;
+}
+
+function renderAll() {
+  if (state.tab === 'masechet') {
+    renderHeader();
+    renderActionBar();
+  }
+  renderScenes();
+}
+
+function switchTab(tab) {
+  if (state.tab === tab) return;
+  state.tab = tab;
+  state.sceneIdx = 0;
+  document.body.classList.toggle('tutorial-mode', tab === 'tutorial');
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  renderAll();
+  window.scrollTo(0, 0);
+}
+
+function changeScene(delta) {
+  const scenes = state.tab === 'masechet' ? amudim[state.ref].scenes : tutorialScenes;
+  const newIdx = state.sceneIdx + delta;
+  if (newIdx < 0 || newIdx >= scenes.length) return;
+  state.sceneIdx = newIdx;
+  renderScenes();
+}
+
+// =======================================================
+// MODAL
+// =======================================================
+function openModal(type) {
+  const amud = amudim[state.ref];
+  const entries = type === 'rashi' ? amud.rashi : amud.tosafot;
+  if (entries.length === 0) return;
+
+  state.modal = type;
+  const modal = document.getElementById(type === 'rashi' ? 'rashiModal' : 'tosModal');
+  const content = document.getElementById(type === 'rashi' ? 'rashiContent' : 'tosContent');
+
+  content.innerHTML = '';
+  entries.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'meforesh-entry';
+    div.innerHTML = `
+      <div class="meforesh-dh">${e.dh}</div>
+      <div class="meforesh-content">${e.content}</div>
+    `;
+    content.appendChild(div);
+  });
+
+  document.getElementById('modalOverlay').classList.add('open');
+  modal.classList.add('open');
+}
+
+function openTranslation() {
+  const amud = amudim[state.ref];
+  const trans = amud.translation || [];
+  const content = document.getElementById('transContent');
+
+  if (trans.length === 0) {
+    content.innerHTML = `
+      <div class="modal-empty">
+        <div class="e-icon">📭</div>
+        <p style="color: var(--parchment-dim); font-size: 14px;">תרגום עדיין לא נוסף לדף זה.<br>התשתית מוכנה — ניתן להוסיף תרגום בקובץ.</p>
+      </div>
+    `;
+  } else {
+    let html = '';
+    trans.forEach(entry => {
+      if (entry.type === 'section') {
+        html += `<div class="trans-section-header">${entry.title}</div>`;
+      } else if (entry.type === 'quote') {
+        html += `
+          <div class="trans-entry">
+            <div class="trans-aram">${entry.aramaic}</div>
+            <div class="trans-heb">${entry.translation}</div>
+          </div>
+        `;
+      } else if (entry.type === 'summary') {
+        html += `<div class="trans-summary">${entry.text}</div>`;
+      } else if (entry.type === 'note') {
+        html += `<div class="trans-note">${entry.text}</div>`;
+      }
+    });
+    content.innerHTML = html;
+  }
+
+  state.modal = 'trans';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('transModal').classList.add('open');
+}
+
+function closeModal() {
+  state.modal = null;
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('rashiModal').classList.remove('open');
+  document.getElementById('tosModal').classList.remove('open');
+  document.getElementById('termModal').classList.remove('open');
+  document.getElementById('transModal').classList.remove('open');
+  document.getElementById('pickerModal').classList.remove('open');
+}
+
+// =======================================================
+// DAF PICKER
+// =======================================================
+function openPicker() {
+  const content = document.getElementById('pickerContent');
+  content.innerHTML = '';
+
+  perakim.forEach(perek => {
+    const section = document.createElement('div');
+    section.className = 'perek-section';
+
+    const header = document.createElement('div');
+    header.className = 'perek-header';
+    header.textContent = `פרק ${perek.num} — ${perek.name}`;
+    section.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'daf-grid';
+
+    // Find range of dapim in this perek
+    const perekIdx = perakim.indexOf(perek);
+    const nextPerek = perakim[perekIdx + 1];
+    const endDaf = nextPerek ? nextPerek.start : 121;
+    const endAmud = nextPerek ? nextPerek.startAmud : 'b';
+
+    // Iterate through dapim
+    for (let d = perek.start; d < endDaf || (d === endDaf && nextPerek && nextPerek.startAmud === 'b'); d++) {
+      const startA = (d === perek.start) ? perek.startAmud : 'a';
+      const amudOpts = startA === 'b' ? ['b'] : ['a', 'b'];
+      for (const a of amudOpts) {
+        if (d === endDaf && nextPerek && a === nextPerek.startAmud) break;
+        if (d === 120 && a === 'b') {} // include 120b
+        const ref = `${d}${a}`;
+        if (!amudim[ref]) continue;
+        const btn = document.createElement('button');
+        btn.className = 'daf-btn';
+        if (ref === state.ref) btn.classList.add('current');
+        if (amudim[ref].scenes.length > 0 && amudim[ref].scenes[0].tag !== `פרק ${getPerekFor(d, a).num}`) {
+          btn.classList.add('has-content');
+        }
+        // Show daf number with side
+        btn.textContent = `${heb(d)}${a === 'a' ? '.' : ':'}`;
+        btn.addEventListener('click', () => {
+          goToRef(ref);
+          closeModal();
+        });
+        grid.appendChild(btn);
+      }
+    }
+
+    section.appendChild(grid);
+    content.appendChild(section);
+  });
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('pickerModal').classList.add('open');
+}
+
+// =======================================================
+// EVENT BINDINGS
+// =======================================================
+document.getElementById('prevDafBtn').addEventListener('click', () => {
+  const idx = getCurrentIdx();
+  if (idx > 0) goToRef(allRefs[idx - 1]);
+});
+document.getElementById('nextDafBtn').addEventListener('click', () => {
+  const idx = getCurrentIdx();
+  if (idx < allRefs.length - 1) goToRef(allRefs[idx + 1]);
+});
+document.getElementById('dafDisplay').addEventListener('click', openPicker);
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+// Term modal for clickable Aramaic words in tutorial
+document.addEventListener('click', (e) => {
+  const term = e.target.closest('.term');
+  if (term && term.dataset.term) {
+    openTerm(term.dataset.term);
+  }
+});
+
+function openTerm(key) {
+  const t = terms[key];
+  if (!t) return;
+  const fnColors = {
+    statement: { bg: 'rgba(232,183,109,0.2)', color: 'var(--gold-bright)' },
+    question: { bg: 'rgba(193,74,90,0.2)', color: 'var(--crimson-glow)' },
+    answer: { bg: 'rgba(136,178,122,0.2)', color: 'var(--sage-glow)' },
+    source: { bg: 'rgba(127,179,213,0.2)', color: 'var(--sky-glow)' },
+    distinction: { bg: 'rgba(176,143,196,0.2)', color: '#b08fc4' },
+    conclusion: { bg: 'rgba(232,154,109,0.2)', color: 'var(--warm)' }
+  };
+  const c = fnColors[t.fn];
+
+  document.getElementById('termContent').innerHTML = `
+    <div class="modal-aram-big">${t.aram}</div>
+    <div class="modal-pron">${t.pron}</div>
+    <div class="modal-fn-badge" style="background: ${c.bg}; color: ${c.color};">${t.fnLabel}</div>
+    <div class="modal-mean-text">${t.mean}</div>
+    <div class="modal-use">${t.use}</div>
+  `;
+
+  state.modal = 'term';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('termModal').classList.add('open');
+}
+
+document.getElementById('prevSceneBtn').addEventListener('click', () => changeScene(-1));
+document.getElementById('nextSceneBtn').addEventListener('click', () => changeScene(1));
+
+document.getElementById('rashiBtn').addEventListener('click', () => openModal('rashi'));
+document.getElementById('tosBtn').addEventListener('click', () => openModal('tos'));
+document.getElementById('transBtn').addEventListener('click', () => openTranslation());
+
+document.getElementById('modalOverlay').addEventListener('click', closeModal);
+document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeModal));
+
+document.addEventListener('keydown', (e) => {
+  if (state.modal) {
+    if (e.key === 'Escape') closeModal();
+    return;
+  }
+  if (e.key === 'ArrowLeft') changeScene(1);
+  if (e.key === 'ArrowRight') changeScene(-1);
+});
+
+// Touch swipe for scenes
+let touchStartX = 0, touchStartY = 0, touchStartT = 0;
+document.addEventListener('touchstart', (e) => {
+  if (e.touches.length !== 1) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  touchStartT = Date.now();
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+  if (state.modal) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  const dt = Date.now() - touchStartT;
+  if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 2 && dt < 600) {
+    if (dx > 0) changeScene(-1);
+    else changeScene(1);
+  }
+}, { passive: true });
+
+// URL hash for deep linking
+function readHash() {
+  const h = window.location.hash.slice(1);
+  if (h === 'tutorial') {
+    switchTab('tutorial');
+    return;
+  }
+  if (h && amudim[h]) {
+    state.tab = 'masechet';
+    state.ref = h;
+    renderAll();
+  }
+}
+window.addEventListener('hashchange', readHash);
+readHash();
+
+// Initial render
+renderAll();
+</script>
+
+</body>
+</html>
