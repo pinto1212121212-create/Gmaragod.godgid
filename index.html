@@ -2,6 +2,12 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<script>
+// אם בפעם האחרונה למדו בתענית — חזור לשם
+try {
+  if (!location.hash && localStorage.getItem('gemara:last') === 'taanit') location.replace('taanit.html');
+} catch (e) {}
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>זבחים — אנימציה לכל המסכת</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1137,7 +1143,7 @@
 
   <header>
     <div class="masechet-name">מסכת זבחים</div>
-    <div class="masechet-switch"><a href="index.html" class="on">זבחים</a><a href="taanit.html">תענית</a></div>
+    <div class="masechet-switch"><a href="index.html" onclick="try{localStorage.setItem('gemara:last','zevachim')}catch(e){}" class="on">זבחים</a><a href="taanit.html" onclick="try{localStorage.setItem('gemara:last','taanit')}catch(e){}">תענית</a></div>
     <div class="daf-nav masechet-only">
       <button class="nav-arrow" id="prevDafBtn" title="דף קודם">‹</button>
       <div class="daf-display" id="dafDisplay">
@@ -2986,7 +2992,29 @@ function renderActionBar() {
   document.getElementById('tosBtn').classList.toggle('disabled', amud.tosafot.length === 0);
 }
 
+// ===== זיכרון מיקום: מסכת, דף, סצנה ולשונית =====
+const SAVE_KEY = 'gemara:zevachim';
+function savePlace() {
+  try {
+    localStorage.setItem('gemara:last', 'zevachim');
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ ref: state.ref, sceneIdx: state.sceneIdx, tab: state.tab }));
+  } catch (e) {}
+}
+function restorePlace() {
+  try {
+    const p = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+    if (!p || !amudim[p.ref]) return;
+    state.ref = p.ref;
+    state.tab = p.tab === 'tutorial' ? 'tutorial' : 'masechet';
+    const n = state.tab === 'masechet' ? amudim[p.ref].scenes.length : tutorialScenes.length;
+    state.sceneIdx = Math.min(Math.max(0, p.sceneIdx | 0), n - 1);
+    document.body.classList.toggle('tutorial-mode', state.tab === 'tutorial');
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === state.tab));
+  } catch (e) {}
+}
+
 function renderScenes() {
+  savePlace();
   const stage = document.getElementById('stage');
   const scenes = state.tab === 'masechet' ? amudim[state.ref].scenes : tutorialScenes;
 
@@ -3296,6 +3324,7 @@ function readHash() {
   }
 }
 window.addEventListener('hashchange', readHash);
+restorePlace();
 readHash();
 
 // Initial render
