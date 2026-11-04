@@ -1391,10 +1391,12 @@
   /* ===== הדף המלא עם הסבר ===== */
   .po-hl { pointer-events: auto !important; cursor: pointer; animation: none !important; opacity: .55; transition: opacity .25s, box-shadow .25s; }
   .po-wrap.has-sel .po-hl.on { opacity: 1; box-shadow: 0 0 0 2.5px rgba(var(--hl),1), 0 0 14px rgba(var(--hl),.55); }
-  .po-no { position: absolute; top: -9px; right: -9px; min-width: 18px; height: 18px; border-radius: 9px; font: 800 11px/18px 'Heebo', sans-serif;
+  .po-no { position: absolute; top: -13px; right: -7px; min-width: 15px; height: 15px; border-radius: 8px; font: 800 9.5px/15px 'Heebo', sans-serif;
     text-align: center; color: #fff; background: rgb(var(--hl)); box-shadow: 0 1px 4px rgba(0,0,0,.4); mix-blend-mode: normal; }
-  .po-call { position: absolute; z-index: 3; --hl: 230,110,20; background: rgba(29,23,17,0.96); color: var(--parchment); border-radius: 14px;
-    border: 1.5px solid rgb(var(--hl)); box-shadow: 0 10px 28px rgba(0,0,0,.55); padding: 9px 12px 10px; pointer-events: none; }
+  /* בועת ההסבר יושבת בפס קבוע מתחת לצילום — אף פעם לא על האותיות */
+  .po-call { position: relative; flex: 0 0 auto; z-index: 3; --hl: 230,110,20; background: rgba(29,23,17,0.98); color: var(--parchment);
+    border-top: 3px solid rgb(var(--hl)); padding: 9px 14px 10px; max-height: 34vh; overflow-y: auto; }
+  .po-call:empty { display: none; }
   .po-call.hl-q, .po-call.hl-x, .po-lead.hl-q, .po-lead.hl-x { --hl: 232,86,106; }
   .po-call.hl-a, .po-lead.hl-a { --hl: 108,195,90; }
   .po-call.hl-c, .po-lead.hl-c { --hl: 242,193,78; }
@@ -2425,13 +2427,13 @@ function openPhoto(ref, box) {
   if (PO.list.length) {
     marks = rect(box, 'po-sec') + PO.list.map((x, k) => x.rr.map((r, j) =>
       `<div class="po-hl hl-${x.role}" data-k="${k}" style="left:${r.l}%;top:${r.t}%;width:${r.w}%;height:${r.h}%">${j === 0 ? `<b class="po-no">${k + 1}</b>` : ''}</div>`).join('')).join('')
-      + '<div class="po-call" id="poCall"></div><svg class="po-lead" id="poLead" viewBox="0 0 100 100" preserveAspectRatio="none"><path id="poLeadP"/></svg>';
+      ;
     const want = focusBeat != null ? focusBeat : Math.min(state.beat, sc.beats.length - 1);
     PO.cur = Math.max(0, PO.list.findIndex(x => x.bi >= want));
   } else marks = box ? rect(box, 'po-mark') : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
   ov.innerHTML = `<div class="po-bar"><span>📷 ${AMUD_NAME[ref]}${PO.list.length ? ' · הדף עם ההסבר' : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close" onclick="closePhoto()">✕</button></div>
     <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}">${marks}</div></div>
-    ${PO.list.length ? `<div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה">🔍</button></div>`
+    ${PO.list.length ? `<div class="po-call" id="poCall"></div><div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה">🔍</button></div>`
       : '<div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>'}`;
   ov.classList.add('open');
   state.modal = 'photo';
@@ -2457,43 +2459,20 @@ function poSelect(k, instant) {
   wrap.classList.add('has-sel');
   document.querySelectorAll('#poDots i').forEach((d, j) => d.classList.toggle('on', j === k));
   document.getElementById('poPrev').disabled = k === 0; document.getElementById('poNext').disabled = k === PO.list.length - 1;
-  // בועת ההסבר: מתחת לשורות של השלב, או מעליהן אם אין מקום; צמודה לצד של המילים
+  // בועת ההסבר: בפס קבוע מתחת לצילום, כך שלא מסתירה ולא מכהה שום מילה בדף
   const call = document.getElementById('poCall');
   call.className = 'po-call hl-' + x.role;
   call.innerHTML = `<div class="pc-head"><span class="pc-no">${k + 1}</span><span class="pc-role">${ROLE[x.role][0]} ${ROLE[x.role][1]}</span><span class="pc-who">${x.who}</span></div>
     <div class="pc-txt">${x.tk || x.txt}</div>`;
+  call.scrollTop = 0;
+  call.animate([{ opacity: 0.3 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+  // מצלמה: מביאים את המילים של השלב למרכז החלק הנראה של הצילום (אחרי שהבועה תפסה את מקומה)
   const W = wrap.clientWidth, H = wrap.clientHeight;
   const top = Math.min(...x.rr.map(r => r.t)), bot = Math.max(...x.rr.map(r => r.t + r.h));
   const left = Math.min(...x.rr.map(r => r.l)), right = Math.max(...x.rr.map(r => r.l + r.w));
-  const vw = sc.clientWidth, cw = Math.min(vw - 24, 340);
-  const cx = (left + right) / 2 / 100 * W;
-  // קודם קובעים איזה חלק של הדף נראה, ואז מניחים את הבועה בתוך החלק הנראה
+  const vw = sc.clientWidth, cx = (left + right) / 2 / 100 * W;
   const sl = Math.max(0, Math.min(W - vw, cx - vw / 2));
-  call.style.width = cw + 'px';
-  const ch = call.offsetHeight || 110;
-  let lx = Math.max(sl + 8, Math.min(sl + vw - cw - 8, cx - cw / 2));
-  // הבועה לא מכסה סימונים של שלבים אחרים: מניחים אותה מתחת לכל הסימונים של הקטע (או מעליהם),
-  // ורק אם אין מקום כך שגם המילים וגם הבועה ייראו במסך, חוזרים להניח אותה צמוד לשלב
-  const all = PO.list.flatMap(o => o.rr);
-  const uTop = Math.min(...all.map(r => r.t)) / 100 * H - 12, uBot = Math.max(...all.map(r => r.t + r.h)) / 100 * H + 12;
-  const gap = 18, vh = sc.clientHeight - 16, wTop = top / 100 * H, wBot = bot / 100 * H;
-  const fits = (y) => Math.max(wBot, y + ch) - Math.min(wTop, y) <= vh;
-  let place, ly;
-  if (uBot + gap + ch < H - 6 && fits(uBot + gap)) { place = 'below'; ly = uBot + gap; }
-  else if (uTop - gap - ch > 6 && fits(uTop - gap - ch)) { place = 'above'; ly = uTop - gap - ch; }
-  else if (wBot + gap + ch < H - 10) { place = 'below'; ly = wBot + gap; }
-  else { place = 'above'; ly = Math.max(6, wTop - gap - ch); }
-  call.style.left = lx + 'px'; call.style.top = ly + 'px';
-  call.dataset.place = place;
-  // קו מוביל מהבועה אל המילים
-  const ax = Math.max(lx + 18, Math.min(lx + cw - 18, cx)), ay = place === 'below' ? ly : ly + call.offsetHeight;
-  const ty = place === 'below' ? bot / 100 * H : top / 100 * H;
-  const lead = document.getElementById('poLead'); lead.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  document.getElementById('poLeadP').setAttribute('d', `M ${ax} ${ay} L ${cx} ${ty}`);
-  lead.setAttribute('class', 'po-lead hl-' + x.role);
-  call.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'ease-out' });
-  // מצלמה: מביאים את המילים והבועה למרכז
-  const midY = (Math.min(top / 100 * H, ly) + Math.max(bot / 100 * H, ly + ch)) / 2;
+  const midY = (top + bot) / 2 / 100 * H;
   sc.scrollTo({ top: Math.max(0, midY - sc.clientHeight / 2), left: sl, behavior: instant ? 'auto' : 'smooth' });
 }
 function closePhoto() {
