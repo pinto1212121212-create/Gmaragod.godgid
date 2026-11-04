@@ -37,7 +37,7 @@
     color: var(--parchment);
     font-family: 'Heebo', sans-serif;
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow-x: clip;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -1208,7 +1208,7 @@
   @media (prefers-reduced-motion: reduce) { .beat.on, .after.on, .step-next { animation: none; } }
 
   /* ===== חץ מההסבר לגמרא ===== */
-  .daf-src { position: sticky; top: 0; z-index: 5; box-shadow: 0 8px 18px rgba(0,0,0,0.45); }
+  .daf-src { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; box-shadow: 0 8px 18px rgba(0,0,0,0.45); }
   .src-wrap { max-height: 34vh; overflow-y: auto; scroll-behavior: smooth; overscroll-behavior: contain; }
   .src-inner { position: relative; }
   .src-inner img { display: block; width: 100%; height: auto; cursor: zoom-in; }
