@@ -1337,6 +1337,13 @@
   .takhles { flex: 1 0 100%; margin-top: 9px; padding: 8px 11px; border-radius: 10px; font-size: 15px; line-height: 1.6;
     background: rgba(232,183,109,0.12); border-right: 3px solid var(--gold); color: var(--parchment); }
   .takhles span { display: block; font-size: 11px; font-weight: 800; color: var(--gold); margin-bottom: 1px; }
+  .ctx { margin-top: 7px; border-top: 1px dashed rgba(244,234,213,0.18); padding-top: 5px; }
+  .ctx summary { cursor: pointer; font-size: 12.5px; font-weight: 800; color: var(--gold-bright, #f5d39a); list-style: none; }
+  .ctx summary::-webkit-details-marker { display: none; }
+  .ctx summary::after { content: ' ▾'; }
+  .ctx[open] summary::after { content: ' ▴'; }
+  .ctx div { margin-top: 4px; font-size: 14.5px; line-height: 1.75; color: var(--parchment-soft, #e2d5ba); }
+  .po-call .ctx div { font-size: 13.5px; }
   .role-q .takhles, .role-x .takhles { background: rgba(232,86,106,0.12); border-right-color: #e8566a; }
   .role-q .takhles span, .role-x .takhles span { color: #ff8a98; }
   .role-a .takhles { background: rgba(108,195,90,0.12); border-right-color: #6cc35a; }
@@ -1645,6 +1652,7 @@
 </div>
 
 <script src="tree-data.js"></script>
+<script src="context-data.js"></script>
 <script>
 // =======================================================
 // PEREK DATA — מסכת תענית
@@ -2468,7 +2476,7 @@ function poSelect(k, instant) {
   const call = document.getElementById('poCall');
   call.className = 'po-call hl-' + x.role;
   call.innerHTML = `<div class="pc-head"><span class="pc-no">${k + 1}</span><span class="pc-role">${ROLE[x.role][0]} ${ROLE[x.role][1]}</span><span class="pc-who">${x.who}</span></div>
-    <div class="pc-txt">${x.tk || x.txt}</div>`;
+    <div class="pc-txt">${x.tk || x.txt}</div>${ctxHTML(`${PO.ref}:${state.sceneIdx}:${x.bi}`)}`;
   call.scrollTop = 0;
   call.animate([{ opacity: 0.3 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
   // מצלמה: מביאים את המילים של השלב למרכז החלק הנראה של הצילום (אחרי שהבועה תפסה את מקומה)
@@ -3137,9 +3145,16 @@ const TAKHLES = {
 '6a:6:3': 'שאלה: ברור למה צריך רביעה ראשונה (לבקש) ושלישית (להתענות). אבל השנייה, בשביל מה?',
 '6a:6:4': 'התשובה: לעניין נדרים. ההסבר בדף הבא.'
 };
+// בתכלס = ההסבר הקצר. מתחתיו ״🧭 ההקשר המלא״ = ההסבר הארוך (CONTEXT ב־context-data.js): איפה אנחנו בדיון, מה נשאל ולמה
+let ctxOpen = false; try { ctxOpen = localStorage.getItem('gemara:ctx') === '1'; } catch (e) {}
+function setCtx(open) { ctxOpen = open; try { localStorage.setItem('gemara:ctx', open ? '1' : '0'); } catch (e) {} }
+function ctxHTML(key) {
+  const c = typeof CONTEXT !== 'undefined' && CONTEXT[key];
+  return c ? `<details class="ctx"${ctxOpen ? ' open' : ''} onclick="event.stopPropagation()" ontoggle="setCtx(this.open)"><summary>🧭 ההקשר המלא</summary><div>${c}</div></details>` : '';
+}
 function takhlesHTML(key) {
   const t = TAKHLES[key];
-  return t ? `<div class="takhles"><span>🎯 בתכלס</span>${t}</div>` : '';
+  return t ? `<div class="takhles"><span>🎯 בתכלס</span>${t}${ctxHTML(key)}</div>` : '';
 }
 
 // =======================================================
