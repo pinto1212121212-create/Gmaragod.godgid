@@ -106,6 +106,31 @@
   .sh-text { font-family: 'Frank Ruhl Libre', serif; font-size: 20px; line-height: 1.6; margin: 6px 0 8px; }
   .sh-exp { font-size: 15px; line-height: 1.65; background: rgba(244,234,213,0.06); border-right: 3px solid var(--rc); border-radius: 10px; padding: 8px 11px; }
   .sh-exp b { color: var(--rc); }
+  /* סרגל כלים בחלונית: כל מה שיש בדף ההסבר — בתכלס, הקשר, הגמרא, מילה במילה, הצילום, מונחים */
+  .sh-tabs { position: sticky; top: -8px; z-index: 2; display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; margin: 10px -4px 8px; padding: 7px 4px;
+    background: rgba(29,23,17,0.98); border-bottom: 1px solid rgba(232,183,109,0.25); }
+  .sh-tabs::-webkit-scrollbar { display: none; }
+  .sh-tab { flex: 0 0 auto; font: 800 12.5px/1 'Heebo', sans-serif; padding: 7px 10px; border-radius: 16px; cursor: pointer;
+    border: 1px solid rgba(232,183,109,0.35); background: rgba(244,234,213,0.05); color: var(--soft); }
+  .sh-tab.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+  .sh-tab:disabled { opacity: .35; }
+  .sh-pane { display: none; } .sh-pane.on { display: block; animation: shp .25s ease-out; }
+  @keyframes shp { from { opacity: 0; transform: translateY(4px); } }
+  .sh-tk2 { margin-top: 8px; font-size: 14.5px; line-height: 1.65; color: var(--soft); }
+  .sh-ctxp p { margin: 0 0 8px; font-size: 15px; line-height: 1.8; color: var(--soft); }
+  .g-punct { font-family: 'Frank Ruhl Libre', serif; font-size: 18px; line-height: 1.9; color: #2a2119; background: #efe6d2; border-radius: 10px; padding: 9px 12px; margin-bottom: 8px; }
+  .g-punct q { quotes: none; color: #1d4f8c; font-weight: 700; }
+  .wbw { display: flex; flex-wrap: wrap; gap: 5px 7px; padding: 8px 9px 7px; border-radius: 10px; margin-bottom: 8px;
+    background: rgba(244,234,213,0.06); border: 1px dashed rgba(232,183,109,0.28); direction: rtl; }
+  .ww { display: inline-flex; flex-direction: column; align-items: center; text-align: center; max-width: 100%; padding: 2px 6px 3px; border-radius: 7px; background: rgba(20,16,10,0.35); }
+  .ww b { font-family: 'Frank Ruhl Libre', serif; font-size: 16px; font-weight: 700; color: var(--gold-b); line-height: 1.3; }
+  .ww i { font-style: normal; font-size: 11.5px; color: var(--soft); line-height: 1.35; }
+  .wg { display: inline-flex; flex-direction: column; max-width: 100%; border-radius: 8px; border: 1px solid rgba(232,183,109,0.3); background: rgba(20,16,10,0.25); padding: 3px 3px 4px; }
+  .wg-words { display: flex; flex-wrap: wrap; gap: 3px; } .wg .ww { background: transparent; padding: 1px 4px; }
+  .wg-mean { font-size: 11.5px; color: #8fdc7e; text-align: center; padding: 2px 4px 0; }
+  .sh-terms div { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px dashed rgba(244,234,213,0.12); font-size: 14px; }
+  .sh-terms b { color: var(--gold-b); font-family: 'Frank Ruhl Libre', serif; font-size: 16px; flex: 0 0 auto; }
+  .sh-none { color: var(--dim); font-size: 13.5px; padding: 6px 0; }
   /* ההסבר הארוך: כל ההקשר — איפה אנחנו, מה נשאל ולמה */
   .sh-ctx { margin-top: 8px; background: rgba(244,234,213,0.04); border: 1px solid rgba(232,183,109,0.25); border-radius: 10px; padding: 7px 11px; }
   .sh-ctx summary { cursor: pointer; font-size: 13.5px; font-weight: 800; color: var(--gold-b); list-style: none; }
@@ -410,15 +435,14 @@ function sheet(n) {
     <div class="sh-head"><span class="sh-role">${ROLE[n.r][0]} ${ROLE[n.r][1]}</span><span class="sh-who">${n.w}</span><span class="sh-no">שלב ${n.seq} מתוך ${flat.length}</span><button class="sh-x" id="shX" aria-label="סגור">✕</button></div>
     ${rel && n.parent && n.parent.r !== 'root' ? `<div class="sh-rel">⟵ ${rel} על: ״${short(n.parent.t, 40)}״</div>` : ''}
     <div class="sh-text">${n.t}</div>
-    <div class="sh-exp"><b>🎯 בתכלס:</b> ${n.e}</div>
-    ${ctxOf(n)}
-    ${kids.length ? `<div class="sh-kids"><div class="kh">⬇ מה עונים על זה (${kids.length})</div>${kids.map((k, i) =>
-      `<button class="kid" data-i="${i}" style="--kc:${COL[k.r]}"><b>${ROLE[k.r][0]} ${relLabel(k) || ROLE[k.r][1]}</b> ${k.w}: ${short(k.t, 34)}</button>`).join('')}</div>` : ''}
-    <div class="sh-img"><div class="sh-imgw"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></div>
+    ${toolbar(n, kids)}
     <div class="sh-nav"><button class="sk" id="shPrev" aria-label="השלב הקודם"${n.seq === 1 ? ' disabled' : ''}>▶ הקודם</button><button class="play" id="shPlay">${story ? '❚❚ עצור' : '▶ סיפור'}</button><button class="sk" id="shNext" aria-label="השלב הבא"${n.seq === flat.length ? ' disabled' : ''}>הבא ◀</button></div>
     <div class="sh-acts"><a class="pri" href="${BASE}taanit.html#${st.ref}-${n.s}">↩ להסבר המלא</a><button class="sec" id="shUp">${n.parent && n.parent.r !== 'root' ? '⬆ לשלב שמעל' : '⤢ כל העץ'}</button></div>
     <div style="text-align:center;font-size:12px;color:var(--dim);margin-top:8px">קטע ״${SN[n.s] || n.s + 1}״</div>`;
   sh.classList.add('open');
+  sh.querySelectorAll('.sh-tab').forEach(t => t.onclick = () => { shTab = t.dataset.t; try { localStorage.setItem('gemara:shtab', shTab); } catch (e) {}
+    sh.querySelectorAll('.sh-tab').forEach(x => x.classList.toggle('on', x === t)); sh.querySelectorAll('.sh-pane').forEach(x => x.classList.toggle('on', x.dataset.t === shTab));
+    if (shTab === 'img') { const mk = sh.querySelector('.mk'), sim = sh.querySelector('.sh-img'); if (mk && sim) sim.scrollTop = Math.max(0, mk.offsetTop - sim.clientHeight / 3); } });
   $('shX').onclick = () => { closeSheet(); };
   $('shUp').onclick = () => { if (n.parent && n.parent.r !== 'root') select(n.parent, true); else { closeSheet(); fit(true); } };
   sh.querySelectorAll('.kid').forEach(b => b.onclick = () => select(kids[+b.dataset.i], true));
@@ -438,6 +462,49 @@ function ctxOf(n) {
   if (!body) return '';
   let open = true; try { open = localStorage.getItem('gemara:ctxT') !== '0'; } catch (er) {}
   return `<details class="sh-ctx"${open ? ' open' : ''} ontoggle="try{localStorage.setItem('gemara:ctxT',this.open?'1':'0')}catch(e){}"><summary>🧭 ההקשר המלא — על מה מדברים כאן</summary>${body}</details>`;
+}
+// ===== סרגל הכלים בחלונית =====
+let shTab = 'tk'; try { shTab = localStorage.getItem('gemara:shtab') || 'tk'; } catch (e) {}
+function cxKeys(n) {
+  const e = typeof TREE_CX !== 'undefined' && TREE_CX[st.ref] && TREE_CX[st.ref][n.seq - 1];
+  return typeof e === 'string' ? [e] : Array.isArray(e) ? e : [];
+}
+function ctxBody(n) {
+  const e = typeof TREE_CX !== 'undefined' && TREE_CX[st.ref] && TREE_CX[st.ref][n.seq - 1];
+  const C = typeof CONTEXT !== 'undefined' ? CONTEXT : {};
+  const parts = !e ? [] : typeof e === 'string' ? [C[e]] : Array.isArray(e) ? e.map(k => C[k]) : [e.L];
+  return parts.filter(Boolean).map(t => `<p>${t}</p>`).join('');
+}
+function wbwBlock(w) {
+  const D = (typeof TX !== 'undefined' && TX.WDICT) || {};
+  return `<div class="wbw">${w.split('|').map(p => {
+    const i = p.indexOf('='); const a = (i < 0 ? p : p.slice(0, i)).trim(), h = i < 0 ? '' : p.slice(i + 1).trim();
+    const ws = a.split(/\s+/);
+    if (ws.length === 1) return `<span class="ww"><b>${a}</b><i>${h}</i></span>`;
+    return `<span class="wg"><span class="wg-words">${ws.map(x => `<span class="ww"><b>${x}</b><i>${D[x] || ''}</i></span>`).join('')}</span><span class="wg-mean">${h}</span></span>`;
+  }).join('')}</div>`;
+}
+function toolbar(n, kids) {
+  const T = typeof TX !== 'undefined' ? TX : {}, ks = cxKeys(n);
+  const tks = ks.map(k => (T.TAKHLES || {})[k]).filter(Boolean);
+  const gm = ks.map(k => (T.PUNCT || {})[k]).filter(Boolean);
+  const ww = ks.map(k => (T.WBW || {})[k]).filter(Boolean);
+  const hay = (n.t + ' ' + gm.join(' ')).replace(/[״"]/g, '');
+  const terms = (T.KEY_TERMS || []).filter(([t]) => hay.includes(t));
+  const cx = ctxBody(n);
+  const panes = [
+    ['tk', '🎯 בתכלס', `<div class="sh-exp"><b>🎯 בתכלס:</b> ${n.e}</div>${tks.length && !tks.includes(n.e) ? `<div class="sh-tk2">${tks.join('<br>')}</div>` : ''}
+      ${kids.length ? `<div class="sh-kids"><div class="kh">⬇ מה עונים על זה (${kids.length})</div>${kids.map((k, i) =>
+        `<button class="kid" data-i="${i}" style="--kc:${COL[k.r]}"><b>${ROLE[k.r][0]} ${relLabel(k) || ROLE[k.r][1]}</b> ${k.w}: ${short(k.t, 34)}</button>`).join('')}</div>` : ''}`],
+    ['cx', '🧭 ההקשר', cx ? `<div class="sh-ctxp">${cx}</div>` : ''],
+    ['gm', '📜 בגמרא', gm.map(t => `<div class="g-punct">${t.replace(/״([^״]+)״/g, '<q>״$1״</q>')}</div>`).join('')],
+    ['wbw', '🔤 מילה במילה', ww.map(wbwBlock).join('')],
+    ['img', '📷 בדף', `<div class="sh-img"><div class="sh-imgw"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></div>`],
+    ['tm', '💡 מונחים', terms.length ? `<div class="sh-terms">${terms.map(([t, d]) => `<div><b>${t}</b><span>${d}</span></div>`).join('')}</div>` : ''],
+  ];
+  let cur = panes.find(p => p[0] === shTab && p[2]) ? shTab : 'tk';
+  return `<div class="sh-tabs" role="tablist">${panes.map(([id, lb, body]) => `<button class="sh-tab${id === cur ? ' on' : ''}" data-t="${id}"${body ? '' : ' disabled'}>${lb}</button>`).join('')}</div>
+    ${panes.map(([id, , body]) => `<div class="sh-pane${id === cur ? ' on' : ''}" data-t="${id}">${body || '<div class="sh-none">אין לשלב הזה</div>'}</div>`).join('')}`;
 }
 function closeSheet() { st.sel = null; whereSoon(); flat.forEach(m => m.el.classList.remove('sel')); sheet(null); $('stage').classList.remove('has-sheet'); }
 

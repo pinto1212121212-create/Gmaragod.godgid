@@ -195,6 +195,14 @@ def do_marks():
     words = {k: ' '.join(p.split('=')[0].strip() for p in v.split('|')) for k, v in W.items()}
     out = '// נוצר אוטומטית מתוך taanit.html (python3 .claude/tools/daf_tool.py marks) — לא לערוך ביד\n'
     out += 'const DAF_LINES = ' + json.dumps(L) + ';\nconst BEAT_SPAN = ' + json.dumps(SP) + ';\nconst BEAT_WORDS = ' + json.dumps(words, ensure_ascii=False) + ';\nconst DAF_SRC = ' + json.dumps(SRC) + ';\n'
+    # תוכן ההסבר לעץ (מילה במילה, פיסוק, בתכלס, מילון, מונחים) — כדי שהחלונית בעץ תציג כל מה שיש בדף ההסבר
+    def kv(name):
+        a = s.index('const %s = {' % name); b = s.index('\n};', a)
+        return dict(re.findall(r"^'(\d+[ab]:\d+:\d+)': '(.*?)',?$", s[a:b], flags=re.M))
+    a = s.index('const KEY_TERMS = ['); b = s.index('\n];', a)
+    terms = re.findall(r"\['(.*?)', '(.*?)'\]", s[a:b])
+    TX = {'WBW': W, 'PUNCT': kv('PUNCT'), 'TAKHLES': kv('TAKHLES'), 'WDICT': html_get('WDICT'), 'KEY_TERMS': terms}
+    out += 'const TX = ' + json.dumps(TX, ensure_ascii=False) + ';\n'
     open(os.path.join(ROOT, 'daf-marks.js'), 'w', encoding='utf-8').write(out); print('daf-marks.js עודכן')
 
 def do_report():
