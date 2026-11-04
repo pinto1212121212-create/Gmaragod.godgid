@@ -99,6 +99,28 @@
 
   .zoom { display: inline-flex; gap: 4px; margin-right: auto; }
   .zoom .btn { padding: 8px 11px; }
+
+  .n-no { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; border-radius: 10px;
+    font-size: 11px; font-weight: 800; background: rgba(244,234,213,0.12); color: var(--gold-b); font-variant-numeric: tabular-nums; }
+  .n-acts { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .n-acts .n-link { margin-top: 0; }
+  .n-src { font-family: inherit; font-size: 12px; font-weight: 800; color: var(--ink); background: var(--gold); border: 0; border-radius: 10px; padding: 2px 9px; cursor: pointer; }
+  .org-wrap { margin-bottom: 26px; }
+  .org-wrap .org { margin-bottom: 8px; }
+  .src-strip { border: 1px solid rgba(232,183,109,0.3); border-radius: 12px; background: rgba(20,16,10,0.5); padding: 8px; }
+  .ss-title { font-size: 12.5px; font-weight: 800; color: var(--gold); margin-bottom: 6px; }
+  .ss-fig { margin: 0 0 8px; cursor: zoom-in; border-radius: 8px; overflow: hidden; background: #efe9dc; }
+  .ss-fig:last-child { margin-bottom: 0; }
+  .ss-fig figcaption { font-size: 12px; font-weight: 700; color: var(--gold-b); background: var(--ink-2); padding: 4px 8px; }
+  .ss-fig img { display: block; width: 100%; height: auto; }
+  .src-ov { position: fixed; inset: 0; z-index: 50; background: rgba(10,8,6,0.88); display: flex; align-items: center; justify-content: center;
+    padding: max(14px, env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) 14px max(14px, env(safe-area-inset-left, 0px)); }
+  .src-ov[hidden] { display: none; }
+  .so-box { width: 100%; max-width: 700px; max-height: 100%; overflow: auto; background: var(--ink-2); border: 1px solid var(--gold); border-radius: 14px; }
+  .so-bar { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; font-weight: 800; color: var(--gold-b); font-size: 14px; }
+  .so-bar button { border: 0; background: transparent; color: var(--soft); font-size: 18px; cursor: pointer; }
+  .so-box img { display: block; width: 100%; height: auto; background: #efe9dc; }
+  .so-go { display: block; text-align: center; padding: 11px; font-weight: 800; color: var(--gold); text-decoration: none; }
   .how { margin-top: 18px; font-size: 13.5px; line-height: 1.7; color: var(--soft); background: rgba(244,234,213,0.04); border-radius: 12px; padding: 10px 13px; }
   .how b { color: var(--gold-b); }
   .empty { text-align: center; color: var(--dim); padding: 24px; }
@@ -142,11 +164,12 @@
 
   <div class="how">
     <b>איך קוראים את העץ?</b> כמו אילן יוחסין: השורש למעלה, וכל שורה מתחתיו היא ״הדור הבא״ של הסוגיה. כל כרטיס הוא שלב בגמרא, והענפים שיוצאים ממנו למטה הם מה שבא בתגובה אליו: שאלה ← תירוץ ← דחייה ← תירוץ חדש... עד המסקנה.
-    <b>הקשה על כרטיס</b> מכווצת או פותחת את הענפים שלו. <b>״↩ לקטע״</b> מחזיר להסבר המלא של אותו שלב, עם הצילום מהדף.
+    <b>הקשה על כרטיס</b> מכווצת או פותחת את הענפים שלו. <b>המספר בעיגול</b> הוא הסדר שבו הדברים נאמרים בגמרא, ועל הקו כתוב ״תירוץ ראשון״, ״תירוץ שני״ וכו׳. <b>״📷 בדף״</b> מראה איפה זה כתוב בדף, ומתחת לכל עץ יש את צילומי הגמרא שלו. <b>״↩ לקטע״</b> מחזיר להסבר המלא.
     תירוץ שנדחה מסומן <s>בקו חוצה</s>. עץ רחב אפשר לגרור הצידה, ולהגדיל או להקטין בכפתורים − / +.
   </div>
 </div>
 
+<div class="src-ov" id="srcOv" hidden onclick="if(event.target===this)closeSrc()"></div>
 <script src="tree-data.js"></script>
 <script>
 const ROLE = { m: ['📜', 'משנה / מקור'], q: ['❓', 'שאלה'], x: ['⚡', 'דחייה'], a: ['✅', 'תירוץ'], c: ['📌', 'מסקנה'], n: ['📖', 'סיפור / ראיה'], k: ['💡', 'הסבר'] };
@@ -188,19 +211,54 @@ function filterSec(nodes, s) {
   }
   return out;
 }
-function nodeHTML(n, parentRole, depth) {
+const ORD = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שביעי'];
+const ORDF = ['ראשונה', 'שנייה', 'שלישית', 'רביעית', 'חמישית', 'שישית', 'שביעית'];
+const RNAME = { a: ['תירוץ', 0], q: ['קושיה', 1], x: ['דחייה', 1], c: ['מסקנה', 1], n: ['ראיה', 1], m: ['מקור', 0], k: ['הסבר', 0] };
+let seqNo = 0;
+// מספור אחים מאותו סוג: ״תירוץ ראשון״, ״קושיה שנייה״
+function sibOrdinals(kids) {
+  const tot = {}, cur = {};
+  kids.forEach(k => { tot[k.r] = (tot[k.r] || 0) + 1; });
+  return kids.map(k => { cur[k.r] = (cur[k.r] || 0) + 1; return tot[k.r] > 1 ? cur[k.r] - 1 : -1; });
+}
+function relLabel(parentRole, n, ord) {
+  const base = relText(parentRole, n.r);
+  if (ord < 0) return base;
+  const [nm, fem] = RNAME[n.r] || ['', 0];
+  return `${nm} ${(fem ? ORDF : ORD)[ord] || ord + 1} ⟵`;
+}
+function nodeHTML(n, parentRole, depth, ord = -1) {
   const [ico, name] = ROLE[n.r];
   const kids = (n.k || []);
-  const rel = parentRole ? `<span class="rel">${relText(parentRole, n.r)}</span>` : '';
+  const no = ++seqNo;
+  const ords = sibOrdinals(kids);
+  const rel = parentRole ? `<span class="rel">${relLabel(parentRole, n, ord)}</span>` : '';
   return `<li class="r-${n.r}" style="--rc:${RC[n.r]};--lc:${RC[n.r]}">${rel}
     <div class="node" role="button" tabindex="0"${n.ctx ? ' style="opacity:.55"' : ''}>
-      <div class="n-head"><span class="n-role">${ico} ${name}</span><span class="n-who">${n.w}</span>${kids.length ? `<span class="n-tog">▾ ${kids.length}</span>` : ''}</div>
+      <div class="n-head"><span class="n-no" title="הסדר בגמרא">${no}</span><span class="n-role">${ico} ${name}</span><span class="n-who">${n.w}</span>${kids.length ? `<span class="n-tog">▾ ${kids.length}</span>` : ''}</div>
       <div class="n-text">${n.t}</div>
       <div class="n-exp"><b>בתכלס:</b> ${n.e}</div>
-      <a class="n-link" href="${BASE}#${st.ref}-${n.s}" onclick="event.stopPropagation()">↩ לקטע ״${SECTION_NAMES[st.ref][n.s] || n.s + 1}״</a>
+      <div class="n-acts"><button class="n-src" onclick="event.stopPropagation(); openSrc('${st.ref}', ${n.s})">📷 בדף</button><a class="n-link" href="${BASE}#${st.ref}-${n.s}" onclick="event.stopPropagation()">↩ לקטע ״${SECTION_NAMES[st.ref][n.s] || n.s + 1}״</a></div>
     </div>
-    ${kids.length ? `<ul>${kids.map(k => nodeHTML(k, n.r, depth + 1)).join('')}</ul>` : ''}</li>`;
+    ${kids.length ? `<ul>${kids.map((k, i) => nodeHTML(k, n.r, depth + 1, ords[i])).join('')}</ul>` : ''}</li>`;
 }
+// המקור בדף: הצילומים של הקטעים שהעץ הזה מכסה, לפי הסדר
+function secsOfNode(n, acc = []) { if (!acc.includes(n.s)) acc.push(n.s); (n.k || []).forEach(k => secsOfNode(k, acc)); return acc; }
+const IMG = 'taanit-img/';
+function srcStrip(n) {
+  const secs = secsOfNode(n).sort((x, y) => x - y);
+  return `<div class="src-strip"><div class="ss-title">📷 איפה זה כתוב בדף · ${TREE[st.ref].title}</div>${secs.map(s =>
+    `<figure class="ss-fig" onclick="openSrc('${st.ref}', ${s})"><figcaption>קטע ״${SECTION_NAMES[st.ref][s] || s + 1}״</figcaption>
+      <img src="${IMG}${st.ref}-${s}.jpg" alt="לשון הגמרא: ${SECTION_NAMES[st.ref][s] || ''}" loading="lazy"></figure>`).join('')}</div>`;
+}
+function openSrc(ref, s) {
+  const ov = document.getElementById('srcOv');
+  ov.innerHTML = `<div class="so-box"><div class="so-bar"><span>📷 ${TREE[ref].title} · קטע ״${SECTION_NAMES[ref][s] || s + 1}״</span><button onclick="closeSrc()" aria-label="סגור">✕</button></div>
+    <img src="${IMG}${ref}-${s}.jpg" alt="לשון הגמרא">
+    <a class="so-go" href="${BASE}#${ref}-${s}">↩ להסבר המלא של הקטע, עם סימון כל מילה</a></div>`;
+  ov.hidden = false;
+}
+function closeSrc() { document.getElementById('srcOv').hidden = true; }
 function count(nodes, acc = {}) { for (const n of nodes) { acc[n.r] = (acc[n.r] || 0) + 1; count(n.k || [], acc); } return acc; }
 
 function render() {
@@ -220,7 +278,7 @@ function render() {
   chips.innerHTML = secs.map(([s, n]) => `<button class="chip${s === st.sec ? ' on' : ''}" data-s="${s}">${SECTION_NAMES[st.ref][s] || s + 1}<b>${n}</b></button>`).join('');
   const roots = st.mode === 'sec' ? filterSec(T.roots, st.sec) : T.roots;
   document.getElementById('tree').innerHTML = roots.length
-    ? roots.map(n => `<div class="org"><div class="org-inner"><ul>${nodeHTML(n, null, 0)}</ul></div></div>`).join('')
+    ? (seqNo = 0, roots.map(n => `<div class="org-wrap"><div class="org"><div class="org-inner"><ul>${nodeHTML(n, null, 0)}</ul></div></div>${srcStrip(n)}</div>`).join(''))
     : '<div class="empty">אין שלבים בקטע הזה</div>';
   applyZoom(); centerRoots();
   const on = chips.querySelector('.chip.on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' });
@@ -292,6 +350,7 @@ document.getElementById('tree').addEventListener('click', e => {
   if (zoomMode === 'fit') applyZoom();
 });
 document.getElementById('tree').addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('node')) { e.preventDefault(); e.target.click(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSrc(); });
 window.addEventListener('hashchange', () => { const m = location.hash.slice(1).match(/^(\d+[ab])(?:-(\d+))?$/); if (m && TREE[m[1]]) { st.ref = m[1]; if (m[2] != null) { st.mode = 'sec'; st.sec = +m[2]; } render(); } });
 render();
 </script>
