@@ -1337,6 +1337,25 @@
   .takhles { flex: 1 0 100%; margin-top: 9px; padding: 8px 11px; border-radius: 10px; font-size: 15px; line-height: 1.6;
     background: rgba(232,183,109,0.12); border-right: 3px solid var(--gold); color: var(--parchment); }
   .takhles span { display: block; font-size: 11px; font-weight: 800; color: var(--gold); margin-bottom: 1px; }
+  .mtree { display: flex; align-items: center; gap: 4px; padding: 5px 8px; overflow-x: auto; scrollbar-width: none; background: var(--ink-2, #1d1711);
+    border-top: 1px solid rgba(232,183,109,0.25); direction: rtl; white-space: nowrap; }
+  .mtree::-webkit-scrollbar { display: none; }
+  .mtree[hidden] { display: none; }
+  .mt-c { --c: 232,183,109; flex: 0 0 auto; display: inline-flex; align-items: center; gap: 3px; font: 700 11.5px/1 'Heebo', sans-serif; color: #e2d5ba;
+    background: rgba(var(--c),0.10); border: 1px solid rgba(var(--c),0.45); border-radius: 12px; padding: 4px 7px; cursor: pointer; }
+  .mt-c i { font-style: normal; font-size: 11px; }
+  .mt-c s { text-decoration: none; font-size: 9.5px; font-weight: 800; color: #ff8a98; margin-right: 2px; }
+  .mt-c.rej { opacity: .72; }
+  .mt-c.r-q, .mt-c.r-x { --c: 232,86,106; } .mt-c.r-a { --c: 108,195,90; } .mt-c.r-c { --c: 242,193,78; }
+  .mt-c.r-m, .mt-c.r-n, .mt-c.r-s { --c: 94,168,224; } .mt-c.r-k { --c: 169,141,224; }
+  .mt-c.anc { opacity: .75; font-weight: 600; }
+  .mt-c.cur { background: rgb(var(--c)); color: #120e0a; border-color: rgb(var(--c)); box-shadow: 0 0 0 2px rgba(var(--c),0.35); opacity: 1; }
+  .mt-c.cur s { color: #5a0c18; }
+  .mt-c.kid { opacity: .8; border-style: dashed; }
+  .mt-grp { display: inline-flex; gap: 4px; padding: 2px; border-radius: 14px; background: rgba(244,234,213,0.05); }
+  .mt-sep { color: #a8987a; font-size: 12px; flex: 0 0 auto; }
+  .mt-dots { color: #a8987a; }
+  .mt-tree { flex: 0 0 auto; text-decoration: none; font-size: 15px; margin-left: 2px; }
   .ctx { margin-top: 7px; border-top: 1px dashed rgba(244,234,213,0.18); padding-top: 5px; }
   .ctx summary { cursor: pointer; font-size: 12.5px; font-weight: 800; color: var(--gold-bright, #f5d39a); list-style: none; }
   .ctx summary::-webkit-details-marker { display: none; }
@@ -2429,6 +2448,7 @@ function srcBlock(src) {
         <img loading="lazy" decoding="async" src="taanit-img/${src.ref}-${src.i}.jpg" alt="שורות הגמרא מתוך ${AMUD_NAME[src.ref]}"
              onload="showLoc()" onclick="openPhoto('${src.ref}', [${src.box.join(',')}])">
       </div></div>
+      <div class="mtree" aria-label="מיני־עץ: איפה אנחנו בסוגיה"></div>
     </figure>`;
 }
 // ===== הדף המלא עם הסבר בתוך הדף =====
@@ -2452,7 +2472,7 @@ function openPhoto(ref, box) {
   let marks = '';
   if (PO.list.length) {
     marks = rect(box, 'po-sec') + PO.list.map((x, k) => x.rr.map((r, j) =>
-      `<div class="po-hl hl-${x.role}" data-k="${k}" style="left:${r.l}%;top:${r.t}%;width:${r.w}%;height:${r.h}%">${j === 0 ? `<b class="po-no">${k + 1}</b>` : ''}</div>`).join('')).join('')
+      `<div class="po-hl hl-${x.role}" data-k="${k}" style="left:${r.l}%;top:${r.t}%;width:${r.w}%;height:${r.h}%"></div>`).join('')).join('')
       ;
     const want = focusBeat != null ? focusBeat : Math.min(state.beat, sc.beats.length - 1);
     PO.cur = Math.max(0, PO.list.findIndex(x => x.bi >= want));
@@ -3209,6 +3229,51 @@ function ctxHTML(key) {
   const f = flowHTML(key);
   return c || f ? `<details class="ctx"${ctxOpen ? ' open' : ''} onclick="event.stopPropagation()" ontoggle="setCtx(this.open)"><summary>🧭 המהלך וההקשר המלא</summary>${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</details>` : '';
 }
+// ===== מיני־עץ: פס קטן צמוד לצילום — איפה השלב הנוכחי בעץ הסוגיה, בלי להיכנס לעץ =====
+// מראה: השאלה שמעליו ← כל התשובות/הקושיות לאותה שאלה (נדחה ⚡ / התקבל), השלב הנוכחי מודגש, ומה בא אחריו.
+// הקשה על שלב קופצת אליו (גם בקטע אחר). 🌳 פותח את העץ המלא באותו מקום.
+function nodeKey(ref, node) {
+  if (node.key !== undefined) return node.key;
+  const m = NODE_OF[ref] || {}; node.key = Object.keys(m).find(k => m[k] === node) || null; return node.key;
+}
+function mtShort(t, n) { t = String(t).replace(/<[^>]+>/g, '').replace(/[״"]/g, ''); return t.length > n ? t.slice(0, n - 1) + '…' : t; }
+function mtChip(ref, node, cls) {
+  const k = nodeKey(ref, node), r = node.n.r;
+  const rej = node.kids.some(c => c.n.r === 'x') || node.kids.some(c => c.n.r === 'c' && /נופל|נדח/.test(c.n.e));
+  return `<button class="mt-c r-${r}${cls ? ' ' + cls : ''}${rej ? ' rej' : ''}" ${k ? `data-k="${k}"` : 'disabled'} title="${mtShort(node.n.t, 80)}">
+    <i>${FLOW_IC[r] || '•'}</i>${mtShort(node.n.w, 14)}${rej ? '<s>נדחה</s>' : ''}</button>`;
+}
+function miniTree(el, key) {
+  const box = el && el.querySelector('.mtree'); if (!box) return;
+  const ref = key.split(':')[0];
+  const node = nodeOfKey(key);
+  if (!node) { box.innerHTML = ''; box.hidden = true; return; }
+  box.hidden = false;
+  if (box.dataset.key === key) return;
+  box.dataset.key = key;
+  const anc = []; for (let a = node.parent; a; a = a.parent) anc.unshift(a);
+  const shown = anc.slice(-2);
+  let h = `<a class="mt-tree" href="tree.html#${ref}-${state.sceneIdx}" onclick="event.stopPropagation()" aria-label="העץ המלא">🌳</a>`;
+  if (anc.length > shown.length) h += '<span class="mt-dots">…</span><b class="mt-sep">›</b>';
+  h += shown.map(a => mtChip(ref, a, 'anc') + '<b class="mt-sep">›</b>').join('');
+  const sibs = node.parent ? node.parent.kids : [node];
+  h += `<span class="mt-grp">${sibs.map(sb => mtChip(ref, sb, sb === node ? 'cur' : '')).join('')}</span>`;
+  if (node.kids.length) h += '<b class="mt-sep">⤵</b>' + node.kids.map(c => mtChip(ref, c, 'kid')).join('');
+  box.innerHTML = h;
+  const cur = box.querySelector('.cur');
+  if (cur) { const L = cur.offsetLeft - box.clientWidth / 2 + cur.offsetWidth / 2; box.scrollLeft = L; }
+}
+function goKey(k) {
+  const [ref, s, b] = k.split(':'); const si = +s, bi = +b;
+  if (ref !== state.ref) return;
+  const jump = () => {
+    const card = document.querySelector(`.scene.active .beat[data-i="${bi}"]`);
+    focusBeat = bi; spyLock = Date.now() + 900; showLoc();
+    if (card) { const src = document.querySelector('.scene.active .daf-src'); const top = card.getBoundingClientRect().top + scrollY - (src ? src.getBoundingClientRect().height : 0) - 30; window.scrollTo({ top, behavior: 'smooth' }); }
+  };
+  if (si !== state.sceneIdx) { state.sceneIdx = si; state.beat = 0; renderScenes(); setTimeout(jump, 120); } else jump();
+}
+document.addEventListener('click', e => { const c = e.target.closest && e.target.closest('.mt-c[data-k]'); if (c) { e.stopPropagation(); goKey(c.dataset.k); } }, true);
 function takhlesHTML(key) {
   const t = TAKHLES[key];
   return t ? `<div class="takhles"><span>🎯 בתכלס</span>${t}${ctxHTML(key)}</div>` : '';
@@ -3269,6 +3334,7 @@ function showLoc() {
   if (!sc || !sc.src || !sc.beats || !sc.beats.length) return;
   if (state.beat >= sc.beats.length && focusBeat == null) return;   // סוף הקטע: בלי חץ
   const bi = activeBeatIdx(sc);
+  miniTree(el, `${state.ref}:${state.sceneIdx}:${bi}`);
   const loc = beatLoc(state.ref, state.sceneIdx, bi);
   const beat = el.querySelector(`.beat[data-i="${bi}"]`);
   const wrap = el.querySelector('.src-wrap');
