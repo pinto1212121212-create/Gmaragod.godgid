@@ -1342,8 +1342,22 @@
   .ctx summary::-webkit-details-marker { display: none; }
   .ctx summary::after { content: ' ▾'; }
   .ctx[open] summary::after { content: ' ▴'; }
-  .ctx div { margin-top: 4px; font-size: 14.5px; line-height: 1.75; color: var(--parchment-soft, #e2d5ba); }
-  .po-call .ctx div { font-size: 13.5px; }
+  .ctx .ctx-t { margin-top: 6px; font-size: 14.5px; line-height: 1.75; color: var(--parchment-soft, #e2d5ba); }
+  .po-call .ctx .ctx-t { font-size: 13.5px; }
+  .flow { margin-top: 6px; background: rgba(0,0,0,0.18); border-radius: 8px; padding: 6px 8px; }
+  .flow-h { font-size: 11.5px; font-weight: 800; color: var(--gold, #e8b76d); margin-bottom: 3px; }
+  .flow ol { list-style: none; margin: 0; padding: 0; }
+  .flow li { display: flex; gap: 6px; align-items: flex-start; font-size: 13px; line-height: 1.5; color: var(--parchment-dim, #a8987a); padding: 2px 0; position: relative; }
+  .flow li + li::before { content: ''; position: absolute; right: 8px; top: -3px; height: 5px; border-right: 1.5px solid rgba(232,183,109,0.35); }
+  .flow li i { font-style: normal; flex: 0 0 auto; width: 17px; text-align: center; }
+  .flow li em { font-style: normal; font-weight: 800; color: var(--gold, #e8b76d); }
+  .flow li, .flow li span { color: #cfc2a5 !important; font-weight: 500; }
+  .flow li b { color: #f4ead5 !important; font-weight: 800; }
+  .flow li.cur, .flow li.cur span { color: #f4ead5 !important; font-weight: 700; }
+  .flow li.prev { padding-right: 10px; opacity: .85; }
+  .flow li.prev.sub { padding-right: 22px; }
+  .flow li.cur { color: var(--parchment, #f4ead5); font-weight: 700; background: rgba(232,183,109,0.12); border-radius: 6px; padding: 3px 4px; }
+  .flow li.cur b { color: var(--gold-bright, #f5d39a); }
   .role-q .takhles, .role-x .takhles { background: rgba(232,86,106,0.12); border-right-color: #e8566a; }
   .role-q .takhles span, .role-x .takhles span { color: #ff8a98; }
   .role-a .takhles { background: rgba(108,195,90,0.12); border-right-color: #6cc35a; }
@@ -3146,11 +3160,54 @@ const TAKHLES = {
 '6a:6:4': 'התשובה: לעניין נדרים. ההסבר בדף הבא.'
 };
 // בתכלס = ההסבר הקצר. מתחתיו ״🧭 ההקשר המלא״ = ההסבר הארוך (CONTEXT ב־context-data.js): איפה אנחנו בדיון, מה נשאל ולמה
-let ctxOpen = false; try { ctxOpen = localStorage.getItem('gemara:ctx') === '1'; } catch (e) {}
-function setCtx(open) { ctxOpen = open; try { localStorage.setItem('gemara:ctx', open ? '1' : '0'); } catch (e) {} }
+let ctxOpen = true; try { ctxOpen = localStorage.getItem('gemara:ctx2') !== '0'; } catch (e) {}   // פתוח כברירת מחדל
+function setCtx(open) { ctxOpen = open; try { localStorage.setItem('gemara:ctx2', open ? '1' : '0'); } catch (e) {} }
+// ״המהלך״: לכל שלב — השרשרת מהשאלה הראשית ועד כאן (מתוך עץ הסוגיה: TREE + TREE_CX ב־tree-data.js),
+// כולל התירוצים הקודמים לאותה שאלה ומה נאמר עליהם. כך בכל תירוץ רואים את כל המהלך.
+const FLOW_IC = { m: '📜', q: '❓', x: '⚡', a: '✅', c: '📌', n: '📖', k: '💡' };
+const FLOW_RN = { a: ['תירוץ', ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי']], q: ['קושיה', ['ראשונה', 'שנייה', 'שלישית', 'רביעית']], x: ['דחייה', ['ראשונה', 'שנייה', 'שלישית']] };
+const NODE_OF = {};
+function nodeOfKey(key) {
+  const ref = key.split(':')[0];
+  if (!NODE_OF[ref]) {
+    const map = NODE_OF[ref] = {};
+    if (typeof TREE === 'undefined' || !TREE[ref] || typeof TREE_CX === 'undefined' || !TREE_CX[ref]) return null;
+    let seq = 0;
+    const walk = (n, parent) => {
+      const node = { n, parent, kids: [] }; if (parent) parent.kids.push(node);
+      const e = TREE_CX[ref][seq++];
+      (typeof e === 'string' ? [e] : Array.isArray(e) ? e : []).forEach(k => { if (!map[k]) map[k] = node; });
+      (n.k || []).forEach(c => walk(c, node));
+    };
+    TREE[ref].roots.forEach(r => walk(r, null));
+  }
+  return NODE_OF[ref][key] || null;
+}
+function flowLabel(node) {
+  const p = node.parent; if (!p) return '';
+  const same = p.kids.filter(k => k.n.r === node.n.r);
+  const R = FLOW_RN[node.n.r];
+  return R && same.length > 1 ? `${R[0]} ${R[1][same.indexOf(node)] || same.indexOf(node) + 1}` : (R ? R[0] : '');
+}
+function flowLine(node, cls) {
+  const lb = flowLabel(node);
+  return `<li class="${cls || ''}"><i>${FLOW_IC[node.n.r] || '•'}</i><span>${lb ? `<em>${lb}</em> · ` : ''}<b>${node.n.w}</b>: ${node.n.e}</span></li>`;
+}
+function flowHTML(key) {
+  const node = nodeOfKey(key);
+  if (!node || !node.parent) return '';
+  const chain = []; for (let a = node.parent; a; a = a.parent) chain.unshift(a);
+  let li = chain.map(a => flowLine(a)).join('');
+  // תירוצים/שאלות קודמים לאותה שאלה, ומה קרה איתם (דחייה)
+  const prev = node.parent.kids.slice(0, node.parent.kids.indexOf(node));
+  li += prev.map(pn => flowLine(pn, 'prev') + pn.kids.filter(k => k.n.r === 'x' || k.n.r === 'c').map(k => flowLine(k, 'prev sub')).join('')).join('');
+  li += flowLine(node, 'cur');
+  return `<div class="flow"><div class="flow-h">🔁 המהלך עד כאן</div><ol>${li}</ol></div>`;
+}
 function ctxHTML(key) {
   const c = typeof CONTEXT !== 'undefined' && CONTEXT[key];
-  return c ? `<details class="ctx"${ctxOpen ? ' open' : ''} onclick="event.stopPropagation()" ontoggle="setCtx(this.open)"><summary>🧭 ההקשר המלא</summary><div>${c}</div></details>` : '';
+  const f = flowHTML(key);
+  return c || f ? `<details class="ctx"${ctxOpen ? ' open' : ''} onclick="event.stopPropagation()" ontoggle="setCtx(this.open)"><summary>🧭 המהלך וההקשר המלא</summary>${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</details>` : '';
 }
 function takhlesHTML(key) {
   const t = TAKHLES[key];
