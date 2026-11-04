@@ -1,0 +1,3183 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>תענית — אנימציה לכל המסכת</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1410;
+    --ink-2: #221a14;
+    --parchment: #f4ead5;
+    --parchment-soft: #e8dcc0;
+    --parchment-dim: #b8a888;
+    --gold: #e8b76d;
+    --gold-bright: #f5d39a;
+    --gold-deep: #8a6638;
+    --gold-shadow: #5a4220;
+    --crimson: #c14a5a;
+    --crimson-glow: #e87080;
+    --sage: #88b27a;
+    --sage-glow: #a5cc97;
+    --sky: #7fb3d5;
+    --sky-glow: #a5cce0;
+    --warm: #e89a6d;
+    --flame: #ff9844;
+    --rashi: #c89568;
+    --tosafot: #8fa9c4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--parchment);
+    font-family: 'Heebo', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(232,183,109,0.1) 0%, transparent 60%),
+      linear-gradient(180deg, #1a1410 0%, #221a14 60%, #1a1410 100%);
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 12px 16px 110px;
+  }
+
+  /* ===== Header with navigator ===== */
+  header {
+    text-align: center;
+    padding: 8px 0 14px;
+    border-bottom: 1px solid rgba(232,183,109,0.18);
+    margin-bottom: 16px;
+  }
+
+  .masechet-name {
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    font-weight: 700;
+  }
+
+  .daf-nav {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .nav-arrow {
+    background: rgba(232,183,109,0.15);
+    border: 1px solid var(--gold);
+    color: var(--gold-bright);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .nav-arrow:active { transform: scale(0.92); }
+  .nav-arrow:disabled { opacity: 0.3; }
+
+  .daf-display {
+    text-align: center;
+    cursor: pointer;
+  }
+  .daf-display:active { opacity: 0.7; }
+
+  .daf-display h1 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-weight: 900;
+    font-size: clamp(18px, 5vw, 22px);
+    color: var(--parchment);
+  }
+
+  .daf-display .perek-name {
+    font-size: 11px;
+    color: var(--parchment-dim);
+    margin-top: 2px;
+  }
+
+  /* ===== Action bar (Translation/Rashi/Tosafot) ===== */
+  .action-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .action-btn {
+    padding: 12px 8px;
+    border-radius: 10px;
+    border: 1.5px solid;
+    background: rgba(20,16,10,0.5);
+    color: var(--parchment);
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .action-btn:active { transform: scale(0.97); }
+
+  .action-btn.trans {
+    border-color: var(--gold);
+    color: var(--gold-bright);
+  }
+  .action-btn.trans:hover { background: rgba(232,183,109,0.15); }
+
+  .action-btn.rashi {
+    border-color: var(--rashi);
+    color: var(--rashi);
+  }
+  .action-btn.rashi:hover { background: rgba(200,149,104,0.15); }
+
+  .action-btn.tos {
+    border-color: var(--tosafot);
+    color: var(--tosafot);
+  }
+  .action-btn.tos:hover { background: rgba(143,169,196,0.15); }
+
+  .action-btn .count {
+    background: rgba(0,0,0,0.3);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .action-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ===== Translation modal styling ===== */
+  .modal.trans { border-top-color: var(--gold); }
+  .modal.trans .modal-title { color: var(--gold-bright); }
+
+  .trans-section-header {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--gold);
+    margin: 18px 0 10px;
+    padding: 8px 12px;
+    background: rgba(232,183,109,0.1);
+    border-radius: 6px;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+
+  .trans-section-header:first-child { margin-top: 0; }
+
+  .trans-entry {
+    margin-bottom: 12px;
+    background: rgba(20,16,10,0.6);
+    border-radius: 10px;
+    padding: 12px 14px;
+    border-right: 2px solid var(--gold-deep);
+  }
+
+  .trans-aram {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 17px;
+    line-height: 1.85;
+    color: var(--gold-bright);
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed rgba(232,183,109,0.3);
+  }
+
+  .trans-heb {
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: var(--parchment-soft);
+  }
+  .trans-heb strong { color: var(--gold-bright); }
+
+  .trans-summary {
+    font-style: italic;
+    font-size: 14px;
+    color: var(--parchment-dim);
+    padding: 10px 14px;
+    background: rgba(232,183,109,0.04);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border-right: 2px dashed var(--gold-deep);
+    line-height: 1.65;
+  }
+
+  .trans-note {
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: rgba(127,179,213,0.06);
+    border: 1px dashed var(--sky);
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: var(--parchment-dim);
+    line-height: 1.6;
+  }
+  .trans-note strong { color: var(--sky-glow); }
+
+  /* ===== Stage ===== */
+  .stage { position: relative; min-height: 60vh; }
+  .scene { display: none; }
+  .scene.active {
+    display: block;
+    animation: gentleFade 0.3s ease-out both;
+  }
+  @keyframes gentleFade { from { opacity: 0; } to { opacity: 1; } }
+
+  .scene-tag {
+    display: inline-block;
+    background: var(--gold-deep);
+    color: var(--parchment);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  .scene-tag.q { background: var(--crimson); }
+  .scene-tag.a { background: var(--sage); color: var(--ink); }
+  .scene-tag.surprise { background: var(--flame); color: var(--ink); }
+
+  .scene-title {
+    font-family: 'Heebo', sans-serif;
+    font-weight: 900;
+    font-size: clamp(20px, 5.4vw, 26px);
+    color: var(--gold-bright);
+    margin-bottom: 12px;
+    line-height: 1.25;
+  }
+  .scene-title .accent { color: var(--parchment); }
+  .scene-title .flame-c { color: var(--flame); }
+  .scene-title .water-c { color: var(--sky-glow); }
+
+  .story {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--parchment-soft);
+    margin-bottom: 12px;
+  }
+  .story p { margin-bottom: 11px; }
+  .story strong { color: var(--gold-bright); font-weight: 700; }
+  .story em { color: var(--parchment); background: rgba(232,183,109,0.1); padding: 0 4px; border-radius: 3px; font-style: normal; }
+
+  .pic {
+    margin: 14px 0;
+    padding: 14px 10px;
+    background: radial-gradient(ellipse at center, rgba(232,183,109,0.08), transparent 75%);
+    border-radius: 12px;
+    text-align: center;
+  }
+  .pic svg { max-width: 100%; height: auto; }
+  .pic-caption {
+    font-size: 12px;
+    color: var(--gold);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  .bubble {
+    background: rgba(232,183,109,0.1);
+    border: 2px solid var(--gold);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--parchment);
+  }
+  .bubble.question { border-color: var(--crimson); background: rgba(193,74,90,0.08); }
+  .bubble.answer { border-color: var(--sage); background: rgba(136,178,122,0.08); }
+  .bubble.surprise { border-color: var(--flame); background: rgba(255,152,68,0.1); }
+
+  .bubble-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    background: var(--gold);
+    color: var(--ink);
+  }
+  .bubble.question .bubble-label { background: var(--crimson); color: var(--parchment); }
+  .bubble.answer .bubble-label { background: var(--sage); color: var(--ink); }
+  .bubble.surprise .bubble-label { background: var(--flame); color: var(--ink); }
+
+  .keyidea {
+    background: linear-gradient(135deg, rgba(232,183,109,0.12), rgba(232,183,109,0.04));
+    border: 2px dashed var(--gold);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    text-align: center;
+  }
+  .keyidea-label {
+    font-size: 12px;
+    color: var(--gold-bright);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .keyidea p { font-size: 15px; line-height: 1.6; color: var(--parchment); }
+  .keyidea strong { color: var(--gold-bright); }
+
+  /* List items */
+  .m-item {
+    display: grid;
+    grid-template-columns: 28px 32px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(20,16,10,0.4);
+    border-right: 2px solid var(--gold);
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .m-item .m-num { font-size: 13px; color: var(--gold); text-align: center; font-weight: 700; }
+  .m-item svg { width: 28px; height: 28px; color: var(--gold); }
+  .m-name { font-weight: 700; font-size: 15px; color: var(--parchment); }
+  .m-note { font-size: 11.5px; color: var(--parchment-dim); margin-top: 2px; }
+
+  .vs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .vs-card { padding: 10px; border-radius: 10px; text-align: center; }
+  .vs-card.a { background: rgba(232,183,109,0.1); border: 1.5px solid var(--gold); }
+  .vs-card.b { background: rgba(127,179,213,0.1); border: 1.5px solid var(--sky); }
+  .vs-card .emoji { font-size: 26px; margin-bottom: 4px; }
+  .vs-card h5 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .vs-card.a h5 { color: var(--gold-bright); }
+  .vs-card.b h5 { color: var(--sky-glow); }
+  .vs-card p { font-size: 12.5px; color: var(--parchment-soft); line-height: 1.5; }
+
+  .sage-quote {
+    background: rgba(20,16,10,0.5);
+    border-left: 3px solid var(--gold-bright);
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin: 10px 0;
+  }
+  .sage-quote .sage-name { font-weight: 700; color: var(--gold-bright); font-size: 13px; margin-bottom: 4px; }
+  .sage-quote p { font-size: 14px; line-height: 1.6; color: var(--parchment); }
+
+  /* ===== Empty state for stubs ===== */
+  .stub {
+    text-align: center;
+    padding: 50px 20px;
+  }
+  .stub-icon { font-size: 56px; margin-bottom: 14px; opacity: 0.5; }
+  .stub h3 {
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--gold-bright);
+    margin-bottom: 8px;
+  }
+  .stub p {
+    color: var(--parchment-dim);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 360px;
+    margin: 0 auto 20px;
+  }
+  .stub .stub-perek {
+    background: rgba(232,183,109,0.08);
+    border: 1px solid rgba(232,183,109,0.25);
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-top: 10px;
+  }
+  .stub .stub-perek-label {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    margin-bottom: 4px;
+  }
+  .stub .stub-perek-name {
+    font-size: 16px;
+    color: var(--parchment);
+    font-weight: 700;
+  }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    max-height: 90vh;
+    background: var(--ink-2);
+    border-top: 2px solid;
+    border-radius: 18px 18px 0 0;
+    z-index: 51;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+  .modal.open { transform: translateY(0); }
+  .modal.rashi { border-top-color: var(--rashi); }
+  .modal.tos { border-top-color: var(--tosafot); }
+
+  .modal-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(232,183,109,0.4);
+    border-radius: 2px;
+    margin: 10px auto 0;
+  }
+
+  .modal-header {
+    padding: 12px 18px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(232,183,109,0.15);
+  }
+  .modal-title {
+    font-family: 'Heebo', sans-serif;
+    font-weight: 900;
+    font-size: 20px;
+  }
+  .modal.rashi .modal-title { color: var(--rashi); }
+  .modal.tos .modal-title { color: var(--tosafot); }
+
+  .modal-close {
+    background: rgba(232,183,109,0.15);
+    border: none;
+    color: var(--parchment);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .modal-close:active { transform: scale(0.92); }
+
+  .modal-content {
+    overflow-y: auto;
+    padding: 16px 18px 24px;
+    flex: 1;
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .meforesh-entry {
+    padding: 12px 14px;
+    background: rgba(20,16,10,0.5);
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  .modal.rashi .meforesh-entry { border-right: 3px solid var(--rashi); }
+  .modal.tos .meforesh-entry { border-right: 3px solid var(--tosafot); }
+
+  .meforesh-dh {
+    display: inline-block;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .modal.rashi .meforesh-dh { background: var(--rashi); color: var(--ink); }
+  .modal.tos .meforesh-dh { background: var(--tosafot); color: var(--ink); }
+
+  .meforesh-content {
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--parchment-soft);
+  }
+  .meforesh-content p { margin-bottom: 10px; }
+  .meforesh-content p:last-child { margin-bottom: 0; }
+  .meforesh-content strong { color: var(--gold-bright); }
+  .meforesh-content em { color: var(--parchment); background: rgba(232,183,109,0.08); padding: 0 3px; border-radius: 2px; font-style: normal; }
+
+  /* ===== Kushya animated diagrams (תוספות) ===== */
+  .kviz {
+    margin: 2px 0 16px;
+    padding: 11px 10px 9px;
+    background: linear-gradient(180deg, rgba(143,169,196,0.12), rgba(20,16,10,0.45));
+    border: 1px solid rgba(143,169,196,0.4);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .kviz-head {
+    font-size: 12px; font-weight: 700; color: var(--tosafot);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+  }
+  .kviz-stage {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    gap: 9px; flex-wrap: wrap; min-height: 86px; padding: 8px 2px 2px;
+  }
+  .kviz-cap {
+    font-size: 12px; color: var(--gold); text-align: center;
+    margin-top: 9px; font-weight: 500; line-height: 1.55;
+  }
+  .kviz-cap strong { color: var(--gold-bright); }
+  .knode {
+    position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: rgba(244,234,213,0.06); border: 1.5px solid var(--parchment-dim);
+    border-radius: 10px; padding: 7px 9px; min-width: 54px;
+    font-size: 11px; font-weight: 600; color: var(--parchment-soft); text-align: center; line-height: 1.3;
+  }
+  .knode .kemoji { font-size: 22px; line-height: 1; }
+  .knode.good { border-color: var(--sage); color: var(--sage-glow); background: rgba(136,178,122,0.13); }
+  .knode.bad  { border-color: var(--crimson); color: var(--crimson-glow); background: rgba(193,74,90,0.13); }
+  .knode.gold { border-color: var(--gold); color: var(--gold-bright); background: rgba(232,183,109,0.13); }
+  .karrow { color: var(--gold); font-size: 22px; font-weight: 700; }
+  .kverdict {
+    position: absolute; top: -9px; left: -9px; width: 22px; height: 22px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; opacity: 0; z-index: 3;
+  }
+  .kverdict.good { background: var(--sage); color: var(--ink); }
+  .kverdict.bad  { background: var(--crimson); color: #fff; }
+  .ktag { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 20px; }
+  .ktag.red   { background: var(--crimson); color: #fff; }
+  .ktag.green { background: var(--sage); color: var(--ink); }
+  .kstamp {
+    position: absolute; top: -13px; left: 50%; background: var(--crimson); color: #fff;
+    font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.45); white-space: nowrap; z-index: 3;
+  }
+  .kbar {
+    position: relative; width: 86%; height: 34px; border: 1.5px solid var(--gold);
+    border-radius: 8px; overflow: hidden; background: rgba(244,234,213,0.05);
+  }
+  .kbar-fill {
+    position: absolute; top: 0; right: 0; height: 100%; width: 0;
+    background: linear-gradient(270deg, var(--crimson), var(--crimson-glow)); opacity: .55;
+  }
+  .kbar-lbl { position: absolute; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 700; color: var(--parchment); z-index: 2; }
+  .kchip { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 8px; }
+  .kchip.ok { background: rgba(136,178,122,0.18); color: var(--sage-glow); border: 1px solid var(--sage); animation: kFade 3.5s ease-in-out infinite; }
+  .kchip.no { background: rgba(193,74,90,0.18); color: var(--crimson-glow); border: 1px solid var(--crimson); }
+  .kdots { display: inline-flex; gap: 4px; }
+  .kd { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--parchment-dim); background: transparent; display: inline-block; }
+  .kd.on { background: var(--crimson); border-color: var(--crimson); }
+  .trans-entry .kviz { margin: 12px 0 2px; }
+  .trans-summary .kviz { margin: 12px 0 0; }
+
+  @keyframes kFade   { 0%,15%{opacity:0} 35%,100%{opacity:1} }
+  @keyframes kPulse  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.13)} }
+  @keyframes kFloatUp{ 0%,30%{transform:translateY(0);opacity:1} 75%{transform:translateY(-34px);opacity:0} 100%{opacity:0} }
+  @keyframes kShake  { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 50%{transform:translateX(4px)} 75%{transform:translateX(-3px)} }
+  @keyframes kBleed  { 0%,18%{width:0} 68%,100%{width:100%} }
+  @keyframes kAppear { 0%,50%{opacity:0;transform:scale(.4)} 66%{opacity:1;transform:scale(1.25)} 80%,100%{opacity:1;transform:scale(1)} }
+  @keyframes kFlash  { 0%,100%{opacity:.25} 50%{opacity:1} }
+  @keyframes kStampC { 0%,40%{transform:translateX(-50%) translateY(-22px) scale(1.5);opacity:0} 56%{transform:translateX(-50%) translateY(0) scale(1);opacity:1} 70%{transform:translateX(-50%) scale(1.12)} 85%,100%{transform:translateX(-50%) scale(1);opacity:1} }
+
+  .modal-empty {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--parchment-dim);
+  }
+  .modal-empty .e-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.5; }
+
+  /* ===== Daf picker modal ===== */
+  .picker-modal {
+    position: fixed;
+    inset: 0;
+    background: var(--ink-2);
+    z-index: 60;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+  .picker-modal.open { transform: translateY(0); }
+
+  .picker-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(232,183,109,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .picker-title {
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--gold-bright);
+  }
+
+  .picker-content {
+    overflow-y: auto;
+    padding: 14px 18px 24px;
+    flex: 1;
+  }
+
+  .perek-section {
+    margin-bottom: 16px;
+  }
+
+  .perek-header {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--gold);
+    margin-bottom: 8px;
+    padding: 0 4px;
+  }
+
+  .daf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+    gap: 6px;
+  }
+
+  .daf-btn {
+    padding: 10px 4px;
+    background: rgba(20,16,10,0.5);
+    border: 1px solid rgba(232,183,109,0.2);
+    border-radius: 6px;
+    color: var(--parchment);
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .daf-btn:active { transform: scale(0.95); }
+  .daf-btn.current {
+    background: var(--gold);
+    color: var(--ink);
+    border-color: var(--gold);
+  }
+  .daf-btn.has-content::after {
+    content: "•";
+    display: block;
+    color: var(--sage-glow);
+    font-size: 11px;
+    margin-top: -2px;
+  }
+
+  /* ===== Bottom navigation ===== */
+  .nav {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background: linear-gradient(180deg, transparent, var(--ink) 40%);
+    padding: 22px 18px 18px;
+    z-index: 10;
+  }
+
+  .nav-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .nav-btn {
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  }
+  .nav-btn:active { transform: scale(0.92); }
+  .nav-btn:disabled { opacity: 0.3; }
+
+  .progress {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(232,183,109,0.3);
+    transition: background 0.25s, width 0.25s, border-radius 0.25s;
+    cursor: pointer;
+  }
+  .dot.active {
+    background: var(--gold);
+    width: 20px;
+    border-radius: 4px;
+  }
+
+  .scene-counter {
+    text-align: center;
+    font-size: 11px;
+    color: var(--parchment-dim);
+    margin-top: 10px;
+  }
+
+  /* ===== Tabs ===== */
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 4px;
+    background: rgba(20,16,10,0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(232,183,109,0.18);
+  }
+
+  .tab {
+    padding: 10px 8px;
+    background: transparent;
+    border: none;
+    color: var(--parchment-dim);
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.25s, color 0.25s;
+  }
+  .tab:active { transform: scale(0.97); }
+  .tab.active {
+    background: var(--gold-deep);
+    color: var(--parchment);
+  }
+
+  /* Hide masechet-only sections when in tutorial mode */
+  body.tutorial-mode .masechet-only { display: none; }
+
+  /* ===== Tutorial: terms (clickable Aramaic) ===== */
+  .term {
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 5px;
+    transition: background 0.2s;
+    border-bottom: 2px dotted;
+    display: inline-block;
+  }
+  .term.statement { background: rgba(232,183,109,0.15); border-color: var(--gold); color: var(--gold-bright); }
+  .term.question { background: rgba(193,74,90,0.15); border-color: var(--crimson); color: var(--crimson-glow); }
+  .term.answer { background: rgba(136,178,122,0.15); border-color: var(--sage); color: var(--sage-glow); }
+  .term.source { background: rgba(127,179,213,0.15); border-color: var(--sky); color: var(--sky-glow); }
+  .term.distinction { background: rgba(176,143,196,0.15); border-color: #b08fc4; color: #b08fc4; }
+  .term.conclusion { background: rgba(232,154,109,0.15); border-color: var(--warm); color: var(--warm); }
+  .term:active { transform: scale(0.95); }
+
+  /* ===== Tutorial: gemara text block ===== */
+  .gem-block {
+    background: rgba(244,234,213,0.04);
+    border: 1px solid rgba(232,183,109,0.25);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 12px 0;
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 18px;
+    line-height: 2;
+    color: var(--parchment);
+  }
+
+  /* ===== Tutorial: step-by-step ===== */
+  .step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    background: rgba(20,16,10,0.5);
+    border-radius: 10px;
+    border-right: 3px solid var(--gold);
+  }
+  .step-num {
+    font-weight: 700;
+    color: var(--gold);
+    font-size: 16px;
+    text-align: center;
+    padding-top: 2px;
+  }
+  .step-aram {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 17px;
+    color: var(--gold-bright);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .step-trans {
+    font-size: 13px;
+    color: var(--parchment-soft);
+    margin-bottom: 6px;
+  }
+  .step-fn {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .step-fn.statement { background: rgba(232,183,109,0.2); color: var(--gold-bright); }
+  .step-fn.question { background: rgba(193,74,90,0.2); color: var(--crimson-glow); }
+  .step-fn.answer { background: rgba(136,178,122,0.2); color: var(--sage-glow); }
+  .step-fn.source { background: rgba(127,179,213,0.2); color: var(--sky-glow); }
+  .step-fn.distinction { background: rgba(176,143,196,0.2); color: #b08fc4; }
+  .step-fn.conclusion { background: rgba(232,154,109,0.2); color: var(--warm); }
+  .step-expl {
+    font-size: 14px;
+    color: var(--parchment-soft);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+  .step-expl strong { color: var(--gold-bright); }
+  .step-expl em { color: var(--parchment); font-style: normal; }
+
+  /* ===== Tutorial: vocab cards ===== */
+  .vocab-card {
+    background: rgba(20,16,10,0.4);
+    border: 1px solid rgba(232,183,109,0.2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .vocab-aram {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold-bright);
+    margin-bottom: 4px;
+  }
+  .vocab-pron {
+    font-size: 11px;
+    color: var(--parchment-dim);
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+  .vocab-mean {
+    font-size: 14.5px;
+    color: var(--parchment);
+    margin-bottom: 6px;
+  }
+  .vocab-fn {
+    font-size: 12px;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .vocab-example {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: rgba(244,234,213,0.04);
+    border-right: 2px solid var(--gold);
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .vocab-example em {
+    font-family: 'Frank Ruhl Libre', serif;
+    color: var(--gold-bright);
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  /* ===== Tutorial: patterns ===== */
+  .pattern {
+    background: rgba(232,183,109,0.05);
+    border-radius: 10px;
+    padding: 12px;
+    margin: 12px 0;
+  }
+  .pattern-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--gold-bright);
+    margin-bottom: 8px;
+  }
+  .pattern-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .pattern-step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 10px;
+    border-radius: 6px;
+  }
+  .pattern-step.q { background: rgba(193,74,90,0.1); border-right: 2px solid var(--crimson); }
+  .pattern-step.a { background: rgba(136,178,122,0.1); border-right: 2px solid var(--sage); }
+  .pattern-step.s { background: rgba(127,179,213,0.1); border-right: 2px solid var(--sky); }
+  .pattern-step.d { background: rgba(176,143,196,0.1); border-right: 2px solid #b08fc4; }
+  .pattern-step .p-icon { font-size: 16px; text-align: center; }
+  .pattern-step .p-label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--parchment);
+  }
+  .pattern-step .p-label small {
+    display: block;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--parchment-dim);
+    margin-top: 2px;
+  }
+  .pattern-arrow {
+    text-align: center;
+    color: var(--gold);
+    font-size: 11px;
+  }
+
+  /* ===== Tutorial: tip box ===== */
+  .tip {
+    background: linear-gradient(135deg, rgba(232,183,109,0.12), rgba(232,183,109,0.04));
+    border: 1px dashed var(--gold);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 12px 0;
+  }
+  .tip-label {
+    font-size: 12px;
+    color: var(--gold-bright);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .tip p {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--parchment-soft);
+  }
+
+  /* ===== Tutorial: legend ===== */
+  .legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin: 10px 0;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    padding: 7px 9px;
+    border-radius: 6px;
+  }
+  .legend-item .l-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-item.statement { background: rgba(232,183,109,0.08); }
+  .legend-item.statement .l-dot { background: var(--gold); }
+  .legend-item.question { background: rgba(193,74,90,0.08); }
+  .legend-item.question .l-dot { background: var(--crimson); }
+  .legend-item.answer { background: rgba(136,178,122,0.08); }
+  .legend-item.answer .l-dot { background: var(--sage); }
+  .legend-item.source { background: rgba(127,179,213,0.08); }
+  .legend-item.source .l-dot { background: var(--sky); }
+  .legend-item.distinction { background: rgba(176,143,196,0.08); }
+  .legend-item.distinction .l-dot { background: #b08fc4; }
+  .legend-item.conclusion { background: rgba(232,154,109,0.08); }
+  .legend-item.conclusion .l-dot { background: var(--warm); }
+
+  /* ===== Term modal ===== */
+  .modal.term { border-top-color: var(--gold); }
+  .modal.term .modal-title { color: var(--gold-bright); }
+
+  .modal-aram-big {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gold-bright);
+    margin-bottom: 6px;
+  }
+  .modal-pron {
+    font-size: 11px;
+    color: var(--parchment-dim);
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+  .modal-fn-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .modal-mean-text {
+    font-size: 15px;
+    color: var(--parchment);
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  .modal-use {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--parchment-soft);
+  }
+  .modal-use strong { color: var(--gold-bright); }
+  .modal-use em { color: var(--parchment); font-style: normal; }
+
+  /* ===== Kid-friendly explanation boxes ===== */
+  .kid-box {
+    margin: 14px 0;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border-right: 4px solid;
+  }
+  .kid-box.setup { background: rgba(232,183,109,0.1); border-color: var(--gold); }
+  .kid-box.question { background: rgba(193,74,90,0.1); border-color: var(--crimson); }
+  .kid-box.answer { background: rgba(136,178,122,0.1); border-color: var(--sage); }
+  .kid-box.bigidea { background: rgba(127,179,213,0.1); border-color: var(--sky); }
+  .kid-box.surprise { background: rgba(255,152,68,0.1); border-color: var(--flame); }
+
+  .kid-box .kid-icon {
+    font-size: 36px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .kid-box .kid-label {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+  .kid-box.setup .kid-label { color: var(--gold-bright); }
+  .kid-box.question .kid-label { color: var(--crimson-glow); }
+  .kid-box.answer .kid-label { color: var(--sage-glow); }
+  .kid-box.bigidea .kid-label { color: var(--sky-glow); }
+  .kid-box.surprise .kid-label { color: var(--flame); }
+
+  .kid-box p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--parchment);
+    margin-bottom: 10px;
+  }
+  .kid-box p:last-child { margin-bottom: 0; }
+  .kid-box strong { color: var(--gold-bright); }
+  .kid-box em { color: var(--parchment-soft); font-style: italic; }
+
+  @keyframes flicker { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+  .flame-anim { animation: flicker 2s ease-in-out infinite; }
+
+  @media (max-width: 380px) {
+    .vs-grid { grid-template-columns: 1fr; }
+    .action-btn { font-size: 13px; padding: 10px 8px; }
+  }
+
+  /* ===== Taanit additions ===== */
+  .nl-pt.first { transform: translateX(0); text-align: right; }
+  .nl-pt.first::before { right: 6px; transform: none; }
+  .day-strip { display: flex; gap: 3px; direction: ltr; flex-direction: row-reverse; }
+  .ds-d { width: 38px; padding: 5px 0; border-radius: 7px; text-align: center; font-size: 12px; font-weight: 800;
+    background: rgba(127,179,213,0.15); color: var(--sky-glow); animation: kFade 4s infinite both; }
+  .ds-d span { display: block; font-size: 13px; }
+  .ds-d.edge { background: rgba(232,183,109,0.3); color: var(--gold-bright); }
+  .map-table { display: grid; grid-template-columns: 58px 1fr 1fr 52px; gap: 4px; font-size: 11.5px; line-height: 1.45; margin: 10px 0; }
+  .mt-h { font-weight: 800; color: var(--gold); padding: 4px 2px; }
+  .mt-n { font-weight: 800; color: var(--gold-bright); padding: 6px 2px; }
+  .mt-c { background: rgba(244,234,213,0.05); border-radius: 6px; padding: 6px; color: var(--parchment-soft); min-width: 0; }
+  .mt-c.no { color: var(--crimson-glow); text-align: center; }
+  .mt-c.ok { color: var(--sage-glow); text-align: center; background: rgba(136,178,122,0.15); }
+  .quiz { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .quiz-q { background: rgba(244,234,213,0.05); border: 1px solid rgba(232,183,109,0.25); border-radius: 10px; padding: 10px 12px; }
+  .quiz-q summary { cursor: pointer; font-weight: 700; color: var(--gold-bright); font-size: 14px; list-style: none; }
+  .quiz-q summary::before { content: "❓ "; }
+  .quiz-q[open] summary::before { content: "✅ "; }
+  .quiz-a { margin-top: 8px; font-size: 14px; line-height: 1.7; color: var(--parchment-soft); }
+  .sflow { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+  .sf-step { display: flex; gap: 10px; align-items: flex-start; padding: 9px 11px; border-radius: 10px;
+    background: rgba(244,234,213,0.05); border-right: 3px solid var(--sky); font-size: 14px; line-height: 1.65; }
+  .sf-step.bad { border-right-color: var(--crimson); }
+  .sf-step.hl { border-right-color: var(--gold); background: rgba(232,183,109,0.1); }
+  .sf-who { flex: 0 0 74px; font-weight: 800; color: var(--gold); font-size: 12px; padding-top: 2px; }
+  .sf-txt { flex: 1; min-width: 0; }
+  .pray-grid, .rain-table { display: grid; gap: 4px; width: 100%; font-size: 11px; text-align: center; }
+  .pray-grid { grid-template-columns: 52px repeat(4, 1fr); }
+  .rain-table { grid-template-columns: 58px repeat(3, 1fr); }
+  .pg-h, .rt-h { font-weight: 800; color: var(--gold); padding: 3px 0; }
+  .rt-h small { font-weight: 500; color: var(--parchment-dim); }
+  .pg-n, .rt-n { font-weight: 800; color: var(--parchment-soft); display: flex; align-items: center; }
+  .pg-c, .rt-c { border-radius: 6px; padding: 6px 2px; font-weight: 700; background: rgba(244,234,213,0.06); }
+  .pg-c.on { background: rgba(136,178,122,0.25); color: var(--sage-glow); animation: kFade 3.5s infinite; }
+  .pg-c.off { background: rgba(193,74,90,0.18); color: var(--crimson-glow); }
+  .rt-c.hl { background: rgba(232,183,109,0.25); color: var(--gold-bright); animation: kPulse 2.5s infinite; }
+  .ladder { display: flex; flex-direction: column; gap: 4px; margin: 12px 0; }
+  .ld-step { font-size: 13px; font-weight: 600; padding: 7px 10px; border-radius: 8px;
+    margin-right: calc(var(--i) * 12px); color: var(--parchment);
+    background: rgba(193,74,90, calc(0.08 + var(--i) * 0.07)); border: 1px solid rgba(193,74,90,0.35);
+    animation: gentleFade .6s both; animation-delay: calc(var(--i) * .25s); }
+  .ld-step b { display: inline-block; width: 20px; color: var(--gold); }
+  .ld-step span { color: var(--parchment-dim); font-weight: 400; }
+  .stalk-cmp { display: flex; gap: 40px; align-items: flex-end; justify-content: center; height: 110px; }
+  .sc-col { display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: 700; color: var(--parchment-soft); }
+  .sc-ear { width: 16px; border-radius: 8px 8px 4px 4px; background: var(--gold); }
+  .sc-stem { width: 4px; background: var(--sage); margin-bottom: 4px; }
+  .sc-col.miracle .sc-ear { animation: kPulse 2.5s infinite; background: var(--gold-bright); }
+  .throat { position: relative; display: flex; gap: 14px; justify-content: center; height: 100px; width: 200px; }
+  .th-tube { width: 64px; border-radius: 10px 10px 4px 4px; display: flex; align-items: flex-end; justify-content: center;
+    font-size: 11px; font-weight: 700; padding-bottom: 6px; text-align: center; }
+  .th-tube.trachea { background: rgba(127,179,213,0.22); border: 1.5px solid var(--sky); color: var(--sky-glow); }
+  .th-tube.esoph { background: rgba(136,178,122,0.22); border: 1.5px solid var(--sage); color: var(--sage-glow); }
+  .th-food { position: absolute; top: 0; font-size: 22px; animation: thFood 4s ease-in-out infinite; }
+  @keyframes thFood { 0% { right: 40px; top: -6px; } 45% { right: 40px; top: 50px; opacity: 1; } 55% { opacity: 0; } 60% { right: 118px; top: -6px; opacity: 0; } 65% { opacity: 1; } 100% { right: 118px; top: 50px; } }
+  @media (prefers-reduced-motion: reduce) { .kviz *, .ld-step, .th-food { animation: none !important; } }
+
+  .verify-note {
+    font-size: 12px; line-height: 1.6; color: var(--parchment-soft);
+    background: rgba(232,154,109,0.12); border: 1px dashed var(--warm);
+    border-radius: 10px; padding: 9px 12px; margin-bottom: 14px;
+  }
+  .verify-note strong { color: var(--warm); }
+  .masechet-switch { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+  .masechet-switch a {
+    font-size: 12px; font-weight: 700; color: var(--parchment-dim); text-decoration: none;
+    padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(232,183,109,0.25);
+  }
+  .masechet-switch a.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+
+  .year-line, .nisan-line { position: relative; width: 94%; height: 92px; }
+  .yl-track, .nl-track {
+    position: absolute; top: 18px; right: 0; left: 0; height: 8px;
+    border-radius: 4px; background: rgba(244,234,213,0.1);
+  }
+  .yl-fill { position: absolute; height: 8px; border-radius: 4px; width: 0; }
+  .yl-fill.hz { top: 18px; right: 4%; background: var(--gold); animation: ylHz 6s ease-in-out infinite; }
+  .yl-fill.sh { top: 30px; right: 20%; background: var(--sky); animation: ylSh 6s ease-in-out infinite; }
+  @keyframes ylHz { 0%,8% { width: 0; } 50%,100% { width: 58%; } }
+  @keyframes ylSh { 0%,35% { width: 0; } 80%,100% { width: 42%; } }
+  .yl-mark, .nl-pt {
+    position: absolute; top: 42px; transform: translateX(50%);
+    font-size: 10px; font-weight: 700; color: var(--parchment-soft);
+    text-align: center; line-height: 1.3; white-space: nowrap;
+  }
+  .yl-mark span { display: block; font-size: 16px; }
+  .yl-mark::before, .nl-pt::before {
+    content: ""; position: absolute; top: -26px; right: 50%; transform: translateX(50%);
+    width: 2px; height: 22px; background: var(--parchment-dim);
+  }
+  .nl-pt { top: 34px; }
+  .nl-pt b { display: block; color: var(--gold-bright); font-size: 11px; }
+  .nl-pt:last-child { transform: translateX(80%); }
+  .nl-grow {
+    position: absolute; top: 18px; right: 0; height: 8px; width: 0; border-radius: 4px;
+    background: linear-gradient(270deg, var(--sky), var(--sage), var(--gold));
+    animation: nlGrow 6s ease-in-out infinite;
+  }
+  @keyframes nlGrow { 0%,10% { width: 0; } 70%,100% { width: 96%; } }
+
+  .end-lines { width: 96%; display: flex; flex-direction: column; gap: 10px; }
+  .el-row { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; }
+  .el-name { width: 52px; color: var(--parchment-soft); }
+  .el-end { width: 52px; color: var(--gold); }
+  .el-bar { flex: 1; height: 14px; border-radius: 7px; background: rgba(244,234,213,0.08); position: relative; overflow: hidden; }
+  .el-fill { position: absolute; top: 0; right: 0; height: 100%; width: 0; border-radius: 7px; background: var(--sky); }
+  .el-fill.y { animation: elY 5s ease-in-out infinite; }
+  .el-fill.m { animation: elM 5s ease-in-out infinite; }
+  @keyframes elY { 0%,10% { width: 0; } 55%,100% { width: 72%; } }
+  @keyframes elM { 0%,10% { width: 0; } 75%,100% { width: 100%; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header>
+    <div class="masechet-name">מסכת תענית</div>
+    <div class="masechet-switch"><a href="index.html">זבחים</a><a href="taanit.html" class="on">תענית</a></div>
+    <div class="daf-nav masechet-only">
+      <button class="nav-arrow" id="prevDafBtn" title="דף קודם">‹</button>
+      <div class="daf-display" id="dafDisplay">
+        <h1 id="dafTitle">—</h1>
+        <div class="perek-name" id="perekName">—</div>
+      </div>
+      <button class="nav-arrow" id="nextDafBtn" title="דף הבא">›</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="masechet">📚 לימוד הדף</button>
+      <button class="tab" data-tab="tutorial">🎓 איך לקרוא גמרא</button>
+    </div>
+  </header>
+
+  <div class="action-bar masechet-only">
+    <button class="action-btn trans" id="transBtn">
+      <span>📖 הדף</span>
+    </button>
+    <button class="action-btn rashi" id="rashiBtn">
+      <span>📜 רש״י</span>
+      <span class="count" id="rashiCount">0</span>
+    </button>
+    <button class="action-btn tos" id="tosBtn">
+      <span>📚 תוספות</span>
+      <span class="count" id="tosCount">0</span>
+    </button>
+  </div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="scene-counter" id="counter"></div>
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-btn" id="prevSceneBtn">◀</button>
+    <div class="progress" id="progress"></div>
+    <button class="nav-btn" id="nextSceneBtn">▶</button>
+  </div>
+</nav>
+
+<!-- Modals -->
+<div class="modal-overlay" id="modalOverlay"></div>
+
+<div class="modal trans" id="transModal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-title">📖 תרגום הדף</div>
+    <button class="modal-close" data-close="trans">✕</button>
+  </div>
+  <div class="modal-content" id="transContent"></div>
+</div>
+
+<div class="modal rashi" id="rashiModal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-title">📜 רש״י על הדף</div>
+    <button class="modal-close" data-close="rashi">✕</button>
+  </div>
+  <div class="modal-content" id="rashiContent"></div>
+</div>
+
+<div class="modal tos" id="tosModal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-title">📚 תוספות על הדף</div>
+    <button class="modal-close" data-close="tos">✕</button>
+  </div>
+  <div class="modal-content" id="tosContent"></div>
+</div>
+
+<div class="modal term" id="termModal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-title">📖 מילה במילון</div>
+    <button class="modal-close" data-close="term">✕</button>
+  </div>
+  <div class="modal-content" id="termContent"></div>
+</div>
+
+<!-- Daf picker -->
+<div class="picker-modal" id="pickerModal">
+  <div class="picker-header">
+    <div class="picker-title">בחר דף</div>
+    <button class="modal-close" data-close="picker">✕</button>
+  </div>
+  <div class="picker-content" id="pickerContent"></div>
+</div>
+
+<script>
+// =======================================================
+// PEREK DATA — מסכת תענית
+// =======================================================
+const perakim = [
+  { num: 1, name: 'מאימתי', start: 2, startAmud: 'a' },
+  { num: 2, name: 'סדר תעניות כיצד', start: 15, startAmud: 'a' },
+  { num: 3, name: 'סדר תעניות אלו', start: 18, startAmud: 'b' },
+  { num: 4, name: 'בשלשה פרקים', start: 26, startAmud: 'a' }
+];
+
+function getPerekFor(daf, amud) {
+  const pos = (d, a) => d * 2 + (a === 'b' ? 1 : 0);
+  const target = pos(daf, amud);
+  let p = perakim[0];
+  for (const perek of perakim) {
+    if (pos(perek.start, perek.startAmud) <= target) p = perek;
+    else break;
+  }
+  return p;
+}
+
+// =======================================================
+// AMUDIM DATA — stubs for 2a..31a, then override
+// =======================================================
+const amudim = {};
+for (let d = 2; d <= 31; d++) {
+  for (const a of ['a', 'b']) {
+    if (d === 31 && a === 'b') continue; // המסכת מסתיימת בל״א.
+    amudim[`${d}${a}`] = { daf: d, amud: a, scenes: [], rashi: [], tosafot: [] };
+  }
+}
+
+// ---------- helpers for building scenes ----------
+const kv = (head, stage, cap, stageStyle) => `
+  <div class="kviz">
+    <div class="kviz-head">🎬 ${head}</div>
+    <div class="kviz-stage"${stageStyle ? ` style="${stageStyle}"` : ''}>${stage}</div>
+    ${cap ? `<div class="kviz-cap">${cap}</div>` : ''}
+  </div>`;
+const kn = (emoji, label, cls = '', style = '') =>
+  `<div class="knode ${cls}"${style ? ` style="${style}"` : ''}><span class="kemoji">${emoji}</span>${label}</div>`;
+const ar = (s = '←', style = '') => `<span class="karrow"${style ? ` style="${style}"` : ''}>${s}</span>`;
+const say = (who, text, answer = false) =>
+  `<div class="bubble${answer ? ' answer' : ''}"><div class="bubble-label">${who}</div><div>${text}</div></div>`;
+const story = (...ps) => `<div class="story">${ps.map(p => `<p>${p}</p>`).join('')}</div>`;
+const key = (label, text) => `<div class="keyidea"><div class="keyidea-label">🎯 ${label}</div><p>${text}</p></div>`;
+const tip = (label, text) => `<div class="tip"><div class="tip-label">💡 ${label}</div>${text}</div>`;
+const quiz = (items) => `<div class="quiz">${items.map(([q, a]) =>
+  `<details class="quiz-q"><summary>${q}</summary><div class="quiz-a">${a}</div></details>`).join('')}</div>`;
+const flow = (steps) => `<div class="sflow">${steps.map(([who, txt, cls]) =>
+  `<div class="sf-step ${cls || ''}"><span class="sf-who">${who}</span><span class="sf-txt">${txt}</span></div>`).join('')}</div>`;
+
+const SOURCE_NOTE = `
+  <div class="verify-note">📷 הטקסט נקרא מתוך הצילומים של הדף (דפוס וילנא). במקומות שהצילום מטושטש ייתכנו טעויות קריאה קטנות. רש״י ותוספות מובאים כאן <strong>בביאור ובתמצית</strong>, לא כציטוט מלא.</div>
+`;
+
+// =======================================================
+// DAF 4b
+// =======================================================
+amudim['4b'].scenes = [
+  {
+    tag: 'רקע',
+    title: 'איפה אנחנו? <span class="accent">הזכרה ושאלה</span>',
+    html: `
+      ${SOURCE_NOTE}
+      ${story(
+        'אנחנו בפרק הראשון של תענית. כל הפרק עוסק בתפילה על הגשם, ויש בה <strong>שני חלקים שונים</strong>:'
+      )}
+      <div class="vs-grid">
+        <div class="vs-card a"><div class="emoji">🗣️</div><h5>הזכרה</h5>
+          <p>״<strong>משיב הרוח ומוריד הגשם</strong>״ בברכת ״מחיה המתים״. זה <em>שבח</em> לה׳, ״גבורות גשמים״.</p></div>
+        <div class="vs-card b"><div class="emoji">🙏</div><h5>שאלה</h5>
+          <p>״<strong>ותן טל ומטר</strong>״ בברכת השנים. זו <em>בקשה</em> ממש, ויש אותה רק בתפילת חול.</p></div>
+      </div>
+      ${story(
+        'במשנה (דף ב.) נחלקו <strong>ר׳ אליעזר</strong> ו<strong>ר׳ יהושע</strong> ממתי מזכירים. לר׳ אליעזר מזכירים מיום טוב הראשון של סוכות. לר׳ יהושע מתחילים רק ביום טוב האחרון, ״משעת הנחתו״ של הלולב.',
+        'אחר כך המשנה אומרת: <strong>״אין שואלין את הגשמים אלא סמוך לגשמים״</strong>. וכאן מתחיל העמוד שלנו.'
+      )}
+      ${kv('ציר השנה: מתי מזכירים ומתי שואלים',
+        `<div class="year-line">
+          <div class="yl-track"></div><div class="yl-fill hz"></div><div class="yl-fill sh"></div>
+          <div class="yl-mark" style="right:4%"><span>🌿</span>סוכות</div>
+          <div class="yl-mark" style="right:20%"><span>🍂</span>מרחשון</div>
+          <div class="yl-mark" style="right:62%"><span>🍷</span>פסח</div>
+          <div class="yl-mark" style="right:80%"><span>🌸</span>סוף ניסן</div>
+        </div>`,
+        '<span style="color:var(--gold-bright)">■</span> הזכרה מתחילה בחג. <span style="color:var(--sky-glow)">■</span> שאלה מתחילה רק במרחשון, סמוך לגשמים.')}
+    `
+  },
+  {
+    tag: 'סוגיה 1',
+    title: '״רבי יהושע היא, דאמר <span class="accent">משעת הנחתו</span>״',
+    html: `
+      ${story('הגמרא שואלת: המשנה ״אין שואלין אלא סמוך לגשמים״ — של מי היא?')}
+      ${say('הגמרא (כפי שמבאר רש״י)', 'לכאורה זו שיטת <strong>ר׳ יהושע</strong>, שאמר שמזכירים רק ״משעת הנחתו״ של הלולב, כלומר ביום טוב האחרון. גם הוא מאחר, כי לא רוצים להזכיר גשם כשעוד לא צריך אותו.')}
+      ${say('רבא', '<strong>״אפילו תימא רבי אליעזר — שאלה לחוד והזכרה לחוד״</strong>. גם ר׳ אליעזר, שמזכיר כבר מתחילת החג, מודה שאת <em>הבקשה</em> לא אומרים עד סמוך לגשמים. הזכרה היא רק שבח, ושאלה היא בקשה ממש.', true)}
+      ${kv('רבא מפריד בין שני הדברים',
+        kn('🗣️', 'הזכרה<br><span style="opacity:.7">ר״א: מתחילת החג</span>', 'gold', 'animation:kPulse 3s infinite') +
+        `<span class="karrow">≠</span>` +
+        kn('🙏', 'שאלה<br><span style="opacity:.7">לכולם: סמוך לגשמים</span>', 'good', 'animation:kPulse 3s infinite 1.5s'),
+        'אפשר <strong>לשבח</strong> על הגשם מוקדם, ו<strong>לבקש</strong> אותו רק בזמנו.')}
+    `
+  },
+  {
+    tag: 'משנה',
+    title: 'ר׳ יהודה: <span class="accent">הראשון או האחרון?</span>',
+    html: `
+      ${story(
+        'נמשיך במשנה: <strong>״רבי יהודה אומר: העובר לפני התיבה ביום טוב האחרון של חג — האחרון מזכיר, הראשון אינו מזכיר. ביום טוב הראשון של פסח — הראשון מזכיר, האחרון אינו מזכיר.״</strong>',
+        'ביום טוב יש שני שליחי ציבור. <strong>״הראשון״</strong> הוא החזן של שחרית, ו<strong>״האחרון״</strong> הוא החזן של מוסף.'
+      )}
+      ${kv('שמיני עצרת: מתחילים',
+        kn('🌅', 'שחרית<br><span style="opacity:.7">לא מזכיר</span>', '', '') + ar() +
+        kn('☀️', 'מוסף<br><span style="opacity:.7">מזכיר!</span>', 'gold', 'animation:kPulse 3s infinite'))}
+      ${kv('יום ראשון של פסח: מפסיקים',
+        kn('🌅', 'שחרית<br><span style="opacity:.7">עוד מזכיר</span>', 'gold', 'animation:kPulse 3s infinite') + ar() +
+        kn('☀️', 'מוסף<br><span style="opacity:.7">כבר לא</span>', ''),
+        'לפי ר׳ יהודה ה<strong>הזכרה</strong> נגמרת כבר ב<strong>יום טוב הראשון של פסח</strong>.')}
+    `
+  },
+  {
+    tag: 'קושיה',
+    title: '״ורמינהו״ — <span class="accent">ר׳ יהודה סותר את עצמו?</span>',
+    html: `
+      ${story('הגמרא מביאה משנה אחרת (שמופיעה אצלנו בעמוד הבא):')}
+      ${say('ורמינהו', '<strong>״עד מתי שואלין את הגשמים? ר׳ יהודה אומר: עד שיעבור הפסח. ר׳ מאיר אומר: עד שיעבור ניסן.״</strong>')}
+      ${kv('הסתירה',
+        kn('📜', 'משנה א׳<br><span style="opacity:.7">מפסיקים ביו״ט ראשון של פסח</span>', 'bad') +
+        `<span class="karrow">⚡</span>` +
+        kn('📜', 'משנה ב׳<br><span style="opacity:.7">ממשיכים עד סוף הפסח</span>', 'bad', 'animation:kShake 1.4s infinite'),
+        'שתי המשניות בשם <strong>אותו ר׳ יהודה</strong>. אז מתי מפסיקים: ביום הראשון של פסח או בסופו?')}
+    `
+  },
+  {
+    tag: 'תירוץ 1',
+    title: 'רב חסדא: <span class="accent">״כאן לשאול, כאן להזכיר״</span>',
+    html: `
+      ${say('רב חסדא', '<strong>״לא קשיא: כאן לשאול, כאן להזכיר. מישאל — שאיל ואזיל; להזכיר — ביום טוב הראשון פסיק.״</strong>', true)}
+      ${story(
+        'שתי המשניות עוסקות בשני דברים שונים:',
+        '• <strong>השאלה</strong> (״ותן טל ומטר״) נמשכת עד <em>סוף</em> הפסח, ואומרים אותה בחול המועד.',
+        '• <strong>ההזכרה</strong> (״משיב הרוח״) נפסקת כבר ב<em>יום טוב הראשון</em>.'
+      )}
+      ${kv('לפי רב חסדא',
+        `<div class="end-lines">
+          <div class="el-row"><span class="el-name">הזכרה</span><div class="el-bar"><div class="el-fill y" style="background:var(--gold)"></div></div><span class="el-end">יו״ט א׳</span></div>
+          <div class="el-row"><span class="el-name">שאלה</span><div class="el-bar"><div class="el-fill m"></div></div><span class="el-end">סוף פסח</span></div>
+        </div>`,
+        'השאלה ממשיכה <strong>אחרי</strong> שההזכרה כבר נפסקה.')}
+    `
+  },
+  {
+    tag: 'דחייה',
+    title: 'עולא: <span class="accent">״כחומץ לשנים וכעשן לעינים״</span>',
+    html: `
+      ${say('עולא', '<strong>״הא דרב חסדא קשיא, כחומץ לשנים וכעשן לעינים!״</strong> התירוץ הזה צורב כמו חומץ על השיניים.')}
+      ${story('למה? עולא בונה <strong>קל וחומר</strong>:')}
+      ${flow([
+        ['שמיני עצרת', 'שם <strong>לא שואלים</strong> (זו תפילת יום טוב, ואין בה ברכת השנים), ובכל זאת <strong>מזכירים</strong>.', ''],
+        ['חול המועד פסח', 'כאן <strong>שואלים</strong> (תפילת חול).', ''],
+        ['קל וחומר', 'אם מזכירים במקום שלא שואלים, ודאי שצריך להזכיר במקום ששואלים!', 'hl']
+      ])}
+      ${tip('רש״י מסביר', '״במקום שאינו שואל״ הוא שמיני עצרת, שמתפללים בו תפילת יום טוב, ואין שם ברכת השנים. ״במקום ששואל״ הוא חול המועד של פסח.')}
+      ${say('עולא', '<strong>״אלא: תרי תנאי אליבא דר׳ יהודה״</strong>. שני תנאים מסרו בשם ר׳ יהודה שתי שיטות שונות, וזו באמת מחלוקת.', true)}
+      ${tip('רש״י', 'לתנא אחד שואלים עד שיעבור הפסח, ו<em>כל שכן</em> מזכירים. לתנא השני השאלה וההזכרה נפסקות יחד.')}
+    `
+  },
+  {
+    tag: 'תירוץ 2',
+    title: 'רב יוסף: <span class="accent">״עד שיעבור שליח ציבור״</span>',
+    html: `
+      ${say('רב יוסף', 'מה פירוש ״עד שיעבור הפסח״? <strong>עד שיעבור שליח ציבור של יום טוב ראשון של פסח.</strong> כלומר עד שהחזן הראשון יסיים, ואז שתי המשניות אומרות אותו דבר.', true)}
+      ${say('אביי', '<strong>״שאלה ביום טוב מי איכא?!״</strong> ביום טוב בכלל לא אומרים ״ותן טל ומטר״!')}
+      ${say('רב יוסף', '<strong>״אין, מתורגמן״</strong>. הכוונה למתורגמן שעומד ליד הדרשן ומשמיע לציבור. הוא יכול לבקש על הגשם.', true)}
+      ${say('אביי', '<strong>״וכי מתורגמן שואל דבר שאינו צריך לציבור?!״</strong> בפסח כבר לא צריכים גשם, אז למה שהמתורגמן יבקש?')}
+      ${story('התירוץ נדחה, ו<strong>״אלא מחוורתא כדעולא״</strong>: חוזרים לתירוץ של עולא, ״תרי תנאי״.')}
+    `
+  },
+  {
+    tag: 'תירוץ 3',
+    title: 'רבה: <span class="accent">״כתחילתו כן סופו״</span>',
+    html: `
+      ${say('רבה', 'מה פירוש ״<strong>שואלין</strong> עד שיעבור הפסח״? <strong>כתחילתו כן סופו</strong>: מה בתחילת החורף (שמיני עצרת) <em>מזכירים אף על פי שאינם שואלים</em>, אף בסופו (יו״ט ראשון של פסח) <em>מזכירים אף על פי שאינם שואלים</em>.', true)}
+      ${story(
+        '<strong>מה רבה עושה כאן?</strong> הוא מיישב את ר׳ יהודה עם עצמו. המילה ״<strong>שואלין</strong>״ במשנה ״עד מתי שואלין״ מתייחסת בעצם ל<strong>הזכרה</strong> שביו״ט הראשון של פסח. ״עד שיעבור הפסח״ פירושו: עד שיעבור היום הראשון, שבו עוד מזכירים, כמו שאמר ר׳ יהודה ״הראשון מזכיר״.',
+        'ההנחה של רבה: התחלת החורף וסופו סימטריים, וביום טוב יש הזכרה בלי שאלה, גם בכניסה וגם ביציאה.'
+      )}
+      ${kv('הסימטריה של רבה',
+        kn('🌿', 'תחילה<br><span style="opacity:.7">מזכיר, לא שואל</span>', 'gold') +
+        `<span class="karrow">⇄</span>` +
+        kn('🍷', 'סוף<br><span style="opacity:.7">מזכיר, לא שואל</span>', 'gold'))}
+      ${say('אביי', '<strong>״בשלמא תחילתו — ריצוי שאלה היא, אלא סופו מאי ריצוי שאלה איכא?!״</strong>')}
+      ${story(
+        '<strong>הטענה של אביי:</strong> בתחילת החורף ההזכרה היא <strong>״ריצוי שאלה״</strong>, הכנה לקראת הבקשה שתבוא. לכן אפשר לכנות אותה ״שאלה״: קודם משבחים, ואחר כך מבקשים, כמו שמרצים את המלך לפני שמבקשים ממנו.',
+        'אבל בסוף החורף אין בקשה שעומדת לבוא. ההזכרה בפסח היא סתם שבח, ואי אפשר לקרוא לה ״שואלין״. הסימטריה נשברת, ושוב נשארים עם עולא.'
+      )}
+      ${key('עומק: מה זו בעצם הזכרה?', 'כאן מתגלה השאלה שעוברת בכל הסוגיה. האם ההזכרה היא <strong>שבח עצמאי</strong> (כמו שאמר רבא: ״שאלה לחוד והזכרה לחוד״), או <strong>הקדמה לבקשה</strong> (״ריצוי שאלה״, כדברי אביי)? אם היא הקדמה, היא שייכת לתחילת החורף ולא לסופו.')}
+    `
+  },
+  {
+    tag: 'הלכה',
+    title: 'הלכה כר׳ יהודה? <span class="accent">או כרבן גמליאל?</span>',
+    html: `
+      ${say('ר׳ אסי בשם ר׳ יוחנן', '<strong>הלכה כר׳ יהודה</strong>.')}
+      ${say('ר׳ זירא לר׳ אסי', 'וכי ר׳ יוחנן אמר כך? הרי שנינו: <strong>״בשלשה במרחשון שואלין את הגשמים, רבן גמליאל אומר בשבעה בו״</strong>, ואמר ר׳ אלעזר: <strong>הלכה כרבן גמליאל</strong>!')}
+      ${tip('למה זו סתירה?', 'לפי ר׳ יהודה מתחילים <em>להזכיר</em> כבר בשמיני עצרת, ולפי רבן גמליאל <em>שואלים</em> רק בז׳ במרחשון, כלומר שבועות אחר כך. ויש כלל של ר׳ יוחנן: <strong>״התחיל להזכיר — מתחיל לשאול״</strong>.')}
+      ${say('ר׳ אסי', '<strong>״גברא אגברא קא רמית?!״</strong> אתה מקשה מאדם אחד (ר׳ אלעזר) על אדם אחר (ר׳ יוחנן)?', true)}
+      ${story('הגמרא מציעה עוד דרכים ליישב:')}
+      ${flow([
+        ['איבעית אימא', '<strong>כאן לשאול, כאן להזכיר</strong>: ר׳ יהודה מדבר על הזכרה, ורבן גמליאל על שאלה.', ''],
+        ['קושיה א׳', 'והרי ״<strong>מקום ששואל — מזכיר</strong>״! ותירוץ: ״ההוא להפסקה איתמר״, כלומר הכלל נאמר על סוף החורף.', 'bad'],
+        ['קושיה ב׳', 'והרי ר׳ יוחנן עצמו אמר: <strong>״התחיל להזכיר — מתחיל לשאול״</strong>! אם כן אי אפשר להזכיר מסוכות ולשאול רק בז׳ במרחשון.', 'bad'],
+        ['תירוץ', '<strong>״הא לן, הא להו״</strong>: רבן גמליאל (מאחרים לשאול) מדבר <strong>עלינו</strong>, בבבל, ור׳ יהודה (שואלים מיד) מדבר <strong>עליהם</strong>, בארץ ישראל.', ''],
+        ['קושיה', '״<strong>לדידן — דאית לן פירי בדברא</strong>״: אצלנו מובן שמאחרים, כי הפירות עוד בשדה. אבל גם <strong>להם</strong> יש סיבה לאחר, ״<strong>עולי רגלים</strong>״ שחוזרים מירושלים!', 'bad'],
+        ['תירוץ', 'כשר׳ יוחנן פסק כר׳ יהודה, הוא דיבר על <strong>הזמן שאין בית המקדש קיים</strong>, ואז אין עולי רגלים.', ''],
+        ['מסקנה', '<strong>״הא והא להו״</strong>, ושניהם בארץ ישראל: <strong>כאן בזמן שבית המקדש קיים</strong> (מחכים לעולי רגלים, כרבן גמליאל), <strong>כאן בזמן שאין בית המקדש קיים</strong> (כר׳ יהודה).', 'hl']
+      ])}
+      ${kv('המסקנה בתנועה',
+        kn('🏛️', 'בזמן המקדש<br><span style="opacity:.7">מחכים לעולי רגלים</span>', 'gold', 'animation:kFlash 3s infinite') +
+        kn('🏚️', 'אחרי החורבן<br><span style="opacity:.7">אין עולי רגלים</span>', 'good', 'animation:kFlash 3s infinite 1.5s'),
+        'רבן גמליאל מאחר עד ז׳ במרחשון כדי ש<strong>עולי הרגלים</strong> יספיקו לחזור לבתיהם בלי גשם בדרך.')}
+      ${tip('תוספות', 'תוספות מסבירים ש״הא לן״ פירושו לבני בבל, ששואלים רק לאחר ששים יום מהתקופה. ומבארים מה הכלל ״המתחיל להזכיר — יתחיל לשאול״.')}
+    `
+  },
+  {
+    tag: 'בגולה',
+    title: '״ואנן דאית לן <span class="accent">תרי יומי</span>״',
+    html: `
+      ${story(
+        'בחוץ לארץ עושים <strong>שני ימים</strong> של יום טוב, מספק. היום הראשון של שמיני עצרת הוא אולי בעצם היום ה<em>שביעי</em> של סוכות, ״ספק שמיני ספק שביעי״. מתי מתחילים להזכיר?'
+      )}
+      ${say('רב', 'מתחיל ב<strong>מוסף</strong> (כי אולי זה שמיני), <strong>פוסק</strong> במנחה, ערבית ושחרית (כי אולי זה שביעי), <strong>וחוזר</strong> במוסף של היום השני.')}
+      ${say('שמואל', '<strong>״פוקו ואמרו ליה לאבא: אחר שעשיתו קודש — תעשהו חול?!״</strong> לכו ואמרו לרב (שמו היה ״אבא״): אחרי שהתייחסת ליום כאל שמיני, תתייחס אליו שוב כאל שביעי?!')}
+      ${say('שמואל', 'אלא: מתחיל ב<strong>מוסף ובמנחה</strong>, פוסק בערבית ושחרית (רש״י: כי אלו כבר לא תפילות של אותו היום), וחוזר ומתחיל במוסף.', true)}
+      ${kv('רב מול שמואל: יום ספק שמיני',
+        `<div class="pray-grid">
+          <div class="pg-h"></div><div class="pg-h">מוסף</div><div class="pg-h">מנחה</div><div class="pg-h">ערבית+שחרית</div><div class="pg-h">מוסף ב׳</div>
+          <div class="pg-n">רב</div><div class="pg-c on">✓</div><div class="pg-c off">✗</div><div class="pg-c off">✗</div><div class="pg-c on">✓</div>
+          <div class="pg-n">שמואל</div><div class="pg-c on">✓</div><div class="pg-c on">✓</div><div class="pg-c off">✗</div><div class="pg-c on">✓</div>
+        </div>`,
+        '✓ = מזכירים ״משיב הרוח״. ✗ = לא מזכירים.')}
+      ${key('עומק: למה בכלל להפסיק ביום השני?', 'זכור שבארץ ישראל בשמיני עצרת <strong>לא מזכירים בערבית ובשחרית</strong>, ומתחילים רק במוסף (״האחרון מזכיר״). אם היום השני הוא השמיני האמיתי, גם בו צריך להתחיל רק במוסף. לכן רב ושמואל ״מפסיקים״ בערבית ובשחרית שלו: כדי שאם זה השמיני, ההתחלה תהיה במקומה, במוסף. הוויכוח ביניהם הוא רק על <strong>מנחה של היום הראשון</strong>: האם מותר להפסיק באמצע אותו יום (רב), או שזה ״קודש ואחר כך חול״ (שמואל).')}
+      ${story('ובעמוד הבא רבא ורב ששת, ובסוף גם רב, אומרים כלל פשוט יותר: <strong>כיון שהתחיל, שוב אינו פוסק</strong>.')}
+    `
+  },
+  {
+    tag: 'חזרה',
+    title: 'שאלות <span class="accent">לחזרה</span> — ד׳ ע״ב',
+    html: `
+      ${quiz([
+        ['מה ההבדל בין הזכרה לשאלה?', 'הזכרה: ״משיב הרוח״, שבח בברכת מחיה המתים. שאלה: ״ותן טל ומטר״, בקשה בברכת השנים.'],
+        ['מה הקושיה מ״ורמינהו״?', 'ר׳ יהודה אומר במשנה אחת שמפסיקים ביו״ט ראשון של פסח, ובמשנה אחרת ששואלים עד שיעבור הפסח.'],
+        ['למה עולא אומר על רב חסדא ״כחומץ לשנים״?', 'קל וחומר: בשמיני עצרת מזכירים אף שלא שואלים, אז בחול המועד ששואלים ודאי צריך להזכיר.'],
+        ['מה אביי מקשה על רבה?', 'בתחילת החורף ההזכרה היא ״ריצוי שאלה״, אבל בסופו אין בקשה שצריך לרצות לקראתה.'],
+        ['מה המסקנה ביישוב ר׳ יהודה ורבן גמליאל?', 'שניהם בארץ ישראל: רבן גמליאל בזמן המקדש (בגלל עולי רגלים), ור׳ יהודה בזמן שאין מקדש.'],
+        ['מה טענת שמואל על רב?', '״אחר שעשיתו קודש תעשהו חול?״ אי אפשר להזכיר במוסף ולהפסיק במנחה של אותו יום.']
+      ])}
+    `
+  }
+];
+
+amudim['4b'].translation = [
+  { type: 'note', text: '📷 הטקסט נקרא מהצילום. הסוגריים המרובעים הם השלמות להבנה.' },
+  { type: 'section', title: 'של מי המשנה ״אין שואלין אלא סמוך לגשמים״' },
+  { type: 'quote', aramaic: '...רבי יהושע היא, דאמר משעת הנחתו.',
+    translation: 'המשנה כשיטת ר׳ יהושע, שאמר שמזכירים רק משעה שמניחים את הלולב (יום טוב האחרון).' },
+  { type: 'quote', aramaic: 'אמר רבא: אפילו תימא רבי אליעזר — שאלה לחוד והזכרה לחוד.',
+    translation: '<strong>רבא:</strong> אפשר שזו גם שיטת ר׳ אליעזר. שאלה היא דבר אחד והזכרה דבר אחר.' },
+  { type: 'section', title: 'סתירה בדברי ר׳ יהודה' },
+  { type: 'quote', aramaic: 'רבי יהודה אומר העובר לפני התיבה כו׳. ורמינהו: עד מתי שואלין את הגשמים? ר׳ יהודה אומר: עד שיעבור הפסח. ר׳ מאיר אומר: עד שיעבור ניסן.',
+    translation: 'ר׳ יהודה אמר שביו״ט ראשון של פסח מפסיקים. ומקשים ממשנה אחרת שבה ר׳ יהודה אומר ששואלים עד <strong>סוף</strong> הפסח.' },
+  { type: 'quote', aramaic: 'אמר רב חסדא: לא קשיא, כאן לשאול כאן להזכיר. מישאל — שאיל ואזיל, להזכיר — ביום טוב הראשון פסיק.',
+    translation: '<strong>רב חסדא:</strong> אין סתירה. את השאלה ממשיכים לומר, ואת ההזכרה מפסיקים ביום טוב הראשון.',
+    viz: kv('', kn('🙏', 'שאלה: עד סוף פסח', 'good') + kn('🗣️', 'הזכרה: עד יו״ט א׳', 'gold')) },
+  { type: 'quote', aramaic: 'אמר עולא: הא דרב חסדא קשיא כחומץ לשנים וכעשן לעינים. ומה במקום שאינו שואל — מזכיר, במקום ששואל אינו דין שיהא מזכיר?!',
+    translation: '<strong>עולא:</strong> דברי רב חסדא קשים כחומץ לשיניים. אם בשמיני עצרת, שלא שואלים בו, מזכירים, אז בחול המועד, ששואלים בו, ודאי שיש להזכיר!' },
+  { type: 'quote', aramaic: 'אלא אמר עולא: תרי תנאי אליבא דרבי יהודה.',
+    translation: 'אלא: שני תנאים חלוקים בדעת ר׳ יהודה.' },
+  { type: 'section', title: 'רב יוסף ורבה' },
+  { type: 'quote', aramaic: 'רב יוסף אמר: מאי עד שיעבור הפסח — עד שיעבור שליח צבור [הראשון] של יום טוב ראשון של פסח.',
+    translation: '<strong>רב יוסף:</strong> ״עד שיעבור הפסח״ פירושו עד שיסיים החזן של שחרית ביו״ט ראשון של פסח.' },
+  { type: 'quote', aramaic: 'אמר ליה אביי: שאלה ביום טוב מי איכא? אמר ליה: אין, מתורגמן. וכי מתורגמן שואל דבר שאינו צריך לצבור?!',
+    translation: '<strong>אביי:</strong> וכי יש שאלה ביום טוב? <strong>רב יוסף:</strong> כן, המתורגמן מבקש. <strong>אביי:</strong> וכי המתורגמן יבקש דבר שהציבור לא צריך?!' },
+  { type: 'quote', aramaic: 'אלא [מחוורתא] כדעולא.',
+    translation: 'לכן הנכון הוא כדברי עולא.' },
+  { type: 'quote', aramaic: 'רבה אמר: מאי עד שיעבור הפסח — [וכתחילתו כן סופו:] מה תחילתו מזכיר אף על פי שאינו שואל, [אף סופו] מזכיר אף על פי שאינו שואל.',
+    translation: '<strong>רבה:</strong> ״שואלין עד שיעבור הפסח״ פירושו הזכרה ביו״ט הראשון. כמו שבתחילת החורף מזכירים בלי לשאול, כך גם בסופו.' },
+  { type: 'quote', aramaic: 'אמר ליה אביי: בשלמא תחילתו — ריצוי שאלה היא, אלא סופו מאי ריצוי שאלה איכא?',
+    translation: '<strong>אביי:</strong> בתחילה ההזכרה מכינה את הבקשה (״ריצוי״). בסוף, לקראת איזו בקשה היא מכינה?' },
+  { type: 'section', title: 'הלכה' },
+  { type: 'quote', aramaic: 'אמר רבי אסי אמר רבי יוחנן: הלכה כרבי יהודה. אמר ליה רבי זירא לרבי אסי: ומי אמר רבי יוחנן הכי? והתנן: בשלשה במרחשון שואלין את הגשמים, רבן גמליאל אומר: בשבעה בו, ואמר רבי אלעזר: הלכה כרבן גמליאל!',
+    translation: '<strong>ר׳ יוחנן:</strong> הלכה כר׳ יהודה. <strong>ר׳ זירא מקשה:</strong> הרי נפסק כרבן גמליאל, ששואלים רק בז׳ במרחשון!' },
+  { type: 'quote', aramaic: 'אמר ליה: גברא אגברא קא רמית? איבעית אימא: לא קשיא — כאן לשאול, כאן להזכיר.',
+    translation: 'אתה מקשה מאדם אחד על אדם אחר? ואם תרצה: אחד מדבר על שאלה ואחד על הזכרה.' },
+  { type: 'quote', aramaic: 'אלא לא קשיא: הא לן הא להו... כאן בזמן שבית המקדש קיים, כאן בזמן שאין בית המקדש קיים.',
+    translation: 'הגמרא מנסה לחלק בין בבל לארץ ישראל, ולבסוף מחלקת בין <strong>זמן המקדש</strong> לבין <strong>הזמן שאחרי החורבן</strong>.' },
+  { type: 'section', title: 'שני ימים טובים בגולה' },
+  { type: 'quote', aramaic: 'ואנן דאית לן תרי יומי היכי עבדינן? אמר רב: מתחיל במוספין, ופוסק במנחה ערבית ושחרית, וחוזר במוספין.',
+    translation: '<strong>ואנחנו, שעושים שני ימים, מה נעשה?</strong> רב: מתחילים במוסף, מפסיקים במנחה, ערבית ושחרית, וחוזרים במוסף.' },
+  { type: 'quote', aramaic: 'אמר להו שמואל: פוקו ואמרו ליה לאבא: אחר שעשיתו קודש תעשהו חול? אלא אמר שמואל: מתחיל במוספין ובמנחה, ופוסק ערבית ושחרית, וחוזר ומתחיל במוספין.',
+    translation: '<strong>שמואל:</strong> אמרו לרב: אחרי שהחשבת את היום כקודש, תחשיב אותו כחול? אלא: מתחילים במוסף ובמנחה, מפסיקים בערבית ושחרית, וחוזרים במוסף.' },
+  { type: 'summary', text: '<strong>סיכום ד׳ ע״ב:</strong> הזכרה ושאלה הן שני דברים שונים. הסתירה בדברי ר׳ יהודה מיושבת בכמה דרכים, והמסקנה ״תרי תנאי״. ההלכה בין ר׳ יהודה לרבן גמליאל תלויה בזמן המקדש. ובגולה נחלקו רב ושמואל מה עושים ביום ספק שמיני.' }
+];
+
+amudim['4b'].rashi = [
+  { dh: 'לימא ר׳ יהושע היא', content: '<p>רש״י מבאר: הגמרא חשבה שהמשנה ״אין שואלין אלא סמוך לגשמים״ היא כר׳ יהושע, שמאחר את ההזכרה ליום טוב האחרון. <strong>״אפילו תימא״</strong> ר׳ אליעזר: גם הוא מסכים לגבי השאלה, כי ״סברוה שאלה לחוד והזכרה לחוד״.</p>' },
+  { dh: 'עד אימתי שואלין את הגשמים', content: '<p>בסוף ימות הפסח, כלומר אומרים ״ותן טל ומטר״ כל חולו של מועד.</p>' },
+  { dh: 'עד שיצא ניסן', content: '<p>ר׳ מאיר, וכדמפרש טעמא במתניתין מהפסוק ״ויורד לכם גשם מורה ומלקוש בראשון״.</p>' },
+  { dh: 'מישאל שאיל ואזיל', content: '<p><strong>לשאול</strong> שואל והולך עד שיעבור הפסח, כדקתני ״עד מתי שואלין״. <strong>להזכיר</strong> אינו מזכיר אלא בתפילת היוצר (שחרית) של יום טוב ראשון, וזה ״הראשון מזכיר״.</p>' },
+  { dh: 'במקום שאינו שואל', content: '<p>ביום טוב האחרון של חג, שמתפלל בו תפילת יום טוב ולא תפילת חול. <strong>אין שאלה אלא בברכת השנים</strong>, ובשמיני עצרת אין ברכת השנים.</p>' },
+  { dh: 'מזכיר', content: '<p>גבורות גשמים, כדאמר ר׳ יהודה ״האחרון מזכיר״.</p>' },
+  { dh: 'במקום ששואל', content: '<p>בחולו של מועד של פסח.</p>' },
+  { dh: 'תרי תנאי', content: '<p>תנא אחד אומר ששואלים עד שיעבור הפסח, ו<em>כל שכן</em> שמזכירים. התנא השני אומר שהשאלה נמשכת עד הפסח, וההזכרה נפסקת ביו״ט הראשון.</p>' },
+  { dh: 'ופוסק ערבית ושחרית', content: '<p>לשיטת שמואל: אלו כבר לא תפילות של <em>אותו היום</em> (ספק שמיני), ולכן אין כאן ״קודש ואחר כך חול״ באותו יום. וזה גם פירוש ״בתמיה, שמפסיק במנחה של אותו יום״ בקושייתו על רב.</p>' }
+];
+
+amudim['4b'].tosafot = [
+  { dh: 'רבי יהודה אומר העובר לפני התיבה',
+    content: `${kv('הקשר', kn('📜', 'ר׳ יהודה כאן<br>הראשון מזכיר', 'gold') + ar('↔') + kn('📜', 'ר׳ יהודה שם<br>עד שיעבור הפסח', 'gold'))}
+      <p>תוספות מראים איך המשנה של ר׳ יהודה (האחרון מזכיר והראשון אינו מזכיר) מתקשרת למשנה ״עד מתי שואלין״, ומבארים את כוונת ״ורמינהו״: הסתירה היא בין הפסקת <em>ההזכרה</em> לבין סיום <em>השאלה</em>.</p>` },
+  { dh: 'הא לן',
+    content: `<p><strong>פירוש לבני בבל</strong>: הם שואלים מאוחר אפילו מז׳ במרחשון, רק בששים יום לתקופה. בבבל אין חשש של עולי רגלים, אבל יש פירות בשדה (״פירי בדברא״) שצריכים להתייבש, ולכן מאחרים.</p>` },
+  { dh: 'והא להו',
+    content: `<p>תוספות מבארים את הכלל: <strong>״המתחיל להזכיר — יתחיל לשאול״</strong>. לכן אי אפשר לומר בפשטות שמזכירים מסוכות ושואלים רק בז׳ במרחשון, ולכן הגמרא צריכה לחלק בין זמן המקדש לזמן שאחריו.</p>` }
+];
+
+// =======================================================
+// DAF 5a
+// =======================================================
+amudim['5a'].scenes = [
+  {
+    tag: 'הלכה',
+    title: '״כיון שהתחיל — <span class="accent">שוב אינו פוסק</span>״',
+    html: `
+      ${SOURCE_NOTE}
+      ${story('המשך הוויכוח מהעמוד הקודם: מה עושים בגולה ביום ספק שמיני?')}
+      ${say('רבא', '<strong>״כיון שהתחיל — שוב אינו פוסק״</strong>. ברגע שהתחלנו להזכיר במוסף, ממשיכים ולא מפסיקים.', true)}
+      ${say('רב ששת', 'כך גם אמר רב ששת: כיון שהתחיל, שוב אינו פוסק.', true)}
+      ${say('ואף רב הדר ביה', 'אמר רב חננאל בשם רב: <strong>מונה עשרים ואחד יום</strong> מראש השנה, כדרך שמונים עשרה ימים מר״ה עד יום הכיפורים, <strong>ומתחיל. וכיון שהתחיל — שוב אינו פוסק.</strong>', true)}
+      ${kv('21 יום מראש השנה',
+        `<div class="nisan-line">
+          <div class="nl-track"></div><div class="nl-grow"></div>
+          <div class="nl-pt first" style="right:0%"><b>א׳</b>🎺<br>ר״ה</div>
+          <div class="nl-pt" style="right:41%"><b>י׳</b>🤍<br>יוה״כ</div>
+          <div class="nl-pt" style="right:66%"><b>ט״ו</b>🌿<br>סוכות</div>
+          <div class="nl-pt" style="right:96%"><b>כ״ב</b>🌧️<br>מזכירים</div>
+        </div>`,
+        'סופרים מהיום הראשון של ר״ה, כמו שסופרים 10 ימים עד יוה״כ. אחרי 21 יום, ב<strong>כ״ב</strong>, מתחילים להזכיר.')}
+      ${tip('רש״י מבאר', 'מתחילים לספור מיום ראשון של ר״ה, ולא חוששים שמא עיברו את אלול, כי ״אנן בקיאין בקביעא דירחא״: אנחנו יודעים את הלוח. היום השני של יום טוב הוא רק ״מנהג אבותינו בידינו״. לכן היום הראשון של שמיני עצרת הוא באמת שמיני, ומזכירים בו.')}
+      ${key('ההלכה', '<strong>״והלכתא: כיון שהתחיל שוב אינו פוסק״</strong>. בגולה מתחילים במוסף של היום הראשון וממשיכים. זה המנהג שלנו היום.')}
+    `
+  },
+  {
+    tag: 'משנה',
+    title: '״עד מתי <span class="accent">שואלין את הגשמים?</span>״',
+    html: `
+      ${say('משנה', '<strong>״עד מתי שואלין את הגשמים? ר׳ יהודה אומר: עד שיעבור הפסח. ר׳ מאיר אומר: עד שיצא ניסן, שנאמר ׳ויורד לכם גשם מורה ומלקוש בראשון׳.״</strong>')}
+      <div class="vs-grid">
+        <div class="vs-card a"><div class="emoji">🍷</div><h5>ר׳ יהודה</h5><p>עד שיעבור <strong>הפסח</strong></p></div>
+        <div class="vs-card b"><div class="emoji">🌸</div><h5>ר׳ מאיר</h5><p>עד שיצא <strong>ניסן</strong></p></div>
+      </div>
+      ${kv('שני קווי סיום',
+        `<div class="end-lines">
+          <div class="el-row"><span class="el-name">ר׳ יהודה</span><div class="el-bar"><div class="el-fill y"></div></div><span class="el-end">סוף פסח</span></div>
+          <div class="el-row"><span class="el-name">ר׳ מאיר</span><div class="el-bar"><div class="el-fill m"></div></div><span class="el-end">ל׳ ניסן</span></div>
+        </div>`,
+        'הנימוק של ר׳ מאיר: הפסוק אומר שגם היורה וגם המלקוש יורדים ״<strong>בראשון</strong>״, בחודש הראשון, ניסן.')}
+      ${tip('זו המשנה שהגמרא הביאה ב״ורמינהו״', 'בעמוד הקודם הגמרא כבר הקשתה ממנה על ר׳ יהודה. עכשיו היא מגיעה בעצמה.')}
+    `
+  },
+  {
+    tag: 'קושיה',
+    title: 'רב נחמן: <span class="accent">״יורה בניסן?!״</span>',
+    html: `
+      ${say('רב נחמן לר׳ יצחק', '<strong>״יורה בניסן?! יורה במרחשון הוא!״</strong> דתנן: <strong>יורה במרחשון ומלקוש בניסן</strong>.')}
+      ${kv('הבעיה בפסוק',
+        kn('🌧️', 'יורה<br><span style="opacity:.7">מרחשון</span>', 'good') +
+        kn('🌦️', 'מלקוש<br><span style="opacity:.7">ניסן</span>', 'gold') +
+        `<span class="karrow">≠</span>` +
+        kn('📜', 'הפסוק<br><span style="opacity:.7">שניהם ״בראשון״</span>', 'bad', 'animation:kShake 1.2s infinite'),
+        'בין היורה למלקוש יש בדרך כלל <strong>חצי שנה</strong>. איך שניהם בניסן?')}
+      ${tip('תוספות', 'עיקר הקושיה היא על ה<strong>יורה</strong>. את ה״מלקוש״ אפשר להבין בניסן, ובזה ר׳ מאיר צודק, אבל ״מורה״, הגשם הראשון, הוא במרחשון!')}
+    `
+  },
+  {
+    tag: 'תשובה',
+    title: 'בימי <span class="accent">יואל בן פתואל</span>',
+    html: `
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', '<strong>בימי יואל בן פתואל נתקיים מקרא זה</strong>, דכתיב ביה ״יתר הגזם אכל הארבה...״', true)}
+      ${story(
+        'זה היה דור של <strong>רעב קשה</strong>. הארבה והגזם אכלו הכל (רש״י: רעב של שבע שנים, ״כי קרא ה׳ לרעב״).',
+        'באותה שנה <strong>יצא אדר ולא ירדו גשמים</strong>. כל החורף עבר יבש. הגשם הראשון (״רביעה ראשונה״) ירד רק <strong>באחד בניסן</strong>.'
+      )}
+      ${say('הנביא לישראל', '<strong>״צאו וזרעו!״</strong>')}
+      ${say('ישראל', '<strong>״מי שיש לו קב חטים או קביים שעורין — יאכלנו ויחיה, או יזרענו וימות?!״</strong>')}
+      ${say('הנביא', '<strong>״אף על פי כן — צאו וזרעו!״</strong>', true)}
+      ${tip('רש״י: ״או יזרענו וימות״', 'אם יזרע את המעט שיש לו, ימות ברעב לפני שהתבואה החדשה תגדל, כי לא יישאר לו מה לאכול בינתיים.')}
+      ${kv('הבחירה הקשה',
+        kn('🍞', 'לאכול<br><span style="opacity:.7">לחיות עכשיו</span>', '') +
+        `<span class="karrow">או</span>` +
+        kn('🌱', 'לזרוע<br><span style="opacity:.7">ואולי למות</span>', 'gold', 'animation:kPulse 2.5s infinite'),
+        'הנביא מבקש <strong>אמונה</strong>: לזרוע דווקא כשאין.')}
+    `
+  },
+  {
+    tag: 'הנס',
+    title: 'תבואה של חצי שנה <span class="accent">ב־11 יום</span>',
+    html: `
+      ${story('<strong>נעשה להם נס, ונתגלה להם מה שבכתלים ומה שבחורי נמלים</strong>. התגלתה תבואה שהנמלים והעכברים אגרו בחורים ובכתלים (רש״י). כך היה להם גם מה לזרוע וגם מה לאכול.')}
+      ${kv('ניסן של אותה שנה',
+        `<div class="nisan-line">
+          <div class="nl-track"></div><div class="nl-grow"></div>
+          <div class="nl-pt first" style="right:0%"><b>א׳</b>🌧️<br>רביעה<br>ראשונה</div>
+          <div class="nl-pt" style="right:22%"><b>ב׳–ד׳</b>🌱<br>זורעים</div>
+          <div class="nl-pt" style="right:42%"><b>ה׳</b>🌦️<br>רביעה<br>שנייה</div>
+          <div class="nl-pt" style="right:96%"><b>ט״ז</b>🌾<br>עומר!</div>
+        </div>`,
+        'זרעו בב׳, ג׳ וד׳ בניסן. בה׳ ירד גשם שני, ובט״ז הקריבו את <strong>העומר</strong> מהתבואה החדשה.')}
+      ${say('הגמרא', '<strong>״נמצאת תבואה הגדלה בששה חדשים — גדלה באחד עשר יום. נמצא עומר הקרב מתבואה של ששה חדשים — קרב מתבואה של אחד עשר יום.״</strong>', true)}
+      ${tip('רש״י', '״ששה חדשים״: מתשרי ועד ניסן. ״אחד עשר יום״: מה׳ בניסן, הגשם השני, ועד ט״ז.')}
+      ${key('ובזה מתורצת הקושיה', 'באותה שנה ה<strong>יורה</strong> ירד בא׳ בניסן וה<strong>מלקוש</strong> בה׳ בניסן, ושניהם באמת ״בראשון״. הפסוק מתאר שנת נס.')}
+    `
+  },
+  {
+    tag: 'פסוק',
+    title: '״הזורעים בדמעה — <span class="accent">ברנה יקצרו</span>״',
+    html: `
+      ${story('<strong>ועל אותו הדור הוא אומר: ״הזורעים בדמעה ברנה יקצרו. הלוך ילך ובכה נושא משך הזרע, בא יבוא ברנה נושא אלומותיו״</strong> (תהלים קכו).')}
+      ${say('הגמרא שואלת', 'מה פירוש ״הלוך ילך ובכה... בא יבוא ברנה״? (רש״י: על בני האדם כבר נאמר ״הזורעים בדמעה ברנה יקצרו״, אז על מי מדובר כאן?)')}
+      ${say('ר׳ יהודה', '<strong>השור</strong>! כשהוא חורש הוא <strong>הולך ובוכה</strong> מרעב, <strong>ובחזירתו אוכל חזיז מן התלם</strong>. וזהו ״בא יבוא ברנה״.', true)}
+      ${kv('השור בתלם',
+        kn('🐂😢', 'הלוך<br><span style="opacity:.7">חורש ובוכה</span>', '', 'animation:kShake 2s infinite') + ar('→') +
+        kn('🌱', 'הזרע<br><span style="opacity:.7">צומח מיד!</span>', 'good', 'animation:kAppear 4s infinite 1s') + ar('→') +
+        kn('🐂😋', 'בחזרה<br><span style="opacity:.7">אוכל חזיז</span>', 'gold'),
+        'רש״י: הזרע שנזרע בדרך <strong>הלוך</strong> כבר צמח כשהשור <strong>חוזר</strong> באותו תלם.')}
+      ${say('רב חסדא (ובמתניתא תנא)', 'מה פירוש ״נושא אלומותיו״? <strong>״קנה זרת, שיבולת זרתים״</strong>.', true)}
+      ${kv('נס השיבולת',
+        `<div class="stalk-cmp">
+          <div class="sc-col"><div class="sc-ear" style="height:22px"></div><div class="sc-stem" style="height:80px"></div><span>רגיל</span></div>
+          <div class="sc-col miracle"><div class="sc-ear" style="height:56px"></div><div class="sc-stem" style="height:28px"></div><span>בימי יואל</span></div>
+        </div>`,
+        'רש״י: בדרך כלל ה<strong>קנה</strong> ארוך פי 3–4 מה<strong>שיבולת</strong>. כאן השיבולת (הגרעינים) הייתה כפולה מהקנה. נס גדול!')}
+      ${tip('תוספות', 'תוספות מקשים: לפי ״ובחזירתו אוכל חזיז״ התבואה התחילה לצמוח <strong>מיד בזריעה</strong>, בב׳–ד׳ בניסן. אם כן, היא גדלה כ־13 יום ולא 11! (רש״י מונה מה׳ בניסן עד ט״ז.) את התירוץ של תוספות לא הצלחתי לקרוא בבירור בצילום, וכדאי לעיין בפנים.')}
+    `
+  },
+  {
+    tag: 'דרשה',
+    title: 'שבע שנות <span class="accent">רעב</span>',
+    html: `
+      ${say('רב נחמן לר׳ יצחק', 'מאי דכתיב <strong>״כי קרא ה׳ לרעב, וגם בא אל הארץ שבע שנים״</strong> (מלכים ב ח)? בשבע השנים האלה, מה אכלו?')}
+      ${tip('רש״י', 'זה הרעב שבימי יהורם בן אחאב, בזמן אלישע.')}
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', 'כל שנה נעשתה קשה מקודמתה:', true)}
+      <div class="ladder">
+        <div class="ld-step" style="--i:0"><b>1</b>מה שבבתים</div>
+        <div class="ld-step" style="--i:1"><b>2</b>מה שבשדות <span>(ספיחים)</span></div>
+        <div class="ld-step" style="--i:2"><b>3</b>בשר בהמה טהורה</div>
+        <div class="ld-step" style="--i:3"><b>4</b>בשר בהמה טמאה</div>
+        <div class="ld-step" style="--i:4"><b>5</b>שקצים ורמשים</div>
+        <div class="ld-step" style="--i:5"><b>6</b>בשר בניהם ובנותיהם</div>
+        <div class="ld-step" style="--i:6"><b>7</b>בשר זרועותיהם</div>
+      </div>
+      ${story('כדי לקיים את הפסוק <strong>״איש בשר זרועו יאכלו״</strong> (ישעיהו ט).')}
+      ${tip('הקשר לסוגיה', 'אחרי הנס של יואל, ששם הרעב נגמר בברכה, הגמרא מביאה את הצד השני: עד היכן יכול להגיע רעב שאין בו נס.')}
+    `
+  },
+  {
+    tag: 'דרשה',
+    title: 'ירושלים <span class="accent">של מעלה ושל מטה</span>',
+    html: `
+      ${say('רב נחמן לר׳ יצחק', 'מאי דכתיב <strong>״בקרבך קדוש ולא אבוא בעיר״</strong> (הושע יא)? <strong>משום דבקרבך קדוש — לא אבוא בעיר?!</strong>')}
+      ${tip('רש״י', 'בתמיה: וכי בגלל שישראל מטיבים מעשיהם לא יבוא הקב״ה לעיר? אלא כך פירושו: <em>עד שיהיה בקרבך קדוש</em> למטה, כלומר ירושלים שלמטה, <em>לא אבוא בעיר</em> שלמעלה.')}
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', 'אמר הקב״ה: <strong>״לא אבוא בירושלים של מעלה עד שאבוא לירושלים של מטה.״</strong>', true)}
+      ${kv('שתי ירושלים',
+        kn('✨🏛️✨', 'ירושלים של מעלה', 'gold', 'animation:kFlash 3s infinite 1.5s') +
+        ar('↑', 'animation:kPulse 1.5s infinite') +
+        kn('🏙️', 'ירושלים של מטה', 'good', 'animation:kPulse 3s infinite'),
+        'קודם תיבנה ירושלים <strong>שלמטה</strong>, ורק אחר כך הקב״ה ״נכנס״ לירושלים שלמעלה.', 'flex-direction:column-reverse;gap:4px')}
+      ${say('הגמרא', '<strong>״ומי איכא ירושלים למעלה?״</strong> וכי יש ירושלים למעלה?')}
+      ${say('תשובה', '<strong>״אין, דכתיב ׳ירושלים הבנויה כעיר שחוברה לה יחדיו׳״</strong> (תהלים קכב).', true)}
+      ${tip('רש״י', 'ירושלים שלמטה תהיה בנויה ״כעיר שחוברה לה״, כלומר כמו העיר שמחוברת אליה, ירושלים של מעלה.')}
+      ${tip('תוספות', '״לא אבוא בעיר״: לפי פשוטו ״עיר״ פירושה עיר ממש. אבל יש לפרש גם ״לא אבוא <em>בשנאה</em>״, כי ״עיר״ היא גם לשון שנאה, כמו ״ומלאו פני תבל ערים״ (ישעיהו יד).')}
+    `
+  },
+  {
+    tag: 'דרשה',
+    title: '״ובאחת <span class="accent">יבערו ויכסלו</span>״',
+    html: `
+      ${say('רב נחמן לר׳ יצחק', 'מאי דכתיב <strong>״ובאחת יבערו ויכסלו, מוסר הבלים עץ הוא״</strong> (ירמיהו י)?')}
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', '<strong>אחת היא שמבערת רשעים בגיהנם. מאי היא? עבודה זרה.</strong>', true)}
+      ${kv('גזירה שווה: ״הבל״',
+        kn('📖', 'כאן<br><span style="opacity:.7">״מוסר <b>הבלים</b> עץ הוא״</span>', 'gold') +
+        ar('⇄') +
+        kn('📖', 'שם<br><span style="opacity:.7">״<b>הבל</b> המה מעשה תעתועים״</span>', 'gold'),
+        'שם מדובר על פסילים, עבודה זרה. ומכאן ש״האחת״ היא <strong>עבודה זרה</strong>.')}
+      ${tip('רש״י', 'אילולא הגזירה שווה היה אפשר לפרש ״מוסר הבלים עץ הוא״: הכסילים אטומים כעץ, ואינם מקבלים מוסר לשוב.')}
+    `
+  },
+  {
+    tag: 'קושיה',
+    title: '״כי שתים רעות״ — <span class="accent">רק שתיים?!</span>',
+    html: `
+      ${say('רב נחמן לר׳ יצחק', 'מאי דכתיב <strong>״כי שתים רעות עשה עמי״</strong> (ירמיהו ב)? <strong>״תרתין הוא דהוו? עשרין וארבע שביקא להו?!״</strong>')}
+      ${story('רק שתי עבירות הן עשו? והרי יש <strong>עשרים וארבע</strong>!')}
+      ${tip('רש״י', 'בפרשת ״התשפוט״ (יחזקאל כב) מנויות 24 עבירות שעברו ישראל. וכי הנביא ״השאיר בצד״ 22 מהן ומנה רק שתיים?')}
+      ${kv('הפער',
+        kn('2️⃣', 'ירמיהו<br><span style="opacity:.7">״שתים רעות״</span>', 'gold') +
+        `<span class="karrow">≠</span>` +
+        kn('2️⃣4️⃣', 'יחזקאל<br><span style="opacity:.7">24 עבירות</span>', 'bad', 'animation:kShake 1.5s infinite'),
+        'התשובה בעמוד הבא...')}
+      ${quiz([
+        ['מה הדין בגולה ביום ספק שמיני להלכה?', 'כיון שהתחיל במוסף, שוב אינו פוסק.'],
+        ['מה הקושיה של רב נחמן על ר׳ מאיר?', 'הפסוק אומר ״מורה ומלקוש בראשון״, אבל יורה יורד במרחשון.'],
+        ['מתי ירדה הרביעה הראשונה בימי יואל, ומתי השנייה?', 'הראשונה בא׳ בניסן, והשנייה בה׳ בניסן.'],
+        ['מה פירוש ״קנה זרת שיבולת זרתים״?', 'השיבולת הייתה כפולה מהקנה, הפך הרגיל. זה נס של שפע.'],
+        ['מהי ״האחת״ שמבערת רשעים?', 'עבודה זרה, בגזירה שווה ״הבל״.']
+      ])}
+    `
+  }
+];
+
+amudim['5a'].translation = [
+  { type: 'section', title: 'כיון שהתחיל שוב אינו פוסק' },
+  { type: 'quote', aramaic: 'רבא אמר: כיון שהתחיל — שוב אינו פוסק. וכן אמר רב ששת: כיון שהתחיל שוב אינו פוסק.',
+    translation: '<strong>רבא וכן רב ששת:</strong> מי שהתחיל להזכיר לא מפסיק.' },
+  { type: 'quote', aramaic: 'ואף רב הדר ביה, דאמר רב חננאל אמר רב: מונה עשרים ואחד יום כדרך שמונה [עשרה ימים] מראש השנה עד יום הכפורים, ומתחיל. וכיון שהתחיל — שוב אינו פוסק. והלכתא: כיון שהתחיל שוב אינו פוסק.',
+    translation: 'גם רב חזר בו: סופרים 21 יום מר״ה, כמו שסופרים עשרה ימים עד יוה״כ, ומתחילים. ומשהתחילו לא מפסיקים. <strong>וכך הלכה.</strong>' },
+  { type: 'section', title: 'משנה' },
+  { type: 'quote', aramaic: 'מתני׳: עד מתי שואלין את הגשמים? רבי יהודה אומר: עד שיעבור הפסח. רבי מאיר אומר: עד שיצא ניסן, שנאמר ״ויורד לכם גשם מורה ומלקוש בראשון״.',
+    translation: 'עד מתי מבקשים גשם? ר׳ יהודה: עד סוף פסח. ר׳ מאיר: עד סוף ניסן, לפי הפסוק.' },
+  { type: 'section', title: 'בימי יואל' },
+  { type: 'quote', aramaic: 'גמ׳: אמר ליה רב נחמן לרבי יצחק: יורה בניסן?! יורה במרחשון הוא, דתנן: יורה במרחשון ומלקוש בניסן!',
+    translation: '<strong>רב נחמן:</strong> היורה בניסן? הרי היורה יורד במרחשון!' },
+  { type: 'quote', aramaic: 'אמר ליה, הכי אמר רבי יוחנן: בימי יואל בן פתואל נתקיים מקרא זה, דכתיב ביה ״יתר הגזם אכל הארבה״.',
+    translation: '<strong>ר׳ יצחק:</strong> הפסוק נתקיים בימי יואל, שנה של ארבה ורעב.' },
+  { type: 'quote', aramaic: 'אותה שנה יצא אדר ולא ירדו גשמים, ירדה להם רביעה ראשונה באחד בניסן.',
+    translation: 'אדר עבר בלי גשם, והגשם הראשון ירד בא׳ בניסן.' },
+  { type: 'quote', aramaic: 'אמר להם נביא לישראל: צאו וזרעו. אמרו לו: מי שיש לו קב חטים או קביים שעורין — יאכלנו ויחיה, או יזרענו וימות? אמר להם: אף על פי כן, צאו וזרעו.',
+    translation: 'הנביא: צאו וזרעו! העם: לאכול ולחיות או לזרוע ולמות? הנביא: בכל זאת, זרעו!' },
+  { type: 'quote', aramaic: 'נעשה להם נס ונתגלה להם מה שבכתלין ומה שבחורי נמלים.',
+    translation: 'נעשה נס ומצאו תבואה מוסתרת בקירות ובחורי הנמלים.' },
+  { type: 'quote', aramaic: 'יצאו וזרעו שני ושלישי ורביעי, וירדה להם רביעה שניה בחמשה בניסן. הקריבו עומר בששה עשר בניסן.',
+    translation: 'זרעו בב׳, ג׳, ד׳. הגשם השני בה׳. העומר בט״ז.',
+    viz: kv('', kn('א׳', '🌧️') + ar() + kn('ב׳–ד׳', '🌱') + ar() + kn('ה׳', '🌦️') + ar() + kn('ט״ז', '🌾', 'gold', 'animation:kPulse 2.5s infinite')) },
+  { type: 'quote', aramaic: 'נמצאת תבואה הגדלה בששה חדשים — גדלה באחד עשר יום. נמצא עומר הקרב מתבואה של ששה חדשים — קרב מתבואה של אחד עשר יום.',
+    translation: 'תבואה של חצי שנה גדלה ב־11 יום, והעומר הוקרב ממנה.' },
+  { type: 'quote', aramaic: 'ועל אותו הדור הוא אומר: ״הזורעים בדמעה ברנה יקצרו, הלוך ילך ובכה נושא משך הזרע...״. מאי ״הלוך ילך ובכה נושא משך וגו׳״? אמר רבי יהודה: שור כשהוא חורש — הולך ובוכה, ובחזירתו אוכל חזיז מן התלם, וזהו ״בא יבא ברנה״.',
+    translation: 'על הדור הזה נאמר ״הזורעים בדמעה״. ״הלוך ילך ובכה״ נאמר על השור: בדרכו לחרוש הוא בוכה, ובחזרה כבר אוכל עשב שצמח בתלם.' },
+  { type: 'quote', aramaic: 'מאי ״נושא אלומותיו״? אמר רב חסדא, ואמרי לה במתניתא תנא: קנה — זרת, שיבולת — זרתים.',
+    translation: '״נושא אלומותיו״: הקנה באורך זרת, והשיבולת באורך שתי זרתות.' },
+  { type: 'section', title: 'שבע שנות רעב' },
+  { type: 'quote', aramaic: 'אמר ליה רב נחמן לרבי יצחק: מאי דכתיב ״כי קרא ה׳ לרעב וגם בא אל הארץ שבע שנים״, בהנך שבע שנים מאי אכול?',
+    translation: 'בשבע שנות הרעב, מה אכלו?' },
+  { type: 'quote', aramaic: 'אמר ליה, הכי אמר רבי יוחנן: שנה ראשונה — אכלו מה שבבתים, שניה — מה שבשדות, שלישית — בשר בהמה טהורה, רביעית — בשר בהמה טמאה, חמישית — בשר שקצים ורמשים, ששית — בשר בניהם ובנותיהם, שביעית — בשר זרועותיהם, לקיים מה שנאמר ״איש בשר זרועו יאכלו״.',
+    translation: 'כל שנה ירדו מדרגה, עד שבשנה השביעית אכלו את בשר זרועותיהם.' },
+  { type: 'section', title: 'ירושלים של מעלה' },
+  { type: 'quote', aramaic: 'ואמר ליה רב נחמן לרבי יצחק: מאי דכתיב ״בקרבך קדוש ולא אבוא בעיר״? משום דבקרבך קדוש — לא אבוא בעיר?',
+    translation: 'וכי בגלל שהקדוש בקרבך לא יבוא לעיר?' },
+  { type: 'quote', aramaic: 'אמר ליה, הכי אמר רבי יוחנן: אמר הקדוש ברוך הוא: לא אבוא בירושלים של מעלה עד שאבוא לירושלים של מטה. ומי איכא ירושלים למעלה? אין, דכתיב ״ירושלים הבנויה כעיר שחוברה לה יחדיו״.',
+    translation: 'הקב״ה לא ייכנס לירושלים העליונה עד שייכנס לירושלים התחתונה. ויש ירושלים למעלה, כמו שכתוב ״כעיר שחוברה לה״.' },
+  { type: 'section', title: 'ובאחת יבערו' },
+  { type: 'quote', aramaic: 'ואמר ליה רב נחמן לרבי יצחק: מאי דכתיב ״ובאחת יבערו ויכסלו מוסר הבלים עץ הוא״? אמר ליה, הכי אמר רבי יוחנן: אחת היא שמבערת רשעים בגיהנם. מאי היא? עבודה זרה. כתיב הכא ״מוסר הבלים עץ הוא״, וכתיב התם ״הבל המה מעשה תעתועים״.',
+    translation: 'הדבר האחד שמבער רשעים בגיהנם הוא עבודה זרה. הלימוד בגזירה שווה ״הבל״.' },
+  { type: 'quote', aramaic: 'ואמר ליה רב נחמן לרבי יצחק: מאי דכתיב ״כי שתים רעות עשה עמי״? תרתין הוא דהוו? עשרין וארבע שביקא להו?!',
+    translation: '״שתים רעות״? רק שתיים? ומה עם 24 העבירות האחרות?' },
+  { type: 'summary', text: '<strong>סיכום ה׳ ע״א:</strong> הלכה: כיון שהתחיל שוב אינו פוסק. המשנה ״עד מתי שואלין״ והקושיה ״יורה בניסן?״ מתורצות בנס של ימי יואל. אחר כך באה סדרת דרשות של רב נחמן ור׳ יצחק: שבע שנות רעב, ירושלים של מעלה, ״ובאחת יבערו״, והקושיה על ״שתים רעות״.' }
+];
+
+amudim['5a'].rashi = [
+  { dh: 'רבא אמר כיון שהתחיל', content: '<p>בשמיני, ספק שביעי, מכיון שהתחיל להזכיר במוסף שוב אינו פוסק.</p>' },
+  { dh: 'מונה כ״א יום', content: `<p>מונה מיום ראשון של ראש השנה, ומזכיר מכאן ולהלן. מונה כ״א יום כדרך שמונה עשרה ימים ליוה״כ. היום שבו כלים כ״א, כלומר היום הכ״ב, הוא יום טוב האחרון, ובו מתחיל להזכיר.</p>
+    <p>ולמה מתחילים למנות מיום ראשון ולא חוששים שמא עיברו את אלול? כי <strong>אנן בקיאין בקביעא דירחא</strong>, ושני הימים הם רק משום <strong>״מנהג אבותינו בידינו״</strong>.</p>` },
+  { dh: 'יורה בניסן הוא', content: '<p>בתמיה, דכתיב ״ויורד לכם גשם מורה ומלקוש בראשון״.</p>' },
+  { dh: 'אמר ליה', content: '<p>ודאי שהיורה במרחשון הוא, ומקרא זה נתקיים בימי יואל בן פתואל, שהיה יורה ומלקוש בראשון על ידי נס. היה רעב שבע שנים, דכתיב ״כי קרא ה׳ לרעב וגם בא אל הארץ שבע שנים״, וכתיב ״יתר הגזם אכל הארבה״.</p>' },
+  { dh: 'יצא אדר ולא ירדו גשמים', content: '<p>הכי גרסינן. ״ולא זרעו רוב אדר״ לא גרסינן.</p>' },
+  { dh: 'רביעה ראשונה', content: '<p>תחילת גשמים. ולקמן (דף ו:) מפרש ״רביעה״: שמרביע את הארץ.</p>' },
+  { dh: 'או יזרענו וימות', content: '<p>ימות ברעב קודם שתגדל התבואה החדשה, שלא יהיה לו מה לאכול.</p>' },
+  { dh: 'נעשה להם נס', content: '<p>והיינו דכתיב ״ושלמתי לכם את השנים אשר אכל הארבה״. <strong>נתגלה להם</strong> התבואה שבחורי נמלים ומה שבכתלים, שאגרו העכברים.</p>' },
+  { dh: 'שני ושלישי ורביעי', content: '<p>בניסן. ומה שמצאו אכלו. ולאחר שזרעו ירדו להם גשמים בה׳ בניסן, והקריבו עומר בט״ז בניסן מתבואה חדשה.</p>' },
+  { dh: 'בששה חדשים / בי״א יום', content: '<p>ששה חדשים: מתשרי ועד ניסן. י״א יום: מחמשה בניסן עד ט״ז.</p>' },
+  { dh: 'מאי הלך ילך ובכה', content: '<p>אם לבני אדם, כבר נאמר ״הזורעים בדמעה ברנה יקצרו״. אלא על השור הכתוב אומר. <strong>ובחזירתו אוכל חזיז</strong>: שחת מן התלם שזרעו בהליכתו, שכבר צמח.</p>' },
+  { dh: 'שבולת זרתים', content: '<p>זהו נס גדול, מה שאין כן דרך כל התבואה, שהקנה פי שלשה וארבעה בשבולת.</p>' },
+  { dh: 'משום דבקרבך קדוש', content: '<p>בתמיה: שאתה מטיב מעשיך, לא יבוא הקב״ה בעיר? והכי קאמר: עד שיהא בקרבך קדוש למטה, דהיינו ירושלים שלמטה הקדושה, לא אבוא בעיר שלמעלה.</p>' },
+  { dh: 'ובאחת יבערו', content: '<p>אילולא הגזירה שווה היה משמע: אטומים כעץ לקבל מוסר.</p>' },
+  { dh: 'עשרים וארבע שביקא להו', content: '<p>בתמיה. בפרשת התשפוט (יחזקאל כב) כתובות כ״ד עבירות שעברו.</p>' }
+];
+
+amudim['5a'].tosafot = [
+  { dh: 'רבא אמר כיון שהתחיל שוב אינו פוסק', content: '<p>כלומר מכיון שהתחיל ביום הראשון של שני הימים האחרונים, שוב אינו פוסק. וכן לגבי ההפסקה.</p>' },
+  { dh: 'יורה', content: `${kv('', kn('🌦️', 'מלקוש בניסן<br>✓ מובן', 'good') + kn('🌧️', 'יורה בניסן?<br>✗', 'bad', 'animation:kShake 1.4s infinite'))}<p>פירוש הקרא ״ויורד לכם גשם מורה ומלקוש בראשון״: את ״מלקוש בראשון״ אפשר להבין כמו המשנה, אבל ״מורה״ הוא במרחשון. ועל זה הקושיה.</p>` },
+  { dh: 'ובחזירתו אוכל חזיז מן התלם', content: `<p><strong>וקשה:</strong> לעיל אמר ״נמצאת תבואה הגדלה בששה חדשים גדלה באחד עשר יום״. היה לו לומר בשלושה עשר יום (״בתליסר״), כי זרעו כבר בשני בניסן!</p><p><strong>ויש לומר:</strong> מיד בזריעה מתחילה התבואה לגדול, והחשבון הוא לפי מה שנזרע אחרון. (בקיצור. בצילום המילים לא ברורות לגמרי.)</p>` },
+  { dh: 'לא אבוא בעיר', content: '<p>פירוש ״בעיר״: עיר ממש. ויש מפרשים ״לא אבוא בשנאה״, ו״עיר״ הוא לשון שנאה, כמו ״ומלאו פני תבל ערים״ (ישעיהו יד).</p>' }
+];
+
+// =======================================================
+// DAF 5b
+// =======================================================
+amudim['5b'].scenes = [
+  {
+    tag: 'תשובה',
+    title: 'אחת <span class="accent">ששקולה כשתיים</span>',
+    html: `
+      ${SOURCE_NOTE}
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', '״שתים רעות״ אינן שתי עבירות מתוך רשימה. זו <strong>עבירה אחת ששקולה כשתיים</strong>. ומאי ניהו? <strong>עבודה זרה</strong>.', true)}
+      ${story('דכתיב: <strong>״כי שתים רעות עשה עמי: אותי עזבו מקור מים חיים, לחצוב להם בארות, בארות נשברים״</strong>.')}
+      ${kv('שתי ״רעות״ במעשה אחד',
+        kn('💧🚫', 'רעה 1<br><span style="opacity:.7">עזבו מקור מים חיים</span>', 'bad') +
+        `<span class="karrow">+</span>` +
+        kn('🕳️', 'רעה 2<br><span style="opacity:.7">חצבו בורות נשברים</span>', 'bad', 'animation:kShake 1.6s infinite'),
+        'גם <strong>עזבו</strong> את ה׳ וגם <strong>החליפו</strong> אותו בדבר שאין בו ממש. ההחלפה היא שתי רעות בבת אחת.')}
+      ${story('וכתיב בהו: <strong>״כי עברו איי כתיים וראו, וקדר שלחו והתבוננו מאד... ההימיר גוי אלהים והמה לא אלהים, ועמי המיר כבודו בלא יועיל״</strong>.')}
+      ${say('תנא', '<strong>כותיים עובדים לאש, וקדריים עובדין למים. ואף על פי שיודעים שהמים מכבין את האש — לא המירו אלהיהם. ועמי המיר כבודי בלא יועיל!</strong>')}
+      ${kv('אש מול מים',
+        kn('🔥', 'כתיים<br><span style="opacity:.7">עובדים לאש</span>', 'bad', 'animation:kFlash 1.6s infinite') +
+        ar('💦', 'animation:kFloatUp 3s infinite') +
+        kn('🌊', 'קדר<br><span style="opacity:.7">עובדים למים</span>', 'good'),
+        'הכתיים <strong>יודעים</strong> שהמים מכבים את האש, כלומר שאלוהיהם חלש, ובכל זאת לא החליפו. ישראל החליפו את ה׳ ״בלא יועיל״.')}
+    `
+  },
+  {
+    tag: 'קושיה',
+    title: '״ויהי כאשר זקן שמואל״ — <span class="accent">בגיל 52?</span>',
+    html: `
+      ${say('רב נחמן לר׳ יצחק', 'מאי דכתיב <strong>״ויהי כאשר זקן שמואל״</strong>? <strong>ומי סיב שמואל כולי האי?!</strong> והרי הוא היה בן נ״ב, דאמר מר: <em>מת בחמשים ושתים שנה — זהו מיתתו של שמואל הרמתי</em>!')}
+      ${tip('רש״י', '״מת בן חמישים ושתיים זו היא מיתת שמואל״ מובא במסכת מועד קטן. חמישים ושתיים זה לא גיל של זקנה!')}
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', '<strong>״זקנה קפצה עליו״</strong>, ופתאום הזדקן, דכתיב: <strong>״נחמתי כי המלכתי את שאול למלך״</strong>.', true)}
+      ${tip('תוספות: חשבון השנים', 'תוספות מחשבים לפי סדר עולם: שמואל נולד בשנה הראשונה שעלי הכהן היה שופט. עלי שפט 40 שנה, שמואל היה נביא ושופט כ־10 שנים לפני מלכות שאול, ושאול מלך שנתיים ומחצה. יחד יוצא שמואל בן 52.')}
+    `
+  },
+  {
+    tag: 'מעשה',
+    title: 'תפילת שמואל: <span class="accent">״שקלתני כמשה ואהרן״</span>',
+    html: `
+      ${say('שמואל לפני הקב״ה', '<strong>״רבונו של עולם! שקלתני כמשה ואהרן</strong>, דכתיב ׳משה ואהרן בכהניו ושמואל בקוראי שמו׳. מה משה ואהרן לא בטלו מעשה ידיהן בחייהן, אף אני — לא יבטלו מעשה ידי בחיי!״')}
+      ${story('שמואל משח את שאול למלך, ועכשיו ה׳ מתחרט ורוצה מלך אחר. שמואל מבקש: אל תבטל את מה שעשיתי כל עוד אני חי!')}
+      ${say('הקב״ה (כביכול)', '<strong>״היכי אעביד?״</strong> מה אעשה?', true)}
+      ${flow([
+        ['אפשרות 1', '<strong>שימות שאול</strong>? שמואל לא רוצה, כי זה מעשה ידיו.', 'bad'],
+        ['אפשרות 2', '<strong>שימות שמואל צעיר</strong>? ״מרננא אבתריה״: יגידו עליו שחטא, כי מת צעיר.', 'bad'],
+        ['אפשרות 3', '<strong>שלא ימות אף אחד</strong>? כבר הגיע זמן מלכות דוד, ו<strong>״אין מלכות נוגעת בחברתה אפילו כמלא נימא״</strong>.', 'bad'],
+        ['הפתרון', '<strong>״אקפיץ עליה זקנה״</strong>: שמואל יזדקן מהר. כולם יראו אותו זקן, ולא ירננו אחריו כשימות.', 'hl']
+      ])}
+      ${kv('שלוש אפשרויות, וכולן בעייתיות',
+        kn('👑', 'שאול ימות?', 'bad') + kn('🧑', 'שמואל ימות צעיר?', 'bad') + kn('⏳', 'אף אחד?', 'bad') +
+        ar('→') + kn('👴', 'זקנה קפצה!', 'gold', 'animation:kAppear 4s infinite'))}
+      ${say('והיינו דכתיב', '<strong>״ושאול יושב בגבעה תחת האשל ברמה״</strong>. וכי מה עניין גבעה אצל רמה? אלא לומר לך: מי גרם לשאול שישב בגבעה <strong>שתי שנים ומחצה</strong>? <strong>תפלתו של שמואל הרמתי</strong>.', true)}
+    `
+  },
+  {
+    tag: 'עיקרון',
+    title: '״ומי מידחי <span class="accent">גברא מקמי גברא?</span>״',
+    html: `
+      ${say('הגמרא', 'וכי אדם נדחה מפני אדם? כלומר, וכי תפילת אדם אחד יכולה לדחות גזירה על אדם אחר?')}
+      ${say('ר׳ שמואל בר נחמני בשם ר׳ יונתן', '<strong>״אין!״</strong> כן! מאי דכתיב <strong>״על כן חצבתי בנביאים, הרגתים באמרי פי״</strong> (הושע ו)? ״באמרי פי״ לא נאמר, אלא <strong>״באמרי פיהם״</strong>. אלמא: מידחי גברא מקמי גברא.', true)}
+      ${kv('״באמרי פיהם״',
+        kn('🗣️', 'הנביאים<br>אומרים', 'gold', 'animation:kPulse 2.5s infinite') + ar('→') +
+        kn('⚖️', 'גזירה<br>על אחרים', 'bad'),
+        'דברי הנביאים עצמם, ה״אמרי פיהם״, פעלו. כך תפילת שמואל השאירה את שאול על כסאו.')}
+    `
+  },
+  {
+    tag: 'בסעודה',
+    title: '״אין משיחין <span class="accent">בסעודה</span>״',
+    html: `
+      ${story('<strong>רב נחמן ור׳ יצחק הוו יתבי בסעודתא</strong>. ישבו יחד לאכול.')}
+      ${say('רב נחמן', '<strong>״לימא מר מילתא״</strong>. יאמר מר דבר תורה.')}
+      ${say('ר׳ יצחק', 'כך אמר ר׳ יוחנן: <strong>אין משיחין בסעודה, שמא יקדים קנה לושט ויבא לידי סכנה</strong>.', true)}
+      ${kv('קנה וושט',
+        `<div class="throat">
+          <div class="th-tube trachea"><span>קנה<br>(נשימה)</span></div>
+          <div class="th-tube esoph"><span>ושט<br>(אוכל)</span></div>
+          <div class="th-food">🍞</div>
+        </div>`,
+        'רש״י: כשמדברים נפתח ״הכובע״ (מכסה הגרון, האפיגלוטיס) שעל פי הקנה, והאוכל עלול להיכנס לקנה. זו <strong>סכנה</strong>.')}
+      ${story('<strong>בתר דסעוד</strong>, אחרי שגמרו לאכול, אמר לו ר׳ יצחק:')}
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', '<strong>״יעקב אבינו לא מת!״</strong>', true)}
+      ${say('רב נחמן', '<strong>״וכי בכדי ספדו ספדנייא וחנטו חנטייא וקברו קבורייא?!״</strong> לחינם הספידו אותו, חנטו אותו וקברו אותו?')}
+      ${say('ר׳ יצחק', '<strong>״מקרא אני דורש״</strong>: ״ואתה אל תירא עבדי יעקב... כי הנני מושיעך מרחוק ואת זרעך מארץ שבים״. <strong>מקיש הוא לזרעו: מה זרעו בחיים — אף הוא בחיים.</strong>', true)}
+      ${tip('רש״י', 'כשה׳ יקבץ את ישראל מן הגולה, יעקב ״חי״ ורואה את בניו. החנטים חנטו אותו כי נדמה להם שמת.')}
+    `
+  },
+  {
+    tag: 'מימרא',
+    title: '״כל האומר <span class="accent">רחב רחב״</span>',
+    html: `
+      ${say('ר׳ יצחק', 'מי שאומר ״רחב, רחב״ (שמה של רחב, שהייתה ידועה ביופיה), <strong>מיד נקרי</strong>, נעשה בעל קרי.')}
+      ${say('רב נחמן', '<strong>״אנא אמינא ולא איכפת לי!״</strong> אני אומר את שמה ולא קורה לי כלום.')}
+      ${say('ר׳ יצחק', '<strong>״כי קאמינא — ביודעה ובמכירה״</strong>: אמרתי את זה רק על מי שהכיר אותה וידע אותה.', true)}
+      ${tip('הרעיון', 'הכוח של שם תלוי במה שהוא מעורר אצל מי שאומר אותו. למי שלא הכיר אותה, זו רק מילה.')}
+    `
+  },
+  {
+    tag: 'משל',
+    title: '״אילן אילן — <span class="accent">במה אברכך?</span>״',
+    html: `
+      ${story('<strong>כי הוו מיפטרי מהדדי</strong>, כשנפרדו זה מזה:')}
+      ${say('רב נחמן', '<strong>״ליברכן מר!״</strong> יברך אותי מר.')}
+      ${say('ר׳ יצחק', 'אמשול לך משל: לאדם שהיה הולך במדבר, והיה <strong>רעב ועיף וצמא</strong>. מצא אילן שפירותיו מתוקין, וצילו נאה, ואמת המים עוברת תחתיו. אכל מפירותיו, ושתה ממימיו, וישב בצילו.', true)}
+      ${kv('מה כבר יש לאילן',
+        kn('🍎', 'פירות מתוקים', 'good', 'animation:kAppear 5s infinite .3s') +
+        kn('🌳', 'צל נאה', 'good', 'animation:kAppear 5s infinite 1.3s') +
+        kn('💧', 'אמת מים', 'good', 'animation:kAppear 5s infinite 2.3s'),
+        'כל ברכה שיחשוב עליה, לאילן <strong>כבר יש</strong>.')}
+      ${say('ר׳ יצחק', 'וכשביקש לילך אמר: <strong>״אילן אילן, במה אברכך?</strong> אם אומר לך שיהו פירותיך מתוקין — הרי פירותיך מתוקין. שיהא צילך נאה — הרי צילך נאה. שתהא אמת המים עוברת תחתיך — הרי אמת המים עוברת תחתיך. <strong>אלא: יהי רצון שכל נטיעות שנוטעין ממך יהיו...״</strong> (ממשיך בעמוד הבא)', true)}
+      ${quiz([
+        ['מהי ״אחת ששקולה כשתיים״?', 'עבודה זרה: גם עזיבת ה׳ וגם החלפתו בדבר שאין בו ממש.'],
+        ['מה הלמד מהכתיים והקדריים?', 'הם לא החליפו את אלוהיהם אף שידעו שהם חלשים, וישראל החליפו את ה׳ בלא יועיל.'],
+        ['למה ״זקנה קפצה״ על שמואל?', 'כדי שימות בלי שירננו אחריו, ושלא ייבטלו מעשה ידיו בחייו.'],
+        ['מאיזה פסוק לומדים ש״מידחי גברא מקמי גברא״?', '״הרגתים באמרי פי״, ודורשים ״באמרי פיהם״.'],
+        ['למה אין משיחין בסעודה?', 'שמא יקדים קנה לושט ויבוא לידי סכנה.'],
+        ['מה ההוכחה ש״יעקב אבינו לא מת״?', 'הוא מוקש לזרעו בפסוק: מה זרעו בחיים, אף הוא בחיים.']
+      ])}
+    `
+  }
+];
+
+amudim['5b'].translation = [
+  { type: 'section', title: 'אחת ששקולה כשתיים' },
+  { type: 'quote', aramaic: 'אמר ליה, הכי אמר רבי יוחנן: אחת שהיא שקולה כשתים. ומאי ניהו? עבודה זרה, דכתיב ״כי שתים רעות עשה עמי, אותי עזבו מקור מים חיים לחצוב להם בארות בארות נשברים״.',
+    translation: 'זו עבירה אחת ששווה לשתיים: עבודה זרה. עזבו את מקור המים החיים וחצבו בורות סדוקים.' },
+  { type: 'quote', aramaic: 'וכתיב בהו: ״כי עברו איי כתיים וראו וקדר שלחו והתבוננו מאד... ההימיר גוי אלהים והמה לא אלהים, ועמי המיר כבודו בלא יועיל״.',
+    translation: 'עברו לאיי כתים וראו, שלחו לקדר והתבוננו: וכי עם החליף את אלוהיו? ועמי החליף את כבודו בדבר שלא מועיל.' },
+  { type: 'quote', aramaic: 'תנא: כותיים עובדים לאש, וקדריים עובדין למים. ואף על פי שיודעים שהמים מכבין את האש — לא המירו אלהיהם. ועמי המיר כבודי בלא יועיל.',
+    translation: 'הכתיים עובדים לאש והקדריים למים. אף שהם יודעים שמים מכבים אש, לא החליפו את אלוהיהם. ועמי החליף אותי.' },
+  { type: 'section', title: 'זקנתו של שמואל' },
+  { type: 'quote', aramaic: 'ואמר ליה רב נחמן לרבי יצחק: מאי דכתיב ״ויהי כאשר זקן שמואל״? ומי סיב שמואל כולי האי? והא בר חמשין ותרתין הוה, דאמר מר: מת בחמשים ושתים שנה — זהו מיתתו של שמואל הרמתי!',
+    translation: 'וכי שמואל הזדקן כל כך? הרי מת בן 52!' },
+  { type: 'quote', aramaic: 'אמר ליה, הכי אמר רבי יוחנן: זקנה קפצה עליו, דכתיב ״נחמתי כי המלכתי את שאול למלך״.',
+    translation: 'הזקנה ״קפצה״ עליו פתאום, מאז שה׳ אמר ״נחמתי כי המלכתי את שאול״.' },
+  { type: 'quote', aramaic: 'אמר לפניו: רבונו של עולם, שקלתני כמשה ואהרן, דכתיב ״משה ואהרן בכהניו ושמואל בקוראי שמו״. מה משה ואהרן לא בטלו מעשה ידיהן בחייהן — אף אני לא יבטלו מעשה ידי בחיי.',
+    translation: 'שמואל: השווית אותי למשה ואהרן. כמו שמעשיהם לא בוטלו בחייהם, כך גם מעשיי.' },
+  { type: 'quote', aramaic: 'אמר הקדוש ברוך הוא: היכי אעביד? לימות שאול — לא קא מבעי שמואל. לימות שמואל אדזוטר — מרנני אבתריה. לא לימות שאול ולא לימות שמואל — כבר הגיע מלכות דוד, ואין מלכות נוגעת בחברתה אפילו כמלא נימא.',
+    translation: 'מה אעשה? שימות שאול? שמואל לא רוצה. שימות שמואל צעיר? ידברו אחריו. שלא ימות אף אחד? מלכות דוד כבר הגיעה, ומלכות אחת לא נוגעת בחברתה אפילו כחוט השערה.' },
+  { type: 'quote', aramaic: 'אמר הקדוש ברוך הוא: אקפיץ עליה זקנה. היינו דכתיב ״ושאול יושב בגבעה תחת האשל ברמה״. וכי מה ענין גבעה אצל רמה? אלא לומר לך: מי גרם לשאול שישב בגבעה שתי שנים ומחצה — תפלתו של שמואל הרמתי.',
+    translation: 'אקפיץ עליו זקנה. וזה הפסוק ״שאול יושב בגבעה... ברמה״: תפילת שמואל איש הרמה היא שהשאירה את שאול שנתיים וחצי.' },
+  { type: 'quote', aramaic: 'ומי מידחי גברא מקמי גברא? אין, דאמר רבי שמואל בר נחמני אמר רבי יונתן: מאי דכתיב ״על כן חצבתי בנביאים הרגתים באמרי פי״ — ״באמרי פי״ לא נאמר, אלא ״באמרי פיהם״. אלמא מידחי גברא מקמי גברא.',
+    translation: 'וכי אדם נדחה מפני אדם? כן: ״הרגתים באמרי פי״, כלומר באמרי <em>פיהם</em> של הנביאים.' },
+  { type: 'section', title: 'בסעודה' },
+  { type: 'quote', aramaic: 'רב נחמן ורבי יצחק הוו יתבי בסעודתא. אמר ליה רב נחמן לרבי יצחק: לימא מר מילתא. אמר ליה, הכי אמר רבי יוחנן: אין משיחין בסעודה, שמא יקדים קנה לושט ויבא לידי סכנה.',
+    translation: 'בסעודה ביקש רב נחמן דבר תורה. ר׳ יצחק: אין מדברים בזמן האוכל, שמא האוכל ייכנס לקנה.' },
+  { type: 'quote', aramaic: 'בתר דסעוד אמר ליה, הכי אמר רבי יוחנן: יעקב אבינו לא מת. אמר ליה: וכי בכדי ספדו ספדנייא וחנטו חנטייא וקברו קבורייא?',
+    translation: 'אחרי האוכל: יעקב אבינו לא מת. רב נחמן: וכי לחינם הספידו, חנטו וקברו אותו?' },
+  { type: 'quote', aramaic: 'אמר ליה: מקרא אני דורש, שנאמר ״ואתה אל תירא עבדי יעקב נאם ה׳ ואל תחת ישראל כי הנני מושיעך מרחוק ואת זרעך מארץ שבים״ — מקיש הוא לזרעו: מה זרעו בחיים, אף הוא בחיים.',
+    translation: 'אני דורש פסוק: יעקב מוקש לזרעו. כמו שזרעו חי, כך גם הוא.' },
+  { type: 'quote', aramaic: 'אמר רבי יצחק: כל האומר רחב רחב — מיד נקרי. אמר ליה רב נחמן: אנא אמינא ולא איכפת לי. אמר ליה: כי קאמינא — ביודעה ובמכירה.',
+    translation: 'ר׳ יצחק: האומר ״רחב רחב״ נעשה מיד בעל קרי. רב נחמן: אני אומר ולא קורה לי דבר. ר׳ יצחק: דיברתי על מי שהכיר אותה.' },
+  { type: 'section', title: 'משל האילן' },
+  { type: 'quote', aramaic: 'כי הוו מיפטרי מהדדי, אמר ליה: ליברכן מר. אמר ליה: אמשול לך משל, למה הדבר דומה? לאדם שהיה הולך במדבר והיה רעב ועיף וצמא, ומצא אילן שפירותיו מתוקין וצילו נאה ואמת המים עוברת תחתיו. אכל מפירותיו ושתה ממימיו וישב בצילו.',
+    translation: 'בפרידה ביקש רב נחמן ברכה. ר׳ יצחק: משל לאדם רעב, עייף וצמא במדבר, שמצא עץ עם פירות מתוקים, צל נעים ונחל מים.' },
+  { type: 'quote', aramaic: 'וכשביקש לילך אמר: אילן אילן, במה אברכך? אם אומר לך שיהו פירותיך מתוקין — הרי פירותיך מתוקין; שיהא צילך נאה — הרי צילך נאה; שתהא אמת המים עוברת תחתיך — הרי אמת המים עוברת תחתיך. אלא: יהי רצון שכל נטיעות שנוטעין ממך יהיו —',
+    translation: 'עץ, עץ, במה אברך אותך? הכל כבר יש לך. אלא: יהי רצון שכל השתילים שיינטעו ממך יהיו...',
+    viz: kv('', kn('🌳', 'האילן', 'good') + ar() + kn('🌱🌱🌱', 'נטיעות כמותו', 'gold', 'animation:kPulse 2.5s infinite')) },
+  { type: 'summary', text: '<strong>סיכום ה׳ ע״ב:</strong> ״שתים רעות״ הן עבודה זרה, ששקולה כשתיים. זקנה קפצה על שמואל, ותפילתו השאירה את שאול. בסעודה: אין משיחין בסעודה, ו״יעקב אבינו לא מת״. ובפרידה: משל האילן.' }
+];
+
+amudim['5b'].rashi = [
+  { dh: 'מת בחמשים ושתים', content: '<p>במסכת מועד קטן (דף כח.): ״מת בחמישים ושתיים, זו היא מיתתו של שמואל הרמתי״.</p>' },
+  { dh: 'כי זוטר / מרנני אבתריה', content: '<p>אם ימות צעיר, ירננו אחריו העולם ויאמרו שעבירה הייתה בו.</p>' },
+  { dh: 'שישב ב׳ שנים', content: '<p>כדמפרש בסדר עולם את שנות מלכות שאול ומיתת שמואל בתוכן.</p>' },
+  { dh: 'באמרי פיהם', content: '<p>לא נאמר ״באמרי פי״ אלא באמרי פיהם של הנביאים. אלמא: גברא מקמי גברא מידחי.</p>' },
+  { dh: 'שמא יקדים קנה לושט', content: '<p>נפתח אותו ״כובע״ שעל פי הקנה, ונכנס בו המאכל ומסתכן.</p>' },
+  { dh: 'וחנטו חנטייא', content: '<p>דכתיב ״ויחנטו הרופאים את ישראל״.</p>' },
+  { dh: 'מה זרעו בחיים', content: '<p>כשהוא (הקב״ה) מקבץ את ישראל מן הגולה, יעקב חי הוא כדי שיראה את בניו. והחנטים — נדמה להם שמת.</p>' },
+  { dh: 'מיד נקרי / לא איכפת לי', content: '<p>״נקרי״: נעשה בעל קרי. ״לא איכפת לי״: איני חושש. ״ביודעה ובמכירה״: למי שהכיר אותה.</p>' },
+  { dh: 'וצילו נאה / ואמת המים', content: '<p>צל, שזה צריך לאדם עייף. ופירות, לרעב. ואמת המים, לצמא.</p>' }
+];
+
+amudim['5b'].tosafot = [
+  { dh: 'ומי סיב שמואל והא בר נ״ב שנין הוה',
+    content: `${kv('ציר החיים של שמואל', kn('👶', 'לידה<br>שנה א׳ לעלי', '') + ar() + kn('📿', 'עלי שופט<br>40 שנה', '') + ar() + kn('⚖️', 'שמואל שופט<br>~10 שנים', 'gold') + ar() + kn('👑', 'שאול<br>2½ שנים', ''))}
+      <p>תוספות מחשבים לפי סדר עולם איך יוצא ששמואל היה בן נ״ב. הוא נולד בשנה הראשונה שעלי נתמנה, ועלי היה כהן ושופט ארבעים שנה. שמואל היה נביא ושופט כעשר שנים קודם מלכות שאול, ואחר כך מלכות שאול. סך הכל יוצא נ״ב שנה.</p>` }
+];
+
+// =======================================================
+// DAF 6a
+// =======================================================
+amudim['6a'].scenes = [
+  {
+    tag: 'סוף המשל',
+    title: '״שיהו צאצאי מעיך <span class="accent">כמותך</span>״',
+    html: `
+      ${SOURCE_NOTE}
+      ${say('ר׳ יצחק', '...יהיו <strong>כמותך</strong>. אף אתה, במה אברכך? אם בתורה — הרי תורה. אם בעושר — הרי עושר. אם בבנים — הרי בנים. <strong>אלא: יהי רצון שיהו צאצאי מעיך כמותך.</strong>', true)}
+      ${kv('הנמשל',
+        kn('📜', 'תורה ✓', 'good') + kn('💰', 'עושר ✓', 'good') + kn('👨‍👧', 'בנים ✓', 'good') + ar() +
+        kn('🌱', 'צאצאים<br>כמותך!', 'gold', 'animation:kPulse 2.5s infinite'),
+        'לרב נחמן כבר יש הכל, כמו לאילן. הברכה היחידה שנשארה: <strong>שהדור הבא יהיה כמוהו</strong>.')}
+    `
+  },
+  {
+    tag: 'ברייתא',
+    title: 'מה פירוש <span class="accent">״יורה״?</span>',
+    html: `
+      ${story('הגמרא חוזרת לנושא הגשמים, ומבארת את המילים ״יורה״ ו״מלקוש״. <strong>תנו רבנן</strong>, שלושה פירושים ל״יורה״:')}
+      ${flow([
+        ['1. ״מורה״', 'הגשם <strong>מורה</strong> (מלמד) את הבריות להטיח את גגותיהן, להכניס את פירותיהן ולעשות כל צרכיהן לקראת החורף.', ''],
+        ['2. ״מרווה״', 'מרווה את הארץ ומשקה עד התהום, שנאמר <strong>״תלמיה רוה נחת גדודיה, ברביבים תמוגגנה, צמחה תברך״</strong>.', ''],
+        ['3. ״בנחת״', 'יורד <strong>בנחת</strong> ולא בזעף.', '']
+      ])}
+      ${tip('רש״י', '״להכניס פירותיהן״: פירות שהיו בשדות כדי להתייבש. ״יורד בנחת״: כמו אדם שמורה (מלמד) לתלמידו בנחת.')}
+      ${kv('שלושת פירושי ״יורה״',
+        kn('🏠', 'מורה<br><span style="opacity:.7">מכין את הבית</span>', 'gold', 'animation:kAppear 5s infinite .3s') +
+        kn('🌍', 'מרווה<br><span style="opacity:.7">עד התהום</span>', 'good', 'animation:kAppear 5s infinite 1.3s') +
+        kn('🌦️', 'בנחת<br><span style="opacity:.7">לא בזעף</span>', '', 'animation:kAppear 5s infinite 2.3s'))}
+    `
+  },
+  {
+    tag: 'היקש',
+    title: 'יורה ומלקוש — <span class="accent">מלמדים זה על זה</span>',
+    html: `
+      ${say('או אינו?', 'אולי ״יורה״ הוא דווקא גשם <strong>מזיק</strong>, שמשיר את הפירות ושוטף את הזרעים והאילנות? (רש״י: ״יורה״ לשון קללה, כמו ״ירה בים״)')}
+      ${say('תלמוד לומר', '<strong>״מלקוש״</strong>: מה מלקוש לברכה, אף יורה לברכה.', true)}
+      ${say('או אינו?', 'אולי ״מלקוש״ הוא גשם מזיק, שמפיל את הבתים, משבר את האילנות ומעלה את הארבה (״סקאין״)? (רש״י: ״מלקוש״ לשון ארבה, כמו ״והנה לקש אחר גזי המלך״)')}
+      ${say('תלמוד לומר', '<strong>״יורה״</strong>: מה יורה לברכה, אף מלקוש לברכה.', true)}
+      ${kv('מעגל ההיקש',
+        kn('🌧️', 'יורה', 'good', 'animation:kPulse 2s infinite') + ar('⇄') + kn('🌦️', 'מלקוש', 'good', 'animation:kPulse 2s infinite 1s'),
+        'כל אחד מוכיח שהשני לברכה. אבל מאיפה נדע על אחד מהם בוודאות?')}
+      ${say('ויורה גופיה מנלן?', 'דכתיב: <strong>״ובני ציון גילו ושמחו בה׳ אלהיכם, כי נתן לכם את המורה לצדקה, ויורד לכם גשם מורה ומלקוש בראשון״</strong> (יואל ב). ״לצדקה״, ומכאן שהוא לברכה!', true)}
+    `
+  },
+  {
+    tag: 'זמנים',
+    title: 'מתי יורה <span class="accent">ומתי מלקוש?</span>',
+    html: `
+      ${say('תנו רבנן', '<strong>יורה במרחשון, ומלקוש בניסן</strong>.')}
+      ${say('או אינו?', 'אולי יורה ב<strong>תשרי</strong> ומלקוש ב<strong>אייר</strong>?')}
+      ${say('תלמוד לומר', '<strong>״בעתו״</strong>. (רש״י: ההו״א ״מלקוש באייר״ היא כי באייר עדיין יש <em>מלילות וקשין</em> בשדה, ואפשר היה לחשוב שהגשם יורד עליהם.)', true)}
+      ${story('ומה פירוש ״<strong>מלקוש</strong>״? שלושה פירושים:')}
+      <div class="vs-grid">
+        <div class="vs-card a"><div class="emoji">💔</div><h5>שמואל</h5><p>דבר ש<strong>מל קשיותיהן</strong> של ישראל. רש״י: כשהוא לא יורד, ישראל חוזרים בתשובה.</p></div>
+        <div class="vs-card b"><div class="emoji">🌾</div><h5>דבי ר׳ ישמעאל</h5><p>דבר ש<strong>ממלא תבואה בקשיה</strong>.</p></div>
+      </div>
+      ${say('במתניתא תנא', 'דבר שיורד <strong>על המלילות ועל הקשין</strong>. (רש״י: ״מלילות״ הן ראשי שיבולים שאדם מולל בידו, ו״קשין״ הם הקנים.)', true)}
+      ${kv('״מלקוש״ = מל + קש',
+        kn('✂️', 'מל', 'gold') + `<span class="karrow">+</span>` + kn('🌾', 'קש', 'gold') + ar('=') + kn('🌦️', 'מלקוש', 'good', 'animation:kPulse 2.5s infinite'))}
+    `
+  },
+  {
+    tag: 'מחלוקת',
+    title: 'יורה ב<span class="accent">מרחשון או בכסליו?</span>',
+    html: `
+      ${say('ברייתא', 'יורה במרחשון. <strong>או אינו אלא בכסליו?</strong> תלמוד לומר ״בעתו יורה ומלקוש״: מה מלקוש בעתו, אף יורה בעתו.')}
+      ${say('תניא אידך', 'יורה במרחשון ומלקוש בניסן, <strong>דברי ר׳ מאיר</strong>. <strong>וחכמים אומרים: יורה בכסליו</strong>.')}
+      ${say('מאן חכמים?', 'אמר רב חסדא: <strong>ר׳ יוסי היא</strong>, דתניא:', true)}
+      ${kv('שלוש רביעות: מתי כל אחת?',
+        `<div class="rain-table">
+          <div class="rt-h"></div><div class="rt-h">בכירה<br><small>ראשונה</small></div><div class="rt-h">בינונית<br><small>שנייה</small></div><div class="rt-h">אפילה<br><small>שלישית</small></div>
+          <div class="rt-n">ר׳ מאיר</div><div class="rt-c">3 חשון</div><div class="rt-c">7 חשון</div><div class="rt-c">17 חשון</div>
+          <div class="rt-n">ר׳ יהודה</div><div class="rt-c">7 חשון</div><div class="rt-c">17 חשון</div><div class="rt-c">23 חשון</div>
+          <div class="rt-n">ר׳ יוסי</div><div class="rt-c">17 חשון</div><div class="rt-c">23 חשון</div><div class="rt-c hl">ר״ח כסליו</div>
+        </div>`,
+        'כל תנא מאחר את הזמנים <strong>בשלב אחד</strong>. אצל ר׳ יוסי הרביעה השלישית מגיעה כבר ל<strong>כסליו</strong>, ולכן ״חכמים״ (=ר׳ יוסי) אומרים ״יורה בכסליו״.')}
+      ${tip('רש״י', '״בכירה״: ראשונה. ״אפילה״: אחרונה, כמו ״כי אפילות הנה״ (שמות ט). ולקמן מפרש למאי הלכתא נאמרו שלוש רביעות.')}
+      ${say('וכן היה ר׳ יוסי אומר', '<strong>אין היחידים מתענין עד שיגיע ראש חדש כסליו</strong>. (רש״י: התענית היא ברביעה השלישית, ולר׳ יוסי היא בר״ח כסליו.)')}
+      ${key('הלכה', 'אמר רב חסדא: <strong>הלכה כר׳ יוסי</strong>.')}
+    `
+  },
+  {
+    tag: 'גרסה',
+    title: 'אמימר: <span class="accent">גרסה אחרת לרב חסדא</span>',
+    html: `
+      ${say('אמימר', 'מתני להא דרב חסדא בהאי לישנא: <strong>״בשלשה (במרחשון) שואלין את הגשמים, רבן גמליאל אומר בשבעה בו. אמר רב חסדא: הלכה כרבן גמליאל.״</strong>')}
+      ${story('לפי אמימר, דברי רב חסדא נאמרו על המשנה של <strong>שאלת</strong> הגשמים: מתחילים לשאול בז׳ במרחשון.')}
+      ${say('ברייתא', '<strong>רבן שמעון בן גמליאל אומר: גשמים שירדו שבעה ימים זה אחר זה — אתה מונה בהן רביעה ראשונה ושניה.</strong>')}
+      ${say('כמאן?', 'כשיטת מי הולכת הברייתא הזו? <strong>כר׳ יוסי</strong>. אמר רב חסדא: הלכה כר׳ יוסי.', true)}
+      ${kv('למה דווקא כר׳ יוסי? ספרו את הימים',
+        `<div class="day-strip">${[17,18,19,20,21,22,23].map((d,i)=>`<div class="ds-d${i===0||i===6?' edge':''}" style="animation-delay:${i*0.35}s">${d}<span>🌧️</span></div>`).join('')}</div>`,
+        'אצל ר׳ יוסי הרביעה הראשונה ב<strong>י״ז</strong> והשנייה ב<strong>כ״ג</strong>, ומי״ז עד כ״ג יש בדיוק <strong>שבעה ימים</strong>. גשם שירד שבעה ימים רצופים מכסה את שתי הרביעות. אצל ר׳ מאיר (ג׳–ז׳) ואצל ר׳ יהודה (ז׳–י״ז) החשבון לא יוצא.')}
+      ${say('הגמרא', 'בשלמא רביעה <strong>ראשונה — לשאול</strong>, <strong>שלישית — להתענות</strong>. אבל <strong>שניה — למאי?</strong> לאיזו הלכה צריך את הרביעה השנייה?')}
+      ${say('ר׳ זירא', '<strong>״לנדרים...״</strong> (ההמשך בדף ו׳ ע״ב)', true)}
+      ${quiz([
+        ['מה שלושת הפירושים ל״יורה״?', 'מורה (מלמד להכין), מרווה (עד התהום), ויורד בנחת.'],
+        ['מאיפה יודעים שהיורה לברכה?', '״כי נתן לכם את המורה לצדקה״ (יואל ב).'],
+        ['למה לא יורה בתשרי ומלקוש באייר?', 'כתוב ״בעתו״.'],
+        ['מי הם ״חכמים״ שאומרים יורה בכסליו?', 'ר׳ יוסי, שאצלו הרביעה השלישית היא בר״ח כסליו.'],
+        ['למה צריך רביעה ראשונה ולמה שלישית?', 'הראשונה לשאלה, והשלישית לתענית. על השנייה ר׳ זירא אומר: לנדרים.']
+      ])}
+    `
+  }
+];
+
+amudim['6a'].translation = [
+  { type: 'section', title: 'סוף הברכה' },
+  { type: 'quote', aramaic: '...כמותך. אף אתה, במה אברכך? אם בתורה — הרי תורה, אם בעושר — הרי עושר, אם בבנים — הרי בנים. אלא יהי רצון שיהו צאצאי מעיך כמותך.',
+    translation: '...כמוך. ואתה, במה אברך אותך? תורה, עושר ובנים כבר יש לך. יהי רצון שצאצאיך יהיו כמוך.' },
+  { type: 'section', title: 'יורה' },
+  { type: 'quote', aramaic: 'תנו רבנן: יורה — שמורה את הבריות להטיח גגותיהן ולהכניס את פירותיהן ולעשות כל צרכיהן.',
+    translation: '״יורה״: מלמד את האנשים לטייח גגות, להכניס פירות ולהתכונן.' },
+  { type: 'quote', aramaic: 'דבר אחר: שמרוה את הארץ ומשקה עד תהום, שנאמר ״תלמיה רוה נחת גדודיה ברביבים תמוגגנה צמחה תברך״.',
+    translation: 'פירוש אחר: מרווה את האדמה עד התהום.' },
+  { type: 'quote', aramaic: 'דבר אחר: יורה — שיורד בנחת ואינו יורד בזעף.',
+    translation: 'פירוש שלישי: יורד בנחת ולא בסערה.' },
+  { type: 'quote', aramaic: 'או אינו יורה אלא שמשיר את הפירות ומשטף את הזרעים ומשטף את האילנות? תלמוד לומר מלקוש — מה מלקוש לברכה אף יורה לברכה.',
+    translation: 'אולי הוא מזיק? לא: כמו שמלקוש לברכה, כך יורה.' },
+  { type: 'quote', aramaic: 'או אינו מלקוש אלא שמפיל את הבתים ומשבר את האילנות ומעלה את הסקאין? תלמוד לומר יורה — מה יורה לברכה אף מלקוש לברכה.',
+    translation: 'ואולי מלקוש מזיק? לא: כמו שיורה לברכה, כך מלקוש.' },
+  { type: 'quote', aramaic: 'ויורה גופיה מנלן? דכתיב ״ובני ציון גילו ושמחו בה׳ אלהיכם כי נתן לכם את המורה לצדקה, ויורד לכם גשם מורה ומלקוש בראשון״.',
+    translation: 'ומניין שהיורה עצמו לברכה? ״כי נתן לכם את המורה לצדקה״.' },
+  { type: 'section', title: 'זמני היורה והמלקוש' },
+  { type: 'quote', aramaic: 'תנו רבנן: יורה במרחשון ומלקוש בניסן. אתה אומר יורה במרחשון ומלקוש בניסן, או אינו אלא יורה בתשרי ומלקוש באייר? תלמוד לומר ״בעתו״.',
+    translation: 'יורה במרחשון ומלקוש בניסן, ולא בתשרי ובאייר, כי כתוב ״בעתו״.' },
+  { type: 'quote', aramaic: 'מלקוש — אמר רב נהילאי בר אידי אמר שמואל: דבר שמל קשיותיהן של ישראל. דבי רבי ישמעאל תנא: דבר שממלא תבואה בקשיה. במתניתא תנא: דבר שיורד על המלילות ועל הקשין.',
+    translation: '״מלקוש״: מל את קשיות הלב של ישראל, או ממלא את התבואה בקשיה, או יורד על השיבולים והקנים.' },
+  { type: 'quote', aramaic: 'תנו רבנן: יורה במרחשון ומלקוש בניסן. אתה אומר יורה במרחשון, או אינו אלא בחדש כסליו? תלמוד לומר ״בעתו יורה ומלקוש״ — מה מלקוש בעתו, אף יורה בעתו.',
+    translation: 'ולא בכסליו: כמו שמלקוש בזמנו, כך יורה.' },
+  { type: 'quote', aramaic: 'תניא אידך: יורה במרחשון ומלקוש בניסן, דברי רבי מאיר. וחכמים אומרים: יורה בכסליו. מאן חכמים? אמר רב חסדא: רבי יוסי היא.',
+    translation: 'ר׳ מאיר: יורה במרחשון. חכמים: בכסליו. וחכמים הם ר׳ יוסי.' },
+  { type: 'quote', aramaic: 'דתניא: רביעה ראשונה — הבכירה בשלשה במרחשון, בינונית בשבעה בו, אפילה בשבעה עשר בו, דברי רבי מאיר. רבי יהודה אומר: בשבעה ובשבעה עשר ובעשרים ושלשה. רבי יוסי אומר: בשבעה עשר ובעשרים ושלשה ובראש חדש כסליו.',
+    translation: 'שלוש רביעות: לר׳ מאיר בג׳, ז׳ וי״ז בחשון. לר׳ יהודה בז׳, י״ז וכ״ג. לר׳ יוסי בי״ז, כ״ג ור״ח כסליו.',
+    viz: kv('', kn('ר״מ', '3 · 7 · 17') + kn('ר״י', '7 · 17 · 23') + kn('ר׳ יוסי', '17 · 23 · ר״ח כסליו', 'gold')) },
+  { type: 'quote', aramaic: 'וכן היה רבי יוסי אומר: אין היחידים מתענין עד שיגיע ראש חדש כסליו. אמר רב חסדא: הלכה כרבי יוסי.',
+    translation: 'ר׳ יוסי: יחידים לא מתענים עד ר״ח כסליו. רב חסדא: הלכה כמותו.' },
+  { type: 'quote', aramaic: 'אמימר מתני להא דרב חסדא בהא לישנא: בשלשה שואלין את הגשמים, רבן גמליאל אומר בשבעה בו. אמר רב חסדא: הלכה כרבן גמליאל.',
+    translation: 'אמימר גורס: רב חסדא אמר הלכה כרבן גמליאל, ששואלים בז׳ במרחשון.' },
+  { type: 'quote', aramaic: 'כמאן אזלא הא דתניא: רבן שמעון בן גמליאל אומר: גשמים שירדו שבעה ימים זה אחר זה — אתה מונה בהן רביעה ראשונה ושניה? כמאן — כרבי יוסי. אמר רב חסדא: הלכה כרבי יוסי.',
+    translation: 'כשיטת מי ברייתת רשב״ג, ששבעה ימי גשם רצופים הם רביעה ראשונה ושנייה? כר׳ יוסי, כי מי״ז עד כ״ג יש שבעה ימים. רב חסדא: הלכה כר׳ יוסי.' },
+  { type: 'quote', aramaic: 'בשלמא רביעה ראשונה — לשאול, שלישית — להתענות, שניה למאי? אמר רבי זירא: לנ[דרים]...',
+    translation: 'הראשונה לשאלה, השלישית לתענית. והשנייה, לשם מה? ר׳ זירא: לנדרים... (ממשיך בדף ו׳ ע״ב)' },
+  { type: 'summary', text: '<strong>סיכום ו׳ ע״א:</strong> סוף משל האילן. אחר כך ביאור ״יורה״ ו״מלקוש״: משמעותם, שהם לברכה, וזמנם. המחלוקת על מועדי שלוש הרביעות, והלכה כר׳ יוסי, ולפי אמימר כרבן גמליאל.' }
+];
+
+amudim['6a'].rashi = [
+  { dh: 'יורה', content: '<p>רביעה ראשונה, שיורדת במרחשון כדלקמן.</p>' },
+  { dh: 'ולהכניס פירותיהן', content: '<p>שהיו בשדות לייבשן, ועתה מכניסים אותם מפני הגשמים.</p>' },
+  { dh: 'שיורד בנחת', content: '<p>כאדם שמורה לתלמידו בנחת.</p>' },
+  { dh: 'או אינו יורה אלא שמשיר', content: '<p>״יורה״ לשון קללה, כמו ״ירה בים״ (שמות טו), שמשליך הכל.</p>' },
+  { dh: 'מלקוש', content: '<p>לשון ארבה, כמו ״והנה לקש אחר גזי המלך״ (עמוס ז).</p>' },
+  { dh: 'או אינו אלא יורה בתשרי ומלקוש באייר', content: '<p>שיש עדיין מלילות וקשין בשדה. תלמוד לומר ״בעתו״.</p>' },
+  { dh: 'דבר שמל קשיותיהן של ישראל', content: '<p>שכשאינו יורד, חוזרין ישראל בתשובה.</p>' },
+  { dh: 'מלילות / קשין', content: '<p>מלילות: ראשי שיבולים שאדם מולל בידו, כדכתיב ״וקטפת מלילות בידך״. קשין: קנה.</p>' },
+  { dh: 'בכירה / אפילה', content: '<p>בכירה: ראשונה. אפילה: אחרונה, כמו ״כי אפילות הנה״. ולקמן מפרש למאי הלכתא נאמרו.</p>' },
+  { dh: 'אין היחידים מתענין', content: '<p>דאמרינן בסמוך ״שלישית להתענות״, והואיל וזמן השלישית לר׳ יוסי הוא בר״ח כסליו, אין ליחידים להתענות קודם לכן.</p>' },
+  { dh: 'שבעה ימים', content: '<p>שירדו רצופים. אתה מונה בהן ראשונה ושנייה.</p>' }
+];
+
+amudim['6a'].tosafot = [];
+
+
+// =======================================================
+// עומק הסוגיה — סצנות ניתוח
+// =======================================================
+amudim['4b'].scenes.splice(amudim['4b'].scenes.length - 1, 0, {
+  tag: 'עומק',
+  title: 'מפת הסוגיה: <span class="accent">איך כל אחד קורא את המשנה</span>',
+  html: `
+    ${story('עכשיו נעשה סדר. כל אמורא בסוגיה מנסה ליישב את שתי המשניות של ר׳ יהודה, ולכל אחד יש <strong>הנחת יסוד אחרת</strong> על היחס בין הזכרה לשאלה:')}
+    <div class="map-table">
+      <div class="mt-h">מי</div><div class="mt-h">איך מיישב</div><div class="mt-h">ההנחה</div><div class="mt-h">נדחה?</div>
+      <div class="mt-n">רב חסדא</div><div class="mt-c">שאלה עד סוף פסח, הזכרה עד יו״ט א׳</div><div class="mt-c">אפשר לשאול בלי להזכיר</div><div class="mt-c no">✗ עולא</div>
+      <div class="mt-n">עולא</div><div class="mt-c">תרי תנאי</div><div class="mt-c">הזכרה ״קלה״ משאלה: היכן ששואלים, מזכירים</div><div class="mt-c ok">✓ מסקנה</div>
+      <div class="mt-n">רב יוסף</div><div class="mt-c">״עד שיעבור״ = עד החזן של יו״ט א׳</div><div class="mt-c">יש ״שאלה״ גם ביו״ט (המתורגמן)</div><div class="mt-c no">✗ אביי</div>
+      <div class="mt-n">רבה</div><div class="mt-c">״שואלין״ = הזכרה ביו״ט א׳</div><div class="mt-c">תחילת החורף וסופו סימטריים</div><div class="mt-c no">✗ אביי</div>
+    </div>
+    ${key('השאלה שמתחת לפני השטח', 'עולא בונה קל וחומר: ״במקום שאינו שואל מזכיר, במקום ששואל לא כל שכן?״. כלומר בעיניו ההזכרה היא <strong>המינימום</strong>, ובכל מקום שיש שאלה יש גם הזכרה. אביי, לעומתו, רואה בהזכרה <strong>״ריצוי שאלה״</strong>, הקדמה לבקשה שתבוא. ור׳ יוחנן קובע ״התחיל להזכיר — מתחיל לשאול״. שלוש הדעות מסכימות שהזכרה ושאלה <em>קשורות</em> זו בזו, ורק רבא בתחילת הסוגיה אומר ״שאלה לחוד והזכרה לחוד״, ושם הכוונה רק לעניין <em>ההתחלה</em>.')}
+    ${tip('שימו לב לשיטה', 'אביי דוחה פעמיים, את רב יוסף ואת רבה, ובשתי הפעמים הוא מבחין בין <strong>מה שהציבור צריך</strong> לבין <strong>מה שנאמר</strong>. מתורגמן לא מבקש דבר שהציבור לא צריך, וריצוי לא בא כשאין בקשה אחריו. אצל אביי התפילה תמיד משרתת צורך אמיתי.')}
+  `
+});
+
+amudim['5a'].scenes.push({
+  tag: 'עומק',
+  title: 'החוט שמחבר את <span class="accent">דרשות רב נחמן</span>',
+  html: `
+    ${story('לכאורה רב נחמן שואל את ר׳ יצחק סדרה של שאלות על פסוקים שאינם קשורים זה לזה. אבל אם מסתכלים טוב, עולה מהן קו מחשבה אחד. (זה ביאור שלי ולא דברי הגמרא במפורש.)')}
+    ${flow([
+      ['יואל', 'קודם <strong>זורעים</strong>, מתוך אמונה וכשאין, ורק אחר כך יורד הגשם השני והנס.', ''],
+      ['שבע שנים', 'הצד ההפוך: רעב בלי תשובה ובלי נס, שהולך ומידרדר שנה אחרי שנה.', 'bad'],
+      ['ירושלים', 'הקב״ה לא בא לירושלים <strong>של מעלה</strong> עד שתיבנה ירושלים <strong>של מטה</strong>. גם כאן הצעד הראשון הוא למטה.', ''],
+      ['ובאחת / שתים רעות', 'מה עוצר את כל זה: עבודה זרה, לעזוב את ״<strong>מקור מים חיים</strong>״. וזה שוב דימוי של מים וגשם!', 'hl']
+    ])}
+    ${key('הרעיון', 'הגשם (ובכלל השפע מלמעלה) בא <strong>בתגובה</strong> למעשה של האדם למטה: זריעה באמונה, בניין ירושלים. מה שחוסם אותו הוא עזיבת מקור המים החיים. זה בדיוק הרקע של מסכת תענית: כשאין גשם, מתענים ושבים, כי הגשם תלוי במעשים.')}
+  `
+});
+
+amudim['5b'].scenes.splice(amudim['5b'].scenes.length - 1, 0, {
+  tag: 'עומק',
+  title: 'המשכיות: <span class="accent">מה שנשאר אחרי האדם</span>',
+  html: `
+    ${story('שלושה סיפורים בעמוד הזה עוסקים באותה שאלה: <strong>מה ממשיך לחיות אחרי האדם?</strong> (גם זה ביאור שלי, שמחבר בין הסיפורים.)')}
+    ${kv('שלושה סיפורים, רעיון אחד',
+      kn('🧓', 'שמואל<br><span style="opacity:.7">״לא יבטלו מעשה ידי בחיי״</span>', 'gold') +
+      kn('👴', 'יעקב<br><span style="opacity:.7">״מה זרעו בחיים — אף הוא בחיים״</span>', 'gold', 'animation:kPulse 3s infinite 1s') +
+      kn('🌳', 'האילן<br><span style="opacity:.7">״נטיעות... יהיו כמותך״</span>', 'gold', 'animation:kPulse 3s infinite 2s'),
+      'שמואל רוצה שמעשה ידיו לא ייבטלו. יעקב ״חי״ דרך זרעו. והברכה הגדולה ביותר לאילן, וגם לרב נחמן, היא <strong>שהנטיעות יהיו כמותו</strong>.')}
+    ${key('למה זו הברכה הגדולה ביותר?', 'לאדם שיש לו כבר הכל (תורה, עושר ובנים) אי אפשר להוסיף עוד ממה שכבר יש לו. אפשר רק לברך שזה <strong>ימשיך</strong>. זו בדיוק ההוכחה של ר׳ יצחק ש״יעקב אבינו לא מת״: מי שזרעו ממשיך את דרכו, חי.')}
+    ${tip('״אין משיחין בסעודה״ באמצע', 'גם הסיפור על הסעודה מלמד משהו על הקשר בין רב נחמן לר׳ יצחק. ר׳ יצחק נזהר כל כך שאפילו דבר תורה הוא דוחה לאחרי האוכל, ובסוף הוא נותן לרב נחמן ברכה מעומק הלב.')}
+  `
+});
+
+amudim['6a'].scenes.splice(amudim['6a'].scenes.length - 1, 0, {
+  tag: 'עומק',
+  title: 'ההיקש המעגלי: <span class="accent">״ויורה גופיה מנלן?״</span>',
+  html: `
+    ${story('הברייתא לומדת ״מה מלקוש לברכה אף יורה לברכה״, ומיד אחר כך ״מה יורה לברכה אף מלקוש לברכה״. הגמרא מזהה כאן בעיה לוגית:')}
+    ${kv('מעגל בלי עוגן',
+      kn('🌧️', 'יורה<br>לברכה?', '', 'animation:kShake 2s infinite') + ar('⇄') + kn('🌦️', 'מלקוש<br>לברכה?', '', 'animation:kShake 2s infinite 1s') +
+      ar('→') + kn('⚓', '״המורה<br>לצדקה״', 'gold', 'animation:kAppear 4s infinite'),
+      'שני היקשים שתולים זה בזה לא מוכיחים כלום. צריך <strong>עוגן</strong> אחד מבחוץ, וזה הפסוק ״כי נתן לכם את המורה לצדקה״.')}
+    ${key('העיקרון', 'זו דרך חשיבה שחוזרת בש״ס: לימוד הדדי (״מה זה... אף זה״) עובד רק אם אחד הצדדים ידוע ממקור עצמאי. ״ויורה גופיה מנלן?״ היא הדרישה הזאת בדיוק.')}
+    ${story('<strong>ומחלוקת הרביעות:</strong> כל תנא מזיז את שלוש הרביעות שלב אחד קדימה. זו שאלה של <em>מציאות</em>: עד מתי גשם שמאחר עדיין נחשב ״בעתו״. ולכל רביעה יש תפקיד הלכתי: ה<strong>ראשונה</strong> לשאלה, ה<strong>שלישית</strong> לתענית, והשנייה, לפי ר׳ זירא, לנדרים (בדף הבא).')}
+  `
+});
+
+// =======================================================
+// CHAPTER STARTS - basic stubs with chapter context
+// (You can add more content here over time)
+// =======================================================
+
+// Add a simple topic line for each daf based on its perek
+function addPerekContext() {
+  for (const ref in amudim) {
+    const a = amudim[ref];
+    if (a.scenes.length > 0) continue; // skip if has content
+
+    const perek = getPerekFor(a.daf, a.amud);
+    a.scenes = [{
+      tag: `פרק ${perek.num}`,
+      title: `דף ${heb(a.daf)} ע״${a.amud === 'a' ? 'א' : 'ב'} — <span class="accent">${perek.name}</span>`,
+      html: `
+        <div class="stub">
+          <div class="stub-icon">📜</div>
+          <h3>תוכן עוד לא נכתב</h3>
+          <p>זהו תשתית מוכנה. ניתן להוסיף סצנות אנימציה, רש״י ותוספות לדף הזה.</p>
+          <div class="stub-perek">
+            <div class="stub-perek-label">הפרק שבו דף זה</div>
+            <div class="stub-perek-name">פרק ${perek.num} — ${perek.name}</div>
+          </div>
+        </div>
+      `
+    }];
+  }
+}
+
+function heb(n) {
+  const ones = ['', 'א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט'];
+  const tens = ['', 'י', 'כ', 'ל', 'מ', 'נ', 'ס', 'ע', 'פ', 'צ'];
+  const hundreds = ['', 'ק', 'ק״ק'];
+
+  if (n < 10) return ones[n];
+  if (n === 15) return 'ט״ו';
+  if (n === 16) return 'ט״ז';
+  if (n < 100) {
+    const t = Math.floor(n / 10);
+    const o = n % 10;
+    if (o === 0) return tens[t];
+    return tens[t] + '״' + ones[o];
+  }
+  // 100+
+  const h = Math.floor(n / 100);
+  const rest = n % 100;
+  if (rest === 0) return hundreds[h];
+  if (rest < 10) return hundreds[h] + '״' + ones[rest];
+  if (rest === 15) return hundreds[h] + 'ט״ו';
+  if (rest === 16) return hundreds[h] + 'ט״ז';
+  const t = Math.floor(rest / 10);
+  const o = rest % 10;
+  if (o === 0) return hundreds[h] + tens[t];
+  return hundreds[h] + tens[t] + ones[o];
+}
+
+addPerekContext();
+
+// =======================================================
+// TUTORIAL SCENES - "How to read gemara"
+// =======================================================
+const tutorialScenes = [
+  {
+    tag: 'פתיחה',
+    title: 'למה גמרא <span class="accent">נראית קשה</span>?',
+    html: `
+      <div class="story">
+        <p>אם פתחת פעם דף גמרא וזה הרגיש כמו חומה — אתה לא לבד. הגמרא נכתבה ב<strong>ארמית</strong> (לא עברית!), בלי סימני פיסוק, בלי גופנים מודגשים, ובלי הסברים כשעוברים מנושא לנושא.</p>
+        <p>אבל יש בה <strong>שיטה</strong>. כשמכירים את המבנה ואת המילים המיוחדות שמרכיבות אותה — היא נפתחת.</p>
+      </div>
+      <div class="tip">
+        <div class="tip-label">💡 הסוד הגדול</div>
+        <p>הגמרא היא <strong>שיחה</strong>. שואלים, עונים, מקשים, מתרצים. ברגע שיודעים אילו מילים מסמנות שאלה, אילו מילים מסמנות תשובה, ואילו מילים מסמנות סתירה — אפשר לעקוב אחרי השיחה.</p>
+      </div>
+      <div class="story">
+        <p>במדריך הזה תלמד:</p>
+        <p>1. <strong>אנטומיה של דף</strong> — איפה הגמרא, איפה רש״י, איפה תוספות<br>
+        2. <strong>״כפתורי השיחה״</strong> — המילים שמסמנות שאלה, תשובה, מקור, חילוק<br>
+        3. <strong>המהלכים השכיחים</strong> — איך שיחה בגמרא מתפתחת<br>
+        4. <strong>קריאה מעשית</strong> — נפענח קטע אמיתי מדף מ״ג ע״א צעד-צעד</p>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 1',
+    title: 'אנטומיה <span class="accent">של דף הגמרא</span>',
+    html: `
+      <div class="story"><p>דף הגמרא של ש״ס וילנה בנוי בשלוש עמודות:</p></div>
+      <div style="text-align: center; margin: 16px 0;">
+        <svg viewBox="0 0 240 200" width="240" height="200" style="max-width:100%;">
+          <rect x="10" y="10" width="220" height="180" stroke="var(--gold)" stroke-width="1.5" fill="rgba(244,234,213,0.04)"/>
+          <rect x="20" y="35" width="62" height="145" fill="rgba(200,149,104,0.1)" stroke="#c89568" stroke-width="1"/>
+          <text x="51" y="28" text-anchor="middle" fill="#c89568" font-size="11" font-weight="700">רש״י</text>
+          ${[45,51,57,63,69,75,81,87,93,99,105].map(y => `<line x1="25" y1="${y}" x2="${75 + (y%2)*2}" y2="${y}" stroke="#c89568" stroke-width="0.5" opacity="0.6"/>`).join('')}
+          <rect x="89" y="35" width="62" height="145" fill="rgba(244,234,213,0.05)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="120" y="28" text-anchor="middle" fill="var(--gold-bright)" font-size="11" font-weight="700">גמרא</text>
+          ${[47,55,63,71,79,87,95,103,111].map(y => `<line x1="94" y1="${y}" x2="${144 + (y%2)*2}" y2="${y}" stroke="var(--gold-bright)" stroke-width="0.9"/>`).join('')}
+          <rect x="158" y="35" width="62" height="145" fill="rgba(143,169,196,0.08)" stroke="#8fa9c4" stroke-width="1"/>
+          <text x="189" y="28" text-anchor="middle" fill="#8fa9c4" font-size="11" font-weight="700">תוספות</text>
+          ${[45,51,57,63,69,75,81,87,93,99].map(y => `<line x1="163" y1="${y}" x2="${213 + (y%2)*2}" y2="${y}" stroke="#8fa9c4" stroke-width="0.5" opacity="0.6"/>`).join('')}
+        </svg>
+      </div>
+      <div class="story">
+        <p><strong>אמצע</strong> — הגמרא עצמה (אותיות גדולות, גופן רגיל)<br>
+        <strong>פנים</strong> (לכיוון הספרייה) — <strong style="color: #c89568;">רש״י</strong> בגופן צפוף<br>
+        <strong>חוץ</strong> (לכיוון הקורא) — <strong style="color: #8fa9c4;">תוספות</strong></p>
+      </div>
+      <div class="tip">
+        <div class="tip-label">💡 שלב ראשון בלימוד</div>
+        <p>תמיד מתחילים עם <strong>הגמרא במרכז</strong>. רש״י ותוספות הם <em>פירושים</em> — קוראים אותם רק כשמשהו לא ברור, או כדי להעמיק.</p>
+      </div>
+      <div class="story">
+        <p>בדף יש גם <em>מתני׳</em> (=משנה) בתחילת כל סוגיה — היא הבסיס, ו<em>גמ׳</em> (=גמרא) — הדיון של האמוראים עליה.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 2',
+    title: '״כפתורי השיחה״ — <span class="accent">6 צבעים</span>',
+    html: `
+      <div class="story">
+        <p>בכל דיון בגמרא יש 6 סוגי תפקידים. בלימוד שלנו נצבע כל סוג בצבע שונה:</p>
+      </div>
+      <div class="legend">
+        <div class="legend-item statement"><div class="l-dot"></div>הצהרה</div>
+        <div class="legend-item question"><div class="l-dot"></div>שאלה / קושיה</div>
+        <div class="legend-item answer"><div class="l-dot"></div>תשובה / תירוץ</div>
+        <div class="legend-item source"><div class="l-dot"></div>מקור</div>
+        <div class="legend-item distinction"><div class="l-dot"></div>חילוק</div>
+        <div class="legend-item conclusion"><div class="l-dot"></div>מסקנה</div>
+      </div>
+      <div class="story">
+        <p>כל סוג מסומן ב״מילת מפתח״. <strong>תלחץ על המילים למטה</strong> כדי לראות את התרגום והפונקציה:</p>
+      </div>
+      <div class="gem-block">
+        <span class="term statement" data-term="amar">אמר ר׳ יוחנן</span>: פיגול וטמא ונותר שעלו על המזבח — פקע איסורן. <span class="term question" data-term="metiv">מתיב</span> רב חסדא: <span class="term question" data-term="atu">אטו</span> מזבח מקווה הוא? <span class="term answer" data-term="amar-lei">אמר ליה</span>: <span class="term distinction" data-term="shani">שאני</span> מזבח — שאני מקווה.
+      </div>
+      <div class="tip">
+        <div class="tip-label">💡 איך לזכור</div>
+        <p>אל תשנן את כל המילים מראש! פשוט תתחיל ללמוד, וכשתפגוש מילה לא מוכרת — תבדוק. בתוך 2-3 שבועות, רוב המילים יהיו מוכרות לך טבעית.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 3א',
+    title: 'מילים של <span style="color: var(--gold-bright);">הצהרה</span>',
+    html: `
+      <div class="story"><p>אלה המילים שמכניסות אמירה של חכם או ציטוט מהמקרא:</p></div>
+      <div class="vocab-card">
+        <div class="vocab-aram">אמר ר׳ פלוני</div>
+        <div class="vocab-pron">amar rabi ploni</div>
+        <div class="vocab-mean">״אמר ר׳ פלוני״ - מציג אמרה של אמורא</div>
+        <div class="vocab-fn">📌 פונקציה: פתיחת אמירה</div>
+        <div class="vocab-example">לדוגמה: <em>״אמר עולא: קומץ פיגול שהעלהו על המזבח, פקע פיגולו ממנו״</em><br>→ עולא מציג חידוש חדש משלו</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">אמר ליה</div>
+        <div class="vocab-pron">amar lei</div>
+        <div class="vocab-mean">״אמר לו״ — מציג תגובה בדיון בין שני חכמים</div>
+        <div class="vocab-fn">📌 פונקציה: תגובה/תשובה</div>
+        <div class="vocab-example">לדוגמה: <em>״אמר ליה רב חסדא לעולא: ...״</em><br>→ רב חסדא משיב לעולא</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">תניא</div>
+        <div class="vocab-pron">tanya</div>
+        <div class="vocab-mean">״שנינו בברייתא״ — מציג מקור תנאי</div>
+        <div class="vocab-fn">📌 פונקציה: הבאת מקור מוסמך</div>
+        <div class="vocab-example">לדוגמה: <em>״תניא: הקומץ והקטרת והלבונה...״</em><br>→ ברייתא שמובאת כראיה</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">תני</div>
+        <div class="vocab-pron">tani</div>
+        <div class="vocab-mean">״לימד״ — חכם מסר מסורת</div>
+        <div class="vocab-fn">📌 פונקציה: מסירת מסורת</div>
+        <div class="vocab-example">לדוגמה: <em>״תני ר׳ חייא: ...״</em><br>→ ר׳ חייא מסר ברייתא זו</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">אמר קרא</div>
+        <div class="vocab-pron">amar kra</div>
+        <div class="vocab-mean">״הפסוק אמר״ — ציטוט מהמקרא</div>
+        <div class="vocab-fn">📌 פונקציה: ראיה מהתורה</div>
+        <div class="vocab-example">לדוגמה: <em>״אמר קרא: וזרקו על המזבח״</em></div>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 3ב',
+    title: 'מילים של <span style="color: var(--crimson-glow);">שאלה</span>',
+    html: `
+      <div class="story"><p>אלה הדגלים הכי חשובים — הם מסמנים שמישהו מקשה:</p></div>
+      <div class="vocab-card">
+        <div class="vocab-aram">מקשי / מתיב</div>
+        <div class="vocab-pron">makshi / metiv</div>
+        <div class="vocab-mean">״מקשה / מתריס״ — חכם מקשה על אמירה קודמת</div>
+        <div class="vocab-fn">❓ פונקציה: קושיה ישירה</div>
+        <div class="vocab-example">לדוגמה: <em>״מתיב רב חסדא: אטו מזבח מקווה הוא?״</em><br>→ רב חסדא מקשה על ר׳ יוחנן</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">איתיביה</div>
+        <div class="vocab-pron">eitivei</div>
+        <div class="vocab-mean">״הקשה לו [מברייתא]״ — קושיה ממקור תנאי</div>
+        <div class="vocab-fn">❓ פונקציה: קושיה ממקור</div>
+        <div class="vocab-example">לדוגמה: <em>״איתיביה ר׳ אבא לעולא: והתניא...״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">מאי טעמא</div>
+        <div class="vocab-pron">mai ta'ama</div>
+        <div class="vocab-mean">״מה הסיבה?״ — דורש הסבר</div>
+        <div class="vocab-fn">❓ פונקציה: בקשת נימוק</div>
+        <div class="vocab-example">לדוגמה: <em>״...אמר ר׳ מאיר חייב. מאי טעמא?״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">אטו</div>
+        <div class="vocab-pron">atu</div>
+        <div class="vocab-mean">״האם?״ — תמיהה ריטורית, מבטא התנגדות</div>
+        <div class="vocab-fn">❓ פונקציה: תמיהה</div>
+        <div class="vocab-example">לדוגמה: <em>״אטו מזבח מקווה הוא?״</em><br>→ ״האם באמת המזבח הוא מקווה?!״ (לא יכול להיות!)</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">והא תניא</div>
+        <div class="vocab-pron">veha tanya</div>
+        <div class="vocab-mean">״אבל הלא נשנה!״ — מצביע על סתירה</div>
+        <div class="vocab-fn">❓ פונקציה: סתירה ממקור</div>
+        <div class="vocab-example">לדוגמה: <em>״...אמר רב. והא תניא: ההפך!״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">מנא הני מילי</div>
+        <div class="vocab-pron">mena hani milei</div>
+        <div class="vocab-mean">״מנין הדברים האלה?״ — דורש מקור</div>
+        <div class="vocab-fn">❓ פונקציה: בקשת מקור</div>
+        <div class="vocab-example">לדוגמה: <em>״...אסור. מנא הני מילי?״</em></div>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 3ג',
+    title: 'מילים של <span style="color: var(--sage-glow);">תשובה</span> ו<span style="color: #b08fc4;">חילוק</span>',
+    html: `
+      <div class="vocab-card">
+        <div class="vocab-aram">שאני</div>
+        <div class="vocab-pron">shani</div>
+        <div class="vocab-mean">״שונה!״ — מציג חילוק בין מקרה למקרה</div>
+        <div class="vocab-fn">🔀 פונקציה: חילוק</div>
+        <div class="vocab-example">לדוגמה: <em>״שאני התם דקא משני קרא״</em><br>→ ״שונה שם, כי הפסוק שינה״</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">הני מילי</div>
+        <div class="vocab-pron">hani milei</div>
+        <div class="vocab-mean">״הדברים האלה [רק במקרה מסוים]״</div>
+        <div class="vocab-fn">🔀 פונקציה: צמצום</div>
+        <div class="vocab-example">לדוגמה: <em>״הני מילי בקרבן יחיד, אבל בקרבן ציבור...״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">לא קשיא</div>
+        <div class="vocab-pron">lo kashya</div>
+        <div class="vocab-mean">״אין קושיה!״ — מנהיג את התירוץ</div>
+        <div class="vocab-fn">✓ פונקציה: פתיחת תירוץ</div>
+        <div class="vocab-example">לדוגמה: <em>״לא קשיא, כאן בלפני הקרבה כאן באחרי...״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">תיובתא</div>
+        <div class="vocab-pron">teyuvta</div>
+        <div class="vocab-mean">״הפרכה גמורה״ — הקושיה ניצחה</div>
+        <div class="vocab-fn">🛑 פונקציה: דחיית עמדה</div>
+        <div class="vocab-example">לדוגמה: <em>״תיובתא דרב, תיובתא״</em><br>→ רב נדחה</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">קשיא</div>
+        <div class="vocab-pron">kashya</div>
+        <div class="vocab-mean">״קשה!״ — קושיה נשארה <em>פתוחה</em></div>
+        <div class="vocab-fn">⚠️ פונקציה: קושיה תלויה</div>
+        <div class="vocab-example">לפעמים פוסקים מבחינים בין ״תיובתא״ ל״קשיא״ — הראשון פוסק נגד, השני משאיר ספק.</div>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 4',
+    title: 'המהלכים <span class="accent">השכיחים</span>',
+    html: `
+      <div class="story"><p>ברגע שמכירים את אבני הבניין — אפשר לזהות תבניות. 4 המהלכים הנפוצים:</p></div>
+      <div class="pattern">
+        <div class="pattern-title">תבנית 1: שאלה ותשובה</div>
+        <div class="pattern-flow">
+          <div class="pattern-step s"><div class="p-icon">📌</div><div class="p-label">הצהרה<small>אמר ר׳ X: דין מסוים</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step q"><div class="p-icon">❓</div><div class="p-label">קושיה<small>מקשי / מתיב</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step a"><div class="p-icon">✓</div><div class="p-label">תירוץ<small>אמר ליה / לא קשיא</small></div></div>
+        </div>
+      </div>
+      <div class="pattern">
+        <div class="pattern-title">תבנית 2: סתירה בין מקורות</div>
+        <div class="pattern-flow">
+          <div class="pattern-step s"><div class="p-icon">📜</div><div class="p-label">מקור א׳<small>תניא / אמר רב</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step s"><div class="p-icon">📜</div><div class="p-label">מקור ב׳ סותר<small>והא תניא</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step d"><div class="p-icon">🔀</div><div class="p-label">חילוק<small>שאני / הני מילי</small></div></div>
+        </div>
+      </div>
+      <div class="pattern">
+        <div class="pattern-title">תבנית 3: בקשת מקור</div>
+        <div class="pattern-flow">
+          <div class="pattern-step s"><div class="p-icon">📌</div><div class="p-label">דין<small>אסור / חייב / כשר</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step q"><div class="p-icon">❓</div><div class="p-label">מנא הני מילי?<small>איפה כתוב?</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step s"><div class="p-icon">📜</div><div class="p-label">אמר קרא<small>פסוק כמקור</small></div></div>
+        </div>
+      </div>
+      <div class="pattern">
+        <div class="pattern-title">תבנית 4: ניסיון ראיה ודחייה</div>
+        <div class="pattern-flow">
+          <div class="pattern-step q"><div class="p-icon">💡</div><div class="p-label">לימא מסייע ליה<small>בוא נביא ראיה</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step s"><div class="p-icon">📜</div><div class="p-label">המקור<small>תניא / מתני׳</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step d"><div class="p-icon">🛑</div><div class="p-label">דחייה<small>לא — שאני התם</small></div></div>
+        </div>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 5',
+    title: 'קריאה <span class="accent">מעשית</span>',
+    html: `
+      <div class="story"><p>עכשיו ננתח קטע אמיתי מדף מ״ג ע״א. נקרא אותו צעד-צעד:</p></div>
+      <div class="gem-block">
+        <span class="term statement" data-term="amar">אמר עולא</span>: קומץ פיגול שהעלהו על המזבח — פקע פיגולו ממנו. <span class="term question" data-term="metiv">מתיב</span> רב חסדא: <span class="term question" data-term="atu">אטו</span> מזבח מקווה הוא? <span class="term answer" data-term="amar-lei">אמר ליה</span>: <span class="term distinction" data-term="shani">שאני</span> מזבח...
+      </div>
+      <div class="story"><p>בוא נפענח:</p></div>
+      <div class="step"><div class="step-num">1</div><div>
+        <div class="step-aram">אמר עולא:</div>
+        <div class="step-trans">״עולא אמר:״</div>
+        <div class="step-fn statement">הצהרה — אמורא פותח דין חדש</div>
+        <div class="step-expl">המילה <strong>״אמר״</strong> מסמנת שאמורא הולך לומר משהו. <strong>״עולא״</strong> = שם האמורא, מתלמידי ר׳ יוחנן.</div>
+      </div></div>
+      <div class="step"><div class="step-num">2</div><div>
+        <div class="step-aram">קומץ פיגול שהעלהו על המזבח</div>
+        <div class="step-trans">״קומץ של פיגול שהעלו אותו על המזבח״</div>
+        <div class="step-fn statement">תיאור המקרה</div>
+        <div class="step-expl">תיאור פיזי: <strong>״קומץ פיגול״</strong> = קומץ שכבר נעשה פיגול (אסור). <strong>״שהעלהו על המזבח״</strong> = ובטעות שמו אותו על האש.</div>
+      </div></div>
+      <div class="step"><div class="step-num">3</div><div>
+        <div class="step-aram">פקע פיגולו ממנו</div>
+        <div class="step-trans">״פג ממנו הפיגול שלו״</div>
+        <div class="step-fn statement">הכרעת הדין</div>
+        <div class="step-expl">החידוש של עולא! <strong>״פקע״</strong> בארמית = פג, התבטל. <em>האיסור עזב את הקומץ</em>. רעיון מהפכני.</div>
+      </div></div>
+      <div class="step"><div class="step-num">4</div><div>
+        <div class="step-aram">מתיב רב חסדא:</div>
+        <div class="step-trans">״רב חסדא הקשה:״</div>
+        <div class="step-fn question">פתיחת קושיה</div>
+        <div class="step-expl"><strong>״מתיב״</strong> = הקשה. ברגע שאתה רואה אותה: <em>תוקפת קושיה</em>. רב חסדא מתנגד לעולא.</div>
+      </div></div>
+      <div class="step"><div class="step-num">5</div><div>
+        <div class="step-aram">אטו מזבח מקווה הוא?</div>
+        <div class="step-trans">״האם המזבח הוא מקווה?!״</div>
+        <div class="step-fn question">קושיה ריטורית</div>
+        <div class="step-expl"><strong>״אטו״</strong> = ״האם?״ בלשון תמיהה. רב חסדא אומר: ״עולא, אתה מציע שהמזבח מטהר כמו מקווה? לא הגיוני!״</div>
+      </div></div>
+      <div class="step"><div class="step-num">6</div><div>
+        <div class="step-aram">[רבינא:] שאני מזבח...</div>
+        <div class="step-trans">״המזבח שונה...״</div>
+        <div class="step-fn distinction">חילוק / הבחנה</div>
+        <div class="step-expl"><strong>״שאני״</strong> מסמנת חילוק. רבינא אומר: ״כן, יש דמיון, אבל יש הבדל קריטי״. מכאן ימשיך ההסבר.</div>
+      </div></div>
+      <div class="tip">
+        <div class="tip-label">💡 מה למדנו</div>
+        <p>שמת לב? <strong>הזיהוי של 4 מילים בלבד</strong> (אמר, מתיב, אטו, שאני) נתן לך את כל המבנה: <em>הצהרה → קושיה → חילוק</em>. זאת <strong>תבנית 1</strong>!</p>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 6',
+    title: 'איך ללמוד דף <span class="accent">בפועל</span>',
+    html: `
+      <div class="story"><p>עכשיו שאתה מבין את הקוד, הנה המתודה לכל דף:</p></div>
+      <div class="step"><div class="step-num">1</div><div>
+        <div class="step-aram">קרא את המשנה תחילה</div>
+        <div class="step-fn source">מתני׳</div>
+        <div class="step-expl">המשנה היא הבסיס. <strong>הבן אותה במלואה</strong> לפני שתעבור לגמרא. אם משהו לא ברור — פנה לרש״י על המשנה.</div>
+      </div></div>
+      <div class="step"><div class="step-num">2</div><div>
+        <div class="step-aram">קרא את הגמרא בלי רש״י קודם</div>
+        <div class="step-fn statement">סקירה ראשונה</div>
+        <div class="step-expl">קרא לאט. שים לב למילות המפתח (אמר, מתיב, שאני). נסה להבין <strong>השלד</strong>: על מה השאלה, מה התשובה?</div>
+      </div></div>
+      <div class="step"><div class="step-num">3</div><div>
+        <div class="step-aram">חזור עם רש״י</div>
+        <div class="step-fn answer">הבהרה</div>
+        <div class="step-expl">עכשיו תתחיל מההתחלה ותלך פסוק-פסוק. כל מילה לא מובנת — קפוץ לרש״י. רש״י תמיד יגיד לך <strong>מי מדבר ועל מה</strong>.</div>
+      </div></div>
+      <div class="step"><div class="step-num">4</div><div>
+        <div class="step-aram">סמן את ה״מהלך״</div>
+        <div class="step-fn distinction">סינתזה</div>
+        <div class="step-expl">סגור את הספר וספר לעצמך: ״מה הדיון בעצם?״ אמרה X, קושיה Y, תירוץ Z. אם לא יכול לסכם — חזור.</div>
+      </div></div>
+      <div class="step"><div class="step-num">5</div><div>
+        <div class="step-aram">רק בסוף — תוספות</div>
+        <div class="step-fn question">העמקה</div>
+        <div class="step-expl">תוספות מקשים על הסוגיה ועל רש״י. <strong>אל תיגש לתוספות לפני שאתה שולט בגמרא ורש״י</strong> — אחרת תאבד את הראש.</div>
+      </div></div>
+      <div class="tip">
+        <div class="tip-label">💡 כלל זהב</div>
+        <p><strong>אל תקפוץ בשיעורים.</strong> עדיף ללמוד דף אחד באמת ולשבת עליו 3 שעות מאשר 5 דפים במעוף. כל דף שמבינים <em>באמת</em> פותח את הבא.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'סיכום',
+    title: 'סיכום <span class="accent">המדריך</span>',
+    html: `
+      <div class="story"><p>הנה כל המדריך בעמוד אחד:</p></div>
+      <div class="pattern">
+        <div class="pattern-title">🎯 שלוש שאלות ששואלים על כל משפט בגמרא</div>
+        <div class="pattern-flow">
+          <div class="pattern-step s"><div class="p-icon">1</div><div class="p-label">מי המדבר?<small>אמורא? תנא? פסוק?</small></div></div>
+          <div class="pattern-step q"><div class="p-icon">2</div><div class="p-label">מה הוא עושה?<small>הצהיר? הקשה? תירץ?</small></div></div>
+          <div class="pattern-step d"><div class="p-icon">3</div><div class="p-label">איפה זה משתלב?<small>ראיה? סתירה? המשך?</small></div></div>
+        </div>
+      </div>
+      <div class="story">
+        <p style="margin-top: 14px;"><strong>הכלי החזק ביותר</strong> שיש לך הוא לסמן (בעיפרון או במחשבה) את <em>מילות המפתח</em>. ברגע שאתה רואה ״מתיב״ — אתה יודע שמשהו הולך להישבר. ברגע שאתה רואה ״לא קשיא״ — מסדרים.</p>
+      </div>
+      <div class="tip">
+        <div class="tip-label">📚 משאבים נוספים</div>
+        <p>• <strong>שטיינזלץ</strong> — תרגום ופירוש מלא לכל הש״ס<br>
+        • <strong>ספריא.אורג</strong> — הש״ס עם תרגום וקישורים<br>
+        • <strong>חברותא</strong> — אין תחליף ללימוד עם בן אדם</p>
+      </div>
+      <div class="story" style="text-align: center; margin-top: 18px;">
+        <p style="font-size: 18px; color: var(--gold-bright); font-weight: 700;">בהצלחה בלימוד! 📖✨</p>
+      </div>
+    `
+  }
+];
+
+// =======================================================
+// TERMS DICTIONARY for clickable Aramaic words
+// =======================================================
+const terms = {
+  'amar': {
+    aram: 'אמר ר׳ X',
+    pron: 'amar Rabi X',
+    fn: 'statement',
+    fnLabel: 'הצהרה',
+    mean: 'מילת מפתח שמכניסה אמרה של אמורא או חכם',
+    use: '<strong>שימוש:</strong> בכל פעם שתראה ״אמר רב/ר׳ X״ - דע שעכשיו מציגים אמרה של אותו חכם. זה הקול שלו, לא של עורך הגמרא.'
+  },
+  'amar-lei': {
+    aram: 'אמר ליה',
+    pron: 'amar lei',
+    fn: 'answer',
+    fnLabel: 'תגובה',
+    mean: '״אמר לו״ - בדרך כלל תשובה לקושיה',
+    use: '<strong>שימוש:</strong> ברגע שתראה את זה אחרי קושיה - דע שעכשיו מגיע <em>תירוץ</em>.'
+  },
+  'metiv': {
+    aram: 'מתיב / מקשי',
+    pron: 'metiv / makshi',
+    fn: 'question',
+    fnLabel: 'קושיה',
+    mean: '״הקשה״ - מישהו מתריס נגד אמרה קודמת',
+    use: '<strong>שימוש:</strong> דגל אדום! משהו מתחיל לקרוס. נסה להבין: <em>מה הקושיה?</em> ב 99% מהמקרים היא ממקור שעולה לסתור.'
+  },
+  'atu': {
+    aram: 'אטו',
+    pron: 'atu',
+    fn: 'question',
+    fnLabel: 'תמיהה',
+    mean: '״האם?״ בלשון תמיהה ריטורית',
+    use: '<strong>שימוש:</strong> כשאתה רואה ״אטו״ - יש כאן <em>אבסורד מובלע</em>. ״אטו X כך?״ אומר ״לא יכול להיות ש-X״.'
+  },
+  'shani': {
+    aram: 'שאני',
+    pron: 'shani',
+    fn: 'distinction',
+    fnLabel: 'חילוק',
+    mean: '״שונה!״ - מציג הבדל בין מקרים',
+    use: '<strong>שימוש:</strong> זאת המילה החביבה על תוספות. ״שאני X״ אומר ״הדבר הזה שונה, ולכן הכלל לא חל עליו״.'
+  }
+};
+
+// =======================================================
+// STATE & RENDERING
+// =======================================================
+const state = {
+  tab: 'masechet',
+  ref: '4b',
+  sceneIdx: 0,
+  modal: null
+};
+
+function getAllRefs() {
+  return Object.keys(amudim).sort((a, b) => {
+    const da = parseInt(a);
+    const db = parseInt(b);
+    if (da !== db) return da - db;
+    return a.endsWith('a') ? -1 : 1;
+  });
+}
+
+const allRefs = getAllRefs();
+
+function getCurrentIdx() { return allRefs.indexOf(state.ref); }
+
+function goToRef(ref) {
+  if (!amudim[ref]) return;
+  state.ref = ref;
+  state.sceneIdx = 0;
+  renderAll();
+  window.scrollTo(0, 0);
+}
+
+function renderHeader() {
+  const amud = amudim[state.ref];
+  const perek = getPerekFor(amud.daf, amud.amud);
+  document.getElementById('dafTitle').textContent =
+    `דף ${heb(amud.daf)} ע״${amud.amud === 'a' ? 'א' : 'ב'}`;
+  document.getElementById('perekName').textContent =
+    `פרק ${perek.num} — ${perek.name}`;
+
+  const idx = getCurrentIdx();
+  document.getElementById('prevDafBtn').disabled = idx === 0;
+  document.getElementById('nextDafBtn').disabled = idx === allRefs.length - 1;
+}
+
+function renderActionBar() {
+  const amud = amudim[state.ref];
+  document.getElementById('rashiCount').textContent = amud.rashi.length;
+  document.getElementById('tosCount').textContent = amud.tosafot.length;
+  document.getElementById('rashiBtn').classList.toggle('disabled', amud.rashi.length === 0);
+  document.getElementById('tosBtn').classList.toggle('disabled', amud.tosafot.length === 0);
+}
+
+function renderScenes() {
+  const stage = document.getElementById('stage');
+  const scenes = state.tab === 'masechet' ? amudim[state.ref].scenes : tutorialScenes;
+
+  stage.innerHTML = '';
+  scenes.forEach((scene, i) => {
+    const div = document.createElement('section');
+    div.className = 'scene' + (i === state.sceneIdx ? ' active' : '');
+    div.innerHTML = `
+      <div class="scene-tag ${scene.tagClass || ''}">${scene.tag}</div>
+      <h2 class="scene-title">${scene.title}</h2>
+      ${scene.html}
+    `;
+    stage.appendChild(div);
+  });
+
+  renderProgress();
+}
+
+function renderProgress() {
+  const scenes = state.tab === 'masechet' ? amudim[state.ref].scenes : tutorialScenes;
+  const progressEl = document.getElementById('progress');
+  const counterEl = document.getElementById('counter');
+
+  progressEl.innerHTML = '';
+  for (let i = 0; i < scenes.length; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === state.sceneIdx ? ' active' : '');
+    dot.addEventListener('click', () => {
+      state.sceneIdx = i;
+      renderScenes();
+    });
+    progressEl.appendChild(dot);
+  }
+
+  counterEl.textContent = scenes.length > 1
+    ? `${state.sceneIdx + 1} / ${scenes.length}`
+    : '';
+
+  document.getElementById('prevSceneBtn').disabled = state.sceneIdx === 0;
+  document.getElementById('nextSceneBtn').disabled = state.sceneIdx === scenes.length - 1;
+}
+
+function renderAll() {
+  if (state.tab === 'masechet') {
+    renderHeader();
+    renderActionBar();
+  }
+  renderScenes();
+}
+
+function switchTab(tab) {
+  if (state.tab === tab) return;
+  state.tab = tab;
+  state.sceneIdx = 0;
+  document.body.classList.toggle('tutorial-mode', tab === 'tutorial');
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  renderAll();
+  window.scrollTo(0, 0);
+}
+
+function changeScene(delta) {
+  const scenes = state.tab === 'masechet' ? amudim[state.ref].scenes : tutorialScenes;
+  const newIdx = state.sceneIdx + delta;
+  if (newIdx < 0 || newIdx >= scenes.length) return;
+  state.sceneIdx = newIdx;
+  renderScenes();
+}
+
+// =======================================================
+// MODAL
+// =======================================================
+function openModal(type) {
+  const amud = amudim[state.ref];
+  const entries = type === 'rashi' ? amud.rashi : amud.tosafot;
+  if (entries.length === 0) return;
+
+  state.modal = type;
+  const modal = document.getElementById(type === 'rashi' ? 'rashiModal' : 'tosModal');
+  const content = document.getElementById(type === 'rashi' ? 'rashiContent' : 'tosContent');
+
+  content.innerHTML = '';
+  entries.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'meforesh-entry';
+    div.innerHTML = `
+      <div class="meforesh-dh">${e.dh}</div>
+      <div class="meforesh-content">${e.content}</div>
+    `;
+    content.appendChild(div);
+  });
+
+  document.getElementById('modalOverlay').classList.add('open');
+  modal.classList.add('open');
+}
+
+function openTranslation() {
+  const amud = amudim[state.ref];
+  const trans = amud.translation || [];
+  const content = document.getElementById('transContent');
+
+  if (trans.length === 0) {
+    content.innerHTML = `
+      <div class="modal-empty">
+        <div class="e-icon">📭</div>
+        <p style="color: var(--parchment-dim); font-size: 14px;">תרגום עדיין לא נוסף לדף זה.<br>התשתית מוכנה — ניתן להוסיף תרגום בקובץ.</p>
+      </div>
+    `;
+  } else {
+    let html = '';
+    trans.forEach(entry => {
+      if (entry.type === 'section') {
+        html += `<div class="trans-section-header">${entry.title}</div>`;
+      } else if (entry.type === 'quote') {
+        html += `
+          <div class="trans-entry">
+            <div class="trans-aram">${entry.aramaic}</div>
+            <div class="trans-heb">${entry.translation}</div>
+            ${entry.viz || ''}
+          </div>
+        `;
+      } else if (entry.type === 'summary') {
+        html += `<div class="trans-summary">${entry.text}${entry.viz || ''}</div>`;
+      } else if (entry.type === 'note') {
+        html += `<div class="trans-note">${entry.text}</div>`;
+      }
+    });
+    content.innerHTML = html;
+  }
+
+  state.modal = 'trans';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('transModal').classList.add('open');
+}
+
+function closeModal() {
+  state.modal = null;
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('rashiModal').classList.remove('open');
+  document.getElementById('tosModal').classList.remove('open');
+  document.getElementById('termModal').classList.remove('open');
+  document.getElementById('transModal').classList.remove('open');
+  document.getElementById('pickerModal').classList.remove('open');
+}
+
+// =======================================================
+// DAF PICKER
+// =======================================================
+function openPicker() {
+  const content = document.getElementById('pickerContent');
+  content.innerHTML = '';
+
+  perakim.forEach(perek => {
+    const section = document.createElement('div');
+    section.className = 'perek-section';
+
+    const header = document.createElement('div');
+    header.className = 'perek-header';
+    header.textContent = `פרק ${perek.num} — ${perek.name}`;
+    section.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'daf-grid';
+
+    // Find range of dapim in this perek
+    const perekIdx = perakim.indexOf(perek);
+    const nextPerek = perakim[perekIdx + 1];
+    const endDaf = nextPerek ? nextPerek.start : 32;
+    const endAmud = nextPerek ? nextPerek.startAmud : 'b';
+
+    // Iterate through dapim
+    for (let d = perek.start; d < endDaf || (d === endDaf && nextPerek && nextPerek.startAmud === 'b'); d++) {
+      const startA = (d === perek.start) ? perek.startAmud : 'a';
+      const amudOpts = startA === 'b' ? ['b'] : ['a', 'b'];
+      for (const a of amudOpts) {
+        if (d === endDaf && nextPerek && a === nextPerek.startAmud) break;
+        if (d === 120 && a === 'b') {} // include 120b
+        const ref = `${d}${a}`;
+        if (!amudim[ref]) continue;
+        const btn = document.createElement('button');
+        btn.className = 'daf-btn';
+        if (ref === state.ref) btn.classList.add('current');
+        if (amudim[ref].scenes.length > 0 && amudim[ref].scenes[0].tag !== `פרק ${getPerekFor(d, a).num}`) {
+          btn.classList.add('has-content');
+        }
+        // Show daf number with side
+        btn.textContent = `${heb(d)}${a === 'a' ? '.' : ':'}`;
+        btn.addEventListener('click', () => {
+          goToRef(ref);
+          closeModal();
+        });
+        grid.appendChild(btn);
+      }
+    }
+
+    section.appendChild(grid);
+    content.appendChild(section);
+  });
+
+  state.modal = 'picker';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('pickerModal').classList.add('open');
+}
+
+// =======================================================
+// EVENT BINDINGS
+// =======================================================
+document.getElementById('prevDafBtn').addEventListener('click', () => {
+  const idx = getCurrentIdx();
+  if (idx > 0) goToRef(allRefs[idx - 1]);
+});
+document.getElementById('nextDafBtn').addEventListener('click', () => {
+  const idx = getCurrentIdx();
+  if (idx < allRefs.length - 1) goToRef(allRefs[idx + 1]);
+});
+document.getElementById('dafDisplay').addEventListener('click', openPicker);
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+// Term modal for clickable Aramaic words in tutorial
+document.addEventListener('click', (e) => {
+  const term = e.target.closest('.term');
+  if (term && term.dataset.term) {
+    openTerm(term.dataset.term);
+  }
+});
+
+function openTerm(key) {
+  const t = terms[key];
+  if (!t) return;
+  const fnColors = {
+    statement: { bg: 'rgba(232,183,109,0.2)', color: 'var(--gold-bright)' },
+    question: { bg: 'rgba(193,74,90,0.2)', color: 'var(--crimson-glow)' },
+    answer: { bg: 'rgba(136,178,122,0.2)', color: 'var(--sage-glow)' },
+    source: { bg: 'rgba(127,179,213,0.2)', color: 'var(--sky-glow)' },
+    distinction: { bg: 'rgba(176,143,196,0.2)', color: '#b08fc4' },
+    conclusion: { bg: 'rgba(232,154,109,0.2)', color: 'var(--warm)' }
+  };
+  const c = fnColors[t.fn];
+
+  document.getElementById('termContent').innerHTML = `
+    <div class="modal-aram-big">${t.aram}</div>
+    <div class="modal-pron">${t.pron}</div>
+    <div class="modal-fn-badge" style="background: ${c.bg}; color: ${c.color};">${t.fnLabel}</div>
+    <div class="modal-mean-text">${t.mean}</div>
+    <div class="modal-use">${t.use}</div>
+  `;
+
+  state.modal = 'term';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('termModal').classList.add('open');
+}
+
+document.getElementById('prevSceneBtn').addEventListener('click', () => changeScene(-1));
+document.getElementById('nextSceneBtn').addEventListener('click', () => changeScene(1));
+
+document.getElementById('rashiBtn').addEventListener('click', () => openModal('rashi'));
+document.getElementById('tosBtn').addEventListener('click', () => openModal('tos'));
+document.getElementById('transBtn').addEventListener('click', () => openTranslation());
+
+document.getElementById('modalOverlay').addEventListener('click', closeModal);
+document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeModal));
+
+document.addEventListener('keydown', (e) => {
+  if (state.modal) {
+    if (e.key === 'Escape') closeModal();
+    return;
+  }
+  if (e.key === 'ArrowLeft') changeScene(1);
+  if (e.key === 'ArrowRight') changeScene(-1);
+});
+
+// Touch swipe for scenes
+let touchStartX = 0, touchStartY = 0, touchStartT = 0;
+document.addEventListener('touchstart', (e) => {
+  if (e.touches.length !== 1) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  touchStartT = Date.now();
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+  if (state.modal) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  const dt = Date.now() - touchStartT;
+  if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 2 && dt < 600) {
+    if (dx > 0) changeScene(-1);
+    else changeScene(1);
+  }
+}, { passive: true });
+
+// URL hash for deep linking
+function readHash() {
+  const h = window.location.hash.slice(1);
+  if (h === 'tutorial') {
+    switchTab('tutorial');
+    return;
+  }
+  if (h && amudim[h]) {
+    switchTab('masechet');
+    goToRef(h);
+  }
+}
+window.addEventListener('hashchange', readHash);
+readHash();
+
+// Initial render
+renderAll();
+</script>
+
+</body>
+</html>

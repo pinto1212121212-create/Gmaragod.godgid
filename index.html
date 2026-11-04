@@ -1114,6 +1114,21 @@
     .vs-grid { grid-template-columns: 1fr; }
     .action-btn { font-size: 13px; padding: 10px 8px; }
   }
+
+  /* ===== Taanit additions ===== */
+  .verify-note {
+    font-size: 12px; line-height: 1.6; color: var(--parchment-soft);
+    background: rgba(232,154,109,0.12); border: 1px dashed var(--warm);
+    border-radius: 10px; padding: 9px 12px; margin-bottom: 14px;
+  }
+  .verify-note strong { color: var(--warm); }
+  .masechet-switch { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+  .masechet-switch a {
+    font-size: 12px; font-weight: 700; color: var(--parchment-dim); text-decoration: none;
+    padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(232,183,109,0.25);
+  }
+  .masechet-switch a.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+
 </style>
 </head>
 <body>
@@ -1122,6 +1137,7 @@
 
   <header>
     <div class="masechet-name">מסכת זבחים</div>
+    <div class="masechet-switch"><a href="index.html" class="on">זבחים</a><a href="taanit.html">תענית</a></div>
     <div class="daf-nav masechet-only">
       <button class="nav-arrow" id="prevDafBtn" title="דף קודם">‹</button>
       <div class="daf-display" id="dafDisplay">
@@ -1233,9 +1249,11 @@ const perakim = [
 ];
 
 function getPerekFor(daf, amud) {
+  const pos = (d, a) => d * 2 + (a === 'b' ? 1 : 0);
+  const target = pos(daf, amud);
   let p = perakim[0];
   for (const perek of perakim) {
-    if (perek.start < daf || (perek.start === daf && perek.startAmud === 'a' && amud === 'a') || (perek.start === daf && perek.startAmud === amud)) {
+    if (pos(perek.start, perek.startAmud) <= target) {
       p = perek;
     } else {
       break;
@@ -1799,6 +1817,8 @@ function heb(n) {
   const rest = n % 100;
   if (rest === 0) return hundreds[h];
   if (rest < 10) return hundreds[h] + '״' + ones[rest];
+  if (rest === 15) return hundreds[h] + 'ט״ו';
+  if (rest === 16) return hundreds[h] + 'ט״ז';
   const t = Math.floor(rest / 10);
   const o = rest % 10;
   if (o === 0) return hundreds[h] + tens[t];
@@ -3167,6 +3187,7 @@ function openPicker() {
     content.appendChild(section);
   });
 
+  state.modal = 'picker';
   document.getElementById('modalOverlay').classList.add('open');
   document.getElementById('pickerModal').classList.add('open');
 }
@@ -3270,9 +3291,8 @@ function readHash() {
     return;
   }
   if (h && amudim[h]) {
-    state.tab = 'masechet';
-    state.ref = h;
-    renderAll();
+    switchTab('masechet');
+    goToRef(h);
   }
 }
 window.addEventListener('hashchange', readHash);
