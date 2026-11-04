@@ -1391,8 +1391,10 @@
     font-family: inherit; font-weight: 800; font-size: 16px; cursor: pointer; }
 
   /* ===== הדף המלא עם הסבר ===== */
-  .po-hl { pointer-events: auto !important; cursor: pointer; animation: none !important; opacity: .55; transition: opacity .25s, box-shadow .25s; }
-  .po-wrap.has-sel .po-hl.on { opacity: 1; box-shadow: 0 0 0 2.5px rgba(var(--hl),1), 0 0 14px rgba(var(--hl),.55); }
+  /* בדף המלא: בלי מסגרות ובלי זוהר, כי הם עוברים על האותיות. הנבחר = צבע מלא, האחרים = צבע חלש */
+  #poWrap .po-hl { pointer-events: auto !important; cursor: pointer; animation: none !important; box-shadow: none !important;
+    background: rgba(var(--hc),0.38); transition: background .25s; }
+  #poWrap.has-sel .po-hl.on { background: rgba(var(--hc),0.85); }
   .po-no { position: absolute; top: -13px; right: -7px; min-width: 15px; height: 15px; border-radius: 8px; font: 800 9.5px/15px 'Heebo', sans-serif;
     text-align: center; color: #fff; background: rgb(var(--hl)); box-shadow: 0 1px 4px rgba(0,0,0,.4); mix-blend-mode: normal; }
   /* בועת ההסבר יושבת בפס קבוע מתחת לצילום — אף פעם לא על האותיות */
