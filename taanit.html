@@ -1585,7 +1585,7 @@
     <div class="help-head"><b>איך לומדים כאן</b><button id="helpClose" aria-label="סגור">✕</button></div>
     <div class="help-body">
       <div class="hp"><i>◀ ▶</i><p><b>החצים למטה</b> עוברים בין קטעי הדף. גם החלקה הצידה עובדת.</p></div>
-      <div class="hp"><i>👆</i><p><b>הקשה על ההסבר</b> או על ״המשך ▼״ פותחת את השלב הבא. הקשה על כרטיס קודם מחזירה אליו את הסימון.</p></div>
+      <div class="hp"><i>👆</i><p><b>הקשה על ההסבר</b> או על ״המשך ▼״ פותחת את השלב הבא. <b>בגלילה</b> החץ והסימון עוברים לבד לכרטיס שאתה קורא.</p></div>
       <div class="hp"><i>📷</i><p><b>צילום הדף</b> נשאר למעלה, והמילים של השלב מודגשות עליו. הקשה על הצילום פותחת את הדף המלא.</p></div>
       <div class="hp"><i>🎨</i><p><b>צבעים:</b> <span class="lg" style="--c:#e8566a">שאלה / דחייה</span> <span class="lg" style="--c:#6cc35a">תירוץ</span> <span class="lg" style="--c:#f2c14e">מסקנה</span> <span class="lg" style="--c:#5ea8e0">מקור / קביעה</span> <span class="lg" style="--c:#a98de0">הסבר</span></p></div>
       <div class="hp"><i>🎯</i><p><b>בתכלס</b> אומר במשפט אחד מה השלב עושה. <b>📜 בגמרא</b> הוא הלשון עם פיסוק, ו<b>🔤 מילה במילה</b> נפתח בהקשה.</p></div>
@@ -3152,7 +3152,33 @@ function redrawArrow() {
     drawArrow(el.querySelector(`.beat[data-i="${activeBeatIdx(sc)}"]`), hls, false);
   });
 }
-window.addEventListener('scroll', redrawArrow, { passive: true });
+// ===== מעקב גלילה: הכרטיס שבאזור הקריאה (מתחת לצילום הדף) מתחבר לבד לחץ ולסימון =====
+let spyRAF = 0, spyLock = 0;
+function scrollSpy() {
+  cancelAnimationFrame(spyRAF);
+  spyRAF = requestAnimationFrame(() => {
+    if (state.modal || state.tab !== 'masechet' || Date.now() < spyLock) { redrawArrow(); return; }
+    const el = document.querySelector('.scene.active'); if (!el) return;
+    const sc = amudim[state.ref].scenes[state.sceneIdx];
+    if (!sc || !sc.beats || !sc.src) { redrawArrow(); return; }
+    const src = el.querySelector('.daf-src');
+    const line = (src ? src.getBoundingClientRect().bottom : 0) + 110;  // קו הקריאה: מתחת לצילום, איפה שהעין קוראת
+    const cards = [...el.querySelectorAll('.beat.on')].filter(b => beatLoc(state.ref, state.sceneIdx, +b.dataset.i));
+    if (!cards.length) { redrawArrow(); return; }
+    let best = null, bestD = Infinity;
+    for (const b of cards) {
+      const r = b.getBoundingClientRect();
+      if (r.bottom < line - 10 || r.top > innerHeight - 90) continue;     // לא נראה
+      const d = r.top <= line && r.bottom >= line ? 0 : Math.min(Math.abs(r.top - line), Math.abs(r.bottom - line));
+      if (d < bestD) { bestD = d; best = b; }
+    }
+    if (!best) { redrawArrow(); return; }
+    const i = +best.dataset.i;
+    if (i !== activeBeatIdx(sc) || (state.beat >= sc.beats.length && focusBeat == null)) { focusBeat = i; showLoc(); }
+    else redrawArrow();
+  });
+}
+window.addEventListener('scroll', scrollSpy, { passive: true });
 window.addEventListener('resize', () => showLoc());
 document.addEventListener('scroll', e => {
   if (e.target.classList && e.target.classList.contains('src-wrap')) redrawArrow();
@@ -3758,6 +3784,7 @@ function applyBeats(scroll) {
     if (scroll) { const t = done ? el.querySelector('.after') : last; if (t) t.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
   }
   focusBeat = null;
+  if (scroll) spyLock = Date.now() + 900;
   setTimeout(showLoc, scroll ? 380 : 30);
   document.getElementById('prevSceneBtn').disabled = state.sceneIdx === 0;
   document.getElementById('nextSceneBtn').disabled = state.sceneIdx === scenes.length - 1;
