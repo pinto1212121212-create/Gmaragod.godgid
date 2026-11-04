@@ -97,6 +97,15 @@
     transform: translateY(105%); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
   .sheet.open { transform: none; }
   .grab { width: 44px; height: 5px; border-radius: 3px; background: rgba(244,234,213,0.25); margin: 0 auto 8px; }
+  /* תריס: החלונית יורדת לפס קטן (peek) כשמזיזים את העץ, ועולה כשבוחרים צומת / מושכים למעלה */
+  .sh-grip { margin: -8px -16px 0; padding: 10px 16px 2px; cursor: grab; touch-action: none; }
+  .sh-grip .grab { margin-bottom: 0; }
+  .sh-grip-t { display: none; text-align: center; font-size: 11px; font-weight: 800; color: var(--gold); margin-top: 3px; }
+  .sheet { transition: transform .3s cubic-bezier(.2,.8,.3,1), max-height .3s cubic-bezier(.2,.8,.3,1); }
+  .sheet.peek { max-height: 96px; overflow: hidden; }
+  .sheet.peek .sh-grip-t { display: block; }
+  .sheet.peek > :not(.sh-grip):not(.sh-head) { visibility: hidden; }
+  .sheet.peek .sh-head .sh-no { display: none; }
   .sh-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .sh-role { font-size: 12px; font-weight: 900; color: var(--ink); background: var(--rc); border-radius: 12px; padding: 2px 10px; }
   .sh-who { font-size: 15px; font-weight: 900; }
@@ -402,7 +411,7 @@ function flyTo(tx, ty, tk, ms = 750) {
 function stageBox() { const r = $('stage').getBoundingClientRect(); return { w: r.width, h: r.height }; }
 function centerOn(n, k) {
   const { w, h } = stageBox();
-  const sheetH = $('sheet').classList.contains('open') ? Math.min(h * 0.58, $('sheet').scrollHeight) : 0;
+  const sheetH = $('sheet').classList.contains('open') ? $('sheet').offsetHeight : 0;
   const k2 = k || Math.min(1.25, Math.max(0.75, w / (NW * 2.6)));
   const visH = h - sheetH;
   flyTo(w / 2 - n.x * k2, Math.max(150, 90 + (visH - 90) * 0.42) - n.y * k2, k2);
@@ -433,7 +442,8 @@ function sheet(n) {
   const kids = n.k || [];
   const rel = relLabel(n);
   sh.style.setProperty('--rc', COL[n.r]);
-  sh.innerHTML = `<div class="grab"></div>
+  sh.classList.remove('peek');
+  sh.innerHTML = `<div class="sh-grip" id="shGrip"><div class="grab"></div><div class="sh-grip-t">▲ משיכה למעלה / הקשה — להסבר המלא</div></div>
     <div class="sh-head"><span class="sh-role">${ROLE[n.r][0]} ${ROLE[n.r][1]}</span><span class="sh-who">${n.w}</span><span class="sh-no">שלב ${n.seq} מתוך ${flat.length}</span><button class="sh-x" id="shX" aria-label="סגור">✕</button></div>
     ${rel && n.parent && n.parent.r !== 'root' ? `<div class="sh-rel">⟵ ${rel} על: ״${short(n.parent.t, 40)}״</div>` : ''}
     <div class="sh-text">${n.t}</div>
@@ -445,6 +455,7 @@ function sheet(n) {
   sh.querySelectorAll('.sh-tab').forEach(t => t.onclick = () => { shTab = t.dataset.t; try { localStorage.setItem('gemara:shtab', shTab); } catch (e) {}
     sh.querySelectorAll('.sh-tab').forEach(x => x.classList.toggle('on', x === t)); sh.querySelectorAll('.sh-pane').forEach(x => x.classList.toggle('on', x.dataset.t === shTab));
     shImgFocus(); });
+  gripInit(sh);
   $('shX').onclick = () => { closeSheet(); };
   $('shUp').onclick = () => { if (n.parent && n.parent.r !== 'root') select(n.parent, true); else { closeSheet(); fit(true); } };
   sh.querySelectorAll('.kid').forEach(b => b.onclick = () => select(kids[+b.dataset.i], true));
@@ -516,6 +527,27 @@ function shImgFocus() {
   const top = Math.min(...[...mks].map(m => m.offsetTop)), bot = Math.max(...[...mks].map(m => m.offsetTop + m.offsetHeight));
   sim.scrollTop = Math.max(0, (top + bot) / 2 - sim.clientHeight / 2);
 }
+// ===== תריס =====
+function sheetPeek(on) {
+  const sh = $('sheet'); if (!sh.classList.contains('open')) return;
+  if (sh.classList.contains('peek') === on) return;
+  sh.classList.toggle('peek', on);
+  if (on) sh.scrollTop = 0;
+}
+function gripInit(sh) {
+  const g = $('shGrip'); let y0 = null, t0 = 0;
+  g.addEventListener('pointerdown', e => { y0 = e.clientY; t0 = Date.now(); g.setPointerCapture(e.pointerId); e.stopPropagation(); });
+  g.addEventListener('pointerup', e => {
+    if (y0 == null) return; const dy = e.clientY - y0; y0 = null;
+    if (Math.abs(dy) < 8 && Date.now() - t0 < 400) sheetPeek(!sh.classList.contains('peek'));   // הקשה: מחליף
+    else if (dy > 30) sheetPeek(true); else if (dy < -30) sheetPeek(false);
+  });
+  // משיכה למטה כשהחלונית גלולה לראש — מורידה את התריס
+  let ty = null;
+  sh.addEventListener('touchstart', e => { ty = sh.scrollTop <= 0 ? e.touches[0].clientY : null; }, { passive: true });
+  sh.addEventListener('touchmove', e => { if (ty != null && e.touches[0].clientY - ty > 70 && !sh.classList.contains('peek')) { sheetPeek(true); ty = null; } }, { passive: true });
+  sh.querySelector('.sh-head').addEventListener('click', e => { if (sh.classList.contains('peek') && !e.target.closest('.sh-x')) sheetPeek(false); });
+}
 function closeSheet() { st.sel = null; whereSoon(); flat.forEach(m => m.el.classList.remove('sel')); sheet(null); $('stage').classList.remove('has-sheet'); }
 
 // ===== סיפור הסוגיה: מעוף מצומת לצומת, הענף נמתח והניצוץ רץ =====
@@ -568,6 +600,7 @@ const ptr = new Map(); let moved = false, last = null, pinch0 = null;
 const stg = $('stage');
 stg.addEventListener('pointerdown', e => {
   if (e.target.closest('.sheet, .story, .hud, .legend')) return;
+  sheetPeek(true);   // נוגעים בעץ: התריס יורד כדי שיהיה מקום לראות
   ptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = false; cancelAnimationFrame(tw);
   if (ptr.size === 2) { const [a, b] = [...ptr.values()]; pinch0 = { d: Math.hypot(a.x - b.x, a.y - b.y), k: cam.k, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2, x: cam.x, y: cam.y }; }
   last = { x: e.clientX, y: e.clientY }; stg.classList.add('drag'); hideHint();
