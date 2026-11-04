@@ -1316,6 +1316,10 @@
   .mp-sum { font-size: 13px; font-weight: 700; color: #7a2030; margin-top: 3px; }
   .mp-vs { text-align: center; font-size: 20px; line-height: 1; animation: kShake 1.6s infinite; }
   .mp-why { padding: 9px 12px 11px; font-size: 14px; line-height: 1.6; color: var(--parchment); }
+
+  .src-wrap.wide { overflow-x: auto; direction: ltr; scrollbar-width: none; }
+  .src-wrap.wide::-webkit-scrollbar { display: none; }
+  .src-wrap.wide .src-inner { direction: rtl; }
   .quiz { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
   .quiz-q { background: rgba(244,234,213,0.05); border: 1px solid rgba(232,183,109,0.25); border-radius: 10px; padding: 10px 12px; }
   .quiz-q summary { cursor: pointer; font-weight: 700; color: var(--gold-bright); font-size: 14px; list-style: none; }
@@ -2267,11 +2271,13 @@ for (const ref in DAF_SRC) {
 }
 for (const ref in DAF_SRC) amudim[ref].photo = `taanit-img/${ref}-full.jpg`;
 const AMUD_NAME = { '4b': 'ד׳ ע״ב', '5a': 'ה׳ ע״א', '5b': 'ה׳ ע״ב', '6a': 'ו׳ ע״א' };
+// שורות רחבות (כל רוחב הדף) מוגדלות לגודל אותיות כמו בטור הצר, וגוללות לצד המילים המסומנות
+function srcZoom(src) { return Math.max(1, Math.min(1.9, src.box[2] / 27)); }
 function srcBlock(src) {
   return `
     <figure class="daf-src">
       <figcaption>📷 מקור בדף · ${AMUD_NAME[src.ref]} <span>(לחיצה: הדף המלא עם סימון)</span></figcaption>
-      <div class="src-wrap"><div class="src-inner">
+      <div class="src-wrap${srcZoom(src) > 1.05 ? ' wide' : ''}"><div class="src-inner" style="width:${srcZoom(src) * 100}%">
         <img src="taanit-img/${src.ref}-${src.i}.jpg" alt="שורות הגמרא מתוך ${AMUD_NAME[src.ref]}"
              onload="showLoc()" onclick="openPhoto('${src.ref}', [${src.box.join(',')}])">
       </div></div>
@@ -2832,6 +2838,13 @@ function showLoc() {
   }
   const first = inner.querySelector('.src-hl');
   if (!first) return;
+  if (wrap.scrollWidth > wrap.clientWidth + 4) {
+    const hls = [...inner.querySelectorAll('.src-hl')];
+    const minL = Math.min(...hls.map(h => h.offsetLeft)), maxR = Math.max(...hls.map(h => h.offsetLeft + h.offsetWidth));
+    const firstR = first.offsetLeft + first.offsetWidth;            // תחילת ההדגשה (ימין, בעברית)
+    const span = maxR - minL, cw = wrap.clientWidth;
+    wrap.scrollLeft = span <= cw - 16 ? Math.max(0, (minL + maxR) / 2 - cw / 2) : Math.max(0, firstR - cw + 8);
+  }
   if (wrap.scrollHeight > wrap.clientHeight + 4) {
     const t = Math.max(0, first.offsetTop - wrap.clientHeight / 2 + first.offsetHeight / 2);
     wrap.scrollTop = t;
