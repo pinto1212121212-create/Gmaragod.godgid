@@ -2592,10 +2592,11 @@ function drawArrow(beat, hls, animate) {
   const H = hls[0].getBoundingClientRect();
   const W = beat.closest('.scene').querySelector('.src-wrap').getBoundingClientRect();
   if (B.top > innerHeight || B.bottom < 0 || H.bottom < W.top - 2 || H.top > W.bottom + 2) { svg.innerHTML = ''; return; }
-  const gx = Math.max(5, B.left - 12);
+  // החץ עובר בשוליים שמחוץ לצילום, ונעצר בקצה הצילום מול השורה, בלי לעבור על המילים
+  const gx = Math.max(4, W.left - 8);
   const by = B.top + Math.min(22, B.height / 2);
   const hy = Math.max(W.top + 6, Math.min(W.bottom - 6, H.top + H.height / 2));
-  const hx = Math.max(gx + 16, H.left - 3), r = Math.min(10, Math.abs(by - hy) / 2);
+  const hx = W.left + 1, r = Math.min(8, Math.abs(by - hy) / 2);
   const d = `M ${B.left} ${by} H ${gx + r} Q ${gx} ${by} ${gx} ${by - r} V ${hy + r} Q ${gx} ${hy} ${gx + r} ${hy} H ${hx}`;
   svg.innerHTML = `<path class="ba-line${animate ? ' draw' : ''}" d="${d}"/>
     <path class="ba-head" d="M ${hx - 9} ${hy - 6} L ${hx} ${hy} L ${hx - 9} ${hy + 6} Z"/>
