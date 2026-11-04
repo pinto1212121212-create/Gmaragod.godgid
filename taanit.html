@@ -1129,6 +1129,26 @@
   .mt-c { background: rgba(244,234,213,0.05); border-radius: 6px; padding: 6px; color: var(--parchment-soft); min-width: 0; }
   .mt-c.no { color: var(--crimson-glow); text-align: center; }
   .mt-c.ok { color: var(--sage-glow); text-align: center; background: rgba(136,178,122,0.15); }
+
+  .daf-src { margin: 16px 0 4px; border: 1px solid rgba(232,183,109,0.35); border-radius: 12px; overflow: hidden; background: #efe9dc; }
+  .daf-src figcaption { font-size: 12px; font-weight: 700; color: var(--gold-bright); background: var(--ink-2); padding: 7px 10px; }
+  .daf-src figcaption span { font-weight: 400; color: var(--parchment-dim); }
+  .daf-src img { display: block; width: 100%; height: auto; cursor: zoom-in; }
+  .photo-btn { width: 100%; margin-bottom: 12px; padding: 11px; border-radius: 10px; border: 1px solid var(--gold);
+    background: rgba(232,183,109,0.12); color: var(--gold-bright); font-family: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .photo-overlay { position: fixed; inset: 0; z-index: 80; background: rgba(10,8,6,0.96); display: none; flex-direction: column; }
+  .photo-overlay.open { display: flex; }
+  .po-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; color: var(--gold-bright); font-weight: 700; }
+  .po-scroll { flex: 1; overflow: auto; padding: 0 8px 20px; }
+  .po-wrap { position: relative; width: 100%; max-width: 720px; margin: 0 auto; }
+  .po-wrap.zoom { width: 230%; max-width: none; }
+  .po-hint { text-align: center; font-size: 12px; color: var(--parchment-dim); padding: 6px 0 calc(8px + env(safe-area-inset-bottom, 0px)); }
+  .po-wrap img { display: block; width: 100%; height: auto; border-radius: 6px; }
+  .po-all { position: absolute; border: 2px dashed rgba(136,178,122,0.9); background: rgba(136,178,122,0.10); border-radius: 4px; }
+  .po-all span { position: absolute; top: 2px; right: 2px; background: var(--sage); color: var(--ink); font-size: 11px; font-weight: 800;
+    border-radius: 9px; padding: 0 6px; }
+  .po-mark { position: absolute; border: 3px solid var(--flame); border-radius: 6px; background: rgba(255,152,68,0.18);
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.35); animation: kFlash 2s infinite; }
   .quiz { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
   .quiz-q { background: rgba(244,234,213,0.05); border: 1px solid rgba(232,183,109,0.25); border-radius: 10px; padding: 10px 12px; }
   .quiz-q summary { cursor: pointer; font-weight: 700; color: var(--gold-bright); font-size: 14px; list-style: none; }
@@ -1314,6 +1334,8 @@
   </div>
   <div class="modal-content" id="termContent"></div>
 </div>
+
+<div class="photo-overlay" id="photoOverlay"></div>
 
 <!-- Daf picker -->
 <div class="picker-modal" id="pickerModal">
@@ -2326,6 +2348,44 @@ amudim['6a'].scenes.splice(amudim['6a'].scenes.length - 1, 0, {
   `
 });
 
+
+// =======================================================
+// מקור בדף — צילומי הדף לכל סצנה
+// =======================================================
+const DAF_SRC = {"4b": {"1": [34.22, 17.69, 25.89, 2.81], "2": [34.22, 20.0, 25.89, 1.56], "3": [34.22, 21.12, 25.89, 4.0], "4": [34.22, 24.88, 25.89, 2.94], "5": [34.22, 27.5, 25.89, 4.69], "6": [34.22, 31.06, 42.89, 4.88], "7": [34.22, 35.44, 42.89, 5.19], "8": [34.22, 39.5, 42.89, 12.5], "9": [34.22, 47.81, 42.89, 5.31]}, "5a": {"0": [38.67, 23.75, 25.33, 5.62], "1": [38.67, 28.88, 25.33, 3.62], "2": [21.33, 31.87, 43.44, 4.38], "3": [21.33, 35.75, 43.44, 5.19], "4": [21.33, 40.12, 43.44, 4.38], "5": [21.33, 43.44, 43.44, 5.0], "6": [21.33, 47.81, 43.44, 5.81], "7": [21.33, 53.12, 43.44, 4.38], "8": [21.33, 57.0, 43.44, 3.12], "9": [21.33, 59.69, 43.44, 3.31]}, "5b": {"0": [36.11, 20.31, 25.56, 10.0], "1": [36.11, 29.75, 25.56, 5.88], "2": [36.11, 35.0, 25.56, 14.69], "3": [36.11, 49.06, 25.56, 4.69], "4": [35.33, 53.12, 42.89, 8.44], "5": [35.33, 61.25, 42.89, 2.81], "7": [35.33, 63.62, 42.89, 9.19]}, "6a": {"0": [35.78, 18.44, 26.22, 4.81], "1": [35.78, 22.5, 26.22, 6.88], "2": [10.0, 28.88, 52.11, 6.25], "3": [10.0, 34.5, 52.11, 5.5], "4": [10.0, 39.5, 52.11, 8.62], "6": [10.0, 47.19, 52.11, 6.88]}};
+for (const ref in DAF_SRC) {
+  for (const i in DAF_SRC[ref]) {
+    const sc = amudim[ref].scenes[+i];
+    if (sc) sc.src = { ref, i: +i, box: DAF_SRC[ref][i] };
+  }
+}
+for (const ref in DAF_SRC) amudim[ref].photo = `taanit-img/${ref}-full.jpg`;
+const AMUD_NAME = { '4b': 'ד׳ ע״ב', '5a': 'ה׳ ע״א', '5b': 'ה׳ ע״ב', '6a': 'ו׳ ע״א' };
+function srcBlock(src) {
+  return `
+    <figure class="daf-src">
+      <figcaption>📷 מקור בדף · ${AMUD_NAME[src.ref]} <span>(לחיצה: הדף המלא עם סימון)</span></figcaption>
+      <img src="taanit-img/${src.ref}-${src.i}.jpg" alt="שורות הגמרא מתוך ${AMUD_NAME[src.ref]}" loading="lazy"
+           onclick="openPhoto('${src.ref}', [${src.box.join(',')}])">
+    </figure>`;
+}
+function openPhoto(ref, box) {
+  const ov = document.getElementById('photoOverlay');
+  const rect = (b, cls, label) => `<div class="${cls}" style="left:${b[0]}%;top:${b[1]}%;width:${b[2]}%;height:${b[3]}%">${label || ''}</div>`;
+  const mark = box ? rect(box, 'po-mark')
+    : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
+  ov.innerHTML = `<div class="po-bar"><span>📷 ${AMUD_NAME[ref]}${box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close" onclick="closePhoto()">✕</button></div>
+    <div class="po-scroll"><div class="po-wrap zoom" onclick="this.classList.toggle('zoom'); const m=this.querySelector('.po-mark'); if(m) m.scrollIntoView({block:'center',inline:'center'})"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}">${mark}</div></div>
+    <div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>`;
+  ov.classList.add('open');
+  state.modal = 'photo';
+  const m = ov.querySelector('.po-mark'); if (m) setTimeout(() => m.scrollIntoView({ block: 'center', inline: 'center' }), 60);
+}
+function closePhoto() {
+  document.getElementById('photoOverlay').classList.remove('open');
+  state.modal = null;
+}
+
 // =======================================================
 // CHAPTER STARTS - basic stubs with chapter context
 // (You can add more content here over time)
@@ -2875,6 +2935,7 @@ function renderScenes() {
       <div class="scene-tag ${scene.tagClass || ''}">${scene.tag}</div>
       <h2 class="scene-title">${scene.title}</h2>
       ${scene.html}
+      ${scene.src ? srcBlock(scene.src) : ''}
     `;
     stage.appendChild(div);
   });
@@ -2974,7 +3035,7 @@ function openTranslation() {
       </div>
     `;
   } else {
-    let html = '';
+    let html = amud.photo ? `<button class="photo-btn" onclick="openPhoto('${state.ref}')">📷 הצג את צילום הדף המלא</button>` : '';
     trans.forEach(entry => {
       if (entry.type === 'section') {
         html += `<div class="trans-section-header">${entry.title}</div>`;
@@ -3133,7 +3194,7 @@ document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click
 
 document.addEventListener('keydown', (e) => {
   if (state.modal) {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape') { if (state.modal === 'photo') closePhoto(); else closeModal(); }
     return;
   }
   if (e.key === 'ArrowLeft') changeScene(1);
