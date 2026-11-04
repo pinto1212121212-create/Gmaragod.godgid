@@ -1222,6 +1222,7 @@
   .src-hl.hl-k { --hc: 205,180,240; --hl: 120,70,190; }
   @keyframes hlIn { from { opacity: 0; } to { opacity: 1; } }
   .beats { margin-left: 22px; }
+  .beat.focus { box-shadow: 0 0 0 2px rgba(232,183,109,0.7), 0 6px 18px rgba(0,0,0,0.35); }
   .bt-pin { flex: 0 0 auto; margin-right: auto; border: none; background: transparent; font-size: 15px; cursor: pointer;
     opacity: .5; padding: 0 2px; line-height: 1.6; }
   .bt-pin:hover, .beat.new .bt-pin { opacity: 1; }
@@ -2562,7 +2563,9 @@ function showLoc() {
   const loc = beatLoc(state.ref, state.sceneIdx, bi);
   const beat = el.querySelector(`.beat[data-i="${bi}"]`);
   const wrap = el.querySelector('.src-wrap');
+  el.querySelectorAll('.beat.focus').forEach(b => b.classList.remove('focus'));
   if (!loc || !beat || !wrap || !beat.classList.contains('on')) return;
+  beat.classList.add('focus');
   const inner = wrap.querySelector('.src-inner');
   const span = BEAT_SPAN[state.ref] && BEAT_SPAN[state.ref][state.sceneIdx] && BEAT_SPAN[state.ref][state.sceneIdx][bi];
   const role = beatRole(state.ref, state.sceneIdx, bi);
@@ -2617,6 +2620,16 @@ document.addEventListener('scroll', e => {
   if (e.target.classList && e.target.classList.contains('src-wrap')) redrawArrow();
 }, true);
 function pinBeat(ev, i) { ev.stopPropagation(); focusBeat = i; showLoc(); }
+// הקשה על כרטיס: אם זה לא השלב המסומן עכשיו — חוזרים אליו (הדגשה + חץ); אחרת — ממשיכים
+function onBeatsClick(ev) {
+  const card = ev.target.closest('.beat');
+  const sc = amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
+  if (!card || !sc || !sc.beats) { stepBeat(1); return; }
+  const bi = +card.dataset.i, n = sc.beats.length;
+  const cur = focusBeat != null ? focusBeat : (state.beat >= n ? -1 : Math.min(state.beat, n - 1));
+  if (bi !== cur && beatLoc(state.ref, state.sceneIdx, bi)) { focusBeat = bi; showLoc(); return; }
+  stepBeat(1);
+}
 
 // =======================================================
 // CHAPTER STARTS - basic stubs with chapter context
@@ -3162,7 +3175,7 @@ function renderActionBar() {
 function beatsHTML(sc, si) {
   const b = sc.beats || [];
   return `
-    ${b.length ? `<div class="beats" onclick="stepBeat(1)">${b.map((x, i) => {
+    ${b.length ? `<div class="beats" onclick="onBeatsClick(event)">${b.map((x, i) => {
       const r = beatRole(state.ref, si, i), kt = keyTerm(state.ref, si, i);
       const link = i ? `<div class="blink" data-i="${i}"><span class="bl-arrow">⬇</span><span class="bl-txt">${linkText(beatRole(state.ref, si, i - 1), r)}</span></div>` : '';
       return link + `<div class="beat bt-${x[0]} role-${r}" data-i="${i}"><span class="bt-role">${ROLE[r][0]} ${ROLE[r][1]}</span><span class="bt-who">${x[1]}</span><span class="bt-txt">${x[2]}</span>${beatLoc(state.ref, si, i) ? `<button class="bt-pin" title="איפה זה בגמרא" onclick="pinBeat(event, ${i})">📍</button>` : ''}${kt ? `<div class="bt-key">🔑 <b>${kt[0]}</b> = ${kt[1]}</div>` : ''}${wbwHTML(`${state.ref}:${si}:${i}`)}</div>`; }).join('')}</div>
