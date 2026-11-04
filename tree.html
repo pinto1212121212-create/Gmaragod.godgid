@@ -106,6 +106,12 @@
   .sh-text { font-family: 'Frank Ruhl Libre', serif; font-size: 20px; line-height: 1.6; margin: 6px 0 8px; }
   .sh-exp { font-size: 15px; line-height: 1.65; background: rgba(244,234,213,0.06); border-right: 3px solid var(--rc); border-radius: 10px; padding: 8px 11px; }
   .sh-exp b { color: var(--rc); }
+  /* ההסבר הארוך: כל ההקשר — איפה אנחנו, מה נשאל ולמה */
+  .sh-ctx { margin-top: 8px; background: rgba(244,234,213,0.04); border: 1px solid rgba(232,183,109,0.25); border-radius: 10px; padding: 7px 11px; }
+  .sh-ctx summary { cursor: pointer; font-size: 13.5px; font-weight: 800; color: var(--gold-b); list-style: none; }
+  .sh-ctx summary::-webkit-details-marker { display: none; }
+  .sh-ctx summary::after { content: ' ▾'; } .sh-ctx[open] summary::after { content: ' ▴'; }
+  .sh-ctx p { margin: 6px 0 0; font-size: 14.5px; line-height: 1.75; color: var(--soft); }
   .sh-kids { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
   .sh-kids .kh { font-size: 12px; font-weight: 800; color: var(--gold); }
   .kid { display: flex; gap: 8px; align-items: center; text-align: right; font-family: inherit; color: inherit; cursor: pointer; background: rgba(244,234,213,0.05);
@@ -180,6 +186,7 @@
 
 <script src="tree-data.js"></script>
 <script src="daf-marks.js"></script>
+<script src="context-data.js"></script>
 <script>
 const ROLE = { m: ['📜', 'משנה / מקור'], q: ['❓', 'שאלה'], x: ['⚡', 'דחייה'], a: ['✅', 'תירוץ'], c: ['📌', 'מסקנה'], n: ['📖', 'סיפור / ראיה'], k: ['💡', 'הסבר'] };
 const COL = { m: '#5fb2ff', q: '#ff5d72', x: '#ff5d72', a: '#6fd35c', c: '#ffc94d', n: '#d7b26e', k: '#b296ff' };
@@ -404,6 +411,7 @@ function sheet(n) {
     ${rel && n.parent && n.parent.r !== 'root' ? `<div class="sh-rel">⟵ ${rel} על: ״${short(n.parent.t, 40)}״</div>` : ''}
     <div class="sh-text">${n.t}</div>
     <div class="sh-exp"><b>🎯 בתכלס:</b> ${n.e}</div>
+    ${ctxOf(n)}
     ${kids.length ? `<div class="sh-kids"><div class="kh">⬇ מה עונים על זה (${kids.length})</div>${kids.map((k, i) =>
       `<button class="kid" data-i="${i}" style="--kc:${COL[k.r]}"><b>${ROLE[k.r][0]} ${relLabel(k) || ROLE[k.r][1]}</b> ${k.w}: ${short(k.t, 34)}</button>`).join('')}</div>` : ''}
     <div class="sh-img"><div class="sh-imgw"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></div>
@@ -419,6 +427,17 @@ function sheet(n) {
   sh.scrollTop = 0;
   const mk = sh.querySelector('.mk'); const sim = sh.querySelector('.sh-img');
   if (mk && sim) setTimeout(() => { sim.scrollTop = Math.max(0, mk.offsetTop - sim.clientHeight / 3); }, 50);
+}
+// ההסבר הארוך של צומת (TREE_CX ב־tree-data.js → CONTEXT ב־context-data.js). פתוח כברירת מחדל; זוכרים אם סגרו
+function ctxOf(n) {
+  const e = typeof TREE_CX !== 'undefined' && TREE_CX[st.ref] && TREE_CX[st.ref][n.seq - 1];
+  if (!e) return '';
+  const C = typeof CONTEXT !== 'undefined' ? CONTEXT : {};
+  const parts = typeof e === 'string' ? [C[e]] : Array.isArray(e) ? e.map(k => C[k]) : [e.L];
+  const body = parts.filter(Boolean).map(t => `<p>${t}</p>`).join('');
+  if (!body) return '';
+  let open = true; try { open = localStorage.getItem('gemara:ctxT') !== '0'; } catch (er) {}
+  return `<details class="sh-ctx"${open ? ' open' : ''} ontoggle="try{localStorage.setItem('gemara:ctxT',this.open?'1':'0')}catch(e){}"><summary>🧭 ההקשר המלא — על מה מדברים כאן</summary>${body}</details>`;
 }
 function closeSheet() { st.sel = null; whereSoon(); flat.forEach(m => m.el.classList.remove('sel')); sheet(null); $('stage').classList.remove('has-sheet'); }
 
