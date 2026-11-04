@@ -1342,6 +1342,11 @@
   .role-n .takhles span, .role-s .takhles span { color: #8cc4ef; }
   .role-k .takhles { background: rgba(169,141,224,0.12); border-right-color: #a98de0; }
   .role-k .takhles span { color: #c4adf0; }
+
+  .tree-link { display: block; width: fit-content; margin: 10px auto 0; font-size: 14px; font-weight: 800; color: var(--ink);
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright)); text-decoration: none; padding: 8px 16px; border-radius: 20px; }
+  .tree-sec { display: block; margin-top: 12px; padding: 11px; border-radius: 12px; text-align: center; font-weight: 800; font-size: 14px;
+    color: var(--gold-bright); text-decoration: none; border: 1.5px dashed var(--gold); background: rgba(232,183,109,0.08); }
   .quiz { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
   .quiz-q { background: rgba(244,234,213,0.05); border: 1px solid rgba(232,183,109,0.25); border-radius: 10px; padding: 10px 12px; }
   .quiz-q summary { cursor: pointer; font-weight: 700; color: var(--gold-bright); font-size: 14px; list-style: none; }
@@ -1449,6 +1454,7 @@
   <header>
     <div class="masechet-name"><small>מסכת</small>תענית</div>
     <div class="masechet-switch"><a href="index.html" onclick="try{localStorage.setItem('gemara:last','zevachim')}catch(e){}">זבחים</a><a href="taanit.html" onclick="try{localStorage.setItem('gemara:last','taanit')}catch(e){}" class="on">תענית</a></div>
+    <a class="tree-link" href="tree.html" onclick="this.href='tree.html#'+state.ref">🌳 עץ הסוגיה — כל הדף בציור</a>
     <div class="daf-nav masechet-only">
       <button class="nav-arrow" id="prevDafBtn" title="דף קודם">‹</button>
       <div class="daf-display" id="dafDisplay">
@@ -1541,6 +1547,7 @@
   <div class="picker-content" id="pickerContent"></div>
 </div>
 
+<script src="tree-data.js"></script>
 <script>
 // =======================================================
 // PEREK DATA — מסכת תענית
@@ -3640,6 +3647,9 @@ function renderActionBar() {
 }
 
 
+// ===== קטעים שיש להם עץ =====
+window.TREE_SECS = {};
+if (typeof TREE !== 'undefined') for (const r in TREE) { const set = new Set(); const w = n => { set.add(n.s); (n.k || []).forEach(w); }; TREE[r].roots.forEach(w); TREE_SECS[r] = [...set]; }
 // ===== מנוע השלבים =====
 function beatsHTML(sc, si) {
   const b = sc.beats || [];
@@ -3656,6 +3666,7 @@ function beatsHTML(sc, si) {
       ${sc.viz || ''}
       ${sc.bottom ? `<div class="bottom-line"><span>השורה התחתונה</span>${sc.bottom}</div>` : ''}
       ${sc.quiz ? quiz(sc.quiz) : ''}
+      ${(window.TREE_SECS && TREE_SECS[state.ref] && TREE_SECS[state.ref].includes(si)) ? `<a class="tree-sec" href="tree.html#${state.ref}-${si}">🌳 עץ הקטע: איך השאלות והתירוצים מסתעפים</a>` : ''}
       <button class="next-sec" onclick="changeScene(1)">לקטע הבא ◀</button>
     </div>`;
 }
@@ -4040,6 +4051,17 @@ function readHash() {
   if (h && amudim[h]) {
     switchTab('masechet');
     goToRef(h);
+    return;
+  }
+  // #4b-6 — דף וקטע (מגיעים מעץ הסוגיה); הקטע נפתח במלואו
+  const m = h.match(/^(\d+[ab])-(\d+)$/);
+  if (m && amudim[m[1]] && amudim[m[1]].scenes[+m[2]]) {
+    switchTab('masechet');
+    goToRef(m[1]);
+    state.sceneIdx = +m[2];
+    const sc = amudim[m[1]].scenes[+m[2]];
+    state.beat = sc.beats ? sc.beats.length : 0;
+    renderScenes();
   }
 }
 window.addEventListener('hashchange', readHash);
