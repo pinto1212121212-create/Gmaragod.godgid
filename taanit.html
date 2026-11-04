@@ -1320,6 +1320,16 @@
   .src-wrap.wide { overflow-x: auto; direction: ltr; scrollbar-width: none; }
   .src-wrap.wide::-webkit-scrollbar { display: none; }
   .src-wrap.wide .src-inner { direction: rtl; }
+
+  .po-sec { position: absolute; outline: 1.5px dashed rgba(200,140,60,0.7); outline-offset: 4px; border-radius: 4px; pointer-events: none; }
+  .po-hl { position: absolute; pointer-events: none; border-radius: 3px; mix-blend-mode: multiply;
+    --hc: 255,196,64; --hl: 230,110,20;
+    background: rgba(var(--hc),0.6); box-shadow: 0 0 0 1.5px rgba(var(--hl),0.95); animation: kFlash 2.2s ease-in-out infinite; }
+  .po-hl.hl-q, .po-hl.hl-x { --hc: 255,120,135; --hl: 200,20,45; }
+  .po-hl.hl-a { --hc: 150,225,130; --hl: 40,140,40; }
+  .po-hl.hl-c { --hc: 255,210,80; --hl: 200,140,0; }
+  .po-hl.hl-n, .po-hl.hl-s { --hc: 150,200,240; --hl: 40,110,190; }
+  .po-hl.hl-k { --hc: 205,180,240; --hl: 120,70,190; }
   .quiz { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
   .quiz-q { background: rgba(244,234,213,0.05); border: 1px solid rgba(232,183,109,0.25); border-radius: 10px; padding: 10px 12px; }
   .quiz-q summary { cursor: pointer; font-weight: 700; color: var(--gold-bright); font-size: 14px; list-style: none; }
@@ -2287,14 +2297,28 @@ function srcBlock(src) {
 function openPhoto(ref, box) {
   const ov = document.getElementById('photoOverlay');
   const rect = (b, cls, label) => `<div class="${cls}" style="left:${b[0]}%;top:${b[1]}%;width:${b[2]}%;height:${b[3]}%">${label || ''}</div>`;
-  const mark = box ? rect(box, 'po-mark')
+  // אם נפתח מתוך קטע: מסמנים בדיוק את המילים של השלב הנוכחי, בצבע של התפקיד שלו
+  let exact = '', roleName = '';
+  const sc = box && amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
+  if (sc && sc.src && sc.src.ref === ref && sc.beats && sc.beats.length) {
+    const n = sc.beats.length;
+    let bi = focusBeat != null ? focusBeat : Math.min(state.beat, n - 1);
+    if (!beatLoc(ref, state.sceneIdx, bi)) { bi = -1; for (let k = Math.min(state.beat, n - 1); k >= 0; k--) if (beatLoc(ref, state.sceneIdx, k)) { bi = k; break; } }
+    if (bi >= 0) {
+      const span = BEAT_SPAN[ref] && BEAT_SPAN[ref][state.sceneIdx] && BEAT_SPAN[ref][state.sceneIdx][bi];
+      const role = beatRole(ref, state.sceneIdx, bi); roleName = ROLE[role][1];
+      exact = hlRects(`${ref}-${sc.src.i}`, beatLoc(ref, state.sceneIdx, bi), span).map(r =>
+        `<div class="po-hl hl-${role}" style="left:${box[0] + (1 - r.right - r.width) * box[2]}%;top:${box[1] + r.top * box[3]}%;width:${r.width * box[2]}%;height:${r.height * box[3]}%"></div>`).join('');
+    }
+  }
+  const mark = box ? (exact ? rect(box, 'po-sec') + exact : rect(box, 'po-mark'))
     : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
-  ov.innerHTML = `<div class="po-bar"><span>📷 ${AMUD_NAME[ref]}${box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close" onclick="closePhoto()">✕</button></div>
-    <div class="po-scroll"><div class="po-wrap zoom" onclick="this.classList.toggle('zoom'); const m=this.querySelector('.po-mark'); if(m) m.scrollIntoView({block:'center',inline:'center'})"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}">${mark}</div></div>
+  ov.innerHTML = `<div class="po-bar"><span>📷 ${AMUD_NAME[ref]}${exact ? ` · מסומן: ${roleName}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close" onclick="closePhoto()">✕</button></div>
+    <div class="po-scroll"><div class="po-wrap zoom" onclick="this.classList.toggle('zoom'); const m=this.querySelector('.po-hl, .po-mark'); if(m) m.scrollIntoView({block:'center',inline:'center'})"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}">${mark}</div></div>
     <div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>`;
   ov.classList.add('open');
   state.modal = 'photo';
-  const m = ov.querySelector('.po-mark'); if (m) setTimeout(() => m.scrollIntoView({ block: 'center', inline: 'center' }), 60);
+  const m = ov.querySelector('.po-hl, .po-mark'); if (m) setTimeout(() => m.scrollIntoView({ block: 'center', inline: 'center' }), 60);
 }
 function closePhoto() {
   document.getElementById('photoOverlay').classList.remove('open');
