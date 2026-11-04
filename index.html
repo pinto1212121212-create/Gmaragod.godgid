@@ -1114,6 +1114,21 @@
     .vs-grid { grid-template-columns: 1fr; }
     .action-btn { font-size: 13px; padding: 10px 8px; }
   }
+
+  /* ===== Taanit additions ===== */
+  .verify-note {
+    font-size: 12px; line-height: 1.6; color: var(--parchment-soft);
+    background: rgba(232,154,109,0.12); border: 1px dashed var(--warm);
+    border-radius: 10px; padding: 9px 12px; margin-bottom: 14px;
+  }
+  .verify-note strong { color: var(--warm); }
+  .masechet-switch { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+  .masechet-switch a {
+    font-size: 12px; font-weight: 700; color: var(--parchment-dim); text-decoration: none;
+    padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(232,183,109,0.25);
+  }
+  .masechet-switch a.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+
 </style>
 </head>
 <body>
@@ -1122,6 +1137,7 @@
 
   <header>
     <div class="masechet-name">מסכת זבחים</div>
+    <div class="masechet-switch"><a href="index.html" class="on">זבחים</a><a href="taanit.html">תענית</a></div>
     <div class="daf-nav masechet-only">
       <button class="nav-arrow" id="prevDafBtn" title="דף קודם">‹</button>
       <div class="daf-display" id="dafDisplay">

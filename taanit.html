@@ -1,0 +1,2498 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>תענית — אנימציה לכל המסכת</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1410;
+    --ink-2: #221a14;
+    --parchment: #f4ead5;
+    --parchment-soft: #e8dcc0;
+    --parchment-dim: #b8a888;
+    --gold: #e8b76d;
+    --gold-bright: #f5d39a;
+    --gold-deep: #8a6638;
+    --gold-shadow: #5a4220;
+    --crimson: #c14a5a;
+    --crimson-glow: #e87080;
+    --sage: #88b27a;
+    --sage-glow: #a5cc97;
+    --sky: #7fb3d5;
+    --sky-glow: #a5cce0;
+    --warm: #e89a6d;
+    --flame: #ff9844;
+    --rashi: #c89568;
+    --tosafot: #8fa9c4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--parchment);
+    font-family: 'Heebo', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(232,183,109,0.1) 0%, transparent 60%),
+      linear-gradient(180deg, #1a1410 0%, #221a14 60%, #1a1410 100%);
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 12px 16px 110px;
+  }
+
+  /* ===== Header with navigator ===== */
+  header {
+    text-align: center;
+    padding: 8px 0 14px;
+    border-bottom: 1px solid rgba(232,183,109,0.18);
+    margin-bottom: 16px;
+  }
+
+  .masechet-name {
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    font-weight: 700;
+  }
+
+  .daf-nav {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .nav-arrow {
+    background: rgba(232,183,109,0.15);
+    border: 1px solid var(--gold);
+    color: var(--gold-bright);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .nav-arrow:active { transform: scale(0.92); }
+  .nav-arrow:disabled { opacity: 0.3; }
+
+  .daf-display {
+    text-align: center;
+    cursor: pointer;
+  }
+  .daf-display:active { opacity: 0.7; }
+
+  .daf-display h1 {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-weight: 900;
+    font-size: clamp(18px, 5vw, 22px);
+    color: var(--parchment);
+  }
+
+  .daf-display .perek-name {
+    font-size: 11px;
+    color: var(--parchment-dim);
+    margin-top: 2px;
+  }
+
+  /* ===== Action bar (Translation/Rashi/Tosafot) ===== */
+  .action-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .action-btn {
+    padding: 12px 8px;
+    border-radius: 10px;
+    border: 1.5px solid;
+    background: rgba(20,16,10,0.5);
+    color: var(--parchment);
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .action-btn:active { transform: scale(0.97); }
+
+  .action-btn.trans {
+    border-color: var(--gold);
+    color: var(--gold-bright);
+  }
+  .action-btn.trans:hover { background: rgba(232,183,109,0.15); }
+
+  .action-btn.rashi {
+    border-color: var(--rashi);
+    color: var(--rashi);
+  }
+  .action-btn.rashi:hover { background: rgba(200,149,104,0.15); }
+
+  .action-btn.tos {
+    border-color: var(--tosafot);
+    color: var(--tosafot);
+  }
+  .action-btn.tos:hover { background: rgba(143,169,196,0.15); }
+
+  .action-btn .count {
+    background: rgba(0,0,0,0.3);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .action-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ===== Translation modal styling ===== */
+  .modal.trans { border-top-color: var(--gold); }
+  .modal.trans .modal-title { color: var(--gold-bright); }
+
+  .trans-section-header {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--gold);
+    margin: 18px 0 10px;
+    padding: 8px 12px;
+    background: rgba(232,183,109,0.1);
+    border-radius: 6px;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+
+  .trans-section-header:first-child { margin-top: 0; }
+
+  .trans-entry {
+    margin-bottom: 12px;
+    background: rgba(20,16,10,0.6);
+    border-radius: 10px;
+    padding: 12px 14px;
+    border-right: 2px solid var(--gold-deep);
+  }
+
+  .trans-aram {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 17px;
+    line-height: 1.85;
+    color: var(--gold-bright);
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed rgba(232,183,109,0.3);
+  }
+
+  .trans-heb {
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: var(--parchment-soft);
+  }
+  .trans-heb strong { color: var(--gold-bright); }
+
+  .trans-summary {
+    font-style: italic;
+    font-size: 14px;
+    color: var(--parchment-dim);
+    padding: 10px 14px;
+    background: rgba(232,183,109,0.04);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border-right: 2px dashed var(--gold-deep);
+    line-height: 1.65;
+  }
+
+  .trans-note {
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: rgba(127,179,213,0.06);
+    border: 1px dashed var(--sky);
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: var(--parchment-dim);
+    line-height: 1.6;
+  }
+  .trans-note strong { color: var(--sky-glow); }
+
+  /* ===== Stage ===== */
+  .stage { position: relative; min-height: 60vh; }
+  .scene { display: none; }
+  .scene.active {
+    display: block;
+    animation: gentleFade 0.3s ease-out both;
+  }
+  @keyframes gentleFade { from { opacity: 0; } to { opacity: 1; } }
+
+  .scene-tag {
+    display: inline-block;
+    background: var(--gold-deep);
+    color: var(--parchment);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  .scene-tag.q { background: var(--crimson); }
+  .scene-tag.a { background: var(--sage); color: var(--ink); }
+  .scene-tag.surprise { background: var(--flame); color: var(--ink); }
+
+  .scene-title {
+    font-family: 'Heebo', sans-serif;
+    font-weight: 900;
+    font-size: clamp(20px, 5.4vw, 26px);
+    color: var(--gold-bright);
+    margin-bottom: 12px;
+    line-height: 1.25;
+  }
+  .scene-title .accent { color: var(--parchment); }
+  .scene-title .flame-c { color: var(--flame); }
+  .scene-title .water-c { color: var(--sky-glow); }
+
+  .story {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--parchment-soft);
+    margin-bottom: 12px;
+  }
+  .story p { margin-bottom: 11px; }
+  .story strong { color: var(--gold-bright); font-weight: 700; }
+  .story em { color: var(--parchment); background: rgba(232,183,109,0.1); padding: 0 4px; border-radius: 3px; font-style: normal; }
+
+  .pic {
+    margin: 14px 0;
+    padding: 14px 10px;
+    background: radial-gradient(ellipse at center, rgba(232,183,109,0.08), transparent 75%);
+    border-radius: 12px;
+    text-align: center;
+  }
+  .pic svg { max-width: 100%; height: auto; }
+  .pic-caption {
+    font-size: 12px;
+    color: var(--gold);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  .bubble {
+    background: rgba(232,183,109,0.1);
+    border: 2px solid var(--gold);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--parchment);
+  }
+  .bubble.question { border-color: var(--crimson); background: rgba(193,74,90,0.08); }
+  .bubble.answer { border-color: var(--sage); background: rgba(136,178,122,0.08); }
+  .bubble.surprise { border-color: var(--flame); background: rgba(255,152,68,0.1); }
+
+  .bubble-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    background: var(--gold);
+    color: var(--ink);
+  }
+  .bubble.question .bubble-label { background: var(--crimson); color: var(--parchment); }
+  .bubble.answer .bubble-label { background: var(--sage); color: var(--ink); }
+  .bubble.surprise .bubble-label { background: var(--flame); color: var(--ink); }
+
+  .keyidea {
+    background: linear-gradient(135deg, rgba(232,183,109,0.12), rgba(232,183,109,0.04));
+    border: 2px dashed var(--gold);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    text-align: center;
+  }
+  .keyidea-label {
+    font-size: 12px;
+    color: var(--gold-bright);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .keyidea p { font-size: 15px; line-height: 1.6; color: var(--parchment); }
+  .keyidea strong { color: var(--gold-bright); }
+
+  /* List items */
+  .m-item {
+    display: grid;
+    grid-template-columns: 28px 32px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(20,16,10,0.4);
+    border-right: 2px solid var(--gold);
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .m-item .m-num { font-size: 13px; color: var(--gold); text-align: center; font-weight: 700; }
+  .m-item svg { width: 28px; height: 28px; color: var(--gold); }
+  .m-name { font-weight: 700; font-size: 15px; color: var(--parchment); }
+  .m-note { font-size: 11.5px; color: var(--parchment-dim); margin-top: 2px; }
+
+  .vs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .vs-card { padding: 10px; border-radius: 10px; text-align: center; }
+  .vs-card.a { background: rgba(232,183,109,0.1); border: 1.5px solid var(--gold); }
+  .vs-card.b { background: rgba(127,179,213,0.1); border: 1.5px solid var(--sky); }
+  .vs-card .emoji { font-size: 26px; margin-bottom: 4px; }
+  .vs-card h5 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .vs-card.a h5 { color: var(--gold-bright); }
+  .vs-card.b h5 { color: var(--sky-glow); }
+  .vs-card p { font-size: 12.5px; color: var(--parchment-soft); line-height: 1.5; }
+
+  .sage-quote {
+    background: rgba(20,16,10,0.5);
+    border-left: 3px solid var(--gold-bright);
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin: 10px 0;
+  }
+  .sage-quote .sage-name { font-weight: 700; color: var(--gold-bright); font-size: 13px; margin-bottom: 4px; }
+  .sage-quote p { font-size: 14px; line-height: 1.6; color: var(--parchment); }
+
+  /* ===== Empty state for stubs ===== */
+  .stub {
+    text-align: center;
+    padding: 50px 20px;
+  }
+  .stub-icon { font-size: 56px; margin-bottom: 14px; opacity: 0.5; }
+  .stub h3 {
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--gold-bright);
+    margin-bottom: 8px;
+  }
+  .stub p {
+    color: var(--parchment-dim);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 360px;
+    margin: 0 auto 20px;
+  }
+  .stub .stub-perek {
+    background: rgba(232,183,109,0.08);
+    border: 1px solid rgba(232,183,109,0.25);
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-top: 10px;
+  }
+  .stub .stub-perek-label {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    margin-bottom: 4px;
+  }
+  .stub .stub-perek-name {
+    font-size: 16px;
+    color: var(--parchment);
+    font-weight: 700;
+  }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    max-height: 90vh;
+    background: var(--ink-2);
+    border-top: 2px solid;
+    border-radius: 18px 18px 0 0;
+    z-index: 51;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+  .modal.open { transform: translateY(0); }
+  .modal.rashi { border-top-color: var(--rashi); }
+  .modal.tos { border-top-color: var(--tosafot); }
+
+  .modal-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(232,183,109,0.4);
+    border-radius: 2px;
+    margin: 10px auto 0;
+  }
+
+  .modal-header {
+    padding: 12px 18px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(232,183,109,0.15);
+  }
+  .modal-title {
+    font-family: 'Heebo', sans-serif;
+    font-weight: 900;
+    font-size: 20px;
+  }
+  .modal.rashi .modal-title { color: var(--rashi); }
+  .modal.tos .modal-title { color: var(--tosafot); }
+
+  .modal-close {
+    background: rgba(232,183,109,0.15);
+    border: none;
+    color: var(--parchment);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .modal-close:active { transform: scale(0.92); }
+
+  .modal-content {
+    overflow-y: auto;
+    padding: 16px 18px 24px;
+    flex: 1;
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .meforesh-entry {
+    padding: 12px 14px;
+    background: rgba(20,16,10,0.5);
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  .modal.rashi .meforesh-entry { border-right: 3px solid var(--rashi); }
+  .modal.tos .meforesh-entry { border-right: 3px solid var(--tosafot); }
+
+  .meforesh-dh {
+    display: inline-block;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .modal.rashi .meforesh-dh { background: var(--rashi); color: var(--ink); }
+  .modal.tos .meforesh-dh { background: var(--tosafot); color: var(--ink); }
+
+  .meforesh-content {
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--parchment-soft);
+  }
+  .meforesh-content p { margin-bottom: 10px; }
+  .meforesh-content p:last-child { margin-bottom: 0; }
+  .meforesh-content strong { color: var(--gold-bright); }
+  .meforesh-content em { color: var(--parchment); background: rgba(232,183,109,0.08); padding: 0 3px; border-radius: 2px; font-style: normal; }
+
+  /* ===== Kushya animated diagrams (תוספות) ===== */
+  .kviz {
+    margin: 2px 0 16px;
+    padding: 11px 10px 9px;
+    background: linear-gradient(180deg, rgba(143,169,196,0.12), rgba(20,16,10,0.45));
+    border: 1px solid rgba(143,169,196,0.4);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .kviz-head {
+    font-size: 12px; font-weight: 700; color: var(--tosafot);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+  }
+  .kviz-stage {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    gap: 9px; flex-wrap: wrap; min-height: 86px; padding: 8px 2px 2px;
+  }
+  .kviz-cap {
+    font-size: 12px; color: var(--gold); text-align: center;
+    margin-top: 9px; font-weight: 500; line-height: 1.55;
+  }
+  .kviz-cap strong { color: var(--gold-bright); }
+  .knode {
+    position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: rgba(244,234,213,0.06); border: 1.5px solid var(--parchment-dim);
+    border-radius: 10px; padding: 7px 9px; min-width: 54px;
+    font-size: 11px; font-weight: 600; color: var(--parchment-soft); text-align: center; line-height: 1.3;
+  }
+  .knode .kemoji { font-size: 22px; line-height: 1; }
+  .knode.good { border-color: var(--sage); color: var(--sage-glow); background: rgba(136,178,122,0.13); }
+  .knode.bad  { border-color: var(--crimson); color: var(--crimson-glow); background: rgba(193,74,90,0.13); }
+  .knode.gold { border-color: var(--gold); color: var(--gold-bright); background: rgba(232,183,109,0.13); }
+  .karrow { color: var(--gold); font-size: 22px; font-weight: 700; }
+  .kverdict {
+    position: absolute; top: -9px; left: -9px; width: 22px; height: 22px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; opacity: 0; z-index: 3;
+  }
+  .kverdict.good { background: var(--sage); color: var(--ink); }
+  .kverdict.bad  { background: var(--crimson); color: #fff; }
+  .ktag { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 20px; }
+  .ktag.red   { background: var(--crimson); color: #fff; }
+  .ktag.green { background: var(--sage); color: var(--ink); }
+  .kstamp {
+    position: absolute; top: -13px; left: 50%; background: var(--crimson); color: #fff;
+    font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.45); white-space: nowrap; z-index: 3;
+  }
+  .kbar {
+    position: relative; width: 86%; height: 34px; border: 1.5px solid var(--gold);
+    border-radius: 8px; overflow: hidden; background: rgba(244,234,213,0.05);
+  }
+  .kbar-fill {
+    position: absolute; top: 0; right: 0; height: 100%; width: 0;
+    background: linear-gradient(270deg, var(--crimson), var(--crimson-glow)); opacity: .55;
+  }
+  .kbar-lbl { position: absolute; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 700; color: var(--parchment); z-index: 2; }
+  .kchip { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 8px; }
+  .kchip.ok { background: rgba(136,178,122,0.18); color: var(--sage-glow); border: 1px solid var(--sage); animation: kFade 3.5s ease-in-out infinite; }
+  .kchip.no { background: rgba(193,74,90,0.18); color: var(--crimson-glow); border: 1px solid var(--crimson); }
+  .kdots { display: inline-flex; gap: 4px; }
+  .kd { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--parchment-dim); background: transparent; display: inline-block; }
+  .kd.on { background: var(--crimson); border-color: var(--crimson); }
+  .trans-entry .kviz { margin: 12px 0 2px; }
+  .trans-summary .kviz { margin: 12px 0 0; }
+
+  @keyframes kFade   { 0%,15%{opacity:0} 35%,100%{opacity:1} }
+  @keyframes kPulse  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.13)} }
+  @keyframes kFloatUp{ 0%,30%{transform:translateY(0);opacity:1} 75%{transform:translateY(-34px);opacity:0} 100%{opacity:0} }
+  @keyframes kShake  { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 50%{transform:translateX(4px)} 75%{transform:translateX(-3px)} }
+  @keyframes kBleed  { 0%,18%{width:0} 68%,100%{width:100%} }
+  @keyframes kAppear { 0%,50%{opacity:0;transform:scale(.4)} 66%{opacity:1;transform:scale(1.25)} 80%,100%{opacity:1;transform:scale(1)} }
+  @keyframes kFlash  { 0%,100%{opacity:.25} 50%{opacity:1} }
+  @keyframes kStampC { 0%,40%{transform:translateX(-50%) translateY(-22px) scale(1.5);opacity:0} 56%{transform:translateX(-50%) translateY(0) scale(1);opacity:1} 70%{transform:translateX(-50%) scale(1.12)} 85%,100%{transform:translateX(-50%) scale(1);opacity:1} }
+
+  .modal-empty {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--parchment-dim);
+  }
+  .modal-empty .e-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.5; }
+
+  /* ===== Daf picker modal ===== */
+  .picker-modal {
+    position: fixed;
+    inset: 0;
+    background: var(--ink-2);
+    z-index: 60;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+  .picker-modal.open { transform: translateY(0); }
+
+  .picker-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(232,183,109,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .picker-title {
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--gold-bright);
+  }
+
+  .picker-content {
+    overflow-y: auto;
+    padding: 14px 18px 24px;
+    flex: 1;
+  }
+
+  .perek-section {
+    margin-bottom: 16px;
+  }
+
+  .perek-header {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--gold);
+    margin-bottom: 8px;
+    padding: 0 4px;
+  }
+
+  .daf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+    gap: 6px;
+  }
+
+  .daf-btn {
+    padding: 10px 4px;
+    background: rgba(20,16,10,0.5);
+    border: 1px solid rgba(232,183,109,0.2);
+    border-radius: 6px;
+    color: var(--parchment);
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .daf-btn:active { transform: scale(0.95); }
+  .daf-btn.current {
+    background: var(--gold);
+    color: var(--ink);
+    border-color: var(--gold);
+  }
+  .daf-btn.has-content::after {
+    content: "•";
+    display: block;
+    color: var(--sage-glow);
+    font-size: 11px;
+    margin-top: -2px;
+  }
+
+  /* ===== Bottom navigation ===== */
+  .nav {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background: linear-gradient(180deg, transparent, var(--ink) 40%);
+    padding: 22px 18px 18px;
+    z-index: 10;
+  }
+
+  .nav-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .nav-btn {
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  }
+  .nav-btn:active { transform: scale(0.92); }
+  .nav-btn:disabled { opacity: 0.3; }
+
+  .progress {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(232,183,109,0.3);
+    transition: background 0.25s, width 0.25s, border-radius 0.25s;
+    cursor: pointer;
+  }
+  .dot.active {
+    background: var(--gold);
+    width: 20px;
+    border-radius: 4px;
+  }
+
+  .scene-counter {
+    text-align: center;
+    font-size: 11px;
+    color: var(--parchment-dim);
+    margin-top: 10px;
+  }
+
+  /* ===== Tabs ===== */
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 4px;
+    background: rgba(20,16,10,0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(232,183,109,0.18);
+  }
+
+  .tab {
+    padding: 10px 8px;
+    background: transparent;
+    border: none;
+    color: var(--parchment-dim);
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.25s, color 0.25s;
+  }
+  .tab:active { transform: scale(0.97); }
+  .tab.active {
+    background: var(--gold-deep);
+    color: var(--parchment);
+  }
+
+  /* Hide masechet-only sections when in tutorial mode */
+  body.tutorial-mode .masechet-only { display: none; }
+
+  /* ===== Tutorial: terms (clickable Aramaic) ===== */
+  .term {
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 5px;
+    transition: background 0.2s;
+    border-bottom: 2px dotted;
+    display: inline-block;
+  }
+  .term.statement { background: rgba(232,183,109,0.15); border-color: var(--gold); color: var(--gold-bright); }
+  .term.question { background: rgba(193,74,90,0.15); border-color: var(--crimson); color: var(--crimson-glow); }
+  .term.answer { background: rgba(136,178,122,0.15); border-color: var(--sage); color: var(--sage-glow); }
+  .term.source { background: rgba(127,179,213,0.15); border-color: var(--sky); color: var(--sky-glow); }
+  .term.distinction { background: rgba(176,143,196,0.15); border-color: #b08fc4; color: #b08fc4; }
+  .term.conclusion { background: rgba(232,154,109,0.15); border-color: var(--warm); color: var(--warm); }
+  .term:active { transform: scale(0.95); }
+
+  /* ===== Tutorial: gemara text block ===== */
+  .gem-block {
+    background: rgba(244,234,213,0.04);
+    border: 1px solid rgba(232,183,109,0.25);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 12px 0;
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 18px;
+    line-height: 2;
+    color: var(--parchment);
+  }
+
+  /* ===== Tutorial: step-by-step ===== */
+  .step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    background: rgba(20,16,10,0.5);
+    border-radius: 10px;
+    border-right: 3px solid var(--gold);
+  }
+  .step-num {
+    font-weight: 700;
+    color: var(--gold);
+    font-size: 16px;
+    text-align: center;
+    padding-top: 2px;
+  }
+  .step-aram {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 17px;
+    color: var(--gold-bright);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .step-trans {
+    font-size: 13px;
+    color: var(--parchment-soft);
+    margin-bottom: 6px;
+  }
+  .step-fn {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .step-fn.statement { background: rgba(232,183,109,0.2); color: var(--gold-bright); }
+  .step-fn.question { background: rgba(193,74,90,0.2); color: var(--crimson-glow); }
+  .step-fn.answer { background: rgba(136,178,122,0.2); color: var(--sage-glow); }
+  .step-fn.source { background: rgba(127,179,213,0.2); color: var(--sky-glow); }
+  .step-fn.distinction { background: rgba(176,143,196,0.2); color: #b08fc4; }
+  .step-fn.conclusion { background: rgba(232,154,109,0.2); color: var(--warm); }
+  .step-expl {
+    font-size: 14px;
+    color: var(--parchment-soft);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+  .step-expl strong { color: var(--gold-bright); }
+  .step-expl em { color: var(--parchment); font-style: normal; }
+
+  /* ===== Tutorial: vocab cards ===== */
+  .vocab-card {
+    background: rgba(20,16,10,0.4);
+    border: 1px solid rgba(232,183,109,0.2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .vocab-aram {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold-bright);
+    margin-bottom: 4px;
+  }
+  .vocab-pron {
+    font-size: 11px;
+    color: var(--parchment-dim);
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+  .vocab-mean {
+    font-size: 14.5px;
+    color: var(--parchment);
+    margin-bottom: 6px;
+  }
+  .vocab-fn {
+    font-size: 12px;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .vocab-example {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: rgba(244,234,213,0.04);
+    border-right: 2px solid var(--gold);
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .vocab-example em {
+    font-family: 'Frank Ruhl Libre', serif;
+    color: var(--gold-bright);
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  /* ===== Tutorial: patterns ===== */
+  .pattern {
+    background: rgba(232,183,109,0.05);
+    border-radius: 10px;
+    padding: 12px;
+    margin: 12px 0;
+  }
+  .pattern-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--gold-bright);
+    margin-bottom: 8px;
+  }
+  .pattern-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .pattern-step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 10px;
+    border-radius: 6px;
+  }
+  .pattern-step.q { background: rgba(193,74,90,0.1); border-right: 2px solid var(--crimson); }
+  .pattern-step.a { background: rgba(136,178,122,0.1); border-right: 2px solid var(--sage); }
+  .pattern-step.s { background: rgba(127,179,213,0.1); border-right: 2px solid var(--sky); }
+  .pattern-step.d { background: rgba(176,143,196,0.1); border-right: 2px solid #b08fc4; }
+  .pattern-step .p-icon { font-size: 16px; text-align: center; }
+  .pattern-step .p-label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--parchment);
+  }
+  .pattern-step .p-label small {
+    display: block;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--parchment-dim);
+    margin-top: 2px;
+  }
+  .pattern-arrow {
+    text-align: center;
+    color: var(--gold);
+    font-size: 11px;
+  }
+
+  /* ===== Tutorial: tip box ===== */
+  .tip {
+    background: linear-gradient(135deg, rgba(232,183,109,0.12), rgba(232,183,109,0.04));
+    border: 1px dashed var(--gold);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 12px 0;
+  }
+  .tip-label {
+    font-size: 12px;
+    color: var(--gold-bright);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .tip p {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--parchment-soft);
+  }
+
+  /* ===== Tutorial: legend ===== */
+  .legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin: 10px 0;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    padding: 7px 9px;
+    border-radius: 6px;
+  }
+  .legend-item .l-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-item.statement { background: rgba(232,183,109,0.08); }
+  .legend-item.statement .l-dot { background: var(--gold); }
+  .legend-item.question { background: rgba(193,74,90,0.08); }
+  .legend-item.question .l-dot { background: var(--crimson); }
+  .legend-item.answer { background: rgba(136,178,122,0.08); }
+  .legend-item.answer .l-dot { background: var(--sage); }
+  .legend-item.source { background: rgba(127,179,213,0.08); }
+  .legend-item.source .l-dot { background: var(--sky); }
+  .legend-item.distinction { background: rgba(176,143,196,0.08); }
+  .legend-item.distinction .l-dot { background: #b08fc4; }
+  .legend-item.conclusion { background: rgba(232,154,109,0.08); }
+  .legend-item.conclusion .l-dot { background: var(--warm); }
+
+  /* ===== Term modal ===== */
+  .modal.term { border-top-color: var(--gold); }
+  .modal.term .modal-title { color: var(--gold-bright); }
+
+  .modal-aram-big {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gold-bright);
+    margin-bottom: 6px;
+  }
+  .modal-pron {
+    font-size: 11px;
+    color: var(--parchment-dim);
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+  .modal-fn-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .modal-mean-text {
+    font-size: 15px;
+    color: var(--parchment);
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  .modal-use {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--parchment-soft);
+  }
+  .modal-use strong { color: var(--gold-bright); }
+  .modal-use em { color: var(--parchment); font-style: normal; }
+
+  /* ===== Kid-friendly explanation boxes ===== */
+  .kid-box {
+    margin: 14px 0;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border-right: 4px solid;
+  }
+  .kid-box.setup { background: rgba(232,183,109,0.1); border-color: var(--gold); }
+  .kid-box.question { background: rgba(193,74,90,0.1); border-color: var(--crimson); }
+  .kid-box.answer { background: rgba(136,178,122,0.1); border-color: var(--sage); }
+  .kid-box.bigidea { background: rgba(127,179,213,0.1); border-color: var(--sky); }
+  .kid-box.surprise { background: rgba(255,152,68,0.1); border-color: var(--flame); }
+
+  .kid-box .kid-icon {
+    font-size: 36px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .kid-box .kid-label {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+  .kid-box.setup .kid-label { color: var(--gold-bright); }
+  .kid-box.question .kid-label { color: var(--crimson-glow); }
+  .kid-box.answer .kid-label { color: var(--sage-glow); }
+  .kid-box.bigidea .kid-label { color: var(--sky-glow); }
+  .kid-box.surprise .kid-label { color: var(--flame); }
+
+  .kid-box p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--parchment);
+    margin-bottom: 10px;
+  }
+  .kid-box p:last-child { margin-bottom: 0; }
+  .kid-box strong { color: var(--gold-bright); }
+  .kid-box em { color: var(--parchment-soft); font-style: italic; }
+
+  @keyframes flicker { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+  .flame-anim { animation: flicker 2s ease-in-out infinite; }
+
+  @media (max-width: 380px) {
+    .vs-grid { grid-template-columns: 1fr; }
+    .action-btn { font-size: 13px; padding: 10px 8px; }
+  }
+
+  /* ===== Taanit additions ===== */
+  .verify-note {
+    font-size: 12px; line-height: 1.6; color: var(--parchment-soft);
+    background: rgba(232,154,109,0.12); border: 1px dashed var(--warm);
+    border-radius: 10px; padding: 9px 12px; margin-bottom: 14px;
+  }
+  .verify-note strong { color: var(--warm); }
+  .masechet-switch { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+  .masechet-switch a {
+    font-size: 12px; font-weight: 700; color: var(--parchment-dim); text-decoration: none;
+    padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(232,183,109,0.25);
+  }
+  .masechet-switch a.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+
+  .year-line, .nisan-line { position: relative; width: 94%; height: 92px; }
+  .yl-track, .nl-track {
+    position: absolute; top: 18px; right: 0; left: 0; height: 8px;
+    border-radius: 4px; background: rgba(244,234,213,0.1);
+  }
+  .yl-fill { position: absolute; height: 8px; border-radius: 4px; width: 0; }
+  .yl-fill.hz { top: 18px; right: 4%; background: var(--gold); animation: ylHz 6s ease-in-out infinite; }
+  .yl-fill.sh { top: 30px; right: 20%; background: var(--sky); animation: ylSh 6s ease-in-out infinite; }
+  @keyframes ylHz { 0%,8% { width: 0; } 50%,100% { width: 58%; } }
+  @keyframes ylSh { 0%,35% { width: 0; } 80%,100% { width: 42%; } }
+  .yl-mark, .nl-pt {
+    position: absolute; top: 42px; transform: translateX(50%);
+    font-size: 10px; font-weight: 700; color: var(--parchment-soft);
+    text-align: center; line-height: 1.3; white-space: nowrap;
+  }
+  .yl-mark span { display: block; font-size: 16px; }
+  .yl-mark::before, .nl-pt::before {
+    content: ""; position: absolute; top: -26px; right: 50%; transform: translateX(50%);
+    width: 2px; height: 22px; background: var(--parchment-dim);
+  }
+  .nl-pt { top: 34px; }
+  .nl-pt b { display: block; color: var(--gold-bright); font-size: 11px; }
+  .nl-pt:last-child { transform: translateX(80%); }
+  .nl-pt.first { transform: translateX(0); text-align: right; }
+  .nl-pt.first::before { right: 6px; transform: none; }
+  .nl-grow {
+    position: absolute; top: 18px; right: 0; height: 8px; width: 0; border-radius: 4px;
+    background: linear-gradient(270deg, var(--sky), var(--sage), var(--gold));
+    animation: nlGrow 6s ease-in-out infinite;
+  }
+  @keyframes nlGrow { 0%,10% { width: 0; } 70%,100% { width: 96%; } }
+
+  .end-lines { width: 96%; display: flex; flex-direction: column; gap: 10px; }
+  .el-row { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; }
+  .el-name { width: 52px; color: var(--parchment-soft); }
+  .el-end { width: 52px; color: var(--gold); }
+  .el-bar { flex: 1; height: 14px; border-radius: 7px; background: rgba(244,234,213,0.08); position: relative; overflow: hidden; }
+  .el-fill { position: absolute; top: 0; right: 0; height: 100%; width: 0; border-radius: 7px; background: var(--sky); }
+  .el-fill.y { animation: elY 5s ease-in-out infinite; }
+  .el-fill.m { animation: elM 5s ease-in-out infinite; }
+  @keyframes elY { 0%,10% { width: 0; } 55%,100% { width: 72%; } }
+  @keyframes elM { 0%,10% { width: 0; } 75%,100% { width: 100%; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header>
+    <div class="masechet-name">מסכת תענית</div>
+    <div class="masechet-switch"><a href="index.html">זבחים</a><a href="taanit.html" class="on">תענית</a></div>
+    <div class="daf-nav masechet-only">
+      <button class="nav-arrow" id="prevDafBtn" title="דף קודם">‹</button>
+      <div class="daf-display" id="dafDisplay">
+        <h1 id="dafTitle">—</h1>
+        <div class="perek-name" id="perekName">—</div>
+      </div>
+      <button class="nav-arrow" id="nextDafBtn" title="דף הבא">›</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="masechet">📚 לימוד הדף</button>
+      <button class="tab" data-tab="tutorial">🎓 איך לקרוא גמרא</button>
+    </div>
+  </header>
+
+  <div class="action-bar masechet-only">
+    <button class="action-btn trans" id="transBtn">
+      <span>📖 הדף</span>
+    </button>
+    <button class="action-btn rashi" id="rashiBtn">
+      <span>📜 רש״י</span>
+      <span class="count" id="rashiCount">0</span>
+    </button>
+    <button class="action-btn tos" id="tosBtn">
+      <span>📚 תוספות</span>
+      <span class="count" id="tosCount">0</span>
+    </button>
+  </div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="scene-counter" id="counter"></div>
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-btn" id="prevSceneBtn">◀</button>
+    <div class="progress" id="progress"></div>
+    <button class="nav-btn" id="nextSceneBtn">▶</button>
+  </div>
+</nav>
+
+<!-- Modals -->
+<div class="modal-overlay" id="modalOverlay"></div>
+
+<div class="modal trans" id="transModal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-title">📖 תרגום הדף</div>
+    <button class="modal-close" data-close="trans">✕</button>
+  </div>
+  <div class="modal-content" id="transContent"></div>
+</div>
+
+<div class="modal rashi" id="rashiModal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-title">📜 רש״י על הדף</div>
+    <button class="modal-close" data-close="rashi">✕</button>
+  </div>
+  <div class="modal-content" id="rashiContent"></div>
+</div>
+
+<div class="modal tos" id="tosModal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-title">📚 תוספות על הדף</div>
+    <button class="modal-close" data-close="tos">✕</button>
+  </div>
+  <div class="modal-content" id="tosContent"></div>
+</div>
+
+<div class="modal term" id="termModal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-title">📖 מילה במילון</div>
+    <button class="modal-close" data-close="term">✕</button>
+  </div>
+  <div class="modal-content" id="termContent"></div>
+</div>
+
+<!-- Daf picker -->
+<div class="picker-modal" id="pickerModal">
+  <div class="picker-header">
+    <div class="picker-title">בחר דף</div>
+    <button class="modal-close" data-close="picker">✕</button>
+  </div>
+  <div class="picker-content" id="pickerContent"></div>
+</div>
+
+<script>
+// =======================================================
+// PEREK DATA — מסכת תענית
+// =======================================================
+const perakim = [
+  { num: 1, name: 'מאימתי', start: 2, startAmud: 'a' },
+  { num: 2, name: 'סדר תעניות כיצד', start: 15, startAmud: 'a' },
+  { num: 3, name: 'סדר תעניות אלו', start: 18, startAmud: 'b' },
+  { num: 4, name: 'בשלשה פרקים', start: 26, startAmud: 'a' }
+];
+
+function getPerekFor(daf, amud) {
+  const pos = (d, a) => d * 2 + (a === 'b' ? 1 : 0);
+  const target = pos(daf, amud);
+  let p = perakim[0];
+  for (const perek of perakim) {
+    if (pos(perek.start, perek.startAmud) <= target) {
+      p = perek;
+    } else {
+      break;
+    }
+  }
+  return p;
+}
+
+// =======================================================
+// AMUDIM DATA — stubs for 2a..31a, then override
+// =======================================================
+const amudim = {};
+for (let d = 2; d <= 31; d++) {
+  for (const a of ['a', 'b']) {
+    if (d === 31 && a === 'b') continue; // המסכת מסתיימת בל״א.
+    amudim[`${d}${a}`] = { daf: d, amud: a, scenes: [], rashi: [], tosafot: [] };
+  }
+}
+
+const UNVERIFIED_NOTE = `
+  <div class="verify-note">⚠️ ההסבר נכתב מהידע הכללי על הסוגיה, <strong>בלי גישה לטקסט הדף</strong>. ציטוטי הגמרא כאן לא אומתו מול הדף, וייתכן שגבול העמודים (ד: / ה.) לא מדויק. כדאי ללמוד עם הגמרא פתוחה.</div>
+`;
+
+// =======================================================
+// FULL CONTENT: Daf 4b
+// =======================================================
+amudim['4b'].scenes = [
+  {
+    tag: 'פתיחה',
+    title: 'הזכרה <span class="accent">ושאלה</span> — שני דברים שונים',
+    html: `
+      ${UNVERIFIED_NOTE}
+      <div class="story">
+        <p>הפרק הראשון של תענית עוסק בשאלה: <strong>מתי מתפללים על גשם?</strong> כבר בתחילת המסכת למדנו שיש שני סוגים של תפילה על גשם, והם לא אותו דבר.</p>
+      </div>
+      <div class="vs-grid">
+        <div class="vs-card a">
+          <div class="emoji">🗣️</div>
+          <h5>הזכרה</h5>
+          <p>״<strong>משיב הרוח ומוריד הגשם</strong>״. שבח לה׳ על כוחו להוריד גשם. נאמרת בברכת ״מחיה המתים״.</p>
+        </div>
+        <div class="vs-card b">
+          <div class="emoji">🙏</div>
+          <h5>שאלה</h5>
+          <p>״<strong>ותן טל ומטר לברכה</strong>״. בקשה ממש: ״תן לנו גשם!״. נאמרת בברכת השנים.</p>
+        </div>
+      </div>
+      <div class="keyidea">
+        <div class="keyidea-label">🎯 על מה המשנה בדף שלנו</div>
+        <p>אחרי שהמשנה הקודמת דנה <em>מתי מתחילים להזכיר</em>, המשנה שלנו עוברת ל<strong>שאלה</strong>: מתי מתחילים לבקש, ועד מתי ממשיכים.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'משנה',
+    title: '״אין שואלין את הגשמים <span class="accent">אלא סמוך לגשמים</span>״',
+    html: `
+      <div class="story">
+        <p>הכלל הראשון של המשנה פשוט: <strong>לא מבקשים גשם לפני שהגיע זמנו.</strong> הזכרה (שבח) אפשר להתחיל מוקדם, אבל בקשה עושים רק כשבאמת צריך גשם, כלומר סמוך לעונת הגשמים.</p>
+      </div>
+      <div class="kviz">
+        <div class="kviz-head">🎬 בתנועה: הזכרה מתחילה בסוכות, שאלה רק אחר כך</div>
+        <div class="kviz-stage">
+          <div class="year-line">
+            <div class="yl-track"></div>
+            <div class="yl-fill hz"></div>
+            <div class="yl-fill sh"></div>
+            <div class="yl-mark" style="right:4%"><span>🌿</span>סוכות</div>
+            <div class="yl-mark" style="right:20%"><span>🍂</span>מרחשון</div>
+            <div class="yl-mark" style="right:62%"><span>🍷</span>פסח</div>
+            <div class="yl-mark" style="right:76%"><span>🌸</span>סוף ניסן</div>
+          </div>
+        </div>
+        <div class="kviz-cap"><span style="color:var(--gold-bright)">■ זהוב</span> = הזכרה (משיב הרוח), <span style="color:var(--sky-glow)">■ כחול</span> = שאלה (ותן טל ומטר). השאלה מתחילה <strong>מאוחר יותר</strong>, סמוך לגשמים.</div>
+      </div>
+      <div class="tip">
+        <div class="tip-label">💡 למה?</div>
+        בסוכות עוד לא רוצים גשם, כי יושבים בסוכה ועולים לרגל. את השבח ״משיב הרוח״ אפשר לומר כבר אז, אבל לבקש גשם כשהוא עוד לא נחוץ זו בקשה שלא בזמנה.
+      </div>
+    `
+  },
+  {
+    tag: 'ר׳ יהודה',
+    title: 'מי מתחיל להזכיר: <span class="accent">החזן הראשון או האחרון?</span>',
+    html: `
+      <div class="story">
+        <p>ר׳ יהודה מוסיף פרט מעשי. ביום טוב יש שני חזנים: אחד ל<strong>שחרית</strong> (״הראשון״) ואחד ל<strong>מוסף</strong> (״האחרון״). מי מהם עושה את השינוי?</p>
+      </div>
+      <div class="kviz">
+        <div class="kviz-head">🎬 שמיני עצרת: מתחילים להזכיר</div>
+        <div class="kviz-stage">
+          <div class="knode"><span class="kverdict bad" style="animation:kAppear 4.5s infinite .4s">✗</span><span class="kemoji">🌅</span>שחרית<br><span style="opacity:.7">הראשון לא מזכיר</span></div>
+          <span class="karrow">←</span>
+          <div class="knode gold"><span class="kverdict good" style="animation:kAppear 4.5s infinite 1.6s">✓</span><span class="kemoji">☀️</span>מוסף<br><span style="opacity:.7">האחרון מזכיר</span></div>
+        </div>
+        <div class="kviz-cap">ההזכרה <strong>מתחילה</strong> במוסף</div>
+      </div>
+      <div class="kviz">
+        <div class="kviz-head">🎬 יום טוב ראשון של פסח: מפסיקים להזכיר</div>
+        <div class="kviz-stage">
+          <div class="knode gold"><span class="kverdict good" style="animation:kAppear 4.5s infinite .4s">✓</span><span class="kemoji">🌅</span>שחרית<br><span style="opacity:.7">הראשון עוד מזכיר</span></div>
+          <span class="karrow">←</span>
+          <div class="knode"><span class="kverdict bad" style="animation:kAppear 4.5s infinite 1.6s">✗</span><span class="kemoji">☀️</span>מוסף<br><span style="opacity:.7">האחרון כבר לא</span></div>
+        </div>
+        <div class="kviz-cap">ההזכרה <strong>מסתיימת</strong> במוסף</div>
+      </div>
+      <div class="keyidea">
+        <div class="keyidea-label">🎯 הסימטריה</div>
+        <p>בשני המקרים <strong>המוסף הוא נקודת השינוי</strong>: בתחילת החורף מוסף מתחיל להזכיר, ובסופו מוסף מפסיק. זה גם המנהג שלנו היום. מכריזים ״משיב הרוח״ לפני מוסף של שמיני עצרת, ומפסיקים במוסף של היום הראשון של פסח.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'מחלוקת',
+    title: 'עד מתי <span class="accent">שואלין?</span>',
+    html: `
+      <div class="story">
+        <p>עכשיו לשאלה ההפוכה: <strong>מתי מפסיקים לבקש</strong> ״ותן טל ומטר״?</p>
+      </div>
+      <div class="vs-grid">
+        <div class="vs-card a">
+          <div class="emoji">🍷</div>
+          <h5>ר׳ יהודה</h5>
+          <p>עד <strong>שיעבור הפסח</strong></p>
+        </div>
+        <div class="vs-card b">
+          <div class="emoji">🌸</div>
+          <h5>ר׳ מאיר</h5>
+          <p>עד <strong>שיצא ניסן</strong>, שנאמר: ״ויורד לכם גשם מורה ומלקוש <strong>בראשון</strong>״ (יואל ב, כג)</p>
+        </div>
+      </div>
+      <div class="kviz">
+        <div class="kviz-head">🎬 בתנועה: שני קווי סיום</div>
+        <div class="kviz-stage">
+          <div class="end-lines">
+            <div class="el-row"><span class="el-name">ר׳ יהודה</span><div class="el-bar"><div class="el-fill y"></div></div><span class="el-end">פסח</span></div>
+            <div class="el-row"><span class="el-name">ר׳ מאיר</span><div class="el-bar"><div class="el-fill m"></div></div><span class="el-end">סוף ניסן</span></div>
+          </div>
+        </div>
+        <div class="kviz-cap">ר׳ מאיר ממשיך לבקש <strong>עוד שבועיים</strong>, כי לפי הפסוק יש גשם מבורך גם ב״ראשון״, כלומר בניסן, החודש הראשון.</div>
+      </div>
+      <div class="tip">
+        <div class="tip-label">💡 מה ההיגיון של ר׳ יהודה?</div>
+        גשם אחרי פסח כבר מזיק לתבואה שעומדת להיקצר. לכן אין טעם לבקש אותו.
+      </div>
+    `
+  }
+];
+
+amudim['4b'].translation = [
+  { type: 'note', text: '⚠️ התרגום נכתב בלי גישה לטקסט הדף. הנוסח הארמי/עברי כאן הוא הנוסח המקובל של המשנה כפי שאני מכיר אותו, ולא הועתק מהדף. כדאי להשוות לגמרא.' },
+  { type: 'section', title: 'משנה: אין שואלין אלא סמוך לגשמים' },
+  { type: 'quote',
+    aramaic: 'אין שואלין את הגשמים אלא סמוך לגשמים',
+    translation: 'את ה<strong>בקשה</strong> ״ותן טל ומטר״ אומרים רק כשעונת הגשמים קרובה, לא מוקדם יותר.'
+  },
+  { type: 'quote',
+    aramaic: 'רבי יהודה אומר: העובר לפני התיבה ביום טוב האחרון של חג — האחרון מזכיר, הראשון אינו מזכיר',
+    translation: '<strong>ר׳ יהודה:</strong> בשמיני עצרת, החזן של מוסף (״האחרון״) מתחיל להזכיר ״משיב הרוח״. החזן של שחרית (״הראשון״) עוד לא מזכיר.',
+    viz: `<div class="kviz"><div class="kviz-stage"><div class="knode"><span class="kemoji">🌅</span>שחרית ✗</div><span class="karrow">←</span><div class="knode gold" style="animation:kPulse 3s infinite"><span class="kemoji">☀️</span>מוסף ✓</div></div></div>`
+  },
+  { type: 'quote',
+    aramaic: 'ביום טוב הראשון של פסח — הראשון מזכיר, האחרון אינו מזכיר',
+    translation: 'ובפסח הפוך: בשחרית עוד מזכירים, ובמוסף מפסיקים.'
+  },
+  { type: 'section', title: 'עד אימתי שואלין' },
+  { type: 'quote',
+    aramaic: 'עד אימתי שואלין את הגשמים? רבי יהודה אומר: עד שיעבור הפסח',
+    translation: '<strong>עד מתי מבקשים גשם?</strong> לדעת ר׳ יהודה, עד סוף פסח.'
+  },
+  { type: 'quote',
+    aramaic: 'רבי מאיר אומר: עד שיצא ניסן, שנאמר ״ויורד לכם גשם מורה ומלקוש בראשון״',
+    translation: '<strong>ר׳ מאיר:</strong> עד סוף חודש ניסן. ההוכחה מהפסוק ביואל: גם ה״יורה״ וגם ה״מלקוש״ יורדים ״בראשון״, כלומר בניסן.'
+  },
+  { type: 'summary', text: '<strong>סיכום:</strong> הזכרה היא שבח ומתחילה מוקדם. שאלה היא בקשה ומתחילה רק סמוך לגשמים. נחלקו מתי מפסיקים לשאול: בפסח (ר׳ יהודה) או בסוף ניסן (ר׳ מאיר). על הפסוק של ר׳ מאיר תבוא הקושיה בעמוד הבא.' }
+];
+
+// =======================================================
+// FULL CONTENT: Daf 5a
+// =======================================================
+amudim['5a'].scenes = [
+  {
+    tag: 'קושיה',
+    title: '״מורה <span class="accent">בניסן?!</span>״',
+    html: `
+      ${UNVERIFIED_NOTE}
+      <div class="story">
+        <p>רב נחמן שואל את ר׳ יצחק על הפסוק שר׳ מאיר הביא. הפסוק אומר ״מורה ומלקוש <strong>בראשון</strong>״, כלומר שניהם בניסן. אבל ״יורה״ הוא הגשם <strong>הראשון</strong> של החורף, והוא יורד במרחשון!</p>
+      </div>
+      <div class="bubble">
+        <div class="bubble-label">רב נחמן</div>
+        <strong>״מורה בניסן?! מורה במרחשון הוא!״</strong> הרי שנינו: יורה במרחשון, ומלקוש בניסן.
+      </div>
+      <div class="kviz">
+        <div class="kviz-head">🎬 הקושיה בתנועה</div>
+        <div class="kviz-stage">
+          <div class="knode good"><span class="kemoji">🌧️</span>יורה<br><span style="opacity:.7">מרחשון</span></div>
+          <div class="knode gold"><span class="kemoji">🌦️</span>מלקוש<br><span style="opacity:.7">ניסן</span></div>
+          <span class="karrow">≠</span>
+          <div class="knode bad" style="animation:kShake 1.2s infinite"><span class="kemoji">📜</span>הפסוק<br><span style="opacity:.7">שניהם ״בראשון״?</span></div>
+        </div>
+        <div class="kviz-cap">בדרך כלל יש <strong>חצי שנה</strong> בין היורה למלקוש. איך הפסוק שם את שניהם בחודש אחד?</div>
+      </div>
+    `
+  },
+  {
+    tag: 'תשובה',
+    title: 'בימי <span class="accent">יואל בן פתואל</span>',
+    html: `
+      <div class="bubble answer">
+        <div class="bubble-label">ר׳ יצחק בשם ר׳ יוחנן</div>
+        הפסוק לא מתאר כל שנה. הוא מתאר <strong>שנה אחת מיוחדת</strong>, בימי הנביא יואל בן פתואל, שבה הכל קרה בניסן.
+      </div>
+      <div class="story">
+        <p>זו הייתה שנת בצורת וארבה (״יתר הגזם אכל הארבה״). כל החורף עבר, גם אדר, ולא ירד גשם. ואז, <strong>בא׳ בניסן</strong>, ירד סוף סוף הגשם הראשון.</p>
+        <p>הנביא אמר לעם: <strong>״צאו וזרעו!״</strong> והם ענו: מי שנשאר לו קב חיטים או קביים שעורים, שיאכל ויחיה, או שיזרע וימות?! אמר להם: בכל זאת, צאו וזרעו.</p>
+      </div>
+      <div class="sage-quote">״הזורעים בדמעה — ברנה יקצרו״ (תהלים קכו). על הדור הזה נאמר הפסוק.</div>
+    `
+  },
+  {
+    tag: 'הנס',
+    title: 'תבואה של חצי שנה <span class="accent">ב־11 יום</span>',
+    html: `
+      <div class="story">
+        <p>הם יצאו וזרעו. נעשה להם נס, ומצאו גרעינים מוסתרים בחורים ובכתלים. אז הכל קרה מהר מאוד:</p>
+      </div>
+      <div class="kviz">
+        <div class="kviz-head">🎬 ציר הזמן של ניסן באותה שנה</div>
+        <div class="kviz-stage">
+          <div class="nisan-line">
+            <div class="nl-track"></div>
+            <div class="nl-grow"></div>
+            <div class="nl-pt first" style="right:0%"><b>א׳</b>🌧️<br>רביעה<br>ראשונה</div>
+            <div class="nl-pt" style="right:22%"><b>ב׳–ד׳</b>🌱<br>זורעים</div>
+            <div class="nl-pt" style="right:42%"><b>ה׳</b>🌦️<br>רביעה<br>שנייה</div>
+            <div class="nl-pt" style="right:96%"><b>ט״ז</b>🌾<br>עומר!</div>
+          </div>
+        </div>
+        <div class="kviz-cap">תבואה שבדרך כלל גדלה <strong>שישה חודשים</strong> גדלה <strong>באחד עשר יום</strong>, ומיד הביאו ממנה את קרבן העומר בט״ז בניסן.</div>
+      </div>
+      <div class="keyidea">
+        <div class="keyidea-label">🎯 וכך מתורצת הקושיה</div>
+        <p>באותה שנה ה<strong>יורה</strong> (הגשם הראשון) ירד בא׳ בניסן, וה<strong>מלקוש</strong> ירד בה׳ בניסן. שניהם באמת ״בראשון״. לכן ר׳ מאיר יכול ללמוד מהפסוק שגם בניסן יש גשם של ברכה, וממשיכים לבקש עד סוף החודש.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'דרשה',
+    title: 'ירושלים <span class="accent">של מעלה ושל מטה</span>',
+    html: `
+      <div class="story">
+        <p>רב נחמן ור׳ יצחק ממשיכים לשוחח, ורב נחמן שואל על פסוקים נוספים. הראשון: <strong>״בקרבך קדוש ולא אבוא בעיר״</strong> (הושע יא). האם בגלל שה׳ קדוש בקרבנו הוא לא יבוא לעיר? זה לא מובן!</p>
+      </div>
+      <div class="bubble answer">
+        <div class="bubble-label">ר׳ יצחק בשם ר׳ יוחנן</div>
+        אמר הקב״ה: <strong>״לא אבוא בירושלים של מעלה עד שאבוא לירושלים של מטה״</strong>.
+      </div>
+      <div class="kviz">
+        <div class="kviz-head">🎬 שתי ירושלים, מחוברות</div>
+        <div class="kviz-stage" style="flex-direction:column;gap:4px">
+          <div class="knode gold" style="animation:kFlash 3s infinite 1.5s"><span class="kemoji">✨🏛️✨</span>ירושלים של מעלה</div>
+          <span class="karrow" style="transform:rotate(-90deg);animation:kPulse 1.5s infinite">→</span>
+          <div class="knode good" style="animation:kPulse 3s infinite"><span class="kemoji">🏙️</span>ירושלים של מטה</div>
+        </div>
+        <div class="kviz-cap">קודם צריכה להיבנות ירושלים <strong>שלמטה</strong>, ורק אחר כך ה׳ ״נכנס״ לירושלים שלמעלה.</div>
+      </div>
+      <div class="story">
+        <p>הגמרא שואלת: <em>וכי יש ירושלים למעלה?</em> כן, שנאמר: <strong>״ירושלים הבנויה כעיר שחוברה לה יחדיו״</strong> (תהלים קכב). יש עיר שמחוברת ל״חברתה״, כלומר ירושלים שלמטה מחוברת לירושלים שלמעלה.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'דרשה',
+    title: '״ובאחת <span class="accent">יבערו ויכסלו</span>״',
+    html: `
+      <div class="story">
+        <p>שאלה נוספת של רב נחמן: <strong>״ובאחת יבערו ויכסלו, מוסר הבלים עץ הוא״</strong> (ירמיהו י). מהי ״האחת״?</p>
+      </div>
+      <div class="bubble answer">
+        <div class="bubble-label">ר׳ יצחק בשם ר׳ יוחנן</div>
+        יש <strong>דבר אחד</strong> שמבער את הרשעים בגיהנם, וזו <strong>עבודה זרה</strong>. הלימוד הוא מגזירה שווה: כאן נאמר ״הבלים... עץ הוא״, ובמקום אחר נאמר על עבודה זרה ״הבל המה, מעשה תעתועים״.
+      </div>
+      <div class="kviz">
+        <div class="kviz-head">🎬 ״שתים רעות עשה עמי״ (ירמיהו ב)</div>
+        <div class="kviz-stage">
+          <div class="knode bad"><span class="kemoji">💧🚫</span>עזבו<br><span style="opacity:.7">מקור מים חיים</span></div>
+          <span class="karrow">+</span>
+          <div class="knode bad" style="animation:kShake 1.6s infinite"><span class="kemoji">🕳️</span>חצבו<br><span style="opacity:.7">בורות נשברים</span></div>
+        </div>
+        <div class="kviz-cap">הגמרא ממשיכה לדרוש על הנביא ירמיהו: <strong>להחליף</strong> את ה׳, מקור המים החיים, בבורות שאינם מחזיקים מים. ההחלפה עצמה כפולה ברעתה.</div>
+      </div>
+      <div class="tip">
+        <div class="tip-label">💡 הקשר לתענית</div>
+        שימו לב לחוט שעובר בכל הסוגיה: <strong>מים וגשם</strong>. הגשם שה׳ מוריד בזמנו, הנס של יואל, ו״מקור מים חיים״. כל אלה הם רקע לתפילה על הגשמים שבמשנה.
+      </div>
+    `
+  }
+];
+
+amudim['5a'].translation = [
+  { type: 'note', text: '⚠️ התרגום נכתב בלי גישה לטקסט הדף. הציטוטים הם הנוסח כפי שאני מכיר אותו מהסוגיה, ועשויים להיות בהם הבדלי נוסח. כדאי להשוות לגמרא.' },
+  { type: 'section', title: 'קושיית רב נחמן על הפסוק' },
+  { type: 'quote',
+    aramaic: 'אמר ליה רב נחמן לרבי יצחק: מורה בניסן? מורה במרחשון הוא!',
+    translation: '<strong>רב נחמן לר׳ יצחק:</strong> הגשם הראשון (״מורה״) יורד בניסן? הרי הוא יורד במרחשון!',
+    viz: `<div class="kviz"><div class="kviz-stage"><div class="knode good">🌧️ יורה = מרחשון</div><span class="karrow">≠</span><div class="knode bad" style="animation:kShake 1.2s infinite">📜 ״בראשון״</div></div></div>`
+  },
+  { type: 'quote',
+    aramaic: 'אמר ליה: הכי אמר רבי יוחנן: בימי יואל בן פתואל נתקיים מקרא זה',
+    translation: '<strong>ענה לו:</strong> כך אמר ר׳ יוחנן: הפסוק מתאר את מה שקרה בימי יואל בן פתואל.'
+  },
+  { type: 'quote',
+    aramaic: 'אותה שנה יצא אדר ולא ירדו גשמים, ירדה להם רביעה ראשונה באחד בניסן',
+    translation: 'באותה שנה עבר כל אדר בלי גשם. הגשם הראשון ירד רק בא׳ בניסן.'
+  },
+  { type: 'quote',
+    aramaic: 'אמר להם נביא לישראל: צאו וזרעו. אמרו לו: מי שיש לו קב חטים או קביים שעורים — יאכלנו ויחיה, או יזרענו וימות?',
+    translation: 'הנביא אמר: ״צאו וזרעו!״ והם ענו: מי שנשאר לו מעט תבואה, שיאכל אותה ויחיה, או שיזרע אותה וימות ברעב?'
+  },
+  { type: 'quote',
+    aramaic: 'אמר להם: אף על פי כן, צאו וזרעו',
+    translation: 'הנביא התעקש: <strong>בכל זאת, צאו וזרעו.</strong> ונעשה להם נס.'
+  },
+  { type: 'quote',
+    aramaic: 'וירדה להם רביעה שניה בחמשה בניסן, והקריבו עומר בששה עשר בניסן',
+    translation: 'הגשם השני (המלקוש) ירד בה׳ בניסן, ובט״ז בניסן כבר הקריבו את העומר מהתבואה החדשה.',
+    viz: `<div class="kviz"><div class="kviz-stage"><div class="knode">א׳ 🌧️</div><span class="karrow">←</span><div class="knode">ה׳ 🌦️</div><span class="karrow">←</span><div class="knode gold" style="animation:kPulse 2.5s infinite">ט״ז 🌾</div></div><div class="kviz-cap">חצי שנה של גידול ב־11 יום</div></div>`
+  },
+  { type: 'quote',
+    aramaic: 'נמצאת תבואה הגדלה בששה חדשים — גדלה באחד עשר יום',
+    translation: 'התבואה, שבדרך כלל צריכה שישה חודשים, גדלה בנס באחד עשר יום.'
+  },
+  { type: 'section', title: 'ירושלים של מעלה' },
+  { type: 'quote',
+    aramaic: 'מאי דכתיב ״בקרבך קדוש ולא אבוא בעיר״?',
+    translation: 'מה פירוש הפסוק ״בקרבך קדוש ולא אבוא בעיר״?'
+  },
+  { type: 'quote',
+    aramaic: 'אמר הקדוש ברוך הוא: לא אבוא בירושלים של מעלה עד שאבוא לירושלים של מטה',
+    translation: 'אמר הקב״ה: <strong>לא אכנס לירושלים שלמעלה עד שאכנס לירושלים שלמטה.</strong>'
+  },
+  { type: 'quote',
+    aramaic: 'ומי איכא ירושלים למעלה? אין, דכתיב ״ירושלים הבנויה כעיר שחוברה לה יחדיו״',
+    translation: 'וכי יש ירושלים למעלה? כן, שנאמר ״ירושלים הבנויה כעיר שחוברה לה יחדיו״. יש עיר שמחוברת אליה.'
+  },
+  { type: 'section', title: 'ובאחת יבערו' },
+  { type: 'quote',
+    aramaic: 'אחת היא שמבערת רשעים בגיהנם. מאי היא? עבודה זרה',
+    translation: 'יש דבר אחד שמבער את הרשעים בגיהנם. מהו? <strong>עבודה זרה</strong>.'
+  },
+  { type: 'summary', text: '<strong>סיכום העמוד:</strong> הקושיה ״מורה בניסן?״ מתורצת בכך שהפסוק מתאר את הנס בימי יואל, כשהיורה והמלקוש ירדו שניהם בניסן. אחר כך באה סדרת שאלות של רב נחמן לר׳ יצחק על פסוקים: ירושלים של מעלה ושל מטה, ועבודה זרה כ״אחת״ שמבערת.' }
+];
+
+
+// =======================================================
+// CHAPTER STARTS - basic stubs with chapter context
+// (You can add more content here over time)
+// =======================================================
+
+// Add a simple topic line for each daf based on its perek
+function addPerekContext() {
+  for (const ref in amudim) {
+    const a = amudim[ref];
+    if (a.scenes.length > 0) continue; // skip if has content
+
+    const perek = getPerekFor(a.daf, a.amud);
+    a.scenes = [{
+      tag: `פרק ${perek.num}`,
+      title: `דף ${heb(a.daf)} ע״${a.amud === 'a' ? 'א' : 'ב'} — <span class="accent">${perek.name}</span>`,
+      html: `
+        <div class="stub">
+          <div class="stub-icon">📜</div>
+          <h3>תוכן עוד לא נכתב</h3>
+          <p>זהו תשתית מוכנה. ניתן להוסיף סצנות אנימציה, רש״י ותוספות לדף הזה.</p>
+          <div class="stub-perek">
+            <div class="stub-perek-label">הפרק שבו דף זה</div>
+            <div class="stub-perek-name">פרק ${perek.num} — ${perek.name}</div>
+          </div>
+        </div>
+      `
+    }];
+  }
+}
+
+function heb(n) {
+  const ones = ['', 'א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט'];
+  const tens = ['', 'י', 'כ', 'ל', 'מ', 'נ', 'ס', 'ע', 'פ', 'צ'];
+  const hundreds = ['', 'ק', 'ק״ק'];
+
+  if (n < 10) return ones[n];
+  if (n === 15) return 'ט״ו';
+  if (n === 16) return 'ט״ז';
+  if (n < 100) {
+    const t = Math.floor(n / 10);
+    const o = n % 10;
+    if (o === 0) return tens[t];
+    return tens[t] + '״' + ones[o];
+  }
+  // 100+
+  const h = Math.floor(n / 100);
+  const rest = n % 100;
+  if (rest === 0) return hundreds[h];
+  if (rest < 10) return hundreds[h] + '״' + ones[rest];
+  if (rest === 15) return hundreds[h] + 'ט״ו';
+  if (rest === 16) return hundreds[h] + 'ט״ז';
+  const t = Math.floor(rest / 10);
+  const o = rest % 10;
+  if (o === 0) return hundreds[h] + tens[t];
+  return hundreds[h] + tens[t] + ones[o];
+}
+
+addPerekContext();
+
+// =======================================================
+// TUTORIAL SCENES - "How to read gemara"
+// =======================================================
+const tutorialScenes = [
+  {
+    tag: 'פתיחה',
+    title: 'למה גמרא <span class="accent">נראית קשה</span>?',
+    html: `
+      <div class="story">
+        <p>אם פתחת פעם דף גמרא וזה הרגיש כמו חומה — אתה לא לבד. הגמרא נכתבה ב<strong>ארמית</strong> (לא עברית!), בלי סימני פיסוק, בלי גופנים מודגשים, ובלי הסברים כשעוברים מנושא לנושא.</p>
+        <p>אבל יש בה <strong>שיטה</strong>. כשמכירים את המבנה ואת המילים המיוחדות שמרכיבות אותה — היא נפתחת.</p>
+      </div>
+      <div class="tip">
+        <div class="tip-label">💡 הסוד הגדול</div>
+        <p>הגמרא היא <strong>שיחה</strong>. שואלים, עונים, מקשים, מתרצים. ברגע שיודעים אילו מילים מסמנות שאלה, אילו מילים מסמנות תשובה, ואילו מילים מסמנות סתירה — אפשר לעקוב אחרי השיחה.</p>
+      </div>
+      <div class="story">
+        <p>במדריך הזה תלמד:</p>
+        <p>1. <strong>אנטומיה של דף</strong> — איפה הגמרא, איפה רש״י, איפה תוספות<br>
+        2. <strong>״כפתורי השיחה״</strong> — המילים שמסמנות שאלה, תשובה, מקור, חילוק<br>
+        3. <strong>המהלכים השכיחים</strong> — איך שיחה בגמרא מתפתחת<br>
+        4. <strong>קריאה מעשית</strong> — נפענח קטע אמיתי מדף מ״ג ע״א צעד-צעד</p>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 1',
+    title: 'אנטומיה <span class="accent">של דף הגמרא</span>',
+    html: `
+      <div class="story"><p>דף הגמרא של ש״ס וילנה בנוי בשלוש עמודות:</p></div>
+      <div style="text-align: center; margin: 16px 0;">
+        <svg viewBox="0 0 240 200" width="240" height="200" style="max-width:100%;">
+          <rect x="10" y="10" width="220" height="180" stroke="var(--gold)" stroke-width="1.5" fill="rgba(244,234,213,0.04)"/>
+          <rect x="20" y="35" width="62" height="145" fill="rgba(200,149,104,0.1)" stroke="#c89568" stroke-width="1"/>
+          <text x="51" y="28" text-anchor="middle" fill="#c89568" font-size="11" font-weight="700">רש״י</text>
+          ${[45,51,57,63,69,75,81,87,93,99,105].map(y => `<line x1="25" y1="${y}" x2="${75 + (y%2)*2}" y2="${y}" stroke="#c89568" stroke-width="0.5" opacity="0.6"/>`).join('')}
+          <rect x="89" y="35" width="62" height="145" fill="rgba(244,234,213,0.05)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="120" y="28" text-anchor="middle" fill="var(--gold-bright)" font-size="11" font-weight="700">גמרא</text>
+          ${[47,55,63,71,79,87,95,103,111].map(y => `<line x1="94" y1="${y}" x2="${144 + (y%2)*2}" y2="${y}" stroke="var(--gold-bright)" stroke-width="0.9"/>`).join('')}
+          <rect x="158" y="35" width="62" height="145" fill="rgba(143,169,196,0.08)" stroke="#8fa9c4" stroke-width="1"/>
+          <text x="189" y="28" text-anchor="middle" fill="#8fa9c4" font-size="11" font-weight="700">תוספות</text>
+          ${[45,51,57,63,69,75,81,87,93,99].map(y => `<line x1="163" y1="${y}" x2="${213 + (y%2)*2}" y2="${y}" stroke="#8fa9c4" stroke-width="0.5" opacity="0.6"/>`).join('')}
+        </svg>
+      </div>
+      <div class="story">
+        <p><strong>אמצע</strong> — הגמרא עצמה (אותיות גדולות, גופן רגיל)<br>
+        <strong>פנים</strong> (לכיוון הספרייה) — <strong style="color: #c89568;">רש״י</strong> בגופן צפוף<br>
+        <strong>חוץ</strong> (לכיוון הקורא) — <strong style="color: #8fa9c4;">תוספות</strong></p>
+      </div>
+      <div class="tip">
+        <div class="tip-label">💡 שלב ראשון בלימוד</div>
+        <p>תמיד מתחילים עם <strong>הגמרא במרכז</strong>. רש״י ותוספות הם <em>פירושים</em> — קוראים אותם רק כשמשהו לא ברור, או כדי להעמיק.</p>
+      </div>
+      <div class="story">
+        <p>בדף יש גם <em>מתני׳</em> (=משנה) בתחילת כל סוגיה — היא הבסיס, ו<em>גמ׳</em> (=גמרא) — הדיון של האמוראים עליה.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 2',
+    title: '״כפתורי השיחה״ — <span class="accent">6 צבעים</span>',
+    html: `
+      <div class="story">
+        <p>בכל דיון בגמרא יש 6 סוגי תפקידים. בלימוד שלנו נצבע כל סוג בצבע שונה:</p>
+      </div>
+      <div class="legend">
+        <div class="legend-item statement"><div class="l-dot"></div>הצהרה</div>
+        <div class="legend-item question"><div class="l-dot"></div>שאלה / קושיה</div>
+        <div class="legend-item answer"><div class="l-dot"></div>תשובה / תירוץ</div>
+        <div class="legend-item source"><div class="l-dot"></div>מקור</div>
+        <div class="legend-item distinction"><div class="l-dot"></div>חילוק</div>
+        <div class="legend-item conclusion"><div class="l-dot"></div>מסקנה</div>
+      </div>
+      <div class="story">
+        <p>כל סוג מסומן ב״מילת מפתח״. <strong>תלחץ על המילים למטה</strong> כדי לראות את התרגום והפונקציה:</p>
+      </div>
+      <div class="gem-block">
+        <span class="term statement" data-term="amar">אמר ר׳ יוחנן</span>: פיגול וטמא ונותר שעלו על המזבח — פקע איסורן. <span class="term question" data-term="metiv">מתיב</span> רב חסדא: <span class="term question" data-term="atu">אטו</span> מזבח מקווה הוא? <span class="term answer" data-term="amar-lei">אמר ליה</span>: <span class="term distinction" data-term="shani">שאני</span> מזבח — שאני מקווה.
+      </div>
+      <div class="tip">
+        <div class="tip-label">💡 איך לזכור</div>
+        <p>אל תשנן את כל המילים מראש! פשוט תתחיל ללמוד, וכשתפגוש מילה לא מוכרת — תבדוק. בתוך 2-3 שבועות, רוב המילים יהיו מוכרות לך טבעית.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 3א',
+    title: 'מילים של <span style="color: var(--gold-bright);">הצהרה</span>',
+    html: `
+      <div class="story"><p>אלה המילים שמכניסות אמירה של חכם או ציטוט מהמקרא:</p></div>
+      <div class="vocab-card">
+        <div class="vocab-aram">אמר ר׳ פלוני</div>
+        <div class="vocab-pron">amar rabi ploni</div>
+        <div class="vocab-mean">״אמר ר׳ פלוני״ - מציג אמרה של אמורא</div>
+        <div class="vocab-fn">📌 פונקציה: פתיחת אמירה</div>
+        <div class="vocab-example">לדוגמה: <em>״אמר עולא: קומץ פיגול שהעלהו על המזבח, פקע פיגולו ממנו״</em><br>→ עולא מציג חידוש חדש משלו</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">אמר ליה</div>
+        <div class="vocab-pron">amar lei</div>
+        <div class="vocab-mean">״אמר לו״ — מציג תגובה בדיון בין שני חכמים</div>
+        <div class="vocab-fn">📌 פונקציה: תגובה/תשובה</div>
+        <div class="vocab-example">לדוגמה: <em>״אמר ליה רב חסדא לעולא: ...״</em><br>→ רב חסדא משיב לעולא</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">תניא</div>
+        <div class="vocab-pron">tanya</div>
+        <div class="vocab-mean">״שנינו בברייתא״ — מציג מקור תנאי</div>
+        <div class="vocab-fn">📌 פונקציה: הבאת מקור מוסמך</div>
+        <div class="vocab-example">לדוגמה: <em>״תניא: הקומץ והקטרת והלבונה...״</em><br>→ ברייתא שמובאת כראיה</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">תני</div>
+        <div class="vocab-pron">tani</div>
+        <div class="vocab-mean">״לימד״ — חכם מסר מסורת</div>
+        <div class="vocab-fn">📌 פונקציה: מסירת מסורת</div>
+        <div class="vocab-example">לדוגמה: <em>״תני ר׳ חייא: ...״</em><br>→ ר׳ חייא מסר ברייתא זו</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">אמר קרא</div>
+        <div class="vocab-pron">amar kra</div>
+        <div class="vocab-mean">״הפסוק אמר״ — ציטוט מהמקרא</div>
+        <div class="vocab-fn">📌 פונקציה: ראיה מהתורה</div>
+        <div class="vocab-example">לדוגמה: <em>״אמר קרא: וזרקו על המזבח״</em></div>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 3ב',
+    title: 'מילים של <span style="color: var(--crimson-glow);">שאלה</span>',
+    html: `
+      <div class="story"><p>אלה הדגלים הכי חשובים — הם מסמנים שמישהו מקשה:</p></div>
+      <div class="vocab-card">
+        <div class="vocab-aram">מקשי / מתיב</div>
+        <div class="vocab-pron">makshi / metiv</div>
+        <div class="vocab-mean">״מקשה / מתריס״ — חכם מקשה על אמירה קודמת</div>
+        <div class="vocab-fn">❓ פונקציה: קושיה ישירה</div>
+        <div class="vocab-example">לדוגמה: <em>״מתיב רב חסדא: אטו מזבח מקווה הוא?״</em><br>→ רב חסדא מקשה על ר׳ יוחנן</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">איתיביה</div>
+        <div class="vocab-pron">eitivei</div>
+        <div class="vocab-mean">״הקשה לו [מברייתא]״ — קושיה ממקור תנאי</div>
+        <div class="vocab-fn">❓ פונקציה: קושיה ממקור</div>
+        <div class="vocab-example">לדוגמה: <em>״איתיביה ר׳ אבא לעולא: והתניא...״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">מאי טעמא</div>
+        <div class="vocab-pron">mai ta'ama</div>
+        <div class="vocab-mean">״מה הסיבה?״ — דורש הסבר</div>
+        <div class="vocab-fn">❓ פונקציה: בקשת נימוק</div>
+        <div class="vocab-example">לדוגמה: <em>״...אמר ר׳ מאיר חייב. מאי טעמא?״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">אטו</div>
+        <div class="vocab-pron">atu</div>
+        <div class="vocab-mean">״האם?״ — תמיהה ריטורית, מבטא התנגדות</div>
+        <div class="vocab-fn">❓ פונקציה: תמיהה</div>
+        <div class="vocab-example">לדוגמה: <em>״אטו מזבח מקווה הוא?״</em><br>→ ״האם באמת המזבח הוא מקווה?!״ (לא יכול להיות!)</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">והא תניא</div>
+        <div class="vocab-pron">veha tanya</div>
+        <div class="vocab-mean">״אבל הלא נשנה!״ — מצביע על סתירה</div>
+        <div class="vocab-fn">❓ פונקציה: סתירה ממקור</div>
+        <div class="vocab-example">לדוגמה: <em>״...אמר רב. והא תניא: ההפך!״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">מנא הני מילי</div>
+        <div class="vocab-pron">mena hani milei</div>
+        <div class="vocab-mean">״מנין הדברים האלה?״ — דורש מקור</div>
+        <div class="vocab-fn">❓ פונקציה: בקשת מקור</div>
+        <div class="vocab-example">לדוגמה: <em>״...אסור. מנא הני מילי?״</em></div>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 3ג',
+    title: 'מילים של <span style="color: var(--sage-glow);">תשובה</span> ו<span style="color: #b08fc4;">חילוק</span>',
+    html: `
+      <div class="vocab-card">
+        <div class="vocab-aram">שאני</div>
+        <div class="vocab-pron">shani</div>
+        <div class="vocab-mean">״שונה!״ — מציג חילוק בין מקרה למקרה</div>
+        <div class="vocab-fn">🔀 פונקציה: חילוק</div>
+        <div class="vocab-example">לדוגמה: <em>״שאני התם דקא משני קרא״</em><br>→ ״שונה שם, כי הפסוק שינה״</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">הני מילי</div>
+        <div class="vocab-pron">hani milei</div>
+        <div class="vocab-mean">״הדברים האלה [רק במקרה מסוים]״</div>
+        <div class="vocab-fn">🔀 פונקציה: צמצום</div>
+        <div class="vocab-example">לדוגמה: <em>״הני מילי בקרבן יחיד, אבל בקרבן ציבור...״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">לא קשיא</div>
+        <div class="vocab-pron">lo kashya</div>
+        <div class="vocab-mean">״אין קושיה!״ — מנהיג את התירוץ</div>
+        <div class="vocab-fn">✓ פונקציה: פתיחת תירוץ</div>
+        <div class="vocab-example">לדוגמה: <em>״לא קשיא, כאן בלפני הקרבה כאן באחרי...״</em></div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">תיובתא</div>
+        <div class="vocab-pron">teyuvta</div>
+        <div class="vocab-mean">״הפרכה גמורה״ — הקושיה ניצחה</div>
+        <div class="vocab-fn">🛑 פונקציה: דחיית עמדה</div>
+        <div class="vocab-example">לדוגמה: <em>״תיובתא דרב, תיובתא״</em><br>→ רב נדחה</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-aram">קשיא</div>
+        <div class="vocab-pron">kashya</div>
+        <div class="vocab-mean">״קשה!״ — קושיה נשארה <em>פתוחה</em></div>
+        <div class="vocab-fn">⚠️ פונקציה: קושיה תלויה</div>
+        <div class="vocab-example">לפעמים פוסקים מבחינים בין ״תיובתא״ ל״קשיא״ — הראשון פוסק נגד, השני משאיר ספק.</div>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 4',
+    title: 'המהלכים <span class="accent">השכיחים</span>',
+    html: `
+      <div class="story"><p>ברגע שמכירים את אבני הבניין — אפשר לזהות תבניות. 4 המהלכים הנפוצים:</p></div>
+      <div class="pattern">
+        <div class="pattern-title">תבנית 1: שאלה ותשובה</div>
+        <div class="pattern-flow">
+          <div class="pattern-step s"><div class="p-icon">📌</div><div class="p-label">הצהרה<small>אמר ר׳ X: דין מסוים</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step q"><div class="p-icon">❓</div><div class="p-label">קושיה<small>מקשי / מתיב</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step a"><div class="p-icon">✓</div><div class="p-label">תירוץ<small>אמר ליה / לא קשיא</small></div></div>
+        </div>
+      </div>
+      <div class="pattern">
+        <div class="pattern-title">תבנית 2: סתירה בין מקורות</div>
+        <div class="pattern-flow">
+          <div class="pattern-step s"><div class="p-icon">📜</div><div class="p-label">מקור א׳<small>תניא / אמר רב</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step s"><div class="p-icon">📜</div><div class="p-label">מקור ב׳ סותר<small>והא תניא</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step d"><div class="p-icon">🔀</div><div class="p-label">חילוק<small>שאני / הני מילי</small></div></div>
+        </div>
+      </div>
+      <div class="pattern">
+        <div class="pattern-title">תבנית 3: בקשת מקור</div>
+        <div class="pattern-flow">
+          <div class="pattern-step s"><div class="p-icon">📌</div><div class="p-label">דין<small>אסור / חייב / כשר</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step q"><div class="p-icon">❓</div><div class="p-label">מנא הני מילי?<small>איפה כתוב?</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step s"><div class="p-icon">📜</div><div class="p-label">אמר קרא<small>פסוק כמקור</small></div></div>
+        </div>
+      </div>
+      <div class="pattern">
+        <div class="pattern-title">תבנית 4: ניסיון ראיה ודחייה</div>
+        <div class="pattern-flow">
+          <div class="pattern-step q"><div class="p-icon">💡</div><div class="p-label">לימא מסייע ליה<small>בוא נביא ראיה</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step s"><div class="p-icon">📜</div><div class="p-label">המקור<small>תניא / מתני׳</small></div></div>
+          <div class="pattern-arrow">↓</div>
+          <div class="pattern-step d"><div class="p-icon">🛑</div><div class="p-label">דחייה<small>לא — שאני התם</small></div></div>
+        </div>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 5',
+    title: 'קריאה <span class="accent">מעשית</span>',
+    html: `
+      <div class="story"><p>עכשיו ננתח קטע אמיתי מדף מ״ג ע״א. נקרא אותו צעד-צעד:</p></div>
+      <div class="gem-block">
+        <span class="term statement" data-term="amar">אמר עולא</span>: קומץ פיגול שהעלהו על המזבח — פקע פיגולו ממנו. <span class="term question" data-term="metiv">מתיב</span> רב חסדא: <span class="term question" data-term="atu">אטו</span> מזבח מקווה הוא? <span class="term answer" data-term="amar-lei">אמר ליה</span>: <span class="term distinction" data-term="shani">שאני</span> מזבח...
+      </div>
+      <div class="story"><p>בוא נפענח:</p></div>
+      <div class="step"><div class="step-num">1</div><div>
+        <div class="step-aram">אמר עולא:</div>
+        <div class="step-trans">״עולא אמר:״</div>
+        <div class="step-fn statement">הצהרה — אמורא פותח דין חדש</div>
+        <div class="step-expl">המילה <strong>״אמר״</strong> מסמנת שאמורא הולך לומר משהו. <strong>״עולא״</strong> = שם האמורא, מתלמידי ר׳ יוחנן.</div>
+      </div></div>
+      <div class="step"><div class="step-num">2</div><div>
+        <div class="step-aram">קומץ פיגול שהעלהו על המזבח</div>
+        <div class="step-trans">״קומץ של פיגול שהעלו אותו על המזבח״</div>
+        <div class="step-fn statement">תיאור המקרה</div>
+        <div class="step-expl">תיאור פיזי: <strong>״קומץ פיגול״</strong> = קומץ שכבר נעשה פיגול (אסור). <strong>״שהעלהו על המזבח״</strong> = ובטעות שמו אותו על האש.</div>
+      </div></div>
+      <div class="step"><div class="step-num">3</div><div>
+        <div class="step-aram">פקע פיגולו ממנו</div>
+        <div class="step-trans">״פג ממנו הפיגול שלו״</div>
+        <div class="step-fn statement">הכרעת הדין</div>
+        <div class="step-expl">החידוש של עולא! <strong>״פקע״</strong> בארמית = פג, התבטל. <em>האיסור עזב את הקומץ</em>. רעיון מהפכני.</div>
+      </div></div>
+      <div class="step"><div class="step-num">4</div><div>
+        <div class="step-aram">מתיב רב חסדא:</div>
+        <div class="step-trans">״רב חסדא הקשה:״</div>
+        <div class="step-fn question">פתיחת קושיה</div>
+        <div class="step-expl"><strong>״מתיב״</strong> = הקשה. ברגע שאתה רואה אותה: <em>תוקפת קושיה</em>. רב חסדא מתנגד לעולא.</div>
+      </div></div>
+      <div class="step"><div class="step-num">5</div><div>
+        <div class="step-aram">אטו מזבח מקווה הוא?</div>
+        <div class="step-trans">״האם המזבח הוא מקווה?!״</div>
+        <div class="step-fn question">קושיה ריטורית</div>
+        <div class="step-expl"><strong>״אטו״</strong> = ״האם?״ בלשון תמיהה. רב חסדא אומר: ״עולא, אתה מציע שהמזבח מטהר כמו מקווה? לא הגיוני!״</div>
+      </div></div>
+      <div class="step"><div class="step-num">6</div><div>
+        <div class="step-aram">[רבינא:] שאני מזבח...</div>
+        <div class="step-trans">״המזבח שונה...״</div>
+        <div class="step-fn distinction">חילוק / הבחנה</div>
+        <div class="step-expl"><strong>״שאני״</strong> מסמנת חילוק. רבינא אומר: ״כן, יש דמיון, אבל יש הבדל קריטי״. מכאן ימשיך ההסבר.</div>
+      </div></div>
+      <div class="tip">
+        <div class="tip-label">💡 מה למדנו</div>
+        <p>שמת לב? <strong>הזיהוי של 4 מילים בלבד</strong> (אמר, מתיב, אטו, שאני) נתן לך את כל המבנה: <em>הצהרה → קושיה → חילוק</em>. זאת <strong>תבנית 1</strong>!</p>
+      </div>
+    `
+  },
+  {
+    tag: 'שיעור 6',
+    title: 'איך ללמוד דף <span class="accent">בפועל</span>',
+    html: `
+      <div class="story"><p>עכשיו שאתה מבין את הקוד, הנה המתודה לכל דף:</p></div>
+      <div class="step"><div class="step-num">1</div><div>
+        <div class="step-aram">קרא את המשנה תחילה</div>
+        <div class="step-fn source">מתני׳</div>
+        <div class="step-expl">המשנה היא הבסיס. <strong>הבן אותה במלואה</strong> לפני שתעבור לגמרא. אם משהו לא ברור — פנה לרש״י על המשנה.</div>
+      </div></div>
+      <div class="step"><div class="step-num">2</div><div>
+        <div class="step-aram">קרא את הגמרא בלי רש״י קודם</div>
+        <div class="step-fn statement">סקירה ראשונה</div>
+        <div class="step-expl">קרא לאט. שים לב למילות המפתח (אמר, מתיב, שאני). נסה להבין <strong>השלד</strong>: על מה השאלה, מה התשובה?</div>
+      </div></div>
+      <div class="step"><div class="step-num">3</div><div>
+        <div class="step-aram">חזור עם רש״י</div>
+        <div class="step-fn answer">הבהרה</div>
+        <div class="step-expl">עכשיו תתחיל מההתחלה ותלך פסוק-פסוק. כל מילה לא מובנת — קפוץ לרש״י. רש״י תמיד יגיד לך <strong>מי מדבר ועל מה</strong>.</div>
+      </div></div>
+      <div class="step"><div class="step-num">4</div><div>
+        <div class="step-aram">סמן את ה״מהלך״</div>
+        <div class="step-fn distinction">סינתזה</div>
+        <div class="step-expl">סגור את הספר וספר לעצמך: ״מה הדיון בעצם?״ אמרה X, קושיה Y, תירוץ Z. אם לא יכול לסכם — חזור.</div>
+      </div></div>
+      <div class="step"><div class="step-num">5</div><div>
+        <div class="step-aram">רק בסוף — תוספות</div>
+        <div class="step-fn question">העמקה</div>
+        <div class="step-expl">תוספות מקשים על הסוגיה ועל רש״י. <strong>אל תיגש לתוספות לפני שאתה שולט בגמרא ורש״י</strong> — אחרת תאבד את הראש.</div>
+      </div></div>
+      <div class="tip">
+        <div class="tip-label">💡 כלל זהב</div>
+        <p><strong>אל תקפוץ בשיעורים.</strong> עדיף ללמוד דף אחד באמת ולשבת עליו 3 שעות מאשר 5 דפים במעוף. כל דף שמבינים <em>באמת</em> פותח את הבא.</p>
+      </div>
+    `
+  },
+  {
+    tag: 'סיכום',
+    title: 'סיכום <span class="accent">המדריך</span>',
+    html: `
+      <div class="story"><p>הנה כל המדריך בעמוד אחד:</p></div>
+      <div class="pattern">
+        <div class="pattern-title">🎯 שלוש שאלות ששואלים על כל משפט בגמרא</div>
+        <div class="pattern-flow">
+          <div class="pattern-step s"><div class="p-icon">1</div><div class="p-label">מי המדבר?<small>אמורא? תנא? פסוק?</small></div></div>
+          <div class="pattern-step q"><div class="p-icon">2</div><div class="p-label">מה הוא עושה?<small>הצהיר? הקשה? תירץ?</small></div></div>
+          <div class="pattern-step d"><div class="p-icon">3</div><div class="p-label">איפה זה משתלב?<small>ראיה? סתירה? המשך?</small></div></div>
+        </div>
+      </div>
+      <div class="story">
+        <p style="margin-top: 14px;"><strong>הכלי החזק ביותר</strong> שיש לך הוא לסמן (בעיפרון או במחשבה) את <em>מילות המפתח</em>. ברגע שאתה רואה ״מתיב״ — אתה יודע שמשהו הולך להישבר. ברגע שאתה רואה ״לא קשיא״ — מסדרים.</p>
+      </div>
+      <div class="tip">
+        <div class="tip-label">📚 משאבים נוספים</div>
+        <p>• <strong>שטיינזלץ</strong> — תרגום ופירוש מלא לכל הש״ס<br>
+        • <strong>ספריא.אורג</strong> — הש״ס עם תרגום וקישורים<br>
+        • <strong>חברותא</strong> — אין תחליף ללימוד עם בן אדם</p>
+      </div>
+      <div class="story" style="text-align: center; margin-top: 18px;">
+        <p style="font-size: 18px; color: var(--gold-bright); font-weight: 700;">בהצלחה בלימוד! 📖✨</p>
+      </div>
+    `
+  }
+];
+
+// =======================================================
+// TERMS DICTIONARY for clickable Aramaic words
+// =======================================================
+const terms = {
+  'amar': {
+    aram: 'אמר ר׳ X',
+    pron: 'amar Rabi X',
+    fn: 'statement',
+    fnLabel: 'הצהרה',
+    mean: 'מילת מפתח שמכניסה אמרה של אמורא או חכם',
+    use: '<strong>שימוש:</strong> בכל פעם שתראה ״אמר רב/ר׳ X״ - דע שעכשיו מציגים אמרה של אותו חכם. זה הקול שלו, לא של עורך הגמרא.'
+  },
+  'amar-lei': {
+    aram: 'אמר ליה',
+    pron: 'amar lei',
+    fn: 'answer',
+    fnLabel: 'תגובה',
+    mean: '״אמר לו״ - בדרך כלל תשובה לקושיה',
+    use: '<strong>שימוש:</strong> ברגע שתראה את זה אחרי קושיה - דע שעכשיו מגיע <em>תירוץ</em>.'
+  },
+  'metiv': {
+    aram: 'מתיב / מקשי',
+    pron: 'metiv / makshi',
+    fn: 'question',
+    fnLabel: 'קושיה',
+    mean: '״הקשה״ - מישהו מתריס נגד אמרה קודמת',
+    use: '<strong>שימוש:</strong> דגל אדום! משהו מתחיל לקרוס. נסה להבין: <em>מה הקושיה?</em> ב 99% מהמקרים היא ממקור שעולה לסתור.'
+  },
+  'atu': {
+    aram: 'אטו',
+    pron: 'atu',
+    fn: 'question',
+    fnLabel: 'תמיהה',
+    mean: '״האם?״ בלשון תמיהה ריטורית',
+    use: '<strong>שימוש:</strong> כשאתה רואה ״אטו״ - יש כאן <em>אבסורד מובלע</em>. ״אטו X כך?״ אומר ״לא יכול להיות ש-X״.'
+  },
+  'shani': {
+    aram: 'שאני',
+    pron: 'shani',
+    fn: 'distinction',
+    fnLabel: 'חילוק',
+    mean: '״שונה!״ - מציג הבדל בין מקרים',
+    use: '<strong>שימוש:</strong> זאת המילה החביבה על תוספות. ״שאני X״ אומר ״הדבר הזה שונה, ולכן הכלל לא חל עליו״.'
+  }
+};
+
+// =======================================================
+// STATE & RENDERING
+// =======================================================
+const state = {
+  tab: 'masechet',
+  ref: '4b',
+  sceneIdx: 0,
+  modal: null
+};
+
+function getAllRefs() {
+  return Object.keys(amudim).sort((a, b) => {
+    const da = parseInt(a);
+    const db = parseInt(b);
+    if (da !== db) return da - db;
+    return a.endsWith('a') ? -1 : 1;
+  });
+}
+
+const allRefs = getAllRefs();
+
+function getCurrentIdx() { return allRefs.indexOf(state.ref); }
+
+function goToRef(ref) {
+  if (!amudim[ref]) return;
+  state.ref = ref;
+  state.sceneIdx = 0;
+  renderAll();
+  window.scrollTo(0, 0);
+}
+
+function renderHeader() {
+  const amud = amudim[state.ref];
+  const perek = getPerekFor(amud.daf, amud.amud);
+  document.getElementById('dafTitle').textContent =
+    `דף ${heb(amud.daf)} ע״${amud.amud === 'a' ? 'א' : 'ב'}`;
+  document.getElementById('perekName').textContent =
+    `פרק ${perek.num} — ${perek.name}`;
+
+  const idx = getCurrentIdx();
+  document.getElementById('prevDafBtn').disabled = idx === 0;
+  document.getElementById('nextDafBtn').disabled = idx === allRefs.length - 1;
+}
+
+function renderActionBar() {
+  const amud = amudim[state.ref];
+  document.getElementById('rashiCount').textContent = amud.rashi.length;
+  document.getElementById('tosCount').textContent = amud.tosafot.length;
+  document.getElementById('rashiBtn').classList.toggle('disabled', amud.rashi.length === 0);
+  document.getElementById('tosBtn').classList.toggle('disabled', amud.tosafot.length === 0);
+}
+
+function renderScenes() {
+  const stage = document.getElementById('stage');
+  const scenes = state.tab === 'masechet' ? amudim[state.ref].scenes : tutorialScenes;
+
+  stage.innerHTML = '';
+  scenes.forEach((scene, i) => {
+    const div = document.createElement('section');
+    div.className = 'scene' + (i === state.sceneIdx ? ' active' : '');
+    div.innerHTML = `
+      <div class="scene-tag ${scene.tagClass || ''}">${scene.tag}</div>
+      <h2 class="scene-title">${scene.title}</h2>
+      ${scene.html}
+    `;
+    stage.appendChild(div);
+  });
+
+  renderProgress();
+}
+
+function renderProgress() {
+  const scenes = state.tab === 'masechet' ? amudim[state.ref].scenes : tutorialScenes;
+  const progressEl = document.getElementById('progress');
+  const counterEl = document.getElementById('counter');
+
+  progressEl.innerHTML = '';
+  for (let i = 0; i < scenes.length; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === state.sceneIdx ? ' active' : '');
+    dot.addEventListener('click', () => {
+      state.sceneIdx = i;
+      renderScenes();
+    });
+    progressEl.appendChild(dot);
+  }
+
+  counterEl.textContent = scenes.length > 1
+    ? `${state.sceneIdx + 1} / ${scenes.length}`
+    : '';
+
+  document.getElementById('prevSceneBtn').disabled = state.sceneIdx === 0;
+  document.getElementById('nextSceneBtn').disabled = state.sceneIdx === scenes.length - 1;
+}
+
+function renderAll() {
+  if (state.tab === 'masechet') {
+    renderHeader();
+    renderActionBar();
+  }
+  renderScenes();
+}
+
+function switchTab(tab) {
+  if (state.tab === tab) return;
+  state.tab = tab;
+  state.sceneIdx = 0;
+  document.body.classList.toggle('tutorial-mode', tab === 'tutorial');
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  renderAll();
+  window.scrollTo(0, 0);
+}
+
+function changeScene(delta) {
+  const scenes = state.tab === 'masechet' ? amudim[state.ref].scenes : tutorialScenes;
+  const newIdx = state.sceneIdx + delta;
+  if (newIdx < 0 || newIdx >= scenes.length) return;
+  state.sceneIdx = newIdx;
+  renderScenes();
+}
+
+// =======================================================
+// MODAL
+// =======================================================
+function openModal(type) {
+  const amud = amudim[state.ref];
+  const entries = type === 'rashi' ? amud.rashi : amud.tosafot;
+  if (entries.length === 0) return;
+
+  state.modal = type;
+  const modal = document.getElementById(type === 'rashi' ? 'rashiModal' : 'tosModal');
+  const content = document.getElementById(type === 'rashi' ? 'rashiContent' : 'tosContent');
+
+  content.innerHTML = '';
+  entries.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'meforesh-entry';
+    div.innerHTML = `
+      <div class="meforesh-dh">${e.dh}</div>
+      <div class="meforesh-content">${e.content}</div>
+    `;
+    content.appendChild(div);
+  });
+
+  document.getElementById('modalOverlay').classList.add('open');
+  modal.classList.add('open');
+}
+
+function openTranslation() {
+  const amud = amudim[state.ref];
+  const trans = amud.translation || [];
+  const content = document.getElementById('transContent');
+
+  if (trans.length === 0) {
+    content.innerHTML = `
+      <div class="modal-empty">
+        <div class="e-icon">📭</div>
+        <p style="color: var(--parchment-dim); font-size: 14px;">תרגום עדיין לא נוסף לדף זה.<br>התשתית מוכנה — ניתן להוסיף תרגום בקובץ.</p>
+      </div>
+    `;
+  } else {
+    let html = '';
+    trans.forEach(entry => {
+      if (entry.type === 'section') {
+        html += `<div class="trans-section-header">${entry.title}</div>`;
+      } else if (entry.type === 'quote') {
+        html += `
+          <div class="trans-entry">
+            <div class="trans-aram">${entry.aramaic}</div>
+            <div class="trans-heb">${entry.translation}</div>
+            ${entry.viz || ''}
+          </div>
+        `;
+      } else if (entry.type === 'summary') {
+        html += `<div class="trans-summary">${entry.text}${entry.viz || ''}</div>`;
+      } else if (entry.type === 'note') {
+        html += `<div class="trans-note">${entry.text}</div>`;
+      }
+    });
+    content.innerHTML = html;
+  }
+
+  state.modal = 'trans';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('transModal').classList.add('open');
+}
+
+function closeModal() {
+  state.modal = null;
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('rashiModal').classList.remove('open');
+  document.getElementById('tosModal').classList.remove('open');
+  document.getElementById('termModal').classList.remove('open');
+  document.getElementById('transModal').classList.remove('open');
+  document.getElementById('pickerModal').classList.remove('open');
+}
+
+// =======================================================
+// DAF PICKER
+// =======================================================
+function openPicker() {
+  const content = document.getElementById('pickerContent');
+  content.innerHTML = '';
+
+  perakim.forEach(perek => {
+    const section = document.createElement('div');
+    section.className = 'perek-section';
+
+    const header = document.createElement('div');
+    header.className = 'perek-header';
+    header.textContent = `פרק ${perek.num} — ${perek.name}`;
+    section.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'daf-grid';
+
+    // Find range of dapim in this perek
+    const perekIdx = perakim.indexOf(perek);
+    const nextPerek = perakim[perekIdx + 1];
+    const endDaf = nextPerek ? nextPerek.start : 32;
+    const endAmud = nextPerek ? nextPerek.startAmud : 'b';
+
+    // Iterate through dapim
+    for (let d = perek.start; d < endDaf || (d === endDaf && nextPerek && nextPerek.startAmud === 'b'); d++) {
+      const startA = (d === perek.start) ? perek.startAmud : 'a';
+      const amudOpts = startA === 'b' ? ['b'] : ['a', 'b'];
+      for (const a of amudOpts) {
+        if (d === endDaf && nextPerek && a === nextPerek.startAmud) break;
+        if (d === 120 && a === 'b') {} // include 120b
+        const ref = `${d}${a}`;
+        if (!amudim[ref]) continue;
+        const btn = document.createElement('button');
+        btn.className = 'daf-btn';
+        if (ref === state.ref) btn.classList.add('current');
+        if (amudim[ref].scenes.length > 0 && amudim[ref].scenes[0].tag !== `פרק ${getPerekFor(d, a).num}`) {
+          btn.classList.add('has-content');
+        }
+        // Show daf number with side
+        btn.textContent = `${heb(d)}${a === 'a' ? '.' : ':'}`;
+        btn.addEventListener('click', () => {
+          goToRef(ref);
+          closeModal();
+        });
+        grid.appendChild(btn);
+      }
+    }
+
+    section.appendChild(grid);
+    content.appendChild(section);
+  });
+
+  state.modal = 'picker';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('pickerModal').classList.add('open');
+}
+
+// =======================================================
+// EVENT BINDINGS
+// =======================================================
+document.getElementById('prevDafBtn').addEventListener('click', () => {
+  const idx = getCurrentIdx();
+  if (idx > 0) goToRef(allRefs[idx - 1]);
+});
+document.getElementById('nextDafBtn').addEventListener('click', () => {
+  const idx = getCurrentIdx();
+  if (idx < allRefs.length - 1) goToRef(allRefs[idx + 1]);
+});
+document.getElementById('dafDisplay').addEventListener('click', openPicker);
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+// Term modal for clickable Aramaic words in tutorial
+document.addEventListener('click', (e) => {
+  const term = e.target.closest('.term');
+  if (term && term.dataset.term) {
+    openTerm(term.dataset.term);
+  }
+});
+
+function openTerm(key) {
+  const t = terms[key];
+  if (!t) return;
+  const fnColors = {
+    statement: { bg: 'rgba(232,183,109,0.2)', color: 'var(--gold-bright)' },
+    question: { bg: 'rgba(193,74,90,0.2)', color: 'var(--crimson-glow)' },
+    answer: { bg: 'rgba(136,178,122,0.2)', color: 'var(--sage-glow)' },
+    source: { bg: 'rgba(127,179,213,0.2)', color: 'var(--sky-glow)' },
+    distinction: { bg: 'rgba(176,143,196,0.2)', color: '#b08fc4' },
+    conclusion: { bg: 'rgba(232,154,109,0.2)', color: 'var(--warm)' }
+  };
+  const c = fnColors[t.fn];
+
+  document.getElementById('termContent').innerHTML = `
+    <div class="modal-aram-big">${t.aram}</div>
+    <div class="modal-pron">${t.pron}</div>
+    <div class="modal-fn-badge" style="background: ${c.bg}; color: ${c.color};">${t.fnLabel}</div>
+    <div class="modal-mean-text">${t.mean}</div>
+    <div class="modal-use">${t.use}</div>
+  `;
+
+  state.modal = 'term';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('termModal').classList.add('open');
+}
+
+document.getElementById('prevSceneBtn').addEventListener('click', () => changeScene(-1));
+document.getElementById('nextSceneBtn').addEventListener('click', () => changeScene(1));
+
+document.getElementById('rashiBtn').addEventListener('click', () => openModal('rashi'));
+document.getElementById('tosBtn').addEventListener('click', () => openModal('tos'));
+document.getElementById('transBtn').addEventListener('click', () => openTranslation());
+
+document.getElementById('modalOverlay').addEventListener('click', closeModal);
+document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeModal));
+
+document.addEventListener('keydown', (e) => {
+  if (state.modal) {
+    if (e.key === 'Escape') closeModal();
+    return;
+  }
+  if (e.key === 'ArrowLeft') changeScene(1);
+  if (e.key === 'ArrowRight') changeScene(-1);
+});
+
+// Touch swipe for scenes
+let touchStartX = 0, touchStartY = 0, touchStartT = 0;
+document.addEventListener('touchstart', (e) => {
+  if (e.touches.length !== 1) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  touchStartT = Date.now();
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+  if (state.modal) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  const dt = Date.now() - touchStartT;
+  if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 2 && dt < 600) {
+    if (dx > 0) changeScene(-1);
+    else changeScene(1);
+  }
+}, { passive: true });
+
+// URL hash for deep linking
+function readHash() {
+  const h = window.location.hash.slice(1);
+  if (h === 'tutorial') {
+    switchTab('tutorial');
+    return;
+  }
+  if (h && amudim[h]) {
+    switchTab('masechet');
+    goToRef(h);
+  }
+}
+window.addEventListener('hashchange', readHash);
+readHash();
+
+// Initial render
+renderAll();
+</script>
+
+</body>
+</html>
