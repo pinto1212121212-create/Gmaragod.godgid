@@ -1116,6 +1116,52 @@
   }
 
   /* ===== Taanit additions ===== */
+  .nl-pt.first { transform: translateX(0); text-align: right; }
+  .nl-pt.first::before { right: 6px; transform: none; }
+  .quiz { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .quiz-q { background: rgba(244,234,213,0.05); border: 1px solid rgba(232,183,109,0.25); border-radius: 10px; padding: 10px 12px; }
+  .quiz-q summary { cursor: pointer; font-weight: 700; color: var(--gold-bright); font-size: 14px; list-style: none; }
+  .quiz-q summary::before { content: "❓ "; }
+  .quiz-q[open] summary::before { content: "✅ "; }
+  .quiz-a { margin-top: 8px; font-size: 14px; line-height: 1.7; color: var(--parchment-soft); }
+  .sflow { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+  .sf-step { display: flex; gap: 10px; align-items: flex-start; padding: 9px 11px; border-radius: 10px;
+    background: rgba(244,234,213,0.05); border-right: 3px solid var(--sky); font-size: 14px; line-height: 1.65; }
+  .sf-step.bad { border-right-color: var(--crimson); }
+  .sf-step.hl { border-right-color: var(--gold); background: rgba(232,183,109,0.1); }
+  .sf-who { flex: 0 0 74px; font-weight: 800; color: var(--gold); font-size: 12px; padding-top: 2px; }
+  .sf-txt { flex: 1; min-width: 0; }
+  .pray-grid, .rain-table { display: grid; gap: 4px; width: 100%; font-size: 11px; text-align: center; }
+  .pray-grid { grid-template-columns: 52px repeat(4, 1fr); }
+  .rain-table { grid-template-columns: 58px repeat(3, 1fr); }
+  .pg-h, .rt-h { font-weight: 800; color: var(--gold); padding: 3px 0; }
+  .rt-h small { font-weight: 500; color: var(--parchment-dim); }
+  .pg-n, .rt-n { font-weight: 800; color: var(--parchment-soft); display: flex; align-items: center; }
+  .pg-c, .rt-c { border-radius: 6px; padding: 6px 2px; font-weight: 700; background: rgba(244,234,213,0.06); }
+  .pg-c.on { background: rgba(136,178,122,0.25); color: var(--sage-glow); animation: kFade 3.5s infinite; }
+  .pg-c.off { background: rgba(193,74,90,0.18); color: var(--crimson-glow); }
+  .rt-c.hl { background: rgba(232,183,109,0.25); color: var(--gold-bright); animation: kPulse 2.5s infinite; }
+  .ladder { display: flex; flex-direction: column; gap: 4px; margin: 12px 0; }
+  .ld-step { font-size: 13px; font-weight: 600; padding: 7px 10px; border-radius: 8px;
+    margin-right: calc(var(--i) * 12px); color: var(--parchment);
+    background: rgba(193,74,90, calc(0.08 + var(--i) * 0.07)); border: 1px solid rgba(193,74,90,0.35);
+    animation: gentleFade .6s both; animation-delay: calc(var(--i) * .25s); }
+  .ld-step b { display: inline-block; width: 20px; color: var(--gold); }
+  .ld-step span { color: var(--parchment-dim); font-weight: 400; }
+  .stalk-cmp { display: flex; gap: 40px; align-items: flex-end; justify-content: center; height: 110px; }
+  .sc-col { display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: 700; color: var(--parchment-soft); }
+  .sc-ear { width: 16px; border-radius: 8px 8px 4px 4px; background: var(--gold); }
+  .sc-stem { width: 4px; background: var(--sage); margin-bottom: 4px; }
+  .sc-col.miracle .sc-ear { animation: kPulse 2.5s infinite; background: var(--gold-bright); }
+  .throat { position: relative; display: flex; gap: 14px; justify-content: center; height: 100px; width: 200px; }
+  .th-tube { width: 64px; border-radius: 10px 10px 4px 4px; display: flex; align-items: flex-end; justify-content: center;
+    font-size: 11px; font-weight: 700; padding-bottom: 6px; text-align: center; }
+  .th-tube.trachea { background: rgba(127,179,213,0.22); border: 1.5px solid var(--sky); color: var(--sky-glow); }
+  .th-tube.esoph { background: rgba(136,178,122,0.22); border: 1.5px solid var(--sage); color: var(--sage-glow); }
+  .th-food { position: absolute; top: 0; font-size: 22px; animation: thFood 4s ease-in-out infinite; }
+  @keyframes thFood { 0% { right: 40px; top: -6px; } 45% { right: 40px; top: 50px; opacity: 1; } 55% { opacity: 0; } 60% { right: 118px; top: -6px; opacity: 0; } 65% { opacity: 1; } 100% { right: 118px; top: 50px; } }
+  @media (prefers-reduced-motion: reduce) { .kviz *, .ld-step, .th-food { animation: none !important; } }
+
   .verify-note {
     font-size: 12px; line-height: 1.6; color: var(--parchment-soft);
     background: rgba(232,154,109,0.12); border: 1px dashed var(--warm);
@@ -1152,8 +1198,6 @@
   .nl-pt { top: 34px; }
   .nl-pt b { display: block; color: var(--gold-bright); font-size: 11px; }
   .nl-pt:last-child { transform: translateX(80%); }
-  .nl-pt.first { transform: translateX(0); text-align: right; }
-  .nl-pt.first::before { right: 6px; transform: none; }
   .nl-grow {
     position: absolute; top: 18px; right: 0; height: 8px; width: 0; border-radius: 4px;
     background: linear-gradient(270deg, var(--sky), var(--sage), var(--gold));
@@ -1285,11 +1329,8 @@ function getPerekFor(daf, amud) {
   const target = pos(daf, amud);
   let p = perakim[0];
   for (const perek of perakim) {
-    if (pos(perek.start, perek.startAmud) <= target) {
-      p = perek;
-    } else {
-      break;
-    }
+    if (pos(perek.start, perek.startAmud) <= target) p = perek;
+    else break;
   }
   return p;
 }
@@ -1305,341 +1346,901 @@ for (let d = 2; d <= 31; d++) {
   }
 }
 
-const UNVERIFIED_NOTE = `
-  <div class="verify-note">⚠️ ההסבר נכתב מהידע הכללי על הסוגיה, <strong>בלי גישה לטקסט הדף</strong>. ציטוטי הגמרא כאן לא אומתו מול הדף, וייתכן שגבול העמודים (ד: / ה.) לא מדויק. כדאי ללמוד עם הגמרא פתוחה.</div>
+// ---------- helpers for building scenes ----------
+const kv = (head, stage, cap, stageStyle) => `
+  <div class="kviz">
+    <div class="kviz-head">🎬 ${head}</div>
+    <div class="kviz-stage"${stageStyle ? ` style="${stageStyle}"` : ''}>${stage}</div>
+    ${cap ? `<div class="kviz-cap">${cap}</div>` : ''}
+  </div>`;
+const kn = (emoji, label, cls = '', style = '') =>
+  `<div class="knode ${cls}"${style ? ` style="${style}"` : ''}><span class="kemoji">${emoji}</span>${label}</div>`;
+const ar = (s = '←', style = '') => `<span class="karrow"${style ? ` style="${style}"` : ''}>${s}</span>`;
+const say = (who, text, answer = false) =>
+  `<div class="bubble${answer ? ' answer' : ''}"><div class="bubble-label">${who}</div><div>${text}</div></div>`;
+const story = (...ps) => `<div class="story">${ps.map(p => `<p>${p}</p>`).join('')}</div>`;
+const key = (label, text) => `<div class="keyidea"><div class="keyidea-label">🎯 ${label}</div><p>${text}</p></div>`;
+const tip = (label, text) => `<div class="tip"><div class="tip-label">💡 ${label}</div>${text}</div>`;
+const quiz = (items) => `<div class="quiz">${items.map(([q, a]) =>
+  `<details class="quiz-q"><summary>${q}</summary><div class="quiz-a">${a}</div></details>`).join('')}</div>`;
+const flow = (steps) => `<div class="sflow">${steps.map(([who, txt, cls]) =>
+  `<div class="sf-step ${cls || ''}"><span class="sf-who">${who}</span><span class="sf-txt">${txt}</span></div>`).join('')}</div>`;
+
+const SOURCE_NOTE = `
+  <div class="verify-note">📷 הטקסט נקרא מתוך הצילומים של הדף (דפוס וילנא). במקומות שהצילום מטושטש ייתכנו טעויות קריאה קטנות. רש״י ותוספות מובאים כאן <strong>בביאור ובתמצית</strong>, לא כציטוט מלא.</div>
 `;
 
 // =======================================================
-// FULL CONTENT: Daf 4b
+// DAF 4b
 // =======================================================
 amudim['4b'].scenes = [
   {
-    tag: 'פתיחה',
-    title: 'הזכרה <span class="accent">ושאלה</span> — שני דברים שונים',
+    tag: 'רקע',
+    title: 'איפה אנחנו? <span class="accent">הזכרה ושאלה</span>',
     html: `
-      ${UNVERIFIED_NOTE}
-      <div class="story">
-        <p>הפרק הראשון של תענית עוסק בשאלה: <strong>מתי מתפללים על גשם?</strong> כבר בתחילת המסכת למדנו שיש שני סוגים של תפילה על גשם, והם לא אותו דבר.</p>
-      </div>
+      ${SOURCE_NOTE}
+      ${story(
+        'אנחנו בפרק הראשון של תענית. כל הפרק עוסק בתפילה על הגשם, ויש בה <strong>שני חלקים שונים</strong>:'
+      )}
       <div class="vs-grid">
-        <div class="vs-card a">
-          <div class="emoji">🗣️</div>
-          <h5>הזכרה</h5>
-          <p>״<strong>משיב הרוח ומוריד הגשם</strong>״. שבח לה׳ על כוחו להוריד גשם. נאמרת בברכת ״מחיה המתים״.</p>
-        </div>
-        <div class="vs-card b">
-          <div class="emoji">🙏</div>
-          <h5>שאלה</h5>
-          <p>״<strong>ותן טל ומטר לברכה</strong>״. בקשה ממש: ״תן לנו גשם!״. נאמרת בברכת השנים.</p>
-        </div>
+        <div class="vs-card a"><div class="emoji">🗣️</div><h5>הזכרה</h5>
+          <p>״<strong>משיב הרוח ומוריד הגשם</strong>״ בברכת ״מחיה המתים״. זה <em>שבח</em> לה׳, ״גבורות גשמים״.</p></div>
+        <div class="vs-card b"><div class="emoji">🙏</div><h5>שאלה</h5>
+          <p>״<strong>ותן טל ומטר</strong>״ בברכת השנים. זו <em>בקשה</em> ממש, ויש אותה רק בתפילת חול.</p></div>
       </div>
-      <div class="keyidea">
-        <div class="keyidea-label">🎯 על מה המשנה בדף שלנו</div>
-        <p>אחרי שהמשנה הקודמת דנה <em>מתי מתחילים להזכיר</em>, המשנה שלנו עוברת ל<strong>שאלה</strong>: מתי מתחילים לבקש, ועד מתי ממשיכים.</p>
-      </div>
+      ${story(
+        'במשנה (דף ב.) נחלקו <strong>ר׳ אליעזר</strong> ו<strong>ר׳ יהושע</strong> ממתי מזכירים. לר׳ אליעזר מזכירים מיום טוב הראשון של סוכות. לר׳ יהושע מתחילים רק ביום טוב האחרון, ״משעת הנחתו״ של הלולב.',
+        'אחר כך המשנה אומרת: <strong>״אין שואלין את הגשמים אלא סמוך לגשמים״</strong>. וכאן מתחיל העמוד שלנו.'
+      )}
+      ${kv('ציר השנה: מתי מזכירים ומתי שואלים',
+        `<div class="year-line">
+          <div class="yl-track"></div><div class="yl-fill hz"></div><div class="yl-fill sh"></div>
+          <div class="yl-mark" style="right:4%"><span>🌿</span>סוכות</div>
+          <div class="yl-mark" style="right:20%"><span>🍂</span>מרחשון</div>
+          <div class="yl-mark" style="right:62%"><span>🍷</span>פסח</div>
+          <div class="yl-mark" style="right:80%"><span>🌸</span>סוף ניסן</div>
+        </div>`,
+        '<span style="color:var(--gold-bright)">■</span> הזכרה מתחילה בחג. <span style="color:var(--sky-glow)">■</span> שאלה מתחילה רק במרחשון, סמוך לגשמים.')}
+    `
+  },
+  {
+    tag: 'סוגיה 1',
+    title: '״רבי יהושע היא, דאמר <span class="accent">משעת הנחתו</span>״',
+    html: `
+      ${story('הגמרא שואלת: המשנה ״אין שואלין אלא סמוך לגשמים״ — של מי היא?')}
+      ${say('הגמרא (כפי שמבאר רש״י)', 'לכאורה זו שיטת <strong>ר׳ יהושע</strong>, שאמר שמזכירים רק ״משעת הנחתו״ של הלולב, כלומר ביום טוב האחרון. גם הוא מאחר, כי לא רוצים להזכיר גשם כשעוד לא צריך אותו.')}
+      ${say('רבא', '<strong>״אפילו תימא רבי אליעזר — שאלה לחוד והזכרה לחוד״</strong>. גם ר׳ אליעזר, שמזכיר כבר מתחילת החג, מודה שאת <em>הבקשה</em> לא אומרים עד סמוך לגשמים. הזכרה היא רק שבח, ושאלה היא בקשה ממש.', true)}
+      ${kv('רבא מפריד בין שני הדברים',
+        kn('🗣️', 'הזכרה<br><span style="opacity:.7">ר״א: מתחילת החג</span>', 'gold', 'animation:kPulse 3s infinite') +
+        `<span class="karrow">≠</span>` +
+        kn('🙏', 'שאלה<br><span style="opacity:.7">לכולם: סמוך לגשמים</span>', 'good', 'animation:kPulse 3s infinite 1.5s'),
+        'אפשר <strong>לשבח</strong> על הגשם מוקדם, ו<strong>לבקש</strong> אותו רק בזמנו.')}
     `
   },
   {
     tag: 'משנה',
-    title: '״אין שואלין את הגשמים <span class="accent">אלא סמוך לגשמים</span>״',
+    title: 'ר׳ יהודה: <span class="accent">הראשון או האחרון?</span>',
     html: `
-      <div class="story">
-        <p>הכלל הראשון של המשנה פשוט: <strong>לא מבקשים גשם לפני שהגיע זמנו.</strong> הזכרה (שבח) אפשר להתחיל מוקדם, אבל בקשה עושים רק כשבאמת צריך גשם, כלומר סמוך לעונת הגשמים.</p>
-      </div>
-      <div class="kviz">
-        <div class="kviz-head">🎬 בתנועה: הזכרה מתחילה בסוכות, שאלה רק אחר כך</div>
-        <div class="kviz-stage">
-          <div class="year-line">
-            <div class="yl-track"></div>
-            <div class="yl-fill hz"></div>
-            <div class="yl-fill sh"></div>
-            <div class="yl-mark" style="right:4%"><span>🌿</span>סוכות</div>
-            <div class="yl-mark" style="right:20%"><span>🍂</span>מרחשון</div>
-            <div class="yl-mark" style="right:62%"><span>🍷</span>פסח</div>
-            <div class="yl-mark" style="right:76%"><span>🌸</span>סוף ניסן</div>
-          </div>
-        </div>
-        <div class="kviz-cap"><span style="color:var(--gold-bright)">■ זהוב</span> = הזכרה (משיב הרוח), <span style="color:var(--sky-glow)">■ כחול</span> = שאלה (ותן טל ומטר). השאלה מתחילה <strong>מאוחר יותר</strong>, סמוך לגשמים.</div>
-      </div>
-      <div class="tip">
-        <div class="tip-label">💡 למה?</div>
-        בסוכות עוד לא רוצים גשם, כי יושבים בסוכה ועולים לרגל. את השבח ״משיב הרוח״ אפשר לומר כבר אז, אבל לבקש גשם כשהוא עוד לא נחוץ זו בקשה שלא בזמנה.
-      </div>
+      ${story(
+        'נמשיך במשנה: <strong>״רבי יהודה אומר: העובר לפני התיבה ביום טוב האחרון של חג — האחרון מזכיר, הראשון אינו מזכיר. ביום טוב הראשון של פסח — הראשון מזכיר, האחרון אינו מזכיר.״</strong>',
+        'ביום טוב יש שני שליחי ציבור. <strong>״הראשון״</strong> הוא החזן של שחרית, ו<strong>״האחרון״</strong> הוא החזן של מוסף.'
+      )}
+      ${kv('שמיני עצרת: מתחילים',
+        kn('🌅', 'שחרית<br><span style="opacity:.7">לא מזכיר</span>', '', '') + ar() +
+        kn('☀️', 'מוסף<br><span style="opacity:.7">מזכיר!</span>', 'gold', 'animation:kPulse 3s infinite'))}
+      ${kv('יום ראשון של פסח: מפסיקים',
+        kn('🌅', 'שחרית<br><span style="opacity:.7">עוד מזכיר</span>', 'gold', 'animation:kPulse 3s infinite') + ar() +
+        kn('☀️', 'מוסף<br><span style="opacity:.7">כבר לא</span>', ''),
+        'לפי ר׳ יהודה ה<strong>הזכרה</strong> נגמרת כבר ב<strong>יום טוב הראשון של פסח</strong>.')}
     `
   },
   {
-    tag: 'ר׳ יהודה',
-    title: 'מי מתחיל להזכיר: <span class="accent">החזן הראשון או האחרון?</span>',
+    tag: 'קושיה',
+    title: '״ורמינהו״ — <span class="accent">ר׳ יהודה סותר את עצמו?</span>',
     html: `
-      <div class="story">
-        <p>ר׳ יהודה מוסיף פרט מעשי. ביום טוב יש שני חזנים: אחד ל<strong>שחרית</strong> (״הראשון״) ואחד ל<strong>מוסף</strong> (״האחרון״). מי מהם עושה את השינוי?</p>
-      </div>
-      <div class="kviz">
-        <div class="kviz-head">🎬 שמיני עצרת: מתחילים להזכיר</div>
-        <div class="kviz-stage">
-          <div class="knode"><span class="kverdict bad" style="animation:kAppear 4.5s infinite .4s">✗</span><span class="kemoji">🌅</span>שחרית<br><span style="opacity:.7">הראשון לא מזכיר</span></div>
-          <span class="karrow">←</span>
-          <div class="knode gold"><span class="kverdict good" style="animation:kAppear 4.5s infinite 1.6s">✓</span><span class="kemoji">☀️</span>מוסף<br><span style="opacity:.7">האחרון מזכיר</span></div>
-        </div>
-        <div class="kviz-cap">ההזכרה <strong>מתחילה</strong> במוסף</div>
-      </div>
-      <div class="kviz">
-        <div class="kviz-head">🎬 יום טוב ראשון של פסח: מפסיקים להזכיר</div>
-        <div class="kviz-stage">
-          <div class="knode gold"><span class="kverdict good" style="animation:kAppear 4.5s infinite .4s">✓</span><span class="kemoji">🌅</span>שחרית<br><span style="opacity:.7">הראשון עוד מזכיר</span></div>
-          <span class="karrow">←</span>
-          <div class="knode"><span class="kverdict bad" style="animation:kAppear 4.5s infinite 1.6s">✗</span><span class="kemoji">☀️</span>מוסף<br><span style="opacity:.7">האחרון כבר לא</span></div>
-        </div>
-        <div class="kviz-cap">ההזכרה <strong>מסתיימת</strong> במוסף</div>
-      </div>
-      <div class="keyidea">
-        <div class="keyidea-label">🎯 הסימטריה</div>
-        <p>בשני המקרים <strong>המוסף הוא נקודת השינוי</strong>: בתחילת החורף מוסף מתחיל להזכיר, ובסופו מוסף מפסיק. זה גם המנהג שלנו היום. מכריזים ״משיב הרוח״ לפני מוסף של שמיני עצרת, ומפסיקים במוסף של היום הראשון של פסח.</p>
-      </div>
+      ${story('הגמרא מביאה משנה אחרת (שמופיעה אצלנו בעמוד הבא):')}
+      ${say('ורמינהו', '<strong>״עד מתי שואלין את הגשמים? ר׳ יהודה אומר: עד שיעבור הפסח. ר׳ מאיר אומר: עד שיעבור ניסן.״</strong>')}
+      ${kv('הסתירה',
+        kn('📜', 'משנה א׳<br><span style="opacity:.7">מפסיקים ביו״ט ראשון של פסח</span>', 'bad') +
+        `<span class="karrow">⚡</span>` +
+        kn('📜', 'משנה ב׳<br><span style="opacity:.7">ממשיכים עד סוף הפסח</span>', 'bad', 'animation:kShake 1.4s infinite'),
+        'שתי המשניות בשם <strong>אותו ר׳ יהודה</strong>. אז מתי מפסיקים: ביום הראשון של פסח או בסופו?')}
     `
   },
   {
-    tag: 'מחלוקת',
-    title: 'עד מתי <span class="accent">שואלין?</span>',
+    tag: 'תירוץ 1',
+    title: 'רב חסדא: <span class="accent">״כאן לשאול, כאן להזכיר״</span>',
     html: `
-      <div class="story">
-        <p>עכשיו לשאלה ההפוכה: <strong>מתי מפסיקים לבקש</strong> ״ותן טל ומטר״?</p>
-      </div>
-      <div class="vs-grid">
-        <div class="vs-card a">
-          <div class="emoji">🍷</div>
-          <h5>ר׳ יהודה</h5>
-          <p>עד <strong>שיעבור הפסח</strong></p>
-        </div>
-        <div class="vs-card b">
-          <div class="emoji">🌸</div>
-          <h5>ר׳ מאיר</h5>
-          <p>עד <strong>שיצא ניסן</strong>, שנאמר: ״ויורד לכם גשם מורה ומלקוש <strong>בראשון</strong>״ (יואל ב, כג)</p>
-        </div>
-      </div>
-      <div class="kviz">
-        <div class="kviz-head">🎬 בתנועה: שני קווי סיום</div>
-        <div class="kviz-stage">
-          <div class="end-lines">
-            <div class="el-row"><span class="el-name">ר׳ יהודה</span><div class="el-bar"><div class="el-fill y"></div></div><span class="el-end">פסח</span></div>
-            <div class="el-row"><span class="el-name">ר׳ מאיר</span><div class="el-bar"><div class="el-fill m"></div></div><span class="el-end">סוף ניסן</span></div>
-          </div>
-        </div>
-        <div class="kviz-cap">ר׳ מאיר ממשיך לבקש <strong>עוד שבועיים</strong>, כי לפי הפסוק יש גשם מבורך גם ב״ראשון״, כלומר בניסן, החודש הראשון.</div>
-      </div>
-      <div class="tip">
-        <div class="tip-label">💡 מה ההיגיון של ר׳ יהודה?</div>
-        גשם אחרי פסח כבר מזיק לתבואה שעומדת להיקצר. לכן אין טעם לבקש אותו.
-      </div>
+      ${say('רב חסדא', '<strong>״לא קשיא: כאן לשאול, כאן להזכיר. מישאל — שאיל ואזיל; להזכיר — ביום טוב הראשון פסיק.״</strong>', true)}
+      ${story(
+        'שתי המשניות עוסקות בשני דברים שונים:',
+        '• <strong>השאלה</strong> (״ותן טל ומטר״) נמשכת עד <em>סוף</em> הפסח, ואומרים אותה בחול המועד.',
+        '• <strong>ההזכרה</strong> (״משיב הרוח״) נפסקת כבר ב<em>יום טוב הראשון</em>.'
+      )}
+      ${kv('לפי רב חסדא',
+        `<div class="end-lines">
+          <div class="el-row"><span class="el-name">הזכרה</span><div class="el-bar"><div class="el-fill y" style="background:var(--gold)"></div></div><span class="el-end">יו״ט א׳</span></div>
+          <div class="el-row"><span class="el-name">שאלה</span><div class="el-bar"><div class="el-fill m"></div></div><span class="el-end">סוף פסח</span></div>
+        </div>`,
+        'השאלה ממשיכה <strong>אחרי</strong> שההזכרה כבר נפסקה.')}
+    `
+  },
+  {
+    tag: 'דחייה',
+    title: 'עולא: <span class="accent">״כחומץ לשנים וכעשן לעינים״</span>',
+    html: `
+      ${say('עולא', '<strong>״הא דרב חסדא קשיא, כחומץ לשנים וכעשן לעינים!״</strong> התירוץ הזה צורב כמו חומץ על השיניים.')}
+      ${story('למה? עולא בונה <strong>קל וחומר</strong>:')}
+      ${flow([
+        ['שמיני עצרת', 'שם <strong>לא שואלים</strong> (זו תפילת יום טוב, ואין בה ברכת השנים), ובכל זאת <strong>מזכירים</strong>.', ''],
+        ['חול המועד פסח', 'כאן <strong>שואלים</strong> (תפילת חול).', ''],
+        ['קל וחומר', 'אם מזכירים במקום שלא שואלים, ודאי שצריך להזכיר במקום ששואלים!', 'hl']
+      ])}
+      ${tip('רש״י מסביר', '״במקום שאינו שואל״ הוא שמיני עצרת, שמתפללים בו תפילת יום טוב, ואין שם ברכת השנים. ״במקום ששואל״ הוא חול המועד של פסח.')}
+      ${say('עולא', '<strong>״אלא: תרי תנאי אליבא דר׳ יהודה״</strong>. שני תנאים מסרו בשם ר׳ יהודה שתי שיטות שונות, וזו באמת מחלוקת.', true)}
+      ${tip('רש״י', 'לתנא אחד שואלים עד שיעבור הפסח, ו<em>כל שכן</em> מזכירים. לתנא השני השאלה וההזכרה נפסקות יחד.')}
+    `
+  },
+  {
+    tag: 'תירוץ 2',
+    title: 'רב יוסף: <span class="accent">״עד שיעבור שליח ציבור״</span>',
+    html: `
+      ${say('רב יוסף', 'מה פירוש ״עד שיעבור הפסח״? <strong>עד שיעבור שליח ציבור של יום טוב ראשון של פסח.</strong> כלומר עד שהחזן הראשון יסיים, ואז שתי המשניות אומרות אותו דבר.', true)}
+      ${say('אביי', '<strong>״שאלה ביום טוב מי איכא?!״</strong> ביום טוב בכלל לא אומרים ״ותן טל ומטר״!')}
+      ${say('רב יוסף', '<strong>״אין, מתורגמן״</strong>. הכוונה למתורגמן שעומד ליד הדרשן ומשמיע לציבור. הוא יכול לבקש על הגשם.', true)}
+      ${say('אביי', '<strong>״וכי מתורגמן שואל דבר שאינו צריך לציבור?!״</strong> בפסח כבר לא צריכים גשם, אז למה שהמתורגמן יבקש?')}
+      ${story('התירוץ נדחה, ו<strong>״אלא מחוורתא כדעולא״</strong>: חוזרים לתירוץ של עולא, ״תרי תנאי״.')}
+    `
+  },
+  {
+    tag: 'תירוץ 3',
+    title: 'רבה: <span class="accent">״כתחילתו כן סופו״</span>',
+    html: `
+      ${say('רבה', 'מה פירוש ״עד שיעבור הפסח״? <strong>כתחילתו כן סופו</strong>. בתחילת החורף, בשמיני עצרת, <em>מזכירים בלי לשאול</em>. כך גם בסוף החורף, בפסח, מזכירים בלי לשאול עד שיעבור הפסח.', true)}
+      ${kv('הסימטריה של רבה',
+        kn('🌿', 'תחילה<br><span style="opacity:.7">מזכיר, לא שואל</span>', 'gold') +
+        `<span class="karrow">⇄</span>` +
+        kn('🍷', 'סוף<br><span style="opacity:.7">מזכיר, לא שואל</span>', 'gold'))}
+      ${say('אביי', '<strong>״בשלמא תחילתו — ריצוי שאלה היא, אלא סופו מאי ריצוי שאלה איכא?!״</strong>')}
+      ${story(
+        'ההזכרה בתחילת החורף היא <strong>״ריצוי״</strong>, הכנה לבקשה: קודם משבחים ואחר כך מבקשים, כמו שמרצים את המלך לפני שמבקשים ממנו משהו.',
+        'אבל בסוף החורף כבר לא עומדים לבקש. בשביל מה ״לרצות״? הסימטריה לא מחזיקה, ושוב נשארים עם עולא.'
+      )}
+    `
+  },
+  {
+    tag: 'הלכה',
+    title: 'הלכה כר׳ יהודה? <span class="accent">או כרבן גמליאל?</span>',
+    html: `
+      ${say('ר׳ אסי בשם ר׳ יוחנן', '<strong>הלכה כר׳ יהודה</strong>.')}
+      ${say('ר׳ זירא לר׳ אסי', 'וכי ר׳ יוחנן אמר כך? הרי שנינו: <strong>״בשלשה במרחשון שואלין את הגשמים, רבן גמליאל אומר בשבעה בו״</strong>, ואמר ר׳ אלעזר: <strong>הלכה כרבן גמליאל</strong>!')}
+      ${tip('למה זו סתירה?', 'לפי ר׳ יהודה מתחילים <em>להזכיר</em> כבר בשמיני עצרת, ולפי רבן גמליאל <em>שואלים</em> רק בז׳ במרחשון, כלומר שבועות אחר כך. ויש כלל של ר׳ יוחנן: <strong>״התחיל להזכיר — מתחיל לשאול״</strong>.')}
+      ${say('ר׳ אסי', '<strong>״גברא אגברא קא רמית?!״</strong> אתה מקשה מאדם אחד (ר׳ אלעזר) על אדם אחר (ר׳ יוחנן)?', true)}
+      ${story('הגמרא מציעה עוד דרכים ליישב:')}
+      ${flow([
+        ['איבעית אימא', '<strong>כאן לשאול, כאן להזכיר</strong>: ר׳ יהודה מדבר על הזכרה, ורבן גמליאל על שאלה.', ''],
+        ['קושיה', 'והרי ר׳ יוחנן אמר שההזכרה והשאלה הולכות יחד! (״ההוא להפסקה איתמר״: הכלל הזה נאמר על ה<em>הפסקה</em>.)', 'bad'],
+        ['תירוץ', '<strong>״הא לן, הא להו״</strong>: ר׳ יהודה מדבר על בבל, ורבן גמליאל על ארץ ישראל.', ''],
+        ['קושיה', 'מה שונה אצלנו? ״לדידן דאית לן פירי בדברא״: לנו יש פירות בשדה, ולכן מאחרים. אבל גם להם יש ״עולי רגלים״ שחוזרים מירושלים!', 'bad'],
+        ['מסקנה', '<strong>״הא והא להו״</strong>, ושניהם בארץ ישראל: <strong>כאן בזמן שבית המקדש קיים</strong> (מחכים לעולי רגלים, כרבן גמליאל), <strong>כאן בזמן שאין בית המקדש קיים</strong> (כר׳ יהודה).', 'hl']
+      ])}
+      ${kv('המסקנה בתנועה',
+        kn('🏛️', 'בזמן המקדש<br><span style="opacity:.7">מחכים לעולי רגלים</span>', 'gold', 'animation:kFlash 3s infinite') +
+        kn('🏚️', 'אחרי החורבן<br><span style="opacity:.7">אין עולי רגלים</span>', 'good', 'animation:kFlash 3s infinite 1.5s'),
+        'רבן גמליאל מאחר עד ז׳ במרחשון כדי ש<strong>עולי הרגלים</strong> יספיקו לחזור לבתיהם בלי גשם בדרך.')}
+      ${tip('תוספות', 'תוספות מסבירים ש״הא לן״ פירושו לבני בבל, ששואלים רק לאחר ששים יום מהתקופה. ומבארים מה הכלל ״המתחיל להזכיר — יתחיל לשאול״.')}
+    `
+  },
+  {
+    tag: 'בגולה',
+    title: '״ואנן דאית לן <span class="accent">תרי יומי</span>״',
+    html: `
+      ${story(
+        'בחוץ לארץ עושים <strong>שני ימים</strong> של יום טוב, מספק. היום הראשון של שמיני עצרת הוא אולי בעצם היום ה<em>שביעי</em> של סוכות, ״ספק שמיני ספק שביעי״. מתי מתחילים להזכיר?'
+      )}
+      ${say('רב', 'מתחיל ב<strong>מוסף</strong> (כי אולי זה שמיני), <strong>פוסק</strong> במנחה, ערבית ושחרית (כי אולי זה שביעי), <strong>וחוזר</strong> במוסף של היום השני.')}
+      ${say('שמואל', '<strong>״פוקו ואמרו ליה לאבא: אחר שעשיתו קודש — תעשהו חול?!״</strong> לכו ואמרו לרב (שמו היה ״אבא״): אחרי שהתייחסת ליום כאל שמיני, תתייחס אליו שוב כאל שביעי?!')}
+      ${say('שמואל', 'אלא: מתחיל ב<strong>מוסף ובמנחה</strong>, פוסק בערבית ושחרית (רש״י: כי אלו כבר לא תפילות של אותו היום), וחוזר ומתחיל במוסף.', true)}
+      ${kv('רב מול שמואל: יום ספק שמיני',
+        `<div class="pray-grid">
+          <div class="pg-h"></div><div class="pg-h">מוסף</div><div class="pg-h">מנחה</div><div class="pg-h">ערבית+שחרית</div><div class="pg-h">מוסף ב׳</div>
+          <div class="pg-n">רב</div><div class="pg-c on">✓</div><div class="pg-c off">✗</div><div class="pg-c off">✗</div><div class="pg-c on">✓</div>
+          <div class="pg-n">שמואל</div><div class="pg-c on">✓</div><div class="pg-c on">✓</div><div class="pg-c off">✗</div><div class="pg-c on">✓</div>
+        </div>`,
+        '✓ = מזכירים ״משיב הרוח״. ✗ = לא מזכירים.')}
+      ${story('ובעמוד הבא: רבא ורב ששת, ובסוף גם רב, אומרים כלל פשוט יותר.')}
+    `
+  },
+  {
+    tag: 'חזרה',
+    title: 'שאלות <span class="accent">לחזרה</span> — ד׳ ע״ב',
+    html: `
+      ${quiz([
+        ['מה ההבדל בין הזכרה לשאלה?', 'הזכרה: ״משיב הרוח״, שבח בברכת מחיה המתים. שאלה: ״ותן טל ומטר״, בקשה בברכת השנים.'],
+        ['מה הקושיה מ״ורמינהו״?', 'ר׳ יהודה אומר במשנה אחת שמפסיקים ביו״ט ראשון של פסח, ובמשנה אחרת ששואלים עד שיעבור הפסח.'],
+        ['למה עולא אומר על רב חסדא ״כחומץ לשנים״?', 'קל וחומר: בשמיני עצרת מזכירים אף שלא שואלים, אז בחול המועד ששואלים ודאי צריך להזכיר.'],
+        ['מה אביי מקשה על רבה?', 'בתחילת החורף ההזכרה היא ״ריצוי שאלה״, אבל בסופו אין בקשה שצריך לרצות לקראתה.'],
+        ['מה המסקנה ביישוב ר׳ יהודה ורבן גמליאל?', 'שניהם בארץ ישראל: רבן גמליאל בזמן המקדש (בגלל עולי רגלים), ור׳ יהודה בזמן שאין מקדש.'],
+        ['מה טענת שמואל על רב?', '״אחר שעשיתו קודש תעשהו חול?״ אי אפשר להזכיר במוסף ולהפסיק במנחה של אותו יום.']
+      ])}
     `
   }
 ];
 
 amudim['4b'].translation = [
-  { type: 'note', text: '⚠️ התרגום נכתב בלי גישה לטקסט הדף. הנוסח הארמי/עברי כאן הוא הנוסח המקובל של המשנה כפי שאני מכיר אותו, ולא הועתק מהדף. כדאי להשוות לגמרא.' },
-  { type: 'section', title: 'משנה: אין שואלין אלא סמוך לגשמים' },
-  { type: 'quote',
-    aramaic: 'אין שואלין את הגשמים אלא סמוך לגשמים',
-    translation: 'את ה<strong>בקשה</strong> ״ותן טל ומטר״ אומרים רק כשעונת הגשמים קרובה, לא מוקדם יותר.'
-  },
-  { type: 'quote',
-    aramaic: 'רבי יהודה אומר: העובר לפני התיבה ביום טוב האחרון של חג — האחרון מזכיר, הראשון אינו מזכיר',
-    translation: '<strong>ר׳ יהודה:</strong> בשמיני עצרת, החזן של מוסף (״האחרון״) מתחיל להזכיר ״משיב הרוח״. החזן של שחרית (״הראשון״) עוד לא מזכיר.',
-    viz: `<div class="kviz"><div class="kviz-stage"><div class="knode"><span class="kemoji">🌅</span>שחרית ✗</div><span class="karrow">←</span><div class="knode gold" style="animation:kPulse 3s infinite"><span class="kemoji">☀️</span>מוסף ✓</div></div></div>`
-  },
-  { type: 'quote',
-    aramaic: 'ביום טוב הראשון של פסח — הראשון מזכיר, האחרון אינו מזכיר',
-    translation: 'ובפסח הפוך: בשחרית עוד מזכירים, ובמוסף מפסיקים.'
-  },
-  { type: 'section', title: 'עד אימתי שואלין' },
-  { type: 'quote',
-    aramaic: 'עד אימתי שואלין את הגשמים? רבי יהודה אומר: עד שיעבור הפסח',
-    translation: '<strong>עד מתי מבקשים גשם?</strong> לדעת ר׳ יהודה, עד סוף פסח.'
-  },
-  { type: 'quote',
-    aramaic: 'רבי מאיר אומר: עד שיצא ניסן, שנאמר ״ויורד לכם גשם מורה ומלקוש בראשון״',
-    translation: '<strong>ר׳ מאיר:</strong> עד סוף חודש ניסן. ההוכחה מהפסוק ביואל: גם ה״יורה״ וגם ה״מלקוש״ יורדים ״בראשון״, כלומר בניסן.'
-  },
-  { type: 'summary', text: '<strong>סיכום:</strong> הזכרה היא שבח ומתחילה מוקדם. שאלה היא בקשה ומתחילה רק סמוך לגשמים. נחלקו מתי מפסיקים לשאול: בפסח (ר׳ יהודה) או בסוף ניסן (ר׳ מאיר). על הפסוק של ר׳ מאיר תבוא הקושיה בעמוד הבא.' }
+  { type: 'note', text: '📷 הטקסט נקרא מהצילום. הסוגריים המרובעים הם השלמות להבנה.' },
+  { type: 'section', title: 'של מי המשנה ״אין שואלין אלא סמוך לגשמים״' },
+  { type: 'quote', aramaic: '...רבי יהושע היא, דאמר משעת הנחתו.',
+    translation: 'המשנה כשיטת ר׳ יהושע, שאמר שמזכירים רק משעה שמניחים את הלולב (יום טוב האחרון).' },
+  { type: 'quote', aramaic: 'אמר רבא: אפילו תימא רבי אליעזר — שאלה לחוד והזכרה לחוד.',
+    translation: '<strong>רבא:</strong> אפשר שזו גם שיטת ר׳ אליעזר. שאלה היא דבר אחד והזכרה דבר אחר.' },
+  { type: 'section', title: 'סתירה בדברי ר׳ יהודה' },
+  { type: 'quote', aramaic: 'רבי יהודה אומר העובר לפני התיבה כו׳. ורמינהו: עד מתי שואלין את הגשמים? ר׳ יהודה אומר: עד שיעבור הפסח. ר׳ מאיר אומר: עד שיעבור ניסן.',
+    translation: 'ר׳ יהודה אמר שביו״ט ראשון של פסח מפסיקים. ומקשים ממשנה אחרת שבה ר׳ יהודה אומר ששואלים עד <strong>סוף</strong> הפסח.' },
+  { type: 'quote', aramaic: 'אמר רב חסדא: לא קשיא, כאן לשאול כאן להזכיר. מישאל — שאיל ואזיל, להזכיר — ביום טוב הראשון פסיק.',
+    translation: '<strong>רב חסדא:</strong> אין סתירה. את השאלה ממשיכים לומר, ואת ההזכרה מפסיקים ביום טוב הראשון.',
+    viz: kv('', kn('🙏', 'שאלה: עד סוף פסח', 'good') + kn('🗣️', 'הזכרה: עד יו״ט א׳', 'gold')) },
+  { type: 'quote', aramaic: 'אמר עולא: הא דרב חסדא קשיא כחומץ לשנים וכעשן לעינים. ומה במקום שאינו שואל — מזכיר, במקום ששואל אינו דין שיהא מזכיר?!',
+    translation: '<strong>עולא:</strong> דברי רב חסדא קשים כחומץ לשיניים. אם בשמיני עצרת, שלא שואלים בו, מזכירים, אז בחול המועד, ששואלים בו, ודאי שיש להזכיר!' },
+  { type: 'quote', aramaic: 'אלא אמר עולא: תרי תנאי אליבא דרבי יהודה.',
+    translation: 'אלא: שני תנאים חלוקים בדעת ר׳ יהודה.' },
+  { type: 'section', title: 'רב יוסף ורבה' },
+  { type: 'quote', aramaic: 'רב יוסף אמר: מאי עד שיעבור הפסח — עד שיעבור שליח צבור [הראשון] של יום טוב ראשון של פסח.',
+    translation: '<strong>רב יוסף:</strong> ״עד שיעבור הפסח״ פירושו עד שיסיים החזן של שחרית ביו״ט ראשון של פסח.' },
+  { type: 'quote', aramaic: 'אמר ליה אביי: שאלה ביום טוב מי איכא? אמר ליה: אין, מתורגמן. וכי מתורגמן שואל דבר שאינו צריך לצבור?!',
+    translation: '<strong>אביי:</strong> וכי יש שאלה ביום טוב? <strong>רב יוסף:</strong> כן, המתורגמן מבקש. <strong>אביי:</strong> וכי המתורגמן יבקש דבר שהציבור לא צריך?!' },
+  { type: 'quote', aramaic: 'אלא [מחוורתא] כדעולא.',
+    translation: 'לכן הנכון הוא כדברי עולא.' },
+  { type: 'quote', aramaic: 'רבה אמר: מאי עד שיעבור הפסח — [וכתחילתו כן סופו:] מה תחילתו מזכיר אף על פי שאינו שואל, [אף סופו] מזכיר אף על פי שאינו שואל.',
+    translation: '<strong>רבה:</strong> כמו שבתחילת החורף מזכירים בלי לשאול, כך גם בסופו.' },
+  { type: 'quote', aramaic: 'אמר ליה אביי: בשלמא תחילתו — ריצוי שאלה היא, אלא סופו מאי ריצוי שאלה איכא?',
+    translation: '<strong>אביי:</strong> בתחילה ההזכרה מכינה את הבקשה (״ריצוי״). בסוף, לקראת איזו בקשה היא מכינה?' },
+  { type: 'section', title: 'הלכה' },
+  { type: 'quote', aramaic: 'אמר רבי אסי אמר רבי יוחנן: הלכה כרבי יהודה. אמר ליה רבי זירא לרבי אסי: ומי אמר רבי יוחנן הכי? והתנן: בשלשה במרחשון שואלין את הגשמים, רבן גמליאל אומר: בשבעה בו, ואמר רבי אלעזר: הלכה כרבן גמליאל!',
+    translation: '<strong>ר׳ יוחנן:</strong> הלכה כר׳ יהודה. <strong>ר׳ זירא מקשה:</strong> הרי נפסק כרבן גמליאל, ששואלים רק בז׳ במרחשון!' },
+  { type: 'quote', aramaic: 'אמר ליה: גברא אגברא קא רמית? איבעית אימא: לא קשיא — כאן לשאול, כאן להזכיר.',
+    translation: 'אתה מקשה מאדם אחד על אדם אחר? ואם תרצה: אחד מדבר על שאלה ואחד על הזכרה.' },
+  { type: 'quote', aramaic: 'אלא לא קשיא: הא לן הא להו... כאן בזמן שבית המקדש קיים, כאן בזמן שאין בית המקדש קיים.',
+    translation: 'הגמרא מנסה לחלק בין בבל לארץ ישראל, ולבסוף מחלקת בין <strong>זמן המקדש</strong> לבין <strong>הזמן שאחרי החורבן</strong>.' },
+  { type: 'section', title: 'שני ימים טובים בגולה' },
+  { type: 'quote', aramaic: 'ואנן דאית לן תרי יומי היכי עבדינן? אמר רב: מתחיל במוספין, ופוסק במנחה ערבית ושחרית, וחוזר במוספין.',
+    translation: '<strong>ואנחנו, שעושים שני ימים, מה נעשה?</strong> רב: מתחילים במוסף, מפסיקים במנחה, ערבית ושחרית, וחוזרים במוסף.' },
+  { type: 'quote', aramaic: 'אמר להו שמואל: פוקו ואמרו ליה לאבא: אחר שעשיתו קודש תעשהו חול? אלא אמר שמואל: מתחיל במוספין ובמנחה, ופוסק ערבית ושחרית, וחוזר ומתחיל במוספין.',
+    translation: '<strong>שמואל:</strong> אמרו לרב: אחרי שהחשבת את היום כקודש, תחשיב אותו כחול? אלא: מתחילים במוסף ובמנחה, מפסיקים בערבית ושחרית, וחוזרים במוסף.' },
+  { type: 'summary', text: '<strong>סיכום ד׳ ע״ב:</strong> הזכרה ושאלה הן שני דברים שונים. הסתירה בדברי ר׳ יהודה מיושבת בכמה דרכים, והמסקנה ״תרי תנאי״. ההלכה בין ר׳ יהודה לרבן גמליאל תלויה בזמן המקדש. ובגולה נחלקו רב ושמואל מה עושים ביום ספק שמיני.' }
+];
+
+amudim['4b'].rashi = [
+  { dh: 'לימא ר׳ יהושע היא', content: '<p>רש״י מבאר: הגמרא חשבה שהמשנה ״אין שואלין אלא סמוך לגשמים״ היא כר׳ יהושע, שמאחר את ההזכרה ליום טוב האחרון. <strong>״אפילו תימא״</strong> ר׳ אליעזר: גם הוא מסכים לגבי השאלה, כי ״סברוה שאלה לחוד והזכרה לחוד״.</p>' },
+  { dh: 'עד אימתי שואלין את הגשמים', content: '<p>בסוף ימות הפסח, כלומר אומרים ״ותן טל ומטר״ כל חולו של מועד.</p>' },
+  { dh: 'עד שיצא ניסן', content: '<p>ר׳ מאיר, וכדמפרש טעמא במתניתין מהפסוק ״ויורד לכם גשם מורה ומלקוש בראשון״.</p>' },
+  { dh: 'מישאל שאיל ואזיל', content: '<p><strong>לשאול</strong> שואל והולך עד שיעבור הפסח, כדקתני ״עד מתי שואלין״. <strong>להזכיר</strong> אינו מזכיר אלא בתפילת היוצר (שחרית) של יום טוב ראשון, וזה ״הראשון מזכיר״.</p>' },
+  { dh: 'במקום שאינו שואל', content: '<p>ביום טוב האחרון של חג, שמתפלל בו תפילת יום טוב ולא תפילת חול. <strong>אין שאלה אלא בברכת השנים</strong>, ובשמיני עצרת אין ברכת השנים.</p>' },
+  { dh: 'מזכיר', content: '<p>גבורות גשמים, כדאמר ר׳ יהודה ״האחרון מזכיר״.</p>' },
+  { dh: 'במקום ששואל', content: '<p>בחולו של מועד של פסח.</p>' },
+  { dh: 'תרי תנאי', content: '<p>תנא אחד אומר ששואלים עד שיעבור הפסח, ו<em>כל שכן</em> שמזכירים. התנא השני אומר שהשאלה נמשכת עד הפסח, וההזכרה נפסקת ביו״ט הראשון.</p>' },
+  { dh: 'ופוסק ערבית ושחרית', content: '<p>לשיטת שמואל: אלו כבר לא תפילות של <em>אותו היום</em> (ספק שמיני), ולכן אין כאן ״קודש ואחר כך חול״ באותו יום. וזה גם פירוש ״בתמיה, שמפסיק במנחה של אותו יום״ בקושייתו על רב.</p>' }
+];
+
+amudim['4b'].tosafot = [
+  { dh: 'רבי יהודה אומר העובר לפני התיבה',
+    content: `${kv('הקשר', kn('📜', 'ר׳ יהודה כאן<br>הראשון מזכיר', 'gold') + ar('↔') + kn('📜', 'ר׳ יהודה שם<br>עד שיעבור הפסח', 'gold'))}
+      <p>תוספות מראים איך המשנה של ר׳ יהודה (האחרון מזכיר והראשון אינו מזכיר) מתקשרת למשנה ״עד מתי שואלין״, ומבארים את כוונת ״ורמינהו״: הסתירה היא בין הפסקת <em>ההזכרה</em> לבין סיום <em>השאלה</em>.</p>` },
+  { dh: 'הא לן',
+    content: `<p><strong>פירוש לבני בבל</strong>: הם לא שואלים עד לאחר שבעה במרחשון, אלא רק בששים יום לתקופה. בבבל אין חשש של עולי רגלים, אבל יש פירות בשדה (״פירי בדברא״) שצריכים להתייבש, ולכן מאחרים.</p>` },
+  { dh: 'והא להו',
+    content: `<p>תוספות מבארים את הכלל: <strong>״המתחיל להזכיר — יתחיל לשאול״</strong>. לכן אי אפשר לומר בפשטות שמזכירים מסוכות ושואלים רק בז׳ במרחשון, ולכן הגמרא צריכה לחלק בין זמן המקדש לזמן שאחריו.</p>` }
 ];
 
 // =======================================================
-// FULL CONTENT: Daf 5a
+// DAF 5a
 // =======================================================
 amudim['5a'].scenes = [
   {
-    tag: 'קושיה',
-    title: '״מורה <span class="accent">בניסן?!</span>״',
+    tag: 'הלכה',
+    title: '״כיון שהתחיל — <span class="accent">שוב אינו פוסק</span>״',
     html: `
-      ${UNVERIFIED_NOTE}
-      <div class="story">
-        <p>רב נחמן שואל את ר׳ יצחק על הפסוק שר׳ מאיר הביא. הפסוק אומר ״מורה ומלקוש <strong>בראשון</strong>״, כלומר שניהם בניסן. אבל ״יורה״ הוא הגשם <strong>הראשון</strong> של החורף, והוא יורד במרחשון!</p>
+      ${SOURCE_NOTE}
+      ${story('המשך הוויכוח מהעמוד הקודם: מה עושים בגולה ביום ספק שמיני?')}
+      ${say('רבא', '<strong>״כיון שהתחיל — שוב אינו פוסק״</strong>. ברגע שהתחלנו להזכיר במוסף, ממשיכים ולא מפסיקים.', true)}
+      ${say('רב ששת', 'כך גם אמר רב ששת: כיון שהתחיל, שוב אינו פוסק.', true)}
+      ${say('ואף רב הדר ביה', 'אמר רב חננאל בשם רב: <strong>מונה עשרים ואחד יום</strong> מראש השנה, כדרך שמונים עשרה ימים מר״ה עד יום הכיפורים, <strong>ומתחיל. וכיון שהתחיל — שוב אינו פוסק.</strong>', true)}
+      ${kv('21 יום מראש השנה',
+        `<div class="nisan-line">
+          <div class="nl-track"></div><div class="nl-grow"></div>
+          <div class="nl-pt first" style="right:0%"><b>א׳</b>🎺<br>ר״ה</div>
+          <div class="nl-pt" style="right:32%"><b>י׳</b>🤍<br>יוה״כ</div>
+          <div class="nl-pt" style="right:55%"><b>ט״ו</b>🌿<br>סוכות</div>
+          <div class="nl-pt" style="right:96%"><b>כ״ב</b>🌧️<br>מזכירים</div>
+        </div>`,
+        'סופרים מהיום הראשון של ר״ה, כמו שסופרים 10 ימים עד יוה״כ. אחרי 21 יום, ב<strong>כ״ב</strong>, מתחילים להזכיר.')}
+      ${tip('רש״י מבאר', 'מתחילים לספור מיום ראשון של ר״ה, ולא חוששים שמא עיברו את אלול, כי ״אנן בקיאין בקביעא דירחא״: אנחנו יודעים את הלוח. היום השני של יום טוב הוא רק ״מנהג אבותינו בידינו״. לכן היום הראשון של שמיני עצרת הוא באמת שמיני, ומזכירים בו.')}
+      ${key('ההלכה', '<strong>״והלכתא: כיון שהתחיל שוב אינו פוסק״</strong>. בגולה מתחילים במוסף של היום הראשון וממשיכים. זה המנהג שלנו היום.')}
+    `
+  },
+  {
+    tag: 'משנה',
+    title: '״עד מתי <span class="accent">שואלין את הגשמים?</span>״',
+    html: `
+      ${say('משנה', '<strong>״עד מתי שואלין את הגשמים? ר׳ יהודה אומר: עד שיעבור הפסח. ר׳ מאיר אומר: עד שיצא ניסן, שנאמר ׳ויורד לכם גשם מורה ומלקוש בראשון׳.״</strong>')}
+      <div class="vs-grid">
+        <div class="vs-card a"><div class="emoji">🍷</div><h5>ר׳ יהודה</h5><p>עד שיעבור <strong>הפסח</strong></p></div>
+        <div class="vs-card b"><div class="emoji">🌸</div><h5>ר׳ מאיר</h5><p>עד שיצא <strong>ניסן</strong></p></div>
       </div>
-      <div class="bubble">
-        <div class="bubble-label">רב נחמן</div>
-        <strong>״מורה בניסן?! מורה במרחשון הוא!״</strong> הרי שנינו: יורה במרחשון, ומלקוש בניסן.
-      </div>
-      <div class="kviz">
-        <div class="kviz-head">🎬 הקושיה בתנועה</div>
-        <div class="kviz-stage">
-          <div class="knode good"><span class="kemoji">🌧️</span>יורה<br><span style="opacity:.7">מרחשון</span></div>
-          <div class="knode gold"><span class="kemoji">🌦️</span>מלקוש<br><span style="opacity:.7">ניסן</span></div>
-          <span class="karrow">≠</span>
-          <div class="knode bad" style="animation:kShake 1.2s infinite"><span class="kemoji">📜</span>הפסוק<br><span style="opacity:.7">שניהם ״בראשון״?</span></div>
-        </div>
-        <div class="kviz-cap">בדרך כלל יש <strong>חצי שנה</strong> בין היורה למלקוש. איך הפסוק שם את שניהם בחודש אחד?</div>
-      </div>
+      ${kv('שני קווי סיום',
+        `<div class="end-lines">
+          <div class="el-row"><span class="el-name">ר׳ יהודה</span><div class="el-bar"><div class="el-fill y"></div></div><span class="el-end">כ״ב ניסן</span></div>
+          <div class="el-row"><span class="el-name">ר׳ מאיר</span><div class="el-bar"><div class="el-fill m"></div></div><span class="el-end">ל׳ ניסן</span></div>
+        </div>`,
+        'הנימוק של ר׳ מאיר: הפסוק אומר שגם היורה וגם המלקוש יורדים ״<strong>בראשון</strong>״, בחודש הראשון, ניסן.')}
+      ${tip('זו המשנה שהגמרא הביאה ב״ורמינהו״', 'בעמוד הקודם הגמרא כבר הקשתה ממנה על ר׳ יהודה. עכשיו היא מגיעה בעצמה.')}
+    `
+  },
+  {
+    tag: 'קושיה',
+    title: 'רב נחמן: <span class="accent">״יורה בניסן?!״</span>',
+    html: `
+      ${say('רב נחמן לר׳ יצחק', '<strong>״יורה בניסן?! יורה במרחשון הוא!״</strong> דתנן: <strong>יורה במרחשון ומלקוש בניסן</strong>.')}
+      ${kv('הבעיה בפסוק',
+        kn('🌧️', 'יורה<br><span style="opacity:.7">מרחשון</span>', 'good') +
+        kn('🌦️', 'מלקוש<br><span style="opacity:.7">ניסן</span>', 'gold') +
+        `<span class="karrow">≠</span>` +
+        kn('📜', 'הפסוק<br><span style="opacity:.7">שניהם ״בראשון״</span>', 'bad', 'animation:kShake 1.2s infinite'),
+        'בין היורה למלקוש יש בדרך כלל <strong>חצי שנה</strong>. איך שניהם בניסן?')}
+      ${tip('תוספות', 'עיקר הקושיה היא על ה<strong>יורה</strong>. את ה״מלקוש״ אפשר להבין בניסן, ובזה ר׳ מאיר צודק, אבל ״מורה״, הגשם הראשון, הוא במרחשון!')}
     `
   },
   {
     tag: 'תשובה',
     title: 'בימי <span class="accent">יואל בן פתואל</span>',
     html: `
-      <div class="bubble answer">
-        <div class="bubble-label">ר׳ יצחק בשם ר׳ יוחנן</div>
-        הפסוק לא מתאר כל שנה. הוא מתאר <strong>שנה אחת מיוחדת</strong>, בימי הנביא יואל בן פתואל, שבה הכל קרה בניסן.
-      </div>
-      <div class="story">
-        <p>זו הייתה שנת בצורת וארבה (״יתר הגזם אכל הארבה״). כל החורף עבר, גם אדר, ולא ירד גשם. ואז, <strong>בא׳ בניסן</strong>, ירד סוף סוף הגשם הראשון.</p>
-        <p>הנביא אמר לעם: <strong>״צאו וזרעו!״</strong> והם ענו: מי שנשאר לו קב חיטים או קביים שעורים, שיאכל ויחיה, או שיזרע וימות?! אמר להם: בכל זאת, צאו וזרעו.</p>
-      </div>
-      <div class="sage-quote">״הזורעים בדמעה — ברנה יקצרו״ (תהלים קכו). על הדור הזה נאמר הפסוק.</div>
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', '<strong>בימי יואל בן פתואל נתקיים מקרא זה</strong>, דכתיב ביה ״יתר הגזם אכל הארבה...״', true)}
+      ${story(
+        'זה היה דור של <strong>רעב קשה</strong>. הארבה והגזם אכלו הכל (רש״י: רעב של שבע שנים, ״כי קרא ה׳ לרעב״).',
+        'באותה שנה <strong>יצא אדר ולא ירדו גשמים</strong>. כל החורף עבר יבש. הגשם הראשון (״רביעה ראשונה״) ירד רק <strong>באחד בניסן</strong>.'
+      )}
+      ${say('הנביא לישראל', '<strong>״צאו וזרעו!״</strong>')}
+      ${say('ישראל', '<strong>״מי שיש לו קב חטים או קביים שעורין — יאכלנו ויחיה, או יזרענו וימות?!״</strong>')}
+      ${say('הנביא', '<strong>״אף על פי כן — צאו וזרעו!״</strong>', true)}
+      ${tip('רש״י: ״או יזרענו וימות״', 'אם יזרע את המעט שיש לו, ימות ברעב לפני שהתבואה החדשה תגדל, כי לא יישאר לו מה לאכול בינתיים.')}
+      ${kv('הבחירה הקשה',
+        kn('🍞', 'לאכול<br><span style="opacity:.7">לחיות עכשיו</span>', '') +
+        `<span class="karrow">או</span>` +
+        kn('🌱', 'לזרוע<br><span style="opacity:.7">ואולי למות</span>', 'gold', 'animation:kPulse 2.5s infinite'),
+        'הנביא מבקש <strong>אמונה</strong>: לזרוע דווקא כשאין.')}
     `
   },
   {
     tag: 'הנס',
     title: 'תבואה של חצי שנה <span class="accent">ב־11 יום</span>',
     html: `
-      <div class="story">
-        <p>הם יצאו וזרעו. נעשה להם נס, ומצאו גרעינים מוסתרים בחורים ובכתלים. אז הכל קרה מהר מאוד:</p>
+      ${story('<strong>נעשה להם נס, ונתגלה להם מה שבכתלים ומה שבחורי נמלים</strong>. התגלתה תבואה שהנמלים והעכברים אגרו בחורים ובכתלים (רש״י). כך היה להם גם מה לזרוע וגם מה לאכול.')}
+      ${kv('ניסן של אותה שנה',
+        `<div class="nisan-line">
+          <div class="nl-track"></div><div class="nl-grow"></div>
+          <div class="nl-pt first" style="right:0%"><b>א׳</b>🌧️<br>רביעה<br>ראשונה</div>
+          <div class="nl-pt" style="right:22%"><b>ב׳–ד׳</b>🌱<br>זורעים</div>
+          <div class="nl-pt" style="right:42%"><b>ה׳</b>🌦️<br>רביעה<br>שנייה</div>
+          <div class="nl-pt" style="right:96%"><b>ט״ז</b>🌾<br>עומר!</div>
+        </div>`,
+        'זרעו בב׳, ג׳ וד׳ בניסן. בה׳ ירד גשם שני, ובט״ז הקריבו את <strong>העומר</strong> מהתבואה החדשה.')}
+      ${say('הגמרא', '<strong>״נמצאת תבואה הגדלה בששה חדשים — גדלה באחד עשר יום. נמצא עומר הקרב מתבואה של ששה חדשים — קרב מתבואה של אחד עשר יום.״</strong>', true)}
+      ${tip('רש״י', '״ששה חדשים״: מתשרי ועד ניסן. ״אחד עשר יום״: מה׳ בניסן, הגשם השני, ועד ט״ז.')}
+      ${key('ובזה מתורצת הקושיה', 'באותה שנה ה<strong>יורה</strong> ירד בא׳ בניסן וה<strong>מלקוש</strong> בה׳ בניסן, ושניהם באמת ״בראשון״. הפסוק מתאר שנת נס.')}
+    `
+  },
+  {
+    tag: 'פסוק',
+    title: '״הזורעים בדמעה — <span class="accent">ברנה יקצרו</span>״',
+    html: `
+      ${story('<strong>ועל אותו הדור הוא אומר: ״הזורעים בדמעה ברנה יקצרו. הלוך ילך ובכה נושא משך הזרע, בא יבוא ברנה נושא אלומותיו״</strong> (תהלים קכו).')}
+      ${say('הגמרא שואלת', 'מה פירוש ״הלוך ילך ובכה... בא יבוא ברנה״? (רש״י: על בני האדם כבר נאמר ״הזורעים בדמעה ברנה יקצרו״, אז על מי מדובר כאן?)')}
+      ${say('ר׳ יהודה', '<strong>השור</strong>! כשהוא חורש הוא <strong>הולך ובוכה</strong> מרעב, <strong>ובחזירתו אוכל חזיז מן התלם</strong>. וזהו ״בא יבוא ברנה״.', true)}
+      ${kv('השור בתלם',
+        kn('🐂😢', 'הלוך<br><span style="opacity:.7">חורש ובוכה</span>', '', 'animation:kShake 2s infinite') + ar('→') +
+        kn('🌱', 'הזרע<br><span style="opacity:.7">צומח מיד!</span>', 'good', 'animation:kAppear 4s infinite 1s') + ar('→') +
+        kn('🐂😋', 'בחזרה<br><span style="opacity:.7">אוכל חזיז</span>', 'gold'),
+        'רש״י: הזרע שנזרע בדרך <strong>הלוך</strong> כבר צמח כשהשור <strong>חוזר</strong> באותו תלם.')}
+      ${say('רב חסדא (ובמתניתא תנא)', 'מה פירוש ״נושא אלומותיו״? <strong>״קנה זרת, שיבולת זרתים״</strong>.', true)}
+      ${kv('נס השיבולת',
+        `<div class="stalk-cmp">
+          <div class="sc-col"><div class="sc-ear" style="height:22px"></div><div class="sc-stem" style="height:80px"></div><span>רגיל</span></div>
+          <div class="sc-col miracle"><div class="sc-ear" style="height:56px"></div><div class="sc-stem" style="height:28px"></div><span>בימי יואל</span></div>
+        </div>`,
+        'רש״י: בדרך כלל ה<strong>קנה</strong> ארוך פי 3–4 מה<strong>שיבולת</strong>. כאן השיבולת (הגרעינים) הייתה כפולה מהקנה. נס גדול!')}
+      ${tip('תוספות', 'תוספות מקשים: זרעו כבר בב׳–ד׳ בניסן, אז מדוע הגמרא אומרת ״אחד עשר יום״ ולא יותר? ומיישבים שמונים מהגשם השני בה׳ בניסן, כשהתבואה התחילה לגדול בפועל, כמו שפירש רש״י.')}
+    `
+  },
+  {
+    tag: 'דרשה',
+    title: 'שבע שנות <span class="accent">רעב</span>',
+    html: `
+      ${say('רב נחמן לר׳ יצחק', 'מאי דכתיב <strong>״כי קרא ה׳ לרעב, וגם בא אל הארץ שבע שנים״</strong> (מלכים ב ח)? בשבע השנים האלה, מה אכלו?')}
+      ${tip('רש״י', 'זה הרעב שבימי יהורם בן אחאב, בזמן אלישע.')}
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', 'כל שנה נעשתה קשה מקודמתה:', true)}
+      <div class="ladder">
+        <div class="ld-step" style="--i:0"><b>1</b>מה שבבתים</div>
+        <div class="ld-step" style="--i:1"><b>2</b>מה שבשדות <span>(ספיחים)</span></div>
+        <div class="ld-step" style="--i:2"><b>3</b>בשר בהמה טהורה</div>
+        <div class="ld-step" style="--i:3"><b>4</b>בשר בהמה טמאה</div>
+        <div class="ld-step" style="--i:4"><b>5</b>שקצים ורמשים</div>
+        <div class="ld-step" style="--i:5"><b>6</b>בשר בניהם ובנותיהם</div>
+        <div class="ld-step" style="--i:6"><b>7</b>בשר זרועותיהם</div>
       </div>
-      <div class="kviz">
-        <div class="kviz-head">🎬 ציר הזמן של ניסן באותה שנה</div>
-        <div class="kviz-stage">
-          <div class="nisan-line">
-            <div class="nl-track"></div>
-            <div class="nl-grow"></div>
-            <div class="nl-pt first" style="right:0%"><b>א׳</b>🌧️<br>רביעה<br>ראשונה</div>
-            <div class="nl-pt" style="right:22%"><b>ב׳–ד׳</b>🌱<br>זורעים</div>
-            <div class="nl-pt" style="right:42%"><b>ה׳</b>🌦️<br>רביעה<br>שנייה</div>
-            <div class="nl-pt" style="right:96%"><b>ט״ז</b>🌾<br>עומר!</div>
-          </div>
-        </div>
-        <div class="kviz-cap">תבואה שבדרך כלל גדלה <strong>שישה חודשים</strong> גדלה <strong>באחד עשר יום</strong>, ומיד הביאו ממנה את קרבן העומר בט״ז בניסן.</div>
-      </div>
-      <div class="keyidea">
-        <div class="keyidea-label">🎯 וכך מתורצת הקושיה</div>
-        <p>באותה שנה ה<strong>יורה</strong> (הגשם הראשון) ירד בא׳ בניסן, וה<strong>מלקוש</strong> ירד בה׳ בניסן. שניהם באמת ״בראשון״. לכן ר׳ מאיר יכול ללמוד מהפסוק שגם בניסן יש גשם של ברכה, וממשיכים לבקש עד סוף החודש.</p>
-      </div>
+      ${story('כדי לקיים את הפסוק <strong>״איש בשר זרועו יאכלו״</strong> (ישעיהו ט).')}
+      ${tip('הקשר לסוגיה', 'אחרי הנס של יואל, ששם הרעב נגמר בברכה, הגמרא מביאה את הצד השני: עד היכן יכול להגיע רעב שאין בו נס.')}
     `
   },
   {
     tag: 'דרשה',
     title: 'ירושלים <span class="accent">של מעלה ושל מטה</span>',
     html: `
-      <div class="story">
-        <p>רב נחמן ור׳ יצחק ממשיכים לשוחח, ורב נחמן שואל על פסוקים נוספים. הראשון: <strong>״בקרבך קדוש ולא אבוא בעיר״</strong> (הושע יא). האם בגלל שה׳ קדוש בקרבנו הוא לא יבוא לעיר? זה לא מובן!</p>
-      </div>
-      <div class="bubble answer">
-        <div class="bubble-label">ר׳ יצחק בשם ר׳ יוחנן</div>
-        אמר הקב״ה: <strong>״לא אבוא בירושלים של מעלה עד שאבוא לירושלים של מטה״</strong>.
-      </div>
-      <div class="kviz">
-        <div class="kviz-head">🎬 שתי ירושלים, מחוברות</div>
-        <div class="kviz-stage" style="flex-direction:column;gap:4px">
-          <div class="knode gold" style="animation:kFlash 3s infinite 1.5s"><span class="kemoji">✨🏛️✨</span>ירושלים של מעלה</div>
-          <span class="karrow" style="transform:rotate(-90deg);animation:kPulse 1.5s infinite">→</span>
-          <div class="knode good" style="animation:kPulse 3s infinite"><span class="kemoji">🏙️</span>ירושלים של מטה</div>
-        </div>
-        <div class="kviz-cap">קודם צריכה להיבנות ירושלים <strong>שלמטה</strong>, ורק אחר כך ה׳ ״נכנס״ לירושלים שלמעלה.</div>
-      </div>
-      <div class="story">
-        <p>הגמרא שואלת: <em>וכי יש ירושלים למעלה?</em> כן, שנאמר: <strong>״ירושלים הבנויה כעיר שחוברה לה יחדיו״</strong> (תהלים קכב). יש עיר שמחוברת ל״חברתה״, כלומר ירושלים שלמטה מחוברת לירושלים שלמעלה.</p>
-      </div>
+      ${say('רב נחמן לר׳ יצחק', 'מאי דכתיב <strong>״בקרבך קדוש ולא אבוא בעיר״</strong> (הושע יא)? <strong>משום דבקרבך קדוש — לא אבוא בעיר?!</strong>')}
+      ${tip('רש״י', 'בתמיה: וכי בגלל שישראל מטיבים מעשיהם לא יבוא הקב״ה לעיר? אלא כך פירושו: <em>עד שיהיה בקרבך קדוש</em> למטה, כלומר ירושלים שלמטה, <em>לא אבוא בעיר</em> שלמעלה.')}
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', 'אמר הקב״ה: <strong>״לא אבוא בירושלים של מעלה עד שאבוא לירושלים של מטה.״</strong>', true)}
+      ${kv('שתי ירושלים',
+        kn('✨🏛️✨', 'ירושלים של מעלה', 'gold', 'animation:kFlash 3s infinite 1.5s') +
+        ar('↑', 'animation:kPulse 1.5s infinite') +
+        kn('🏙️', 'ירושלים של מטה', 'good', 'animation:kPulse 3s infinite'),
+        'קודם תיבנה ירושלים <strong>שלמטה</strong>, ורק אחר כך הקב״ה ״נכנס״ לירושלים שלמעלה.', 'flex-direction:column-reverse;gap:4px')}
+      ${say('הגמרא', '<strong>״ומי איכא ירושלים למעלה?״</strong> וכי יש ירושלים למעלה?')}
+      ${say('תשובה', '<strong>״אין, דכתיב ׳ירושלים הבנויה כעיר שחוברה לה יחדיו׳״</strong> (תהלים קכב).', true)}
+      ${tip('רש״י', 'ירושלים שלמטה תהיה בנויה ״כעיר שחוברה לה״, כלומר כמו העיר שמחוברת אליה, ירושלים של מעלה.')}
+      ${tip('תוספות', '״לא אבוא בעיר״: לפי פשוטו ״עיר״ פירושה עיר ממש. אבל יש לפרש גם ״לא אבוא <em>בשנאה</em>״, כי ״עיר״ היא גם לשון שנאה, כמו ״ומלאו פני תבל ערים״ (ישעיהו יד).')}
     `
   },
   {
     tag: 'דרשה',
     title: '״ובאחת <span class="accent">יבערו ויכסלו</span>״',
     html: `
-      <div class="story">
-        <p>שאלה נוספת של רב נחמן: <strong>״ובאחת יבערו ויכסלו, מוסר הבלים עץ הוא״</strong> (ירמיהו י). מהי ״האחת״?</p>
-      </div>
-      <div class="bubble answer">
-        <div class="bubble-label">ר׳ יצחק בשם ר׳ יוחנן</div>
-        יש <strong>דבר אחד</strong> שמבער את הרשעים בגיהנם, וזו <strong>עבודה זרה</strong>. הלימוד הוא מגזירה שווה: כאן נאמר ״הבלים... עץ הוא״, ובמקום אחר נאמר על עבודה זרה ״הבל המה, מעשה תעתועים״.
-      </div>
-      <div class="kviz">
-        <div class="kviz-head">🎬 ״שתים רעות עשה עמי״ (ירמיהו ב)</div>
-        <div class="kviz-stage">
-          <div class="knode bad"><span class="kemoji">💧🚫</span>עזבו<br><span style="opacity:.7">מקור מים חיים</span></div>
-          <span class="karrow">+</span>
-          <div class="knode bad" style="animation:kShake 1.6s infinite"><span class="kemoji">🕳️</span>חצבו<br><span style="opacity:.7">בורות נשברים</span></div>
-        </div>
-        <div class="kviz-cap">הגמרא ממשיכה לדרוש על הנביא ירמיהו: <strong>להחליף</strong> את ה׳, מקור המים החיים, בבורות שאינם מחזיקים מים. ההחלפה עצמה כפולה ברעתה.</div>
-      </div>
-      <div class="tip">
-        <div class="tip-label">💡 הקשר לתענית</div>
-        שימו לב לחוט שעובר בכל הסוגיה: <strong>מים וגשם</strong>. הגשם שה׳ מוריד בזמנו, הנס של יואל, ו״מקור מים חיים״. כל אלה הם רקע לתפילה על הגשמים שבמשנה.
-      </div>
+      ${say('רב נחמן לר׳ יצחק', 'מאי דכתיב <strong>״ובאחת יבערו ויכסלו, מוסר הבלים עץ הוא״</strong> (ירמיהו י)?')}
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', '<strong>אחת היא שמבערת רשעים בגיהנם. מאי היא? עבודה זרה.</strong>', true)}
+      ${kv('גזירה שווה: ״הבל״',
+        kn('📖', 'כאן<br><span style="opacity:.7">״מוסר <b>הבלים</b> עץ הוא״</span>', 'gold') +
+        ar('⇄') +
+        kn('📖', 'שם<br><span style="opacity:.7">״<b>הבל</b> המה מעשה תעתועים״</span>', 'gold'),
+        'שם מדובר על פסילים, עבודה זרה. ומכאן ש״האחת״ היא <strong>עבודה זרה</strong>.')}
+      ${tip('רש״י', 'אילולא הגזירה שווה היה אפשר לפרש ״מוסר הבלים עץ הוא״: הכסילים אטומים כעץ, ואינם מקבלים מוסר לשוב.')}
+    `
+  },
+  {
+    tag: 'קושיה',
+    title: '״כי שתים רעות״ — <span class="accent">רק שתיים?!</span>',
+    html: `
+      ${say('רב נחמן לר׳ יצחק', 'מאי דכתיב <strong>״כי שתים רעות עשה עמי״</strong> (ירמיהו ב)? <strong>״תרתין הוא דהוו? עשרין וארבע שביקא להו?!״</strong>')}
+      ${story('רק שתי עבירות הן עשו? והרי יש <strong>עשרים וארבע</strong>!')}
+      ${tip('רש״י', 'בפרשת ״התשפוט״ (יחזקאל כב) מנויות 24 עבירות שעברו ישראל. וכי הנביא ״השאיר בצד״ 22 מהן ומנה רק שתיים?')}
+      ${kv('הפער',
+        kn('2️⃣', 'ירמיהו<br><span style="opacity:.7">״שתים רעות״</span>', 'gold') +
+        `<span class="karrow">≠</span>` +
+        kn('2️⃣4️⃣', 'יחזקאל<br><span style="opacity:.7">24 עבירות</span>', 'bad', 'animation:kShake 1.5s infinite'),
+        'התשובה בעמוד הבא...')}
+      ${quiz([
+        ['מה הדין בגולה ביום ספק שמיני להלכה?', 'כיון שהתחיל במוסף, שוב אינו פוסק.'],
+        ['מה הקושיה של רב נחמן על ר׳ מאיר?', 'הפסוק אומר ״מורה ומלקוש בראשון״, אבל יורה יורד במרחשון.'],
+        ['מתי ירדה הרביעה הראשונה בימי יואל, ומתי השנייה?', 'הראשונה בא׳ בניסן, והשנייה בה׳ בניסן.'],
+        ['מה פירוש ״קנה זרת שיבולת זרתים״?', 'השיבולת הייתה כפולה מהקנה, הפך הרגיל. זה נס של שפע.'],
+        ['מהי ״האחת״ שמבערת רשעים?', 'עבודה זרה, בגזירה שווה ״הבל״.']
+      ])}
     `
   }
 ];
 
 amudim['5a'].translation = [
-  { type: 'note', text: '⚠️ התרגום נכתב בלי גישה לטקסט הדף. הציטוטים הם הנוסח כפי שאני מכיר אותו מהסוגיה, ועשויים להיות בהם הבדלי נוסח. כדאי להשוות לגמרא.' },
-  { type: 'section', title: 'קושיית רב נחמן על הפסוק' },
-  { type: 'quote',
-    aramaic: 'אמר ליה רב נחמן לרבי יצחק: מורה בניסן? מורה במרחשון הוא!',
-    translation: '<strong>רב נחמן לר׳ יצחק:</strong> הגשם הראשון (״מורה״) יורד בניסן? הרי הוא יורד במרחשון!',
-    viz: `<div class="kviz"><div class="kviz-stage"><div class="knode good">🌧️ יורה = מרחשון</div><span class="karrow">≠</span><div class="knode bad" style="animation:kShake 1.2s infinite">📜 ״בראשון״</div></div></div>`
-  },
-  { type: 'quote',
-    aramaic: 'אמר ליה: הכי אמר רבי יוחנן: בימי יואל בן פתואל נתקיים מקרא זה',
-    translation: '<strong>ענה לו:</strong> כך אמר ר׳ יוחנן: הפסוק מתאר את מה שקרה בימי יואל בן פתואל.'
-  },
-  { type: 'quote',
-    aramaic: 'אותה שנה יצא אדר ולא ירדו גשמים, ירדה להם רביעה ראשונה באחד בניסן',
-    translation: 'באותה שנה עבר כל אדר בלי גשם. הגשם הראשון ירד רק בא׳ בניסן.'
-  },
-  { type: 'quote',
-    aramaic: 'אמר להם נביא לישראל: צאו וזרעו. אמרו לו: מי שיש לו קב חטים או קביים שעורים — יאכלנו ויחיה, או יזרענו וימות?',
-    translation: 'הנביא אמר: ״צאו וזרעו!״ והם ענו: מי שנשאר לו מעט תבואה, שיאכל אותה ויחיה, או שיזרע אותה וימות ברעב?'
-  },
-  { type: 'quote',
-    aramaic: 'אמר להם: אף על פי כן, צאו וזרעו',
-    translation: 'הנביא התעקש: <strong>בכל זאת, צאו וזרעו.</strong> ונעשה להם נס.'
-  },
-  { type: 'quote',
-    aramaic: 'וירדה להם רביעה שניה בחמשה בניסן, והקריבו עומר בששה עשר בניסן',
-    translation: 'הגשם השני (המלקוש) ירד בה׳ בניסן, ובט״ז בניסן כבר הקריבו את העומר מהתבואה החדשה.',
-    viz: `<div class="kviz"><div class="kviz-stage"><div class="knode">א׳ 🌧️</div><span class="karrow">←</span><div class="knode">ה׳ 🌦️</div><span class="karrow">←</span><div class="knode gold" style="animation:kPulse 2.5s infinite">ט״ז 🌾</div></div><div class="kviz-cap">חצי שנה של גידול ב־11 יום</div></div>`
-  },
-  { type: 'quote',
-    aramaic: 'נמצאת תבואה הגדלה בששה חדשים — גדלה באחד עשר יום',
-    translation: 'התבואה, שבדרך כלל צריכה שישה חודשים, גדלה בנס באחד עשר יום.'
-  },
+  { type: 'section', title: 'כיון שהתחיל שוב אינו פוסק' },
+  { type: 'quote', aramaic: 'רבא אמר: כיון שהתחיל — שוב אינו פוסק. וכן אמר רב ששת: כיון שהתחיל שוב אינו פוסק.',
+    translation: '<strong>רבא וכן רב ששת:</strong> מי שהתחיל להזכיר לא מפסיק.' },
+  { type: 'quote', aramaic: 'ואף רב הדר ביה, דאמר רב חננאל אמר רב: מונה עשרים ואחד יום כדרך שמונה [עשרה ימים] מראש השנה עד יום הכפורים, ומתחיל. וכיון שהתחיל — שוב אינו פוסק. והלכתא: כיון שהתחיל שוב אינו פוסק.',
+    translation: 'גם רב חזר בו: סופרים 21 יום מר״ה, כמו שסופרים עשרה ימים עד יוה״כ, ומתחילים. ומשהתחילו לא מפסיקים. <strong>וכך הלכה.</strong>' },
+  { type: 'section', title: 'משנה' },
+  { type: 'quote', aramaic: 'מתני׳: עד מתי שואלין את הגשמים? רבי יהודה אומר: עד שיעבור הפסח. רבי מאיר אומר: עד שיצא ניסן, שנאמר ״ויורד לכם גשם מורה ומלקוש בראשון״.',
+    translation: 'עד מתי מבקשים גשם? ר׳ יהודה: עד סוף פסח. ר׳ מאיר: עד סוף ניסן, לפי הפסוק.' },
+  { type: 'section', title: 'בימי יואל' },
+  { type: 'quote', aramaic: 'גמ׳: אמר ליה רב נחמן לרבי יצחק: יורה בניסן?! יורה במרחשון הוא, דתנן: יורה במרחשון ומלקוש בניסן!',
+    translation: '<strong>רב נחמן:</strong> היורה בניסן? הרי היורה יורד במרחשון!' },
+  { type: 'quote', aramaic: 'אמר ליה, הכי אמר רבי יוחנן: בימי יואל בן פתואל נתקיים מקרא זה, דכתיב ביה ״יתר הגזם אכל הארבה״.',
+    translation: '<strong>ר׳ יצחק:</strong> הפסוק נתקיים בימי יואל, שנה של ארבה ורעב.' },
+  { type: 'quote', aramaic: 'אותה שנה יצא אדר ולא ירדו גשמים, ירדה להם רביעה ראשונה באחד בניסן.',
+    translation: 'אדר עבר בלי גשם, והגשם הראשון ירד בא׳ בניסן.' },
+  { type: 'quote', aramaic: 'אמר להם נביא לישראל: צאו וזרעו. אמרו לו: מי שיש לו קב חטים או קביים שעורין — יאכלנו ויחיה, או יזרענו וימות? אמר להם: אף על פי כן, צאו וזרעו.',
+    translation: 'הנביא: צאו וזרעו! העם: לאכול ולחיות או לזרוע ולמות? הנביא: בכל זאת, זרעו!' },
+  { type: 'quote', aramaic: 'נעשה להם נס ונתגלה להם מה שבכתלין ומה שבחורי נמלים.',
+    translation: 'נעשה נס ומצאו תבואה מוסתרת בקירות ובחורי הנמלים.' },
+  { type: 'quote', aramaic: 'יצאו וזרעו שני ושלישי ורביעי, וירדה להם רביעה שניה בחמשה בניסן. הקריבו עומר בששה עשר בניסן.',
+    translation: 'זרעו בב׳, ג׳, ד׳. הגשם השני בה׳. העומר בט״ז.',
+    viz: kv('', kn('א׳', '🌧️') + ar() + kn('ב׳–ד׳', '🌱') + ar() + kn('ה׳', '🌦️') + ar() + kn('ט״ז', '🌾', 'gold', 'animation:kPulse 2.5s infinite')) },
+  { type: 'quote', aramaic: 'נמצאת תבואה הגדלה בששה חדשים — גדלה באחד עשר יום. נמצא עומר הקרב מתבואה של ששה חדשים — קרב מתבואה של אחד עשר יום.',
+    translation: 'תבואה של חצי שנה גדלה ב־11 יום, והעומר הוקרב ממנה.' },
+  { type: 'quote', aramaic: 'ועל אותו הדור הוא אומר: ״הזורעים בדמעה ברנה יקצרו, הלוך ילך ובכה נושא משך הזרע...״. מאי ״הלוך ילך ובכה נושא משך וגו׳״? אמר רבי יהודה: שור כשהוא חורש — הולך ובוכה, ובחזירתו אוכל חזיז מן התלם, וזהו ״בא יבא ברנה״.',
+    translation: 'על הדור הזה נאמר ״הזורעים בדמעה״. ״הלוך ילך ובכה״ נאמר על השור: בדרכו לחרוש הוא בוכה, ובחזרה כבר אוכל עשב שצמח בתלם.' },
+  { type: 'quote', aramaic: 'מאי ״נושא אלומותיו״? אמר רב חסדא, ואמרי לה במתניתא תנא: קנה — זרת, שיבולת — זרתים.',
+    translation: '״נושא אלומותיו״: הקנה באורך זרת, והשיבולת באורך שתי זרתות.' },
+  { type: 'section', title: 'שבע שנות רעב' },
+  { type: 'quote', aramaic: 'אמר ליה רב נחמן לרבי יצחק: מאי דכתיב ״כי קרא ה׳ לרעב וגם בא אל הארץ שבע שנים״, בהנך שבע שנים מאי אכול?',
+    translation: 'בשבע שנות הרעב, מה אכלו?' },
+  { type: 'quote', aramaic: 'אמר ליה, הכי אמר רבי יוחנן: שנה ראשונה — אכלו מה שבבתים, שניה — מה שבשדות, שלישית — בשר בהמה טהורה, רביעית — בשר בהמה טמאה, חמישית — בשר שקצים ורמשים, ששית — בשר בניהם ובנותיהם, שביעית — בשר זרועותיהם, לקיים מה שנאמר ״איש בשר זרועו יאכלו״.',
+    translation: 'כל שנה ירדו מדרגה, עד שבשנה השביעית אכלו את בשר זרועותיהם.' },
   { type: 'section', title: 'ירושלים של מעלה' },
-  { type: 'quote',
-    aramaic: 'מאי דכתיב ״בקרבך קדוש ולא אבוא בעיר״?',
-    translation: 'מה פירוש הפסוק ״בקרבך קדוש ולא אבוא בעיר״?'
-  },
-  { type: 'quote',
-    aramaic: 'אמר הקדוש ברוך הוא: לא אבוא בירושלים של מעלה עד שאבוא לירושלים של מטה',
-    translation: 'אמר הקב״ה: <strong>לא אכנס לירושלים שלמעלה עד שאכנס לירושלים שלמטה.</strong>'
-  },
-  { type: 'quote',
-    aramaic: 'ומי איכא ירושלים למעלה? אין, דכתיב ״ירושלים הבנויה כעיר שחוברה לה יחדיו״',
-    translation: 'וכי יש ירושלים למעלה? כן, שנאמר ״ירושלים הבנויה כעיר שחוברה לה יחדיו״. יש עיר שמחוברת אליה.'
-  },
+  { type: 'quote', aramaic: 'ואמר ליה רב נחמן לרבי יצחק: מאי דכתיב ״בקרבך קדוש ולא אבוא בעיר״? משום דבקרבך קדוש — לא אבוא בעיר?',
+    translation: 'וכי בגלל שהקדוש בקרבך לא יבוא לעיר?' },
+  { type: 'quote', aramaic: 'אמר ליה, הכי אמר רבי יוחנן: אמר הקדוש ברוך הוא: לא אבוא בירושלים של מעלה עד שאבוא לירושלים של מטה. ומי איכא ירושלים למעלה? אין, דכתיב ״ירושלים הבנויה כעיר שחוברה לה יחדיו״.',
+    translation: 'הקב״ה לא ייכנס לירושלים העליונה עד שייכנס לירושלים התחתונה. ויש ירושלים למעלה, כמו שכתוב ״כעיר שחוברה לה״.' },
   { type: 'section', title: 'ובאחת יבערו' },
-  { type: 'quote',
-    aramaic: 'אחת היא שמבערת רשעים בגיהנם. מאי היא? עבודה זרה',
-    translation: 'יש דבר אחד שמבער את הרשעים בגיהנם. מהו? <strong>עבודה זרה</strong>.'
-  },
-  { type: 'summary', text: '<strong>סיכום העמוד:</strong> הקושיה ״מורה בניסן?״ מתורצת בכך שהפסוק מתאר את הנס בימי יואל, כשהיורה והמלקוש ירדו שניהם בניסן. אחר כך באה סדרת שאלות של רב נחמן לר׳ יצחק על פסוקים: ירושלים של מעלה ושל מטה, ועבודה זרה כ״אחת״ שמבערת.' }
+  { type: 'quote', aramaic: 'ואמר ליה רב נחמן לרבי יצחק: מאי דכתיב ״ובאחת יבערו ויכסלו מוסר הבלים עץ הוא״? אמר ליה, הכי אמר רבי יוחנן: אחת היא שמבערת רשעים בגיהנם. מאי היא? עבודה זרה. כתיב הכא ״מוסר הבלים עץ הוא״, וכתיב התם ״הבל המה מעשה תעתועים״.',
+    translation: 'הדבר האחד שמבער רשעים בגיהנם הוא עבודה זרה. הלימוד בגזירה שווה ״הבל״.' },
+  { type: 'quote', aramaic: 'ואמר ליה רב נחמן לרבי יצחק: מאי דכתיב ״כי שתים רעות עשה עמי״? תרתין הוא דהוו? עשרין וארבע שביקא להו?!',
+    translation: '״שתים רעות״? רק שתיים? ומה עם 24 העבירות האחרות?' },
+  { type: 'summary', text: '<strong>סיכום ה׳ ע״א:</strong> הלכה: כיון שהתחיל שוב אינו פוסק. המשנה ״עד מתי שואלין״ והקושיה ״יורה בניסן?״ מתורצות בנס של ימי יואל. אחר כך באה סדרת דרשות של רב נחמן ור׳ יצחק: שבע שנות רעב, ירושלים של מעלה, ״ובאחת יבערו״, והקושיה על ״שתים רעות״.' }
 ];
 
+amudim['5a'].rashi = [
+  { dh: 'רבא אמר כיון שהתחיל', content: '<p>בשמיני, ספק שביעי, מכיון שהתחיל להזכיר במוסף שוב אינו פוסק.</p>' },
+  { dh: 'מונה כ״א יום', content: `<p>מונה מיום ראשון של ראש השנה, ומזכיר מכאן ולהלן. מונה כ״א יום כדרך שמונה עשרה ימים ליוה״כ. היום שבו כלים כ״א, כלומר היום הכ״ב, הוא יום טוב האחרון, ובו מתחיל להזכיר.</p>
+    <p>ולמה מתחילים למנות מיום ראשון ולא חוששים שמא עיברו את אלול? כי <strong>אנן בקיאין בקביעא דירחא</strong>, ושני הימים הם רק משום <strong>״מנהג אבותינו בידינו״</strong>.</p>` },
+  { dh: 'יורה בניסן הוא', content: '<p>בתמיה, דכתיב ״ויורד לכם גשם מורה ומלקוש בראשון״.</p>' },
+  { dh: 'אמר ליה', content: '<p>ודאי שהיורה במרחשון הוא, ומקרא זה נתקיים בימי יואל בן פתואל, שהיה יורה ומלקוש בראשון על ידי נס. היה רעב שבע שנים, דכתיב ״כי קרא ה׳ לרעב וגם בא אל הארץ שבע שנים״, וכתיב ״יתר הגזם אכל הארבה״.</p>' },
+  { dh: 'יצא אדר ולא ירדו גשמים', content: '<p>הכי גרסינן. ״ולא זרעו רוב אדר״ לא גרסינן.</p>' },
+  { dh: 'רביעה ראשונה', content: '<p>תחילת גשמים. ולקמן (דף ו:) מפרש ״רביעה״: שמרביע את הארץ.</p>' },
+  { dh: 'או יזרענו וימות', content: '<p>ימות ברעב קודם שתגדל התבואה החדשה, שלא יהיה לו מה לאכול.</p>' },
+  { dh: 'נעשה להם נס', content: '<p>והיינו דכתיב ״ושלמתי לכם את השנים אשר אכל הארבה״. <strong>נתגלה להם</strong> התבואה שבחורי נמלים ומה שבכתלים, שאגרו העכברים.</p>' },
+  { dh: 'שני ושלישי ורביעי', content: '<p>בניסן. ומה שמצאו אכלו. ולאחר שזרעו ירדו להם גשמים בה׳ בניסן, והקריבו עומר בט״ז בניסן מתבואה חדשה.</p>' },
+  { dh: 'בששה חדשים / בי״א יום', content: '<p>ששה חדשים: מתשרי ועד ניסן. י״א יום: מחמשה בניסן עד ט״ז.</p>' },
+  { dh: 'מאי הלך ילך ובכה', content: '<p>אם לבני אדם, כבר נאמר ״הזורעים בדמעה ברנה יקצרו״. אלא על השור הכתוב אומר. <strong>ובחזירתו אוכל חזיז</strong>: שחת מן התלם שזרעו בהליכתו, שכבר צמח.</p>' },
+  { dh: 'שבולת זרתים', content: '<p>זהו נס גדול, מה שאין כן דרך כל התבואה, שהקנה פי שלשה וארבעה בשבולת.</p>' },
+  { dh: 'משום דבקרבך קדוש', content: '<p>בתמיה: שאתה מטיב מעשיך, לא יבוא הקב״ה בעיר? והכי קאמר: עד שיהא בקרבך קדוש למטה, דהיינו ירושלים שלמטה הקדושה, לא אבוא בעיר שלמעלה.</p>' },
+  { dh: 'ובאחת יבערו', content: '<p>אילולא הגזירה שווה היה משמע: אטומים כעץ לקבל מוסר.</p>' },
+  { dh: 'עשרים וארבע שביקא להו', content: '<p>בתמיה. בפרשת התשפוט (יחזקאל כב) כתובות כ״ד עבירות שעברו.</p>' }
+];
+
+amudim['5a'].tosafot = [
+  { dh: 'רבא אמר כיון שהתחיל שוב אינו פוסק', content: '<p>כלומר מכיון שהתחיל ביום הראשון של שני הימים האחרונים, שוב אינו פוסק. וכן לגבי ההפסקה.</p>' },
+  { dh: 'יורה', content: `${kv('', kn('🌦️', 'מלקוש בניסן<br>✓ מובן', 'good') + kn('🌧️', 'יורה בניסן?<br>✗', 'bad', 'animation:kShake 1.4s infinite'))}<p>פירוש הקרא ״ויורד לכם גשם מורה ומלקוש בראשון״: את ״מלקוש בראשון״ אפשר להבין כמו המשנה, אבל ״מורה״ הוא במרחשון. ועל זה הקושיה.</p>` },
+  { dh: 'ובחזירתו אוכל חזיז מן התלם', content: `<p><strong>וקשה:</strong> לעיל אמר ״נמצאת תבואה הגדלה בששה חדשים גדלה באחד עשר יום״. היה לו לומר בשלושה עשר יום (״בתליסר״), כי זרעו כבר בשני בניסן!</p><p><strong>ויש לומר:</strong> מיד בזריעה מתחילה התבואה לגדול, והחשבון הוא לפי מה שנזרע אחרון. (בקיצור. בצילום המילים לא ברורות לגמרי.)</p>` },
+  { dh: 'לא אבוא בעיר', content: '<p>פירוש ״בעיר״: עיר ממש. ויש מפרשים ״לא אבוא בשנאה״, ו״עיר״ הוא לשון שנאה, כמו ״ומלאו פני תבל ערים״ (ישעיהו יד).</p>' }
+];
+
+// =======================================================
+// DAF 5b
+// =======================================================
+amudim['5b'].scenes = [
+  {
+    tag: 'תשובה',
+    title: 'אחת <span class="accent">ששקולה כשתיים</span>',
+    html: `
+      ${SOURCE_NOTE}
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', '״שתים רעות״ אינן שתי עבירות מתוך רשימה. זו <strong>עבירה אחת ששקולה כשתיים</strong>. ומאי ניהו? <strong>עבודה זרה</strong>.', true)}
+      ${story('דכתיב: <strong>״כי שתים רעות עשה עמי: אותי עזבו מקור מים חיים, לחצוב להם בארות, בארות נשברים״</strong>.')}
+      ${kv('שתי ״רעות״ במעשה אחד',
+        kn('💧🚫', 'רעה 1<br><span style="opacity:.7">עזבו מקור מים חיים</span>', 'bad') +
+        `<span class="karrow">+</span>` +
+        kn('🕳️', 'רעה 2<br><span style="opacity:.7">חצבו בורות נשברים</span>', 'bad', 'animation:kShake 1.6s infinite'),
+        'גם <strong>עזבו</strong> את ה׳ וגם <strong>החליפו</strong> אותו בדבר שאין בו ממש. ההחלפה היא שתי רעות בבת אחת.')}
+      ${story('וכתיב בהו: <strong>״כי עברו איי כתיים וראו, וקדר שלחו והתבוננו מאד... ההימיר גוי אלהים והמה לא אלהים, ועמי המיר כבודו בלא יועיל״</strong>.')}
+      ${say('תנא', '<strong>כותיים עובדים לאש, וקדריים עובדין למים. ואף על פי שיודעים שהמים מכבין את האש — לא המירו אלהיהם. ועמי המיר כבודי בלא יועיל!</strong>')}
+      ${kv('אש מול מים',
+        kn('🔥', 'כתיים<br><span style="opacity:.7">עובדים לאש</span>', 'bad', 'animation:kFlash 1.6s infinite') +
+        ar('💦', 'animation:kFloatUp 3s infinite') +
+        kn('🌊', 'קדר<br><span style="opacity:.7">עובדים למים</span>', 'good'),
+        'הכתיים <strong>יודעים</strong> שהמים מכבים את האש, כלומר שאלוהיהם חלש, ובכל זאת לא החליפו. ישראל החליפו את ה׳ ״בלא יועיל״.')}
+    `
+  },
+  {
+    tag: 'קושיה',
+    title: '״ויהי כאשר זקן שמואל״ — <span class="accent">בגיל 52?</span>',
+    html: `
+      ${say('רב נחמן לר׳ יצחק', 'מאי דכתיב <strong>״ויהי כאשר זקן שמואל״</strong>? <strong>ומי סיב שמואל כולי האי?!</strong> והרי הוא היה בן נ״ב, דאמר מר: <em>מת בחמשים ושתים שנה — זהו מיתתו של שמואל הרמתי</em>!')}
+      ${tip('רש״י', '״מת בן חמישים ושתיים זו היא מיתת שמואל״ מובא במסכת מועד קטן. חמישים ושתיים זה לא גיל של זקנה!')}
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', '<strong>״זקנה קפצה עליו״</strong>, ופתאום הזדקן, דכתיב: <strong>״נחמתי כי המלכתי את שאול למלך״</strong>.', true)}
+      ${tip('תוספות: חשבון השנים', 'תוספות מחשבים לפי סדר עולם: שמואל נולד בשנה הראשונה שעלי הכהן היה שופט. עלי שפט 40 שנה, שמואל היה נביא ושופט כ־10 שנים לפני מלכות שאול, ושאול מלך שנתיים ומחצה. יחד יוצא שמואל בן 52.')}
+    `
+  },
+  {
+    tag: 'מעשה',
+    title: 'תפילת שמואל: <span class="accent">״שקלתני כמשה ואהרן״</span>',
+    html: `
+      ${say('שמואל לפני הקב״ה', '<strong>״רבונו של עולם! שקלתני כמשה ואהרן</strong>, דכתיב ׳משה ואהרן בכהניו ושמואל בקוראי שמו׳. מה משה ואהרן לא בטלו מעשה ידיהן בחייהן, אף אני — לא יבטלו מעשה ידי בחיי!״')}
+      ${story('שמואל משח את שאול למלך, ועכשיו ה׳ מתחרט ורוצה מלך אחר. שמואל מבקש: אל תבטל את מה שעשיתי כל עוד אני חי!')}
+      ${say('הקב״ה (כביכול)', '<strong>״היכי אעביד?״</strong> מה אעשה?', true)}
+      ${flow([
+        ['אפשרות 1', '<strong>שימות שאול</strong>? שמואל לא רוצה, כי זה מעשה ידיו.', 'bad'],
+        ['אפשרות 2', '<strong>שימות שמואל צעיר</strong>? ״מרננא אבתריה״: יגידו עליו שחטא, כי מת צעיר.', 'bad'],
+        ['אפשרות 3', '<strong>שלא ימות אף אחד</strong>? כבר הגיע זמן מלכות דוד, ו<strong>״אין מלכות נוגעת בחברתה אפילו כמלא נימא״</strong>.', 'bad'],
+        ['הפתרון', '<strong>״אקפיץ עליה זקנה״</strong>: שמואל יזדקן מהר. כולם יראו אותו זקן, ולא ירננו אחריו כשימות.', 'hl']
+      ])}
+      ${kv('שלוש אפשרויות, וכולן בעייתיות',
+        kn('👑', 'שאול ימות?', 'bad') + kn('🧑', 'שמואל ימות צעיר?', 'bad') + kn('⏳', 'אף אחד?', 'bad') +
+        ar('→') + kn('👴', 'זקנה קפצה!', 'gold', 'animation:kAppear 4s infinite'))}
+      ${say('והיינו דכתיב', '<strong>״ושאול יושב בגבעה תחת האשל ברמה״</strong>. וכי מה עניין גבעה אצל רמה? אלא לומר לך: מי גרם לשאול שישב בגבעה <strong>שתי שנים ומחצה</strong>? <strong>תפלתו של שמואל הרמתי</strong>.', true)}
+    `
+  },
+  {
+    tag: 'עיקרון',
+    title: '״ומי מידחי <span class="accent">גברא מקמי גברא?</span>״',
+    html: `
+      ${say('הגמרא', 'וכי אדם נדחה מפני אדם? כלומר, וכי תפילת אדם אחד יכולה לדחות גזירה על אדם אחר?')}
+      ${say('ר׳ שמואל בר נחמני בשם ר׳ יונתן', '<strong>״אין!״</strong> כן! מאי דכתיב <strong>״על כן חצבתי בנביאים, הרגתים באמרי פי״</strong> (הושע ו)? ״באמרי פי״ לא נאמר, אלא <strong>״באמרי פיהם״</strong>. אלמא: מידחי גברא מקמי גברא.', true)}
+      ${kv('״באמרי פיהם״',
+        kn('🗣️', 'הנביאים<br>אומרים', 'gold', 'animation:kPulse 2.5s infinite') + ar('→') +
+        kn('⚖️', 'גזירה<br>על אחרים', 'bad'),
+        'דברי הנביאים עצמם, ה״אמרי פיהם״, פעלו. כך תפילת שמואל השאירה את שאול על כסאו.')}
+    `
+  },
+  {
+    tag: 'בסעודה',
+    title: '״אין משיחין <span class="accent">בסעודה</span>״',
+    html: `
+      ${story('<strong>רב נחמן ור׳ יצחק הוו יתבי בסעודתא</strong>. ישבו יחד לאכול.')}
+      ${say('רב נחמן', '<strong>״לימא מר מילתא״</strong>. יאמר מר דבר תורה.')}
+      ${say('ר׳ יצחק', 'כך אמר ר׳ יוחנן: <strong>אין משיחין בסעודה, שמא יקדים קנה לושט ויבא לידי סכנה</strong>.', true)}
+      ${kv('קנה וושט',
+        `<div class="throat">
+          <div class="th-tube trachea"><span>קנה<br>(נשימה)</span></div>
+          <div class="th-tube esoph"><span>ושט<br>(אוכל)</span></div>
+          <div class="th-food">🍞</div>
+        </div>`,
+        'רש״י: כשמדברים נפתח ״הכובע״ (מכסה הגרון, האפיגלוטיס) שעל פי הקנה, והאוכל עלול להיכנס לקנה. זו <strong>סכנה</strong>.')}
+      ${story('<strong>בתר דסעוד</strong>, אחרי שגמרו לאכול, אמר לו ר׳ יצחק:')}
+      ${say('ר׳ יצחק בשם ר׳ יוחנן', '<strong>״יעקב אבינו לא מת!״</strong>', true)}
+      ${say('רב נחמן', '<strong>״וכי בכדי ספדו ספדנייא וחנטו חנטייא וקברו קבורייא?!״</strong> לחינם הספידו אותו, חנטו אותו וקברו אותו?')}
+      ${say('ר׳ יצחק', '<strong>״מקרא אני דורש״</strong>: ״ואתה אל תירא עבדי יעקב... כי הנני מושיעך מרחוק ואת זרעך מארץ שבים״. <strong>מקיש הוא לזרעו: מה זרעו בחיים — אף הוא בחיים.</strong>', true)}
+      ${tip('רש״י', 'כשה׳ יקבץ את ישראל מן הגולה, יעקב ״חי״ ורואה את בניו. החנטים חנטו אותו כי נדמה להם שמת.')}
+    `
+  },
+  {
+    tag: 'מימרא',
+    title: '״כל האומר <span class="accent">רחב רחב״</span>',
+    html: `
+      ${say('ר׳ יצחק', 'מי שאומר ״רחב, רחב״ (שמה של רחב, שהייתה ידועה ביופיה), <strong>מיד נקרי</strong>, נעשה בעל קרי.')}
+      ${say('רב נחמן', '<strong>״אנא אמינא ולא איכפת לי!״</strong> אני אומר את שמה ולא קורה לי כלום.')}
+      ${say('ר׳ יצחק', '<strong>״כי קאמינא — ביודעה ובמכירה״</strong>: אמרתי את זה רק על מי שהכיר אותה וידע אותה.', true)}
+      ${tip('הרעיון', 'הכוח של שם תלוי במה שהוא מעורר אצל מי שאומר אותו. למי שלא הכיר אותה, זו רק מילה.')}
+    `
+  },
+  {
+    tag: 'משל',
+    title: '״אילן אילן — <span class="accent">במה אברכך?</span>״',
+    html: `
+      ${story('<strong>כי הוו מיפטרי מהדדי</strong>, כשנפרדו זה מזה:')}
+      ${say('רב נחמן', '<strong>״ליברכן מר!״</strong> יברך אותי מר.')}
+      ${say('ר׳ יצחק', 'אמשול לך משל: לאדם שהיה הולך במדבר, והיה <strong>רעב ועיף וצמא</strong>. מצא אילן שפירותיו מתוקין, וצילו נאה, ואמת המים עוברת תחתיו. אכל מפירותיו, ושתה ממימיו, וישב בצילו.', true)}
+      ${kv('מה כבר יש לאילן',
+        kn('🍎', 'פירות מתוקים', 'good', 'animation:kAppear 5s infinite .3s') +
+        kn('🌳', 'צל נאה', 'good', 'animation:kAppear 5s infinite 1.3s') +
+        kn('💧', 'אמת מים', 'good', 'animation:kAppear 5s infinite 2.3s'),
+        'כל ברכה שיחשוב עליה, לאילן <strong>כבר יש</strong>.')}
+      ${say('ר׳ יצחק', 'וכשביקש לילך אמר: <strong>״אילן אילן, במה אברכך?</strong> אם אומר לך שיהו פירותיך מתוקין — הרי פירותיך מתוקין. שיהא צילך נאה — הרי צילך נאה. שתהא אמת המים עוברת תחתיך — הרי אמת המים עוברת תחתיך. <strong>אלא: יהי רצון שכל נטיעות שנוטעין ממך יהיו...״</strong> (ממשיך בעמוד הבא)', true)}
+      ${quiz([
+        ['מהי ״אחת ששקולה כשתיים״?', 'עבודה זרה: גם עזיבת ה׳ וגם החלפתו בדבר שאין בו ממש.'],
+        ['מה הלמד מהכתיים והקדריים?', 'הם לא החליפו את אלוהיהם אף שידעו שהם חלשים, וישראל החליפו את ה׳ בלא יועיל.'],
+        ['למה ״זקנה קפצה״ על שמואל?', 'כדי שימות בלי שירננו אחריו, ושלא ייבטלו מעשה ידיו בחייו.'],
+        ['מאיזה פסוק לומדים ש״מידחי גברא מקמי גברא״?', '״הרגתים באמרי פי״, ודורשים ״באמרי פיהם״.'],
+        ['למה אין משיחין בסעודה?', 'שמא יקדים קנה לושט ויבוא לידי סכנה.'],
+        ['מה ההוכחה ש״יעקב אבינו לא מת״?', 'הוא מוקש לזרעו בפסוק: מה זרעו בחיים, אף הוא בחיים.']
+      ])}
+    `
+  }
+];
+
+amudim['5b'].translation = [
+  { type: 'section', title: 'אחת ששקולה כשתיים' },
+  { type: 'quote', aramaic: 'אמר ליה, הכי אמר רבי יוחנן: אחת שהיא שקולה כשתים. ומאי ניהו? עבודה זרה, דכתיב ״כי שתים רעות עשה עמי, אותי עזבו מקור מים חיים לחצוב להם בארות בארות נשברים״.',
+    translation: 'זו עבירה אחת ששווה לשתיים: עבודה זרה. עזבו את מקור המים החיים וחצבו בורות סדוקים.' },
+  { type: 'quote', aramaic: 'וכתיב בהו: ״כי עברו איי כתיים וראו וקדר שלחו והתבוננו מאד... ההימיר גוי אלהים והמה לא אלהים, ועמי המיר כבודו בלא יועיל״.',
+    translation: 'עברו לאיי כתים וראו, שלחו לקדר והתבוננו: וכי עם החליף את אלוהיו? ועמי החליף את כבודו בדבר שלא מועיל.' },
+  { type: 'quote', aramaic: 'תנא: כותיים עובדים לאש, וקדריים עובדין למים. ואף על פי שיודעים שהמים מכבין את האש — לא המירו אלהיהם. ועמי המיר כבודי בלא יועיל.',
+    translation: 'הכתיים עובדים לאש והקדריים למים. אף שהם יודעים שמים מכבים אש, לא החליפו את אלוהיהם. ועמי החליף אותי.' },
+  { type: 'section', title: 'זקנתו של שמואל' },
+  { type: 'quote', aramaic: 'ואמר ליה רב נחמן לרבי יצחק: מאי דכתיב ״ויהי כאשר זקן שמואל״? ומי סיב שמואל כולי האי? והא בר חמשין ותרתין הוה, דאמר מר: מת בחמשים ושתים שנה — זהו מיתתו של שמואל הרמתי!',
+    translation: 'וכי שמואל הזדקן כל כך? הרי מת בן 52!' },
+  { type: 'quote', aramaic: 'אמר ליה, הכי אמר רבי יוחנן: זקנה קפצה עליו, דכתיב ״נחמתי כי המלכתי את שאול למלך״.',
+    translation: 'הזקנה ״קפצה״ עליו פתאום, מאז שה׳ אמר ״נחמתי כי המלכתי את שאול״.' },
+  { type: 'quote', aramaic: 'אמר לפניו: רבונו של עולם, שקלתני כמשה ואהרן, דכתיב ״משה ואהרן בכהניו ושמואל בקוראי שמו״. מה משה ואהרן לא בטלו מעשה ידיהן בחייהן — אף אני לא יבטלו מעשה ידי בחיי.',
+    translation: 'שמואל: השווית אותי למשה ואהרן. כמו שמעשיהם לא בוטלו בחייהם, כך גם מעשיי.' },
+  { type: 'quote', aramaic: 'אמר הקדוש ברוך הוא: היכי אעביד? לימות שאול — לא קא מבעי שמואל. לימות שמואל אדזוטר — מרנני אבתריה. לא לימות שאול ולא לימות שמואל — כבר הגיע מלכות דוד, ואין מלכות נוגעת בחברתה אפילו כמלא נימא.',
+    translation: 'מה אעשה? שימות שאול? שמואל לא רוצה. שימות שמואל צעיר? ידברו אחריו. שלא ימות אף אחד? מלכות דוד כבר הגיעה, ומלכות אחת לא נוגעת בחברתה אפילו כחוט השערה.' },
+  { type: 'quote', aramaic: 'אמר הקדוש ברוך הוא: אקפיץ עליה זקנה. היינו דכתיב ״ושאול יושב בגבעה תחת האשל ברמה״. וכי מה ענין גבעה אצל רמה? אלא לומר לך: מי גרם לשאול שישב בגבעה שתי שנים ומחצה — תפלתו של שמואל הרמתי.',
+    translation: 'אקפיץ עליו זקנה. וזה הפסוק ״שאול יושב בגבעה... ברמה״: תפילת שמואל איש הרמה היא שהשאירה את שאול שנתיים וחצי.' },
+  { type: 'quote', aramaic: 'ומי מידחי גברא מקמי גברא? אין, דאמר רבי שמואל בר נחמני אמר רבי יונתן: מאי דכתיב ״על כן חצבתי בנביאים הרגתים באמרי פי״ — ״באמרי פי״ לא נאמר, אלא ״באמרי פיהם״. אלמא מידחי גברא מקמי גברא.',
+    translation: 'וכי אדם נדחה מפני אדם? כן: ״הרגתים באמרי פי״, כלומר באמרי <em>פיהם</em> של הנביאים.' },
+  { type: 'section', title: 'בסעודה' },
+  { type: 'quote', aramaic: 'רב נחמן ורבי יצחק הוו יתבי בסעודתא. אמר ליה רב נחמן לרבי יצחק: לימא מר מילתא. אמר ליה, הכי אמר רבי יוחנן: אין משיחין בסעודה, שמא יקדים קנה לושט ויבא לידי סכנה.',
+    translation: 'בסעודה ביקש רב נחמן דבר תורה. ר׳ יצחק: אין מדברים בזמן האוכל, שמא האוכל ייכנס לקנה.' },
+  { type: 'quote', aramaic: 'בתר דסעוד אמר ליה, הכי אמר רבי יוחנן: יעקב אבינו לא מת. אמר ליה: וכי בכדי ספדו ספדנייא וחנטו חנטייא וקברו קבורייא?',
+    translation: 'אחרי האוכל: יעקב אבינו לא מת. רב נחמן: וכי לחינם הספידו, חנטו וקברו אותו?' },
+  { type: 'quote', aramaic: 'אמר ליה: מקרא אני דורש, שנאמר ״ואתה אל תירא עבדי יעקב נאם ה׳ ואל תחת ישראל כי הנני מושיעך מרחוק ואת זרעך מארץ שבים״ — מקיש הוא לזרעו: מה זרעו בחיים, אף הוא בחיים.',
+    translation: 'אני דורש פסוק: יעקב מוקש לזרעו. כמו שזרעו חי, כך גם הוא.' },
+  { type: 'quote', aramaic: 'אמר רבי יצחק: כל האומר רחב רחב — מיד נקרי. אמר ליה רב נחמן: אנא אמינא ולא איכפת לי. אמר ליה: כי קאמינא — ביודעה ובמכירה.',
+    translation: 'ר׳ יצחק: האומר ״רחב רחב״ נעשה מיד בעל קרי. רב נחמן: אני אומר ולא קורה לי דבר. ר׳ יצחק: דיברתי על מי שהכיר אותה.' },
+  { type: 'section', title: 'משל האילן' },
+  { type: 'quote', aramaic: 'כי הוו מיפטרי מהדדי, אמר ליה: ליברכן מר. אמר ליה: אמשול לך משל, למה הדבר דומה? לאדם שהיה הולך במדבר והיה רעב ועיף וצמא, ומצא אילן שפירותיו מתוקין וצילו נאה ואמת המים עוברת תחתיו. אכל מפירותיו ושתה ממימיו וישב בצילו.',
+    translation: 'בפרידה ביקש רב נחמן ברכה. ר׳ יצחק: משל לאדם רעב, עייף וצמא במדבר, שמצא עץ עם פירות מתוקים, צל נעים ונחל מים.' },
+  { type: 'quote', aramaic: 'וכשביקש לילך אמר: אילן אילן, במה אברכך? אם אומר לך שיהו פירותיך מתוקין — הרי פירותיך מתוקין; שיהא צילך נאה — הרי צילך נאה; שתהא אמת המים עוברת תחתיך — הרי אמת המים עוברת תחתיך. אלא: יהי רצון שכל נטיעות שנוטעין ממך יהיו —',
+    translation: 'עץ, עץ, במה אברך אותך? הכל כבר יש לך. אלא: יהי רצון שכל השתילים שיינטעו ממך יהיו...',
+    viz: kv('', kn('🌳', 'האילן', 'good') + ar() + kn('🌱🌱🌱', 'נטיעות כמותו', 'gold', 'animation:kPulse 2.5s infinite')) },
+  { type: 'summary', text: '<strong>סיכום ה׳ ע״ב:</strong> ״שתים רעות״ הן עבודה זרה, ששקולה כשתיים. זקנה קפצה על שמואל, ותפילתו השאירה את שאול. בסעודה: אין משיחין בסעודה, ו״יעקב אבינו לא מת״. ובפרידה: משל האילן.' }
+];
+
+amudim['5b'].rashi = [
+  { dh: 'מת בחמשים ושתים', content: '<p>במסכת מועד קטן (דף כח.): ״מת בחמישים ושתיים, זו היא מיתתו של שמואל הרמתי״.</p>' },
+  { dh: 'כי זוטר / מרנני אבתריה', content: '<p>אם ימות צעיר, ירננו אחריו העולם ויאמרו שעבירה הייתה בו.</p>' },
+  { dh: 'שישב ב׳ שנים', content: '<p>כדמפרש בסדר עולם את שנות מלכות שאול ומיתת שמואל בתוכן.</p>' },
+  { dh: 'באמרי פיהם', content: '<p>לא נאמר ״באמרי פי״ אלא באמרי פיהם של הנביאים. אלמא: גברא מקמי גברא מידחי.</p>' },
+  { dh: 'שמא יקדים קנה לושט', content: '<p>נפתח אותו ״כובע״ שעל פי הקנה, ונכנס בו המאכל ומסתכן.</p>' },
+  { dh: 'וחנטו חנטייא', content: '<p>דכתיב ״ויחנטו הרופאים את ישראל״.</p>' },
+  { dh: 'מה זרעו בחיים', content: '<p>כשהוא (הקב״ה) מקבץ את ישראל מן הגולה, יעקב חי הוא כדי שיראה את בניו. והחנטים — נדמה להם שמת.</p>' },
+  { dh: 'מיד נקרי / לא איכפת לי', content: '<p>״נקרי״: נעשה בעל קרי. ״לא איכפת לי״: איני חושש. ״ביודעה ובמכירה״: למי שהכיר אותה.</p>' },
+  { dh: 'וצילו נאה / ואמת המים', content: '<p>צל, שזה צריך לאדם עייף. ופירות, לרעב. ואמת המים, לצמא.</p>' }
+];
+
+amudim['5b'].tosafot = [
+  { dh: 'ומי סיב שמואל והא בר נ״ב שנין הוה',
+    content: `${kv('ציר החיים של שמואל', kn('👶', 'לידה<br>שנה א׳ לעלי', '') + ar() + kn('📿', 'עלי שופט<br>40 שנה', '') + ar() + kn('⚖️', 'שמואל שופט<br>~10 שנים', 'gold') + ar() + kn('👑', 'שאול<br>2½ שנים', ''))}
+      <p>תוספות מחשבים לפי סדר עולם איך יוצא ששמואל היה בן נ״ב. הוא נולד בשנה הראשונה שעלי נתמנה, ועלי היה כהן ושופט ארבעים שנה. שמואל היה נביא ושופט כעשר שנים קודם מלכות שאול, ואחר כך מלכות שאול. סך הכל יוצא נ״ב שנה.</p>` }
+];
+
+// =======================================================
+// DAF 6a
+// =======================================================
+amudim['6a'].scenes = [
+  {
+    tag: 'סוף המשל',
+    title: '״שיהו צאצאי מעיך <span class="accent">כמותך</span>״',
+    html: `
+      ${SOURCE_NOTE}
+      ${say('ר׳ יצחק', '...יהיו <strong>כמותך</strong>. אף אתה, במה אברכך? אם בתורה — הרי תורה. אם בעושר — הרי עושר. אם בבנים — הרי בנים. <strong>אלא: יהי רצון שיהו צאצאי מעיך כמותך.</strong>', true)}
+      ${kv('הנמשל',
+        kn('📜', 'תורה ✓', 'good') + kn('💰', 'עושר ✓', 'good') + kn('👨‍👧', 'בנים ✓', 'good') + ar() +
+        kn('🌱', 'צאצאים<br>כמותך!', 'gold', 'animation:kPulse 2.5s infinite'),
+        'לרב נחמן כבר יש הכל, כמו לאילן. הברכה היחידה שנשארה: <strong>שהדור הבא יהיה כמוהו</strong>.')}
+    `
+  },
+  {
+    tag: 'ברייתא',
+    title: 'מה פירוש <span class="accent">״יורה״?</span>',
+    html: `
+      ${story('הגמרא חוזרת לנושא הגשמים, ומבארת את המילים ״יורה״ ו״מלקוש״. <strong>תנו רבנן</strong>, שלושה פירושים ל״יורה״:')}
+      ${flow([
+        ['1. ״מורה״', 'הגשם <strong>מורה</strong> (מלמד) את הבריות להטיח את גגותיהן, להכניס את פירותיהן ולעשות כל צרכיהן לקראת החורף.', ''],
+        ['2. ״מרווה״', 'מרווה את הארץ ומשקה עד התהום, שנאמר <strong>״תלמיה רוה נחת גדודיה, ברביבים תמוגגנה, צמחה תברך״</strong>.', ''],
+        ['3. ״בנחת״', 'יורד <strong>בנחת</strong> ולא בזעף.', '']
+      ])}
+      ${tip('רש״י', '״להכניס פירותיהן״: פירות שהיו בשדות כדי להתייבש. ״יורד בנחת״: כמו אדם שמורה (מלמד) לתלמידו בנחת.')}
+      ${kv('שלושת פירושי ״יורה״',
+        kn('🏠', 'מורה<br><span style="opacity:.7">מכין את הבית</span>', 'gold', 'animation:kAppear 5s infinite .3s') +
+        kn('🌍', 'מרווה<br><span style="opacity:.7">עד התהום</span>', 'good', 'animation:kAppear 5s infinite 1.3s') +
+        kn('🌦️', 'בנחת<br><span style="opacity:.7">לא בזעף</span>', '', 'animation:kAppear 5s infinite 2.3s'))}
+    `
+  },
+  {
+    tag: 'היקש',
+    title: 'יורה ומלקוש — <span class="accent">מלמדים זה על זה</span>',
+    html: `
+      ${say('או אינו?', 'אולי ״יורה״ הוא דווקא גשם <strong>מזיק</strong>, שמשיר את הפירות ושוטף את הזרעים והאילנות? (רש״י: ״יורה״ לשון קללה, כמו ״ירה בים״)')}
+      ${say('תלמוד לומר', '<strong>״מלקוש״</strong>: מה מלקוש לברכה, אף יורה לברכה.', true)}
+      ${say('או אינו?', 'אולי ״מלקוש״ הוא גשם מזיק, שמפיל את הבתים, משבר את האילנות ומעלה את הארבה (״סקאין״)? (רש״י: ״מלקוש״ לשון ארבה, כמו ״והנה לקש אחר גזי המלך״)')}
+      ${say('תלמוד לומר', '<strong>״יורה״</strong>: מה יורה לברכה, אף מלקוש לברכה.', true)}
+      ${kv('מעגל ההיקש',
+        kn('🌧️', 'יורה', 'good', 'animation:kPulse 2s infinite') + ar('⇄') + kn('🌦️', 'מלקוש', 'good', 'animation:kPulse 2s infinite 1s'),
+        'כל אחד מוכיח שהשני לברכה. אבל מאיפה נדע על אחד מהם בוודאות?')}
+      ${say('ויורה גופיה מנלן?', 'דכתיב: <strong>״ובני ציון גילו ושמחו בה׳ אלהיכם, כי נתן לכם את המורה לצדקה, ויורד לכם גשם מורה ומלקוש בראשון״</strong> (יואל ב). ״לצדקה״, ומכאן שהוא לברכה!', true)}
+    `
+  },
+  {
+    tag: 'זמנים',
+    title: 'מתי יורה <span class="accent">ומתי מלקוש?</span>',
+    html: `
+      ${say('תנו רבנן', '<strong>יורה במרחשון, ומלקוש בניסן</strong>.')}
+      ${say('או אינו?', 'אולי יורה ב<strong>תשרי</strong> ומלקוש ב<strong>אייר</strong>?')}
+      ${say('תלמוד לומר', '<strong>״בעתו״</strong>. (רש״י: בתשרי עדיין יש פירות בשדות, ובאייר הגשם כבר מזיק לתבואה.)', true)}
+      ${story('ומה פירוש ״<strong>מלקוש</strong>״? שלושה פירושים:')}
+      <div class="vs-grid">
+        <div class="vs-card a"><div class="emoji">💔</div><h5>שמואל</h5><p>דבר ש<strong>מל קשיותיהן</strong> של ישראל. רש״י: כשהוא לא יורד, ישראל חוזרים בתשובה.</p></div>
+        <div class="vs-card b"><div class="emoji">🌾</div><h5>דבי ר׳ ישמעאל</h5><p>דבר ש<strong>ממלא תבואה בקשיה</strong>.</p></div>
+      </div>
+      ${say('במתניתא תנא', 'דבר שיורד <strong>על המלילות ועל הקשין</strong>. (רש״י: ״מלילות״ הן ראשי שיבולים שאדם מולל בידו, ו״קשין״ הם הקנים.)', true)}
+      ${kv('״מלקוש״ = מל + קש',
+        kn('✂️', 'מל', 'gold') + `<span class="karrow">+</span>` + kn('🌾', 'קש', 'gold') + ar('=') + kn('🌦️', 'מלקוש', 'good', 'animation:kPulse 2.5s infinite'))}
+    `
+  },
+  {
+    tag: 'מחלוקת',
+    title: 'יורה ב<span class="accent">מרחשון או בכסליו?</span>',
+    html: `
+      ${say('ברייתא', 'יורה במרחשון. <strong>או אינו אלא בכסליו?</strong> תלמוד לומר ״בעתו יורה ומלקוש״: מה מלקוש בעתו, אף יורה בעתו.')}
+      ${say('תניא אידך', 'יורה במרחשון ומלקוש בניסן, <strong>דברי ר׳ מאיר</strong>. <strong>וחכמים אומרים: יורה בכסליו</strong>.')}
+      ${say('מאן חכמים?', 'אמר רב חסדא: <strong>ר׳ יוסי היא</strong>, דתניא:', true)}
+      ${kv('שלוש רביעות: מתי כל אחת?',
+        `<div class="rain-table">
+          <div class="rt-h"></div><div class="rt-h">בכירה<br><small>ראשונה</small></div><div class="rt-h">בינונית<br><small>שנייה</small></div><div class="rt-h">אפילה<br><small>שלישית</small></div>
+          <div class="rt-n">ר׳ מאיר</div><div class="rt-c">3 חשון</div><div class="rt-c">7 חשון</div><div class="rt-c">17 חשון</div>
+          <div class="rt-n">ר׳ יהודה</div><div class="rt-c">7 חשון</div><div class="rt-c">17 חשון</div><div class="rt-c">23 חשון</div>
+          <div class="rt-n">ר׳ יוסי</div><div class="rt-c">17 חשון</div><div class="rt-c">23 חשון</div><div class="rt-c hl">ר״ח כסליו</div>
+        </div>`,
+        'כל תנא מאחר את הזמנים <strong>בשלב אחד</strong>. אצל ר׳ יוסי הרביעה השלישית מגיעה כבר ל<strong>כסליו</strong>, ולכן ״חכמים״ (=ר׳ יוסי) אומרים ״יורה בכסליו״.')}
+      ${tip('רש״י', '״בכירה״: ראשונה. ״אפילה״: אחרונה, כמו ״כי אפילות הנה״ (שמות ט). ולקמן מפרש למאי הלכתא נאמרו שלוש רביעות.')}
+      ${say('וכן היה ר׳ יוסי אומר', '<strong>אין היחידים מתענין עד שיגיע ראש חדש כסליו</strong>. (רש״י: התענית היא ברביעה השלישית, ולר׳ יוסי היא בר״ח כסליו.)')}
+      ${key('הלכה', 'אמר רב חסדא: <strong>הלכה כר׳ יוסי</strong>.')}
+    `
+  },
+  {
+    tag: 'גרסה',
+    title: 'אמימר: <span class="accent">גרסה אחרת לרב חסדא</span>',
+    html: `
+      ${say('אמימר', 'מתני להא דרב חסדא בהאי לישנא: <strong>״בשלשה (במרחשון) שואלין את הגשמים, רבן גמליאל אומר בשבעה בו. אמר רב חסדא: הלכה כרבן גמליאל.״</strong>')}
+      ${story('לפי אמימר, דברי רב חסדא נאמרו על המשנה של <strong>שאלת</strong> הגשמים: מתחילים לשאול בז׳ במרחשון.')}
+      ${say('כמאן?', 'כמו איזה תנא? <strong>כי האי תנא, דתניא: רבן שמעון בן גמליאל אומר: גשמים שירדו שבעה ימים זה אחר זה — אתה מונה בהן רביעה ראשונה ושניה.</strong>', true)}
+      ${kv('לפי רשב״ג',
+        kn('🌧️×7', 'שבעה ימי גשם<br>רצופים', 'gold', 'animation:kPulse 2.5s infinite') + ar('=') +
+        kn('1️⃣ + 2️⃣', 'רביעה ראשונה<br>ושנייה', 'good'),
+        'שבעה ימי גשם רצופים נחשבים כשתי רביעות.')}
+      ${say('הגמרא', 'בשלמא רביעה <strong>ראשונה — לשאול</strong>, <strong>שלישית — להתענות</strong>. אבל <strong>שניה — למאי?</strong> לאיזו הלכה צריך את הרביעה השנייה?')}
+      ${say('ר׳ זירא', '<strong>״לנדרים...״</strong> (ההמשך בדף ו׳ ע״ב)', true)}
+      ${quiz([
+        ['מה שלושת הפירושים ל״יורה״?', 'מורה (מלמד להכין), מרווה (עד התהום), ויורד בנחת.'],
+        ['מאיפה יודעים שהיורה לברכה?', '״כי נתן לכם את המורה לצדקה״ (יואל ב).'],
+        ['למה לא יורה בתשרי ומלקוש באייר?', 'כתוב ״בעתו״.'],
+        ['מי הם ״חכמים״ שאומרים יורה בכסליו?', 'ר׳ יוסי, שאצלו הרביעה השלישית היא בר״ח כסליו.'],
+        ['למה צריך רביעה ראשונה ולמה שלישית?', 'הראשונה לשאלה, והשלישית לתענית. על השנייה ר׳ זירא אומר: לנדרים.']
+      ])}
+    `
+  }
+];
+
+amudim['6a'].translation = [
+  { type: 'section', title: 'סוף הברכה' },
+  { type: 'quote', aramaic: '...כמותך. אף אתה, במה אברכך? אם בתורה — הרי תורה, אם בעושר — הרי עושר, אם בבנים — הרי בנים. אלא יהי רצון שיהו צאצאי מעיך כמותך.',
+    translation: '...כמוך. ואתה, במה אברך אותך? תורה, עושר ובנים כבר יש לך. יהי רצון שצאצאיך יהיו כמוך.' },
+  { type: 'section', title: 'יורה' },
+  { type: 'quote', aramaic: 'תנו רבנן: יורה — שמורה את הבריות להטיח גגותיהן ולהכניס את פירותיהן ולעשות כל צרכיהן.',
+    translation: '״יורה״: מלמד את האנשים לטייח גגות, להכניס פירות ולהתכונן.' },
+  { type: 'quote', aramaic: 'דבר אחר: שמרוה את הארץ ומשקה עד תהום, שנאמר ״תלמיה רוה נחת גדודיה ברביבים תמוגגנה צמחה תברך״.',
+    translation: 'פירוש אחר: מרווה את האדמה עד התהום.' },
+  { type: 'quote', aramaic: 'דבר אחר: יורה — שיורד בנחת ואינו יורד בזעף.',
+    translation: 'פירוש שלישי: יורד בנחת ולא בסערה.' },
+  { type: 'quote', aramaic: 'או אינו יורה אלא שמשיר את הפירות ומשטף את הזרעים ומשטף את האילנות? תלמוד לומר מלקוש — מה מלקוש לברכה אף יורה לברכה.',
+    translation: 'אולי הוא מזיק? לא: כמו שמלקוש לברכה, כך יורה.' },
+  { type: 'quote', aramaic: 'או אינו מלקוש אלא שמפיל את הבתים ומשבר את האילנות ומעלה את הסקאין? תלמוד לומר יורה — מה יורה לברכה אף מלקוש לברכה.',
+    translation: 'ואולי מלקוש מזיק? לא: כמו שיורה לברכה, כך מלקוש.' },
+  { type: 'quote', aramaic: 'ויורה גופיה מנלן? דכתיב ״ובני ציון גילו ושמחו בה׳ אלהיכם כי נתן לכם את המורה לצדקה, ויורד לכם גשם מורה ומלקוש בראשון״.',
+    translation: 'ומניין שהיורה עצמו לברכה? ״כי נתן לכם את המורה לצדקה״.' },
+  { type: 'section', title: 'זמני היורה והמלקוש' },
+  { type: 'quote', aramaic: 'תנו רבנן: יורה במרחשון ומלקוש בניסן. אתה אומר יורה במרחשון ומלקוש בניסן, או אינו אלא יורה בתשרי ומלקוש באייר? תלמוד לומר ״בעתו״.',
+    translation: 'יורה במרחשון ומלקוש בניסן, ולא בתשרי ובאייר, כי כתוב ״בעתו״.' },
+  { type: 'quote', aramaic: 'מלקוש — אמר רב נהילאי בר אידי אמר שמואל: דבר שמל קשיותיהן של ישראל. דבי רבי ישמעאל תנא: דבר שממלא תבואה בקשיה. במתניתא תנא: דבר שיורד על המלילות ועל הקשין.',
+    translation: '״מלקוש״: מל את קשיות הלב של ישראל, או ממלא את התבואה בקשיה, או יורד על השיבולים והקנים.' },
+  { type: 'quote', aramaic: 'תנו רבנן: יורה במרחשון ומלקוש בניסן. אתה אומר יורה במרחשון, או אינו אלא בחדש כסליו? תלמוד לומר ״בעתו יורה ומלקוש״ — מה מלקוש בעתו, אף יורה בעתו.',
+    translation: 'ולא בכסליו: כמו שמלקוש בזמנו, כך יורה.' },
+  { type: 'quote', aramaic: 'תניא אידך: יורה במרחשון ומלקוש בניסן, דברי רבי מאיר. וחכמים אומרים: יורה בכסליו. מאן חכמים? אמר רב חסדא: רבי יוסי היא.',
+    translation: 'ר׳ מאיר: יורה במרחשון. חכמים: בכסליו. וחכמים הם ר׳ יוסי.' },
+  { type: 'quote', aramaic: 'דתניא: רביעה ראשונה — הבכירה בשלשה במרחשון, בינונית בשבעה בו, אפילה בשבעה עשר בו, דברי רבי מאיר. רבי יהודה אומר: בשבעה ובשבעה עשר ובעשרים ושלשה. רבי יוסי אומר: בשבעה עשר ובעשרים ושלשה ובראש חדש כסליו.',
+    translation: 'שלוש רביעות: לר׳ מאיר בג׳, ז׳ וי״ז בחשון. לר׳ יהודה בז׳, י״ז וכ״ג. לר׳ יוסי בי״ז, כ״ג ור״ח כסליו.',
+    viz: kv('', kn('ר״מ', '3 · 7 · 17') + kn('ר״י', '7 · 17 · 23') + kn('ר׳ יוסי', '17 · 23 · ר״ח כסליו', 'gold')) },
+  { type: 'quote', aramaic: 'וכן היה רבי יוסי אומר: אין היחידים מתענין עד שיגיע ראש חדש כסליו. אמר רב חסדא: הלכה כרבי יוסי.',
+    translation: 'ר׳ יוסי: יחידים לא מתענים עד ר״ח כסליו. רב חסדא: הלכה כמותו.' },
+  { type: 'quote', aramaic: 'אמימר מתני להא דרב חסדא בהא לישנא: בשלשה שואלין את הגשמים, רבן גמליאל אומר בשבעה בו. אמר רב חסדא: הלכה כרבן גמליאל.',
+    translation: 'אמימר גורס: רב חסדא אמר הלכה כרבן גמליאל, ששואלים בז׳ במרחשון.' },
+  { type: 'quote', aramaic: 'כמאן? כי האי תנא, דתניא: רבן שמעון בן גמליאל אומר: גשמים שירדו שבעה ימים זה אחר זה — אתה מונה בהן רביעה ראשונה ושניה.',
+    translation: 'כמו רשב״ג: שבעה ימי גשם רצופים נחשבים לרביעה ראשונה ושנייה.' },
+  { type: 'quote', aramaic: 'בשלמא רביעה ראשונה — לשאול, שלישית — להתענות, שניה למאי? אמר רבי זירא: לנ[דרים]...',
+    translation: 'הראשונה לשאלה, השלישית לתענית. והשנייה, לשם מה? ר׳ זירא: לנדרים... (ממשיך בדף ו׳ ע״ב)' },
+  { type: 'summary', text: '<strong>סיכום ו׳ ע״א:</strong> סוף משל האילן. אחר כך ביאור ״יורה״ ו״מלקוש״: משמעותם, שהם לברכה, וזמנם. המחלוקת על מועדי שלוש הרביעות, והלכה כר׳ יוסי, ולפי אמימר כרבן גמליאל.' }
+];
+
+amudim['6a'].rashi = [
+  { dh: 'יורה', content: '<p>רביעה ראשונה, שיורדת במרחשון כדלקמן.</p>' },
+  { dh: 'ולהכניס פירותיהן', content: '<p>שהיו בשדות לייבשן, ועתה מכניסים אותם מפני הגשמים.</p>' },
+  { dh: 'שיורד בנחת', content: '<p>כאדם שמורה לתלמידו בנחת.</p>' },
+  { dh: 'או אינו יורה אלא שמשיר', content: '<p>״יורה״ לשון קללה, כמו ״ירה בים״ (שמות טו), שמשליך הכל.</p>' },
+  { dh: 'מלקוש', content: '<p>לשון ארבה, כמו ״והנה לקש אחר גזי המלך״ (עמוס ז).</p>' },
+  { dh: 'או אינו אלא יורה בתשרי ומלקוש באייר', content: '<p>שיש עדיין מלילות וקשין בשדה. תלמוד לומר ״בעתו״.</p>' },
+  { dh: 'דבר שמל קשיותיהן של ישראל', content: '<p>שכשאינו יורד, חוזרין ישראל בתשובה.</p>' },
+  { dh: 'מלילות / קשין', content: '<p>מלילות: ראשי שיבולים שאדם מולל בידו, כדכתיב ״וקטפת מלילות בידך״. קשין: קנה.</p>' },
+  { dh: 'בכירה / אפילה', content: '<p>בכירה: ראשונה. אפילה: אחרונה, כמו ״כי אפילות הנה״. ולקמן מפרש למאי הלכתא נאמרו.</p>' },
+  { dh: 'אין היחידים מתענין', content: '<p>דאמרינן בסמוך ״שלישית להתענות״, והואיל וזמן השלישית לר׳ יוסי הוא בר״ח כסליו, אין ליחידים להתענות קודם לכן.</p>' },
+  { dh: 'שבעה ימים', content: '<p>שירדו רצופים. אתה מונה בהן ראשונה ושנייה.</p>' }
+];
+
+amudim['6a'].tosafot = [];
 
 // =======================================================
 // CHAPTER STARTS - basic stubs with chapter context
