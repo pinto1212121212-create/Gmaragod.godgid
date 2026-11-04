@@ -1212,9 +1212,14 @@
   .src-wrap { max-height: 34vh; overflow-y: auto; scroll-behavior: smooth; overscroll-behavior: contain; }
   .src-inner { position: relative; }
   .src-inner img { display: block; width: 100%; height: auto; cursor: zoom-in; }
-  .src-hl { position: absolute; pointer-events: none; border-radius: 3px;
-    background: rgba(255,196,64,0.55); mix-blend-mode: multiply;
-    border-bottom: 2px solid rgba(230,110,20,0.95); animation: hlIn .35s ease-out both; }
+  .src-hl { position: absolute; pointer-events: none; border-radius: 3px; mix-blend-mode: multiply;
+    --hc: 255,196,64; --hl: 230,110,20;
+    background: rgba(var(--hc),0.55); border-bottom: 2.5px solid rgba(var(--hl),0.95); animation: hlIn .35s ease-out both; }
+  .src-hl.hl-q, .src-hl.hl-x { --hc: 255,150,160; --hl: 200,30,50; }
+  .src-hl.hl-a { --hc: 160,225,140; --hl: 40,140,40; }
+  .src-hl.hl-c { --hc: 255,210,80; --hl: 200,140,0; }
+  .src-hl.hl-n, .src-hl.hl-s { --hc: 160,205,240; --hl: 40,110,190; }
+  .src-hl.hl-k { --hc: 205,180,240; --hl: 120,70,190; }
   @keyframes hlIn { from { opacity: 0; } to { opacity: 1; } }
   .beats { margin-left: 22px; }
   .bt-pin { flex: 0 0 auto; margin-right: auto; border: none; background: transparent; font-size: 15px; cursor: pointer;
@@ -1226,6 +1231,14 @@
   .ba-line.draw { stroke-dasharray: 1600; stroke-dashoffset: 1600; animation: baDraw .6s ease-out forwards; }
   @keyframes baDraw { to { stroke-dashoffset: 0; } }
   .ba-head, .ba-dot { fill: var(--flame); }
+  .beat-arrow { --ac: var(--flame); }
+  .beat-arrow.ar-q, .beat-arrow.ar-x { --ac: #e8566a; }
+  .beat-arrow.ar-a { --ac: #6cc35a; }
+  .beat-arrow.ar-c { --ac: #f2c14e; }
+  .beat-arrow.ar-n, .beat-arrow.ar-s { --ac: #5ea8e0; }
+  .beat-arrow.ar-k { --ac: #a98de0; }
+  .beat-arrow .ba-line { stroke: var(--ac); filter: drop-shadow(0 0 3px var(--ac)); }
+  .beat-arrow .ba-head, .beat-arrow .ba-dot { fill: var(--ac); }
   body.tutorial-mode .beat-arrow { display: none; }
   @media (prefers-reduced-motion: reduce) { .ba-line.draw { animation: none; stroke-dashoffset: 0; } }
 
@@ -1268,6 +1281,19 @@
   .sf-node small { font-size: 10px; font-weight: 700; color: var(--parchment-soft); }
   .sf-node.r-c { background: rgba(232,183,109,0.2); }
   .sf-arr { color: var(--gold); font-weight: 800; }
+
+  /* צבע לפי תפקיד */
+  .beat.role-q, .beat.role-x { border-right-color: #e8566a !important; }
+  .beat.role-a { border-right-color: #6cc35a !important; }
+  .beat.role-c { border-right-color: #f2c14e !important; }
+  .beat.role-n, .beat.role-s { border-right-color: #5ea8e0 !important; }
+  .beat.role-k { border-right-color: #a98de0 !important; }
+  .role-q .bt-role, .role-x .bt-role { color: #ff8a98; }
+  .role-a .bt-role { color: #8fdc7e; }
+  .role-n .bt-role, .role-s .bt-role { color: #8cc4ef; }
+  .role-k .bt-role { color: #c4adf0; }
+  .role-legend { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 2px 0 10px; font-size: 11.5px; font-weight: 700; }
+  .role-legend span { padding: 2px 9px; border-radius: 12px; background: rgba(244,234,213,0.06); border-bottom: 3px solid; }
   .quiz { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
   .quiz-q { background: rgba(244,234,213,0.05); border: 1px solid rgba(232,183,109,0.25); border-radius: 10px; padding: 10px 12px; }
   .quiz-q summary { cursor: pointer; font-weight: 700; color: var(--gold-bright); font-size: 14px; list-style: none; }
@@ -2227,7 +2253,8 @@ function srcBlock(src) {
         <img src="taanit-img/${src.ref}-${src.i}.jpg" alt="שורות הגמרא מתוך ${AMUD_NAME[src.ref]}"
              onload="showLoc()" onclick="openPhoto('${src.ref}', [${src.box.join(',')}])">
       </div></div>
-    </figure>`;
+    </figure>
+    <div class="role-legend"><span style="border-color:#e8566a">❓ שאלה / ⚡ דחייה</span><span style="border-color:#6cc35a">✅ תשובה</span><span style="border-color:#f2c14e">📌 מסקנה</span><span style="border-color:#5ea8e0">📖 מקור / קביעה</span></div>`;
 }
 function openPhoto(ref, box) {
   const ov = document.getElementById('photoOverlay');
@@ -2490,23 +2517,33 @@ function beatLoc(ref, si, bi) {
   const s = BEAT_LOC[ref] && BEAT_LOC[ref][si];
   return s ? s[bi] || null : null;
 }
-function hlRects(crop, loc) {
-  const lines = DAF_LINES[crop];
-  if (!lines || !loc) return [];
-  const [l0, l1, r0, r1] = loc, out = [];
-  const snap = (x, gaps) => gaps.reduce((b, g) => Math.abs(g - x) < Math.abs(b - x) ? g : b, x);
-  for (let l = l0; l <= l1; l++) {
-    const [y0, y1, xl, xr, t0, t1, gaps] = lines[l];
-    const w = xr - xl;
-    const a = l === l0 ? r0 : 0, b = l === l1 ? r1 : 1;          // שברים מימין לשמאל
-    let xs = a <= 0.02 ? xr : snap(xr - a * w, gaps);             // תחילת ההדגשה (ימין)
-    let xe = b >= 0.98 ? xl : snap(xr - b * w, gaps);             // סוף ההדגשה (שמאל)
-    if (xs - xe < 0.03) { xs = Math.min(xr, xs + 0.03); xe = Math.max(xl, xe - 0.03); }
-    const pad = (t1 - t0) * 0.08;
-    const top = Math.max(y0, t0 - pad), bot = Math.min(y1, t1 + pad);
-    out.push({ top, height: bot - top, right: 1 - xs - 0.004, width: xs - xe + 0.008 });
-  }
+const BEAT_SPAN = {"4b": {"1": {"0": [0, 5], "1": [6, 14]}, "2": {"0": [2, 7], "1": [2, 7], "2": [2, 7]}, "3": {"0": [2, 16], "1": [5, 12]}, "4": {"0": [0, 10], "1": [11, 14]}, "5": {"0": [1, 10], "1": [11, 14], "2": [15, 21], "3": [22, 29]}, "6": {"0": [3, 19], "1": [20, 25], "2": [26, 29], "3": [30, 36], "4": [37, 39]}, "7": {"0": [0, 2], "1": [3, 17], "2": [18, 28], "3": [29, 34]}, "8": {"0": [2, 4], "1": [5, 29], "2": [30, 33], "3": [34, 38], "4": [39, 46], "5": [47, 56], "6": [57, 64], "7": [65, 78], "8": [79, 107]}, "9": {"0": [4, 10], "1": [11, 19], "2": [20, 32], "3": [33, 45]}}, "5a": {"0": {"0": [0, 16], "1": [17, 42], "3": [43, 46]}, "1": {"0": [3, 14], "1": [15, 27]}, "2": {"0": [5, 22]}, "3": {"0": [2, 19], "1": [20, 32], "2": [33, 37], "3": [38, 52], "4": [53, 57]}, "4": {"0": [1, 10], "1": [11, 15], "2": [16, 21], "3": [22, 26], "4": [27, 48]}, "5": {"0": [16, 32], "1": [33, 39], "2": [40, 55], "3": [56, 68]}, "6": {"0": [8, 30], "1": [31, 68]}, "7": {"0": [2, 19], "1": [20, 35], "2": [36, 39], "3": [40, 47]}, "8": {"0": [0, 11], "1": [15, 26], "2": [27, 37]}, "9": {"0": [2, 12], "1": [13, 19], "2": [20, 25]}}, "5b": {"0": {"0": [0, 3], "1": [4, 20], "2": [21, 46], "3": [46, 52], "4": [53, 66]}, "1": {"0": [3, 31], "1": [32, 44]}, "2": {"0": [0, 23], "1": [24, 27], "2": [28, 33], "3": [34, 38], "4": [39, 54], "5": [55, 59], "6": [60, 87]}, "3": {"0": [0, 4], "1": [5, 24]}, "4": {"0": [4, 11], "1": [11, 18], "2": [19, 29], "3": [30, 46], "4": [47, 55], "5": [56, 85]}, "5": {"0": [3, 10], "1": [11, 19], "2": [20, 24]}, "7": {"0": [3, 9], "1": [10, 23], "2": [24, 39], "3": [40, 73], "4": [74, 80]}}, "6a": {"0": {"0": [0, 1], "1": [2, 18], "2": [19, 25]}, "1": {"0": [3, 13], "1": [14, 31], "2": [32, 39]}, "2": {"0": [3, 15], "1": [15, 23], "2": [24, 36], "3": [37, 44], "4": [45, 47], "5": [48, 63]}, "3": {"0": [3, 21], "1": [22, 34], "2": [35, 42], "3": [43, 50]}, "4": {"0": [6, 28], "1": [29, 38], "2": [39, 54], "3": [55, 68], "4": [69, 84], "5": [85, 90], "6": [93, 101], "7": [102, 117], "8": [118, 121]}, "6": {"0": [16, 43], "1": [44, 66], "2": [67, 75], "3": [76, 87], "4": [88, 92]}}};
+function wordSlots(crop) {
+  const out = [];
+  (DAF_LINES[crop] || []).forEach((ln, li) => {
+    const [y0, y1, xl, xr, t0, t1, gaps] = ln;
+    const bs = [xr, ...gaps.filter(g => g > xl + 0.01 && g < xr - 0.01).sort((a, b) => b - a), xl];
+    for (let i = 0; i < bs.length - 1; i++) out.push([li, bs[i], bs[i + 1]]);
+  });
   return out;
+}
+function hlRects(crop, loc, span) {
+  const lines = DAF_LINES[crop];
+  if (!lines || !span) return [];
+  const sl = wordSlots(crop), out = [];
+  const [st, en] = span;
+  let cur = null;
+  for (let i = st; i <= en && i < sl.length; i++) {
+    const [li, xa, xb] = sl[i];
+    if (!cur || cur.li !== li) { cur && out.push(cur); cur = { li, xs: xa, xe: xb }; }
+    else cur.xe = xb;
+  }
+  cur && out.push(cur);
+  return out.map(c => {
+    const [y0, y1, xl, xr, t0, t1] = lines[c.li];
+    const pad = (t1 - t0) * 0.06, top = Math.max(y0, t0 - pad), bot = Math.min(y1, t1 + pad);
+    return { top, height: bot - top, right: 1 - c.xs - 0.003, width: c.xs - c.xe + 0.006 };
+  });
 }
 let focusBeat = null;
 function activeBeatIdx(sc) {
@@ -2527,9 +2564,12 @@ function showLoc() {
   const wrap = el.querySelector('.src-wrap');
   if (!loc || !beat || !wrap || !beat.classList.contains('on')) return;
   const inner = wrap.querySelector('.src-inner');
-  hlRects(`${state.ref}-${sc.src.i}`, loc).forEach(r => {
+  const span = BEAT_SPAN[state.ref] && BEAT_SPAN[state.ref][state.sceneIdx] && BEAT_SPAN[state.ref][state.sceneIdx][bi];
+  const role = beatRole(state.ref, state.sceneIdx, bi);
+  document.getElementById('beatArrow').setAttribute('class', 'beat-arrow ar-' + role);
+  hlRects(`${state.ref}-${sc.src.i}`, loc, span).forEach(r => {
     const d = document.createElement('div');
-    d.className = 'src-hl';
+    d.className = 'src-hl hl-' + role;
     d.style.cssText = `top:${r.top * 100}%;height:${r.height * 100}%;right:${r.right * 100}%;width:${r.width * 100}%`;
     inner.appendChild(d);
   });
