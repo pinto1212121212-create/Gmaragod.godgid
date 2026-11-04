@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>עץ הסוגיה — מסכת תענית</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  /* פריסה: טור אחד צר, עץ אנכי מימין לשמאל — כל ענף הוא שלב בגמרא */
+  :root {
+    --ink: #1a1410; --ink-2: #221a14; --card: #2a2119;
+    --parchment: #f4ead5; --soft: #e2d5ba; --dim: #a8987a;
+    --gold: #e8b76d; --gold-b: #f5d39a;
+    --q: #e8566a; --a: #6cc35a; --c: #f2c14e; --m: #5ea8e0; --n: #c9a86a; --k: #a98de0; --x: #e8566a;
+    --line: rgba(232,183,109,0.35);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--ink); color: var(--parchment); font-family: 'Heebo', sans-serif; overflow-x: clip; }
+  body { background: radial-gradient(ellipse at 50% 0%, rgba(232,183,109,0.09), transparent 60%), linear-gradient(180deg, #1a1410, #221a14 60%, #1a1410); min-height: 100vh; }
+  .app { max-width: 760px; margin: 0 auto; padding-block: 14px 60px; padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); }
+
+  header { text-align: center; margin-bottom: 14px; }
+  .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .25em; color: var(--gold); }
+  h1 { font-family: 'Frank Ruhl Libre', serif; font-size: clamp(30px, 9vw, 42px); font-weight: 900; color: var(--gold-b); line-height: 1.15; text-wrap: balance; }
+  .sub { font-size: 14px; color: var(--soft); margin-top: 4px; }
+  .back { display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 700; color: var(--gold); text-decoration: none; border: 1.5px solid rgba(232,183,109,0.4); border-radius: 20px; padding: 5px 14px; }
+
+  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0 10px; }
+  .tab { font-family: inherit; font-size: 15px; font-weight: 800; padding: 10px 4px; border-radius: 12px; border: 1.5px solid rgba(232,183,109,0.35); background: transparent; color: var(--soft); cursor: pointer; }
+  .tab.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+  .tab:focus-visible, .btn:focus-visible, .chip:focus-visible, .node:focus-visible { outline: 2px solid var(--gold-b); outline-offset: 2px; }
+
+  .amud-sum { font-size: 15px; line-height: 1.6; color: var(--parchment); background: rgba(244,234,213,0.05); border-right: 3px solid var(--gold); border-radius: 10px; padding: 9px 12px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+  .stat { font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 14px; background: rgba(244,234,213,0.06); border-bottom: 3px solid; font-variant-numeric: tabular-nums; }
+
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 8px; }
+  .seg { display: inline-flex; border: 1.5px solid rgba(232,183,109,0.4); border-radius: 12px; overflow: hidden; }
+  .seg button { font-family: inherit; font-size: 13.5px; font-weight: 800; padding: 8px 12px; border: 0; background: transparent; color: var(--soft); cursor: pointer; }
+  .seg button.on { background: rgba(232,183,109,0.22); color: var(--gold-b); }
+  .btn { font-family: inherit; font-size: 13.5px; font-weight: 800; padding: 8px 14px; border-radius: 12px; border: 0; background: var(--gold); color: var(--ink); cursor: pointer; }
+  .btn.ghost { background: transparent; color: var(--soft); border: 1.5px solid rgba(232,183,109,0.35); }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 8px; scrollbar-width: thin; }
+  .chip { flex: 0 0 auto; font-family: inherit; font-size: 13px; font-weight: 700; padding: 6px 11px; border-radius: 16px; border: 1px solid rgba(232,183,109,0.3); background: rgba(244,234,213,0.04); color: var(--soft); cursor: pointer; white-space: nowrap; }
+  .chip.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+  .chip b { font-variant-numeric: tabular-nums; opacity: .7; margin-right: 6px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 6px 0 12px; font-size: 12px; font-weight: 700; color: var(--soft); }
+  .legend span { padding: 2px 9px; border-radius: 12px; background: rgba(244,234,213,0.05); border-bottom: 3px solid; }
+
+  /* ===== העץ ===== */
+  .tree, .tree ul { list-style: none; }
+  .tree > li { margin-bottom: 18px; }
+  .tree ul { padding-right: 18px; position: relative; }
+  .tree li li { position: relative; padding: 8px 14px 0 0; }
+  .tree li li::before { content: ""; position: absolute; right: 0; top: 0; bottom: 0; border-right: 2px solid var(--lc, var(--line)); transform-origin: top; transition: transform .45s ease; }
+  .tree li li:last-child::before { bottom: auto; height: 30px; }
+  .tree li li::after { content: ""; position: absolute; right: 0; top: 30px; width: 14px; border-top: 2px solid var(--lc, var(--line)); transform-origin: right; transition: transform .35s ease .2s; }
+  .rel { position: absolute; right: 18px; top: -2px; font-size: 10.5px; font-weight: 800; color: var(--lc, var(--gold)); background: var(--ink); padding: 0 5px; border-radius: 6px; white-space: nowrap; z-index: 1; }
+
+  .node { position: relative; display: block; width: 100%; text-align: right; font-family: inherit; color: inherit; cursor: pointer;
+    background: var(--card); border: 1px solid rgba(244,234,213,0.08); border-right: 4px solid var(--rc); border-radius: 12px; padding: 9px 11px 9px 11px; margin-top: 10px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.28); transition: opacity .4s ease, transform .4s ease, box-shadow .2s; }
+  .node:hover { box-shadow: 0 0 0 1px var(--rc), 0 6px 18px rgba(0,0,0,0.35); }
+  .n-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+  .n-role { font-size: 11px; font-weight: 800; color: var(--ink); background: var(--rc); border-radius: 10px; padding: 1px 8px; }
+  .n-who { font-size: 12.5px; font-weight: 800; color: var(--soft); }
+  .n-tog { margin-right: auto; font-size: 12px; color: var(--dim); }
+  .n-text { font-family: 'Frank Ruhl Libre', serif; font-size: 17px; line-height: 1.6; color: var(--parchment); }
+  .n-exp { font-size: 13.5px; line-height: 1.6; color: var(--soft); margin-top: 4px; padding-top: 4px; border-top: 1px dashed rgba(244,234,213,0.12); }
+  .n-exp b { color: var(--rc); font-weight: 800; }
+  .n-link { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 800; color: var(--gold); text-decoration: none; }
+  .r-c > .node { background: linear-gradient(180deg, rgba(242,193,78,0.13), var(--card)); box-shadow: 0 0 0 1px rgba(242,193,78,0.5), 0 4px 14px rgba(0,0,0,0.3); }
+  .r-x > .node .n-text { text-decoration: line-through; text-decoration-color: rgba(232,86,106,0.55); text-decoration-thickness: 1.5px; }
+  li.closed > ul { display: none; }
+  li.path > .node { box-shadow: 0 0 0 2px var(--gold-b), 0 6px 18px rgba(0,0,0,0.35); }
+
+  /* הצגה בהדרגה */
+  .reveal li.pending > .node { opacity: 0; transform: translateY(10px); }
+  .reveal li.pending::before { transform: scaleY(0); }
+  .reveal li.pending::after { transform: scaleX(0); }
+  .reveal li.pending > .rel { opacity: 0; }
+  li.flash > .node { animation: flash 1s ease; }
+  @keyframes flash { 0% { box-shadow: 0 0 0 3px var(--rc), 0 0 24px var(--rc); } 100% { box-shadow: 0 4px 14px rgba(0,0,0,0.28); } }
+
+  .how { margin-top: 18px; font-size: 13.5px; line-height: 1.7; color: var(--soft); background: rgba(244,234,213,0.04); border-radius: 12px; padding: 10px 13px; }
+  .how b { color: var(--gold-b); }
+  .empty { text-align: center; color: var(--dim); padding: 24px; }
+  @media (prefers-reduced-motion: reduce) { .node, .tree li li::before, .tree li li::after { transition: none; } li.flash > .node { animation: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="eyebrow">מסכת תענית</div>
+    <h1>🌳 עץ הסוגיה</h1>
+    <div class="sub">כל שאלה, כל תירוץ, כל דחייה — ואיך הם מסתעפים זה מזה</div>
+    <a class="back" id="backLink" href="taanit.html">↩ חזרה להסבר הדף</a>
+  </header>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="amud-sum" id="amudSum"></div>
+  <div class="stats" id="stats"></div>
+
+  <div class="bar">
+    <div class="seg" role="tablist">
+      <button id="modeAll" class="on">כל הדף</button>
+      <button id="modeSec">לפי קטע</button>
+    </div>
+    <button class="btn" id="playBtn">▶ הצג בהדרגה</button>
+    <button class="btn ghost" id="foldBtn">כווץ הכל</button>
+  </div>
+  <div class="chips" id="chips" hidden></div>
+
+  <div class="legend">
+    <span style="border-color:var(--m)">📜 משנה / מקור</span>
+    <span style="border-color:var(--q)">❓ שאלה / קושיה</span>
+    <span style="border-color:var(--a)">✅ תירוץ</span>
+    <span style="border-color:var(--x)">⚡ דחייה</span>
+    <span style="border-color:var(--c)">📌 מסקנה</span>
+    <span style="border-color:var(--n)">📖 סיפור / ראיה</span>
+  </div>
+
+  <ul class="tree" id="tree"></ul>
+
+  <div class="how">
+    <b>איך קוראים את העץ?</b> כל כרטיס הוא שלב בגמרא. הענפים שיוצאים ממנו הם מה שבא בתגובה אליו: שאלה ← תירוץ ← דחייה ← תירוץ חדש... עד המסקנה.
+    <b>הקשה על כרטיס</b> מכווצת או פותחת את הענפים שלו. <b>״↩ לקטע״</b> מחזיר להסבר המלא של אותו שלב, עם הצילום מהדף.
+    תירוץ שנדחה מסומן <s>בקו חוצה</s>.
+  </div>
+</div>
+
+<script src="tree-data.js"></script>
+<script>
+const ROLE = { m: ['📜', 'משנה / מקור'], q: ['❓', 'שאלה'], x: ['⚡', 'דחייה'], a: ['✅', 'תירוץ'], c: ['📌', 'מסקנה'], n: ['📖', 'סיפור / ראיה'], k: ['💡', 'הסבר'] };
+const RC = { m: 'var(--m)', q: 'var(--q)', x: 'var(--x)', a: 'var(--a)', c: 'var(--c)', n: 'var(--n)', k: 'var(--k)' };
+// הקשר בין כרטיס לאביו
+function relText(p, c) {
+  if (c === 'c') return 'ולכן ⟵';
+  if (c === 'x') return 'נדחה ⟵';
+  if (p === 'q' && c === 'a') return 'תירוץ ⟵';
+  if ((p === 'a' || p === 'm' || p === 'n') && c === 'q') return 'קושיה ⟵';
+  if (p === 'q' && c === 'q') return 'אפשרות ⟵';
+  if (c === 'n') return 'ראיה ⟵';
+  if (c === 'a') return 'תשובה ⟵';
+  return '⟵';
+}
+const BASE = location.hostname.endsWith('github.io') || location.protocol === 'file:'
+  ? 'taanit.html' : 'https://pinto1212121212-create.github.io/Gmaragod.godgid/taanit.html';
+document.getElementById('backLink').href = BASE;
+
+const st = { ref: '4b', mode: 'all', sec: null };
+try { const s = JSON.parse(localStorage.getItem('gemara:tree') || 'null'); if (s && TREE[s.ref]) Object.assign(st, s); } catch (e) {}
+const h = location.hash.slice(1).match(/^(\d+[ab])(?:-(\d+))?$/);
+if (h && TREE[h[1]]) { st.ref = h[1]; if (h[2] != null) { st.mode = 'sec'; st.sec = +h[2]; } }
+function save() { try { localStorage.setItem('gemara:tree', JSON.stringify(st)); } catch (e) {} }
+
+// קטעים שיש בהם צמתים
+function sectionsOf(ref) {
+  const set = new Map();
+  const walk = n => { set.set(n.s, (set.get(n.s) || 0) + 1); (n.k || []).forEach(walk); };
+  TREE[ref].roots.forEach(walk);
+  return [...set.entries()].sort((a, b) => a[0] - b[0]);
+}
+// סינון לפי קטע: שומרים צומת אם הוא או צאצא שלו בקטע; אב מחוץ לקטע מוצג כהקשר
+function filterSec(nodes, s) {
+  const out = [];
+  for (const n of nodes) {
+    const kids = filterSec(n.k || [], s);
+    if (n.s === s || kids.length) out.push({ ...n, k: kids, ctx: n.s !== s });
+  }
+  return out;
+}
+function nodeHTML(n, parentRole, depth) {
+  const [ico, name] = ROLE[n.r];
+  const kids = (n.k || []);
+  const rel = parentRole ? `<span class="rel">${relText(parentRole, n.r)}</span>` : '';
+  return `<li class="r-${n.r}" style="--rc:${RC[n.r]};--lc:${RC[n.r]}">${rel}
+    <div class="node" role="button" tabindex="0"${n.ctx ? ' style="opacity:.55"' : ''}>
+      <div class="n-head"><span class="n-role">${ico} ${name}</span><span class="n-who">${n.w}</span>${kids.length ? `<span class="n-tog">▾ ${kids.length}</span>` : ''}</div>
+      <div class="n-text">${n.t}</div>
+      <div class="n-exp"><b>בתכלס:</b> ${n.e}</div>
+      <a class="n-link" href="${BASE}#${st.ref}-${n.s}" onclick="event.stopPropagation()">↩ לקטע ״${SECTION_NAMES[st.ref][n.s] || n.s + 1}״</a>
+    </div>
+    ${kids.length ? `<ul>${kids.map(k => nodeHTML(k, n.r, depth + 1)).join('')}</ul>` : ''}</li>`;
+}
+function count(nodes, acc = {}) { for (const n of nodes) { acc[n.r] = (acc[n.r] || 0) + 1; count(n.k || [], acc); } return acc; }
+
+function render() {
+  const T = TREE[st.ref];
+  document.getElementById('tabs').innerHTML = Object.keys(TREE).map(r =>
+    `<button class="tab${r === st.ref ? ' on' : ''}" data-r="${r}">${TREE[r].title}</button>`).join('');
+  document.getElementById('amudSum').textContent = T.sum;
+  const c = count(T.roots);
+  document.getElementById('stats').innerHTML = [['q', 'שאלות'], ['a', 'תירוצים'], ['x', 'דחיות'], ['c', 'מסקנות']]
+    .map(([r, l]) => `<span class="stat" style="border-color:${RC[r]}">${ROLE[r][0]} ${c[r] || 0} ${l}</span>`).join('');
+  document.getElementById('modeAll').classList.toggle('on', st.mode === 'all');
+  document.getElementById('modeSec').classList.toggle('on', st.mode === 'sec');
+  const chips = document.getElementById('chips');
+  chips.hidden = st.mode !== 'sec';
+  const secs = sectionsOf(st.ref);
+  if (st.mode === 'sec' && (st.sec == null || !secs.some(x => x[0] === st.sec))) st.sec = secs[0][0];
+  chips.innerHTML = secs.map(([s, n]) => `<button class="chip${s === st.sec ? ' on' : ''}" data-s="${s}">${SECTION_NAMES[st.ref][s] || s + 1}<b>${n}</b></button>`).join('');
+  const roots = st.mode === 'sec' ? filterSec(T.roots, st.sec) : T.roots;
+  document.getElementById('tree').innerHTML = roots.length ? roots.map(n => nodeHTML(n, null, 0)).join('') : '<li class="empty">אין שלבים בקטע הזה</li>';
+  const on = chips.querySelector('.chip.on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' });
+  save();
+}
+
+let playing = null;
+function play() {
+  const tree = document.getElementById('tree');
+  if (playing) { clearTimeout(playing); playing = null; tree.classList.remove('reveal'); tree.querySelectorAll('li').forEach(l => l.classList.remove('pending')); document.getElementById('playBtn').textContent = '▶ הצג בהדרגה'; return; }
+  tree.querySelectorAll('li.closed').forEach(l => l.classList.remove('closed'));
+  const lis = [...tree.querySelectorAll('li')];
+  tree.classList.add('reveal'); lis.forEach(l => l.classList.add('pending'));
+  document.getElementById('playBtn').textContent = '■ עצור';
+  let i = 0;
+  const step = () => {
+    if (i >= lis.length) { playing = null; tree.classList.remove('reveal'); document.getElementById('playBtn').textContent = '▶ הצג בהדרגה'; return; }
+    const li = lis[i++]; li.classList.remove('pending'); li.classList.add('flash');
+    setTimeout(() => li.classList.remove('flash'), 1000);
+    const r = li.getBoundingClientRect(); if (r.bottom > innerHeight - 40 || r.top < 0) li.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const role = [...li.classList].find(c => c.startsWith('r-'));
+    playing = setTimeout(step, role === 'r-c' ? 1400 : role === 'r-x' || role === 'r-q' ? 1100 : 900);
+  };
+  step();
+}
+
+document.getElementById('tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (!b) return; st.ref = b.dataset.r; st.sec = null; render(); });
+document.getElementById('modeAll').onclick = () => { st.mode = 'all'; render(); };
+document.getElementById('modeSec').onclick = () => { st.mode = 'sec'; render(); };
+document.getElementById('chips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; st.sec = +b.dataset.s; render(); });
+document.getElementById('playBtn').onclick = play;
+document.getElementById('foldBtn').onclick = () => {
+  const lis = [...document.querySelectorAll('#tree li')].filter(l => l.querySelector(':scope > ul'));
+  const anyOpen = lis.some(l => !l.classList.contains('closed'));
+  lis.forEach(l => l.classList.toggle('closed', anyOpen));
+  document.getElementById('foldBtn').textContent = anyOpen ? 'פתח הכל' : 'כווץ הכל';
+};
+document.getElementById('tree').addEventListener('click', e => {
+  const node = e.target.closest('.node'); if (!node) return;
+  const li = node.parentElement;
+  if (li.querySelector(':scope > ul')) { li.classList.toggle('closed'); node.querySelector('.n-tog').textContent = (li.classList.contains('closed') ? '▸ ' : '▾ ') + li.querySelectorAll(':scope > ul > li').length; }
+  document.querySelectorAll('#tree li.path').forEach(l => l.classList.remove('path'));
+  for (let p = li; p && p.tagName === 'LI'; p = p.parentElement.closest('li')) p.classList.add('path');
+});
+document.getElementById('tree').addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('node')) { e.preventDefault(); e.target.click(); } });
+window.addEventListener('hashchange', () => { const m = location.hash.slice(1).match(/^(\d+[ab])(?:-(\d+))?$/); if (m && TREE[m[1]]) { st.ref = m[1]; if (m[2] != null) { st.mode = 'sec'; st.sec = +m[2]; } render(); } });
+render();
+</script>
+</body>
+</html>
