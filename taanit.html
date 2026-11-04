@@ -63,10 +63,23 @@
   }
 
   .masechet-name {
-    font-size: 13px;
-    color: var(--gold);
-    letter-spacing: 0.2em;
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(30px, 9vw, 42px);
+    line-height: 1.15;
+    color: var(--gold-bright);
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-shadow: 0 2px 14px rgba(232,183,109,0.25);
+    text-wrap: balance;
+  }
+  .masechet-name small {
+    display: block;
+    font-family: 'Heebo', sans-serif;
+    font-size: 12px;
     font-weight: 700;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    margin-bottom: 2px;
   }
 
   .daf-nav {
@@ -1236,9 +1249,10 @@
   }
   .verify-note strong { color: var(--warm); }
   .masechet-switch { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+  .masechet-switch { gap: 8px; margin-top: 10px; }
   .masechet-switch a {
-    font-size: 12px; font-weight: 700; color: var(--parchment-dim); text-decoration: none;
-    padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(232,183,109,0.25);
+    font-size: 15px; font-weight: 800; color: var(--parchment-dim); text-decoration: none;
+    padding: 7px 18px; border-radius: 22px; border: 1.5px solid rgba(232,183,109,0.35);
   }
   .masechet-switch a.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
 
@@ -1289,7 +1303,7 @@
 <div class="app">
 
   <header>
-    <div class="masechet-name">מסכת תענית</div>
+    <div class="masechet-name"><small>מסכת</small>תענית</div>
     <div class="masechet-switch"><a href="index.html" onclick="try{localStorage.setItem('gemara:last','zevachim')}catch(e){}">זבחים</a><a href="taanit.html" onclick="try{localStorage.setItem('gemara:last','taanit')}catch(e){}" class="on">תענית</a></div>
     <div class="daf-nav masechet-only">
       <button class="nav-arrow" id="prevDafBtn" title="דף קודם">‹</button>
