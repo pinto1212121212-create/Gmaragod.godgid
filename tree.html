@@ -51,26 +51,38 @@
   .legend { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 6px 0 12px; font-size: 12px; font-weight: 700; color: var(--soft); }
   .legend span { padding: 2px 9px; border-radius: 12px; background: rgba(244,234,213,0.05); border-bottom: 3px solid; }
 
-  /* ===== העץ ===== */
+  /* ===== העץ: אילן יוחסין שיורד מלמעלה למטה ===== */
+  .org { overflow: auto; margin: 0 -4px 22px; padding: 6px 4px 14px; border-radius: 14px; background: rgba(244,234,213,0.025);
+    border: 1px solid rgba(232,183,109,0.12); overscroll-behavior-x: contain; scrollbar-width: thin; }
+  .org-inner { width: max-content; min-width: 100%; zoom: var(--z, 1); }
   .tree, .tree ul { list-style: none; }
-  .tree > li { margin-bottom: 18px; }
-  .tree ul { padding-right: 18px; position: relative; }
-  .tree li li { position: relative; padding: 8px 14px 0 0; }
-  .tree li li::before { content: ""; position: absolute; right: 0; top: 0; bottom: 0; border-right: 2px solid var(--lc, var(--line)); transform-origin: top; transition: transform .45s ease; }
-  .tree li li:last-child::before { bottom: auto; height: 30px; }
-  .tree li li::after { content: ""; position: absolute; right: 0; top: 30px; width: 14px; border-top: 2px solid var(--lc, var(--line)); transform-origin: right; transition: transform .35s ease .2s; }
-  .rel { position: absolute; right: 18px; top: -2px; font-size: 10.5px; font-weight: 800; color: var(--lc, var(--gold)); background: var(--ink); padding: 0 5px; border-radius: 6px; white-space: nowrap; z-index: 1; }
+  .tree ul { display: flex; justify-content: center; position: relative; padding-top: 22px; }
+  .tree li { display: flex; flex-direction: column; align-items: center; position: relative; padding: 22px 5px 0; }
+  .org-inner > ul { padding-top: 0; }
+  .org-inner > ul > li { padding-top: 0; }
+  /* קווי חיבור: חצי קו אופקי מכל צד, וקו אנכי מהמרכז אל הכרטיס */
+  .tree li::before, .tree li::after { content: ""; position: absolute; top: 0; width: 50%; height: 22px; border-top: 2px solid var(--line); transition: opacity .4s; }
+  .tree li::before { left: 0; }
+  .tree li::after { left: 50%; border-left: 2px solid var(--lc, var(--line)); }
+  .tree li:first-child::after { border-top-color: transparent; }
+  .tree li:last-child::before { border-top-color: transparent; }
+  .tree li:only-child::after { border-top-color: transparent; }
+  .org-inner > ul > li::before, .org-inner > ul > li::after { display: none; }
+  .tree ul::before { content: ""; position: absolute; top: 0; left: 50%; height: 22px; border-left: 2px solid var(--line); }
+  .org-inner > ul::before { display: none; }
+  .rel { position: absolute; top: 2px; left: 50%; transform: translateX(-50%); font-size: 10.5px; font-weight: 800; color: var(--lc, var(--gold));
+    background: var(--ink); padding: 0 5px; border-radius: 6px; white-space: nowrap; z-index: 1; }
 
-  .node { position: relative; display: block; width: 100%; text-align: right; font-family: inherit; color: inherit; cursor: pointer;
-    background: var(--card); border: 1px solid rgba(244,234,213,0.08); border-right: 4px solid var(--rc); border-radius: 12px; padding: 9px 11px 9px 11px; margin-top: 10px;
+  .node { position: relative; display: block; width: 188px; text-align: right; font-family: inherit; color: inherit; cursor: pointer;
+    background: var(--card); border: 1px solid rgba(244,234,213,0.08); border-top: 4px solid var(--rc); border-radius: 12px; padding: 8px 10px; margin-top: 0;
     box-shadow: 0 4px 14px rgba(0,0,0,0.28); transition: opacity .4s ease, transform .4s ease, box-shadow .2s; }
   .node:hover { box-shadow: 0 0 0 1px var(--rc), 0 6px 18px rgba(0,0,0,0.35); }
   .n-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
   .n-role { font-size: 11px; font-weight: 800; color: var(--ink); background: var(--rc); border-radius: 10px; padding: 1px 8px; }
   .n-who { font-size: 12.5px; font-weight: 800; color: var(--soft); }
   .n-tog { margin-right: auto; font-size: 12px; color: var(--dim); }
-  .n-text { font-family: 'Frank Ruhl Libre', serif; font-size: 17px; line-height: 1.6; color: var(--parchment); }
-  .n-exp { font-size: 13.5px; line-height: 1.6; color: var(--soft); margin-top: 4px; padding-top: 4px; border-top: 1px dashed rgba(244,234,213,0.12); }
+  .n-text { font-family: 'Frank Ruhl Libre', serif; font-size: 15.5px; line-height: 1.6; color: var(--parchment); }
+  .n-exp { font-size: 12.5px; line-height: 1.6; color: var(--soft); margin-top: 4px; padding-top: 4px; border-top: 1px dashed rgba(244,234,213,0.12); }
   .n-exp b { color: var(--rc); font-weight: 800; }
   .n-link { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 800; color: var(--gold); text-decoration: none; }
   .r-c > .node { background: linear-gradient(180deg, rgba(242,193,78,0.13), var(--card)); box-shadow: 0 0 0 1px rgba(242,193,78,0.5), 0 4px 14px rgba(0,0,0,0.3); }
@@ -80,16 +92,17 @@
 
   /* הצגה בהדרגה */
   .reveal li.pending > .node { opacity: 0; transform: translateY(10px); }
-  .reveal li.pending::before { transform: scaleY(0); }
-  .reveal li.pending::after { transform: scaleX(0); }
+  .reveal li.pending::before, .reveal li.pending::after, .reveal li.pending > ul::before { opacity: 0; }
   .reveal li.pending > .rel { opacity: 0; }
   li.flash > .node { animation: flash 1s ease; }
   @keyframes flash { 0% { box-shadow: 0 0 0 3px var(--rc), 0 0 24px var(--rc); } 100% { box-shadow: 0 4px 14px rgba(0,0,0,0.28); } }
 
+  .zoom { display: inline-flex; gap: 4px; margin-right: auto; }
+  .zoom .btn { padding: 8px 11px; }
   .how { margin-top: 18px; font-size: 13.5px; line-height: 1.7; color: var(--soft); background: rgba(244,234,213,0.04); border-radius: 12px; padding: 10px 13px; }
   .how b { color: var(--gold-b); }
   .empty { text-align: center; color: var(--dim); padding: 24px; }
-  @media (prefers-reduced-motion: reduce) { .node, .tree li li::before, .tree li li::after { transition: none; } li.flash > .node { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .node, .tree li::before, .tree li::after { transition: none; } li.flash > .node { animation: none; } }
 </style>
 </head>
 <body>
@@ -112,6 +125,7 @@
     </div>
     <button class="btn" id="playBtn">▶ הצג בהדרגה</button>
     <button class="btn ghost" id="foldBtn">כווץ הכל</button>
+    <span class="zoom"><button class="btn ghost" id="zOut" aria-label="הקטן">−</button><button class="btn ghost" id="zFit">התאם</button><button class="btn ghost" id="zIn" aria-label="הגדל">+</button></span>
   </div>
   <div class="chips" id="chips" hidden></div>
 
@@ -124,12 +138,12 @@
     <span style="border-color:var(--n)">📖 סיפור / ראיה</span>
   </div>
 
-  <ul class="tree" id="tree"></ul>
+  <div id="tree" class="tree"></div>
 
   <div class="how">
-    <b>איך קוראים את העץ?</b> כל כרטיס הוא שלב בגמרא. הענפים שיוצאים ממנו הם מה שבא בתגובה אליו: שאלה ← תירוץ ← דחייה ← תירוץ חדש... עד המסקנה.
+    <b>איך קוראים את העץ?</b> כמו אילן יוחסין: השורש למעלה, וכל שורה מתחתיו היא ״הדור הבא״ של הסוגיה. כל כרטיס הוא שלב בגמרא, והענפים שיוצאים ממנו למטה הם מה שבא בתגובה אליו: שאלה ← תירוץ ← דחייה ← תירוץ חדש... עד המסקנה.
     <b>הקשה על כרטיס</b> מכווצת או פותחת את הענפים שלו. <b>״↩ לקטע״</b> מחזיר להסבר המלא של אותו שלב, עם הצילום מהדף.
-    תירוץ שנדחה מסומן <s>בקו חוצה</s>.
+    תירוץ שנדחה מסומן <s>בקו חוצה</s>. עץ רחב אפשר לגרור הצידה, ולהגדיל או להקטין בכפתורים − / +.
   </div>
 </div>
 
@@ -205,11 +219,33 @@ function render() {
   if (st.mode === 'sec' && (st.sec == null || !secs.some(x => x[0] === st.sec))) st.sec = secs[0][0];
   chips.innerHTML = secs.map(([s, n]) => `<button class="chip${s === st.sec ? ' on' : ''}" data-s="${s}">${SECTION_NAMES[st.ref][s] || s + 1}<b>${n}</b></button>`).join('');
   const roots = st.mode === 'sec' ? filterSec(T.roots, st.sec) : T.roots;
-  document.getElementById('tree').innerHTML = roots.length ? roots.map(n => nodeHTML(n, null, 0)).join('') : '<li class="empty">אין שלבים בקטע הזה</li>';
+  document.getElementById('tree').innerHTML = roots.length
+    ? roots.map(n => `<div class="org"><div class="org-inner"><ul>${nodeHTML(n, null, 0)}</ul></div></div>`).join('')
+    : '<div class="empty">אין שלבים בקטע הזה</div>';
+  applyZoom(); centerRoots();
   const on = chips.querySelector('.chip.on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' });
   save();
 }
 
+// זום: ״התאם״ מקטין כל עץ כך שייכנס ברוחב המסך (לא פחות מ־0.55)
+let zoomMode = 'fit', zoomVal = 1;
+try { const z = JSON.parse(localStorage.getItem('gemara:treezoom') || 'null'); if (z) { zoomMode = z.m; zoomVal = z.v; } } catch (e) {}
+function applyZoom() {
+  document.querySelectorAll('.org').forEach(o => {
+    const inner = o.querySelector('.org-inner'); inner.style.setProperty('--z', 1);
+    const natural = inner.scrollWidth, avail = o.clientWidth - 8;
+    const z = zoomMode === 'fit' ? Math.max(0.55, Math.min(1, avail / natural)) : zoomVal;
+    inner.style.setProperty('--z', z.toFixed(3));
+  });
+  try { localStorage.setItem('gemara:treezoom', JSON.stringify({ m: zoomMode, v: zoomVal })); } catch (e) {}
+}
+function centerRoots() {
+  requestAnimationFrame(() => document.querySelectorAll('.org').forEach(o => {
+    const n = o.querySelector('.node'); if (!n) return;
+    const or = o.getBoundingClientRect(), nr = n.getBoundingClientRect();
+    o.scrollLeft += (nr.left + nr.width / 2) - (or.left + or.width / 2);
+  }));
+}
 let playing = null;
 function play() {
   const tree = document.getElementById('tree');
@@ -223,7 +259,7 @@ function play() {
     if (i >= lis.length) { playing = null; tree.classList.remove('reveal'); document.getElementById('playBtn').textContent = '▶ הצג בהדרגה'; return; }
     const li = lis[i++]; li.classList.remove('pending'); li.classList.add('flash');
     setTimeout(() => li.classList.remove('flash'), 1000);
-    const r = li.getBoundingClientRect(); if (r.bottom > innerHeight - 40 || r.top < 0) li.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    li.querySelector(':scope > .node').scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     const role = [...li.classList].find(c => c.startsWith('r-'));
     playing = setTimeout(step, role === 'r-c' ? 1400 : role === 'r-x' || role === 'r-q' ? 1100 : 900);
   };
@@ -235,11 +271,17 @@ document.getElementById('modeAll').onclick = () => { st.mode = 'all'; render(); 
 document.getElementById('modeSec').onclick = () => { st.mode = 'sec'; render(); };
 document.getElementById('chips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; st.sec = +b.dataset.s; render(); });
 document.getElementById('playBtn').onclick = play;
+document.getElementById('zIn').onclick = () => { zoomVal = Math.min(1.4, (zoomMode === 'fit' ? currentZ() : zoomVal) + 0.15); zoomMode = 'v'; applyZoom(); };
+document.getElementById('zOut').onclick = () => { zoomVal = Math.max(0.4, (zoomMode === 'fit' ? currentZ() : zoomVal) - 0.15); zoomMode = 'v'; applyZoom(); };
+document.getElementById('zFit').onclick = () => { zoomMode = 'fit'; applyZoom(); centerRoots(); };
+function currentZ() { const i = document.querySelector('.org-inner'); return i ? +getComputedStyle(i).getPropertyValue('--z') || 1 : 1; }
+window.addEventListener('resize', () => { if (zoomMode === 'fit') applyZoom(); });
 document.getElementById('foldBtn').onclick = () => {
   const lis = [...document.querySelectorAll('#tree li')].filter(l => l.querySelector(':scope > ul'));
   const anyOpen = lis.some(l => !l.classList.contains('closed'));
   lis.forEach(l => l.classList.toggle('closed', anyOpen));
   document.getElementById('foldBtn').textContent = anyOpen ? 'פתח הכל' : 'כווץ הכל';
+  applyZoom();
 };
 document.getElementById('tree').addEventListener('click', e => {
   const node = e.target.closest('.node'); if (!node) return;
@@ -247,6 +289,7 @@ document.getElementById('tree').addEventListener('click', e => {
   if (li.querySelector(':scope > ul')) { li.classList.toggle('closed'); node.querySelector('.n-tog').textContent = (li.classList.contains('closed') ? '▸ ' : '▾ ') + li.querySelectorAll(':scope > ul > li').length; }
   document.querySelectorAll('#tree li.path').forEach(l => l.classList.remove('path'));
   for (let p = li; p && p.tagName === 'LI'; p = p.parentElement.closest('li')) p.classList.add('path');
+  if (zoomMode === 'fit') applyZoom();
 });
 document.getElementById('tree').addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('node')) { e.preventDefault(); e.target.click(); } });
 window.addEventListener('hashchange', () => { const m = location.hash.slice(1).match(/^(\d+[ab])(?:-(\d+))?$/); if (m && TREE[m[1]]) { st.ref = m[1]; if (m[2] != null) { st.mode = 'sec'; st.sec = +m[2]; } render(); } });
