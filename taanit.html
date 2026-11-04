@@ -1212,9 +1212,13 @@
   .src-wrap { max-height: 34vh; overflow-y: auto; scroll-behavior: smooth; overscroll-behavior: contain; }
   .src-inner { position: relative; }
   .src-inner img { display: block; width: 100%; height: auto; cursor: zoom-in; }
-  .src-hl { position: absolute; pointer-events: none; border-radius: 3px; mix-blend-mode: multiply;
+  .src-dim { position: absolute; inset: 0; background: rgba(250,246,236,0.55); pointer-events: none; animation: hlIn .35s ease-out both; }
+  .src-hl { position: absolute; pointer-events: none; border-radius: 3px; z-index: 1;
     --hc: 255,196,64; --hl: 230,110,20;
-    background: rgba(var(--hc),0.55); border-bottom: 2.5px solid rgba(var(--hl),0.95); animation: hlIn .35s ease-out both; }
+    background-color: rgba(var(--hc),0.75); background-blend-mode: multiply; background-repeat: no-repeat;
+    filter: contrast(1.6) saturate(1.3);
+    box-shadow: 0 0 0 1.5px rgba(var(--hl),0.9), 0 2px 8px rgba(0,0,0,0.25);
+    border-bottom: 2.5px solid rgba(var(--hl),0.95); animation: hlIn .35s ease-out both; }
   .src-hl.hl-q, .src-hl.hl-x { --hc: 255,150,160; --hl: 200,30,50; }
   .src-hl.hl-a { --hc: 160,225,140; --hl: 40,140,40; }
   .src-hl.hl-c { --hc: 255,210,80; --hl: 200,140,0; }
@@ -2553,7 +2557,7 @@ function activeBeatIdx(sc) {
 function showLoc() {
   const svg = document.getElementById('beatArrow');
   const el = document.querySelector('.scene.active');
-  document.querySelectorAll('.src-hl').forEach(h => h.remove());
+  document.querySelectorAll('.src-hl, .src-dim').forEach(h => h.remove());
   if (svg) svg.innerHTML = '';
   if (!el || state.tab !== 'masechet' || state.modal) return;
   const sc = amudim[state.ref].scenes[state.sceneIdx];
@@ -2574,8 +2578,18 @@ function showLoc() {
     const d = document.createElement('div');
     d.className = 'src-hl hl-' + role;
     d.style.cssText = `top:${r.top * 100}%;height:${r.height * 100}%;right:${r.right * 100}%;width:${r.width * 100}%`;
+    // עותק מוגבר של אותו קטע מהצילום: המילים המסומנות כהות וחדות יותר
+    const img = inner.querySelector('img'), IW = inner.clientWidth, IH = inner.clientHeight;
+    const lx = (1 - r.right - r.width) * IW, ty = r.top * IH;
+    d.style.backgroundImage = `url("${img.getAttribute('src')}")`;
+    d.style.backgroundSize = `${IW}px ${IH}px`;
+    d.style.backgroundPosition = `${-lx}px ${-ty}px`;
     inner.appendChild(d);
   });
+  if (inner.querySelector('.src-hl')) {
+    const dim = document.createElement('div'); dim.className = 'src-dim';
+    inner.insertBefore(dim, inner.querySelector('.src-hl'));
+  }
   const first = inner.querySelector('.src-hl');
   if (!first) return;
   if (wrap.scrollHeight > wrap.clientHeight + 4) {
