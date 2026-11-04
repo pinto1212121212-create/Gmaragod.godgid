@@ -26,6 +26,7 @@
   .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .25em; color: var(--gold); }
   h1 { font-family: 'Frank Ruhl Libre', serif; font-size: clamp(30px, 9vw, 42px); font-weight: 900; color: var(--gold-b); line-height: 1.15; text-wrap: balance; }
   .sub { font-size: 14px; color: var(--soft); margin-top: 4px; }
+  .hdr-links { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   .back { display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 700; color: var(--gold); text-decoration: none; border: 1.5px solid rgba(232,183,109,0.4); border-radius: 20px; padding: 5px 14px; }
 
   .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0 10px; }
@@ -133,7 +134,7 @@
     <div class="eyebrow">מסכת תענית</div>
     <h1>🌳 עץ הסוגיה</h1>
     <div class="sub">כל שאלה, כל תירוץ, כל דחייה — ואיך הם מסתעפים זה מזה</div>
-    <a class="back" id="backLink" href="taanit.html">↩ חזרה להסבר הדף</a>
+    <div class="hdr-links"><a class="back" href="index.html">🏠 בית</a><a class="back" id="backLink" href="taanit.html">↩ חזרה להסבר הדף</a></div>
   </header>
 
   <div class="tabs" id="tabs"></div>
@@ -187,7 +188,7 @@ function relText(p, c) {
 }
 const BASE = location.hostname.endsWith('github.io') || location.protocol === 'file:'
   ? 'taanit.html' : 'https://pinto1212121212-create.github.io/Gmaragod.godgid/taanit.html';
-document.getElementById('backLink').href = BASE;
+
 
 const st = { ref: '4b', mode: 'all', sec: null };
 try { const s = JSON.parse(localStorage.getItem('gemara:tree') || 'null'); if (s && TREE[s.ref]) Object.assign(st, s); } catch (e) {}
@@ -282,6 +283,7 @@ function render() {
     : '<div class="empty">אין שלבים בקטע הזה</div>';
   applyZoom(); centerRoots();
   const on = chips.querySelector('.chip.on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' });
+  document.getElementById('backLink').href = BASE + '#' + st.ref + (st.mode === 'sec' && st.sec != null ? '-' + st.sec : '');
   save();
 }
 

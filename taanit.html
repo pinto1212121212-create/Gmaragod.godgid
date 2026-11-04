@@ -1347,6 +1347,45 @@
     background: linear-gradient(90deg, var(--gold), var(--gold-bright)); text-decoration: none; padding: 8px 16px; border-radius: 20px; }
   .tree-sec { display: block; margin-top: 12px; padding: 11px; border-radius: 12px; text-align: center; font-weight: 800; font-size: 14px;
     color: var(--gold-bright); text-decoration: none; border: 1.5px dashed var(--gold); background: rgba(232,183,109,0.08); }
+
+  /* ===== סדר חדש ===== */
+  /* צפיפות: יותר גמרא על המסך */
+  .action-btn { padding: 8px 4px !important; flex-direction: row !important; flex-wrap: nowrap; white-space: nowrap; font-size: 13px !important; min-height: 44px; }
+  .action-btn .count { position: static !important; font-size: 11px; min-width: 18px; height: 18px; line-height: 18px; }
+  .tabs .tab { padding: 7px 6px !important; font-size: 13.5px !important; }
+  .tabs { margin-top: 8px !important; margin-bottom: 8px !important; }
+  .daf-nav { margin-top: 4px !important; }
+  .daf-nav .nav-arrow { width: 40px !important; height: 40px !important; }
+  .action-bar { margin-bottom: 10px !important; }
+
+  header { padding: 2px 0 8px; }
+  .topbar { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .tb-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 14px; font-size: 19px;
+    background: rgba(244,234,213,0.06); border: 1px solid rgba(232,183,109,0.25); text-decoration: none; cursor: pointer; color: inherit; font-family: inherit; }
+  .topbar .masechet-name { font-size: clamp(26px, 8vw, 36px); }
+  .action-bar { grid-template-columns: repeat(4, 1fr) !important; }
+  .action-btn.treeb { text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center; }
+  .wbw-d { flex: 1 0 100%; margin-top: 8px; }
+  .wbw-d > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 800;
+    color: var(--gold); padding: 5px 11px; border-radius: 14px; border: 1px dashed rgba(232,183,109,0.45); }
+  .wbw-d > summary::-webkit-details-marker { display: none; }
+  .wbw-d[open] > summary { background: rgba(232,183,109,0.12); }
+  .wbw-d > .wbw { margin-top: 7px; }
+  .scene-counter { font-size: 12.5px !important; color: var(--parchment-dim); margin: 10px 0 4px; text-align: center; }
+  .help-ov { position: fixed; inset: 0; z-index: 90; background: rgba(10,8,6,0.82); display: flex; align-items: flex-end; justify-content: center; }
+  .help-ov[hidden] { display: none; }
+  .help-box { width: 100%; max-width: 560px; max-height: 88vh; overflow: auto; background: var(--ink-2); border: 1px solid var(--gold);
+    border-radius: 18px 18px 0 0; padding: 14px 16px calc(16px + env(safe-area-inset-bottom, 0px)); animation: beatIn .3s ease-out both; }
+  .help-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .help-head b { font-size: 18px; color: var(--gold-bright); }
+  .help-head button { border: 0; background: transparent; color: var(--parchment-dim); font-size: 20px; cursor: pointer; }
+  .hp { display: flex; gap: 12px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid rgba(244,234,213,0.07); }
+  .hp i { font-style: normal; font-size: 20px; width: 40px; flex: 0 0 40px; text-align: center; line-height: 1.3; }
+  .hp p { font-size: 14.5px; line-height: 1.65; color: var(--parchment-soft); }
+  .hp b { color: var(--parchment); }
+  .lg { display: inline-block; font-size: 12px; font-weight: 700; padding: 0 8px; border-radius: 10px; border-bottom: 3px solid var(--c); background: rgba(244,234,213,0.06); margin: 2px 0; }
+  .help-go { display: block; width: 100%; margin-top: 12px; padding: 13px; border: 0; border-radius: 12px; background: var(--gold); color: var(--ink);
+    font-family: inherit; font-weight: 800; font-size: 16px; cursor: pointer; }
   .quiz { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
   .quiz-q { background: rgba(244,234,213,0.05); border: 1px solid rgba(232,183,109,0.25); border-radius: 10px; padding: 10px 12px; }
   .quiz-q summary { cursor: pointer; font-weight: 700; color: var(--gold-bright); font-size: 14px; list-style: none; }
@@ -1452,9 +1491,11 @@
 <div class="app">
 
   <header>
-    <div class="masechet-name"><small>מסכת</small>תענית</div>
-    <div class="masechet-switch"><a href="index.html" onclick="try{localStorage.setItem('gemara:last','zevachim')}catch(e){}">זבחים</a><a href="taanit.html" onclick="try{localStorage.setItem('gemara:last','taanit')}catch(e){}" class="on">תענית</a></div>
-    <a class="tree-link" href="tree.html" onclick="this.href='tree.html#'+state.ref">🌳 עץ הסוגיה — כל הדף בציור</a>
+    <div class="topbar">
+      <a class="tb-btn" href="index.html" title="דף הבית" aria-label="דף הבית">🏠</a>
+      <div class="masechet-name"><small>מסכת</small>תענית</div>
+      <button class="tb-btn" id="helpBtn" title="איך משתמשים" aria-label="עזרה">❓</button>
+    </div>
     <div class="daf-nav masechet-only">
       <button class="nav-arrow" id="prevDafBtn" title="דף קודם">‹</button>
       <div class="daf-display" id="dafDisplay">
@@ -1481,6 +1522,9 @@
       <span>📚 תוספות</span>
       <span class="count" id="tosCount">0</span>
     </button>
+    <a class="action-btn treeb" id="treeBtn" href="tree.html" onclick="this.href='tree.html#'+state.ref+'-'+state.sceneIdx">
+      <span>🌳 עץ</span>
+    </a>
   </div>
 
   <div class="stage" id="stage"></div>
@@ -1535,6 +1579,21 @@
   <div class="modal-content" id="termContent"></div>
 </div>
 
+
+<div class="help-ov" id="helpOv" hidden>
+  <div class="help-box" role="dialog" aria-label="איך משתמשים">
+    <div class="help-head"><b>איך לומדים כאן</b><button id="helpClose" aria-label="סגור">✕</button></div>
+    <div class="help-body">
+      <div class="hp"><i>◀ ▶</i><p><b>החצים למטה</b> עוברים בין קטעי הדף. גם החלקה הצידה עובדת.</p></div>
+      <div class="hp"><i>👆</i><p><b>הקשה על ההסבר</b> או על ״המשך ▼״ פותחת את השלב הבא. הקשה על כרטיס קודם מחזירה אליו את הסימון.</p></div>
+      <div class="hp"><i>📷</i><p><b>צילום הדף</b> נשאר למעלה, והמילים של השלב מודגשות עליו. הקשה על הצילום פותחת את הדף המלא.</p></div>
+      <div class="hp"><i>🎨</i><p><b>צבעים:</b> <span class="lg" style="--c:#e8566a">שאלה / דחייה</span> <span class="lg" style="--c:#6cc35a">תירוץ</span> <span class="lg" style="--c:#f2c14e">מסקנה</span> <span class="lg" style="--c:#5ea8e0">מקור / קביעה</span> <span class="lg" style="--c:#a98de0">הסבר</span></p></div>
+      <div class="hp"><i>🎯</i><p><b>בתכלס</b> אומר במשפט אחד מה השלב עושה. <b>📜 בגמרא</b> הוא הלשון עם פיסוק, ו<b>🔤 מילה במילה</b> נפתח בהקשה.</p></div>
+      <div class="hp"><i>📖</i><p>למעלה: <b>הדף</b> (תרגום מלא וצילום הדף), <b>רש״י</b>, <b>תוספות</b>, ו<b>🌳 עץ</b> — כל הסוגיה כאילן יוחסין.</p></div>
+    </div>
+    <button class="help-go" id="helpGo">הבנתי, מתחילים ▶</button>
+  </div>
+</div>
 <svg class="beat-arrow" id="beatArrow" aria-hidden="true"></svg>
 <div class="photo-overlay" id="photoOverlay"></div>
 
@@ -2310,8 +2369,7 @@ function srcBlock(src) {
         <img src="taanit-img/${src.ref}-${src.i}.jpg" alt="שורות הגמרא מתוך ${AMUD_NAME[src.ref]}"
              onload="showLoc()" onclick="openPhoto('${src.ref}', [${src.box.join(',')}])">
       </div></div>
-    </figure>
-    <div class="role-legend"><span style="border-color:#e8566a">❓ שאלה / ⚡ דחייה</span><span style="border-color:#6cc35a">✅ תשובה</span><span style="border-color:#f2c14e">📌 מסקנה</span><span style="border-color:#5ea8e0">📖 מקור / קביעה</span></div>`;
+    </figure>`;
 }
 function openPhoto(ref, box) {
   const ov = document.getElementById('photoOverlay');
@@ -2483,17 +2541,21 @@ const WBW = {
 '6a:6:4': 'אמר ר׳ זירא=ר׳ זירא אמר | לנדרים=לעניין נדרים (ההסבר בדף ו:)'
 };
 const WDICT = {"אבוא": "אבוא / אכנס", "אביי": "אביי (אמורא)", "אבינו": "אבינו", "אברכך": "אברך אותך", "אדר": "חודש אדר", "או": "או", "אומר": "אומר", "אומרים": "אומרים", "אותה": "אותה", "אותו": "אותו", "אותי": "אותי", "אזלא": "הולכת", "אחד": "אחד", "אחר": "אחרי", "אחת": "אחת", "איבעית": "אם תרצה", "אידי": "אידי (שם)", "אידך": "אחרת", "איזו": "איזו", "איי": "איי", "איכא": "יש", "איכפת": "איכפת", "אילן": "עץ", "אימא": "אמור", "אין": "אין / כן", "אינו": "אינו / לא", "איש": "איש", "אית": "יש", "אכול": "אכלו", "אכל": "אכל", "אכלו": "אכלו", "אל": "אל", "אלא": "אלא", "אלהיכם": "אלוהיכם", "אלהים": "אלוהים", "אלומותיו": "אלומותיו (=צרורות השיבולים)", "אליבא": "לשיטת", "אליעזר": "אליעזר (תנא)", "אלעזר": "אלעזר (אמורא)", "אם": "אם", "אמר": "אמר", "אמרו": "אמרו", "אמשול": "אמשול", "אמת": "תעלת", "אני": "אני", "אסי": "אסי (אמורא)", "אע״פ": "אף על פי", "אף": "גם", "אפילו": "אפילו", "אצל": "אצל / ליד", "את": "את", "אתה": "אתה", "בא": "בא", "באחד": "באחד", "באייר": "בחודש אייר", "באמרי": "בדברי", "בארות": "בורות", "בבנים": "בבנים", "בגבעה": "בגבעה (עיר שאול)", "בדברא": "בשדה", "בדמעה": "בדמעה / בבכי", "בהא": "בזה", "בהו": "בהם", "בהמה": "בהמה", "בהן": "בהם", "בהנך": "באלה", "בה׳": "בה׳", "בו": "בו", "בזמן": "בזמן", "בחברתה": "בחברתה (=במלכות שאחריה)", "בחדש": "בחודש", "בחיים": "בחיים", "בחמשה": "בחמישה", "בחמשים": "בחמישים", "בטלו": "התבטלו", "ביה": "בו", "ביום": "ביום", "בימי": "בימי", "בירושלים": "בירושלים", "בית": "בית", "בכדי": "לחינם", "בכהניו": "בכהניו", "בכסליו": "בחודש כסליו", "בלא": "בדבר שלא", "במדבר": "במדבר", "במה": "במה", "במוספין": "בתפילת מוסף", "במקום": "במקום", "במרחשון": "במרחשון", "במתניתא": "בברייתא", "בן": "בן", "בנביאים": "בנביאים", "בניהם": "בניהם", "בנים": "בנים", "בניסן": "בניסן", "בעושר": "בעושר", "בעיר": "בעיר", "בעתו": "בזמנו", "בצילו": "בצילו", "בקוראי": "בקוראי", "בקרבך": "בתוכך", "בר": "בן", "ברכה": "ברכה", "ברנה": "בשמחה", "בשבעה": "בשבעה", "בשלשה": "בשלושה", "בשר": "בשר", "בששה": "בשישה", "בתורה": "בתורה", "בתר": "אחרי", "בתשרי": "בתשרי", "גבעה": "גבעה", "גברא": "אדם", "גדודיה": "גבעותיה", "גילו": "שמחו", "גמליאל": "גמליאל", "גרם": "גרם", "גשם": "גשם", "גשמים": "גשמים", "דאית": "שיש", "דאמר": "שאמר", "דאתית": "שהגעת", "דבי": "של בית (מדרש)", "דבקרבך": "שבקרבך", "דבר": "דבר", "דברי": "דברי", "דהוו": "שהיו", "דוד": "דוד (המלך)", "דומה": "דומה", "דורש": "דורש", "דין": "דין (=לא כל שכן)", "דכתיב": "שכתוב", "דסעוד": "שאכלו", "דרב": "של רב", "דר׳": "של ר׳", "דתניא": "ששנינו בברייתא", "הא": "זה / הרי", "האומר": "האומר", "האחרון": "האחרון", "האי": "הזה", "האילנות": "העצים", "הארבה": "הארבה", "הארץ": "הארץ", "האש": "האש", "האשל": "העץ (אשל)", "הבל": "הבל (=דבר ריק)", "הבלים": "הבלים", "הבנויה": "הבנויה", "הבריות": "האנשים", "הבתים": "הבתים", "הגזם": "הגזם (סוג ארבה)", "הגיעה": "הגיעה", "הגשמים": "הגשמים", "הדבר": "הדבר", "הדור": "הדור", "הדר": "חזר", "הוא": "הוא", "הוה": "היה", "הוו": "היו", "הולך": "הולך", "הזורעים": "הזורעים", "הזכרה": "הזכרה", "הזרע": "הזרע", "הזרעים": "הזרעים", "היא": "היא", "היה": "היה", "היחידים": "היחידים (=יחידי סגולה)", "היינו": "היינו (=זהו)", "היכי": "איך", "הכא": "כאן", "הכי": "כך", "הלוך": "הלוך", "הלכה": "הלכה", "המה": "הם", "המורה": "המורה (=היורה)", "המים": "המים", "המיר": "החליף", "המירו": "החליפו", "המלילות": "השיבולים", "המלכתי": "המלכתי", "המקדש": "המקדש", "הנני": "הנני", "הסקאין": "הארבה", "הפירות": "הפירות", "הפסח": "הפסח", "הקב״ה": "הקדוש ברוך הוא", "הקשין": "הגבעולים", "הראשון": "הראשון", "הרי": "הרי", "הרמתי": "מהרמה", "השתא": "עכשיו", "התחיל": "התחיל", "התיבה": "התיבה (=ארון הקודש)", "התלם": "התלם (=חריץ המחרשה)", "התם": "שם", "ה׳": "ה׳", "ואהרן": "ואהרן", "ואחד": "ואחד", "ואין": "ואין", "ואינו": "ואינו", "ואל": "ואל", "ואמר": "ואמר", "ואמרו": "ואמרו", "ואמרי": "ואומרים", "ואמת": "ותעלת", "ואף": "וגם", "וארבע": "וארבע", "ואת": "ואת", "ואתה": "ואתה", "ובוכה": "ובוכה", "ובכה": "ובוכה", "ובנותיהם": "ובנותיהם", "ובני": "ובני", "ובעשרים": "ובעשרים", "ובראש": "ובראש", "ובשבעה": "ובשבעה", "וגם": "וגם", "והא": "והרי", "והאמר": "והרי אמר", "והזכרה": "וההזכרה", "והיה": "והיה", "והמה": "והם", "והתבוננו": "והתבוננו", "וזרעו": "וזרעו", "וחוזר": "וחוזר", "וחכמים": "וחכמים", "וחנטו": "וחנטו", "ויבא": "ויבוא", "ויהי": "ויהי", "ויורד": "ויוריד", "וירדה": "וירדה", "וירדו": "וירדו", "וישב": "וישב", "וכי": "וכי", "וכיון": "ומאחר", "וכן": "וכך", "וכעשן": "וכעשן", "וכשביקש": "וכשרצה", "וכתיב": "וכתוב", "ולא": "ולא", "ומאי": "ומה", "ומה": "ומה", "ומחצה": "וחצי", "ומי": "וכי", "ומלקוש": "והמלקוש", "ומצא": "ומצא", "ומשטף": "ושוטף", "ומתחיל": "ומתחיל", "ונתגלה": "והתגלה", "ועל": "ועל", "וצילו": "וצילו", "וקברו": "וקברו", "וקדר": "וקדר", "ורמשים": "וזוחלים", "ור׳": "ור׳", "ושאול": "ושאול", "ושחרית": "ושחרית", "ושלשה": "ושלושה", "ושמואל": "ושמואל", "ושמחו": "ושמחו", "ושתה": "ושתה", "ושתים": "ושתיים", "ותרתין": "ושתיים", "זה": "זה", "זהו": "זהו", "זירא": "זירא (אמורא)", "זמן": "זמן", "זקן": "הזקין", "זרה": "זרה", "זרועו": "זרועו", "זרועותיהם": "זרועותיהם", "זרעו": "זרעו (=צאצאיו)", "זרעך": "זרעך", "חג": "חג (סוכות)", "חדש": "חודש", "חדשים": "חודשים", "חורש": "חורש", "חטים": "חיטים", "חיים": "חיים", "חכמים": "חכמים", "חמשין": "חמישים", "חנטייא": "החונטים", "חננאל": "חננאל (אמורא)", "חסדא": "חסדא (אמורא)", "חצבתי": "חצבתי (=פגעתי)", "טהורה": "טהורה (=כשרה)", "טוב": "טוב", "טמאה": "טמאה", "יאכלו": "יאכלו", "יבא": "יבוא", "ידי": "ידי", "ידיהם": "ידיהם", "יהודה": "יהודה (תנא)", "יהושע": "יהושע (תנא)", "יהי": "יהי", "יואל": "יואל (הנביא)", "יוה״כ": "יום הכיפורים", "יוחנן": "יוחנן (אמורא)", "יום": "יום", "יומי": "ימים", "יונתן": "יונתן (אמורא)", "יוסי": "יוסי (תנא)", "יוסף": "יוסף (אמורא)", "יועיל": "יועיל", "יורד": "יורד", "יורה": "יורה (=הגשם הראשון)", "יושב": "יושב", "יזרענו": "יזרע אותו", "ילך": "ילך", "ימים": "ימים", "יעקב": "יעקב", "יצא": "יצא (=עבר)", "יצאו": "יצאו", "יצחק": "יצחק (אמורא)", "יקצרו": "יקצרו", "ירדה": "ירדה", "ירדו": "ירדו", "ירושלים": "ירושלים", "ישמעאל": "ישמעאל (תנא)", "ישראל": "ישראל", "יתבטל": "יתבטל", "יתבי": "יושבים", "יתר": "שארית", "כאן": "כאן", "כאשר": "כאשר", "כבודו": "כבודו", "כבר": "כבר", "כדרך": "כדרך / כמו", "כולי": "כל", "כחומץ": "כמו חומץ", "כי": "כי / כאשר", "כיון": "מאחר", "כל": "כל", "כמלא": "כמלוא", "כמשה": "כמשה", "כן": "כך / כן", "כסליו": "כסליו", "כרבן": "כרבן", "כר׳": "כר׳", "כשהוא": "כשהוא", "כתיב": "כתוב", "כתיים": "כתים (עם)", "לא": "לא", "לאבא": "לאבא (=לרב)", "לאש": "לאש", "לברכה": "לברכה", "לדידהו": "להם", "לה": "לה", "להא": "לזה", "להו": "להם", "להזכיר": "להזכיר", "להכי": "לזה", "להם": "להם", "לו": "לו", "לומר": "לומר", "לזרעו": "לזרעו", "לחוד": "לבד (=דבר נפרד)", "לחצוב": "לחצוב", "לי": "לי", "ליברכן": "יברך אותי", "לידי": "לידי", "ליה": "לו", "לילך": "ללכת", "לימא": "יאמר", "לימות": "שימות", "לירושלים": "לירושלים", "לישנא": "לשון", "לך": "לך", "לכם": "לכם", "למה": "למה", "למים": "למים", "למלך": "למלך", "לן": "לנו", "לעינים": "לעיניים", "לפני": "לפני", "לפניו": "לפניו", "לקיים": "לקיים", "לרעב": "לרעב", "לר׳": "לר׳", "לשאול": "לשאול (=לבקש)", "לשנים": "לשיניים", "מאד": "מאוד", "מאי": "מה", "מאיר": "מאיר (תנא)", "מאן": "מי", "מארץ": "מארץ", "מה": "מה / כמו ש", "מונה": "סופר", "מוסר": "מוסר", "מורה": "מורה (=יורה)", "מושיעך": "מושיע אותך", "מזכיר": "מזכיר", "מטה": "מטה", "מי": "וכי / מי", "מידחי": "נדחה", "מים": "מים", "מיפטרי": "נפרדים", "מיתתו": "מיתתו", "מכבין": "מכבים", "מלהזכיר": "מלהזכיר", "מלכות": "מלכות", "מלקוש": "מלקוש (=הגשם האחרון)", "מלשאול": "מלבקש", "ממימיו": "ממימיו", "ממך": "ממך", "מן": "מן", "מסיחין": "מדברים", "מעיך": "מעיך (=גופך)", "מעלה": "מעלה", "מעשה": "מעשה", "מפירותיו": "מפירותיו", "מקור": "מקור / מעיין", "מקיש": "משווה", "מקמי": "מפני", "מקרא": "פסוק", "מר": "החכם / אדוני", "מרחוק": "מרחוק", "מר״ה": "מראש השנה", "משה": "משה", "משום": "בגלל", "משך": "שק / משיכת", "משל": "משל", "מת": "מת", "מתבואה": "מתבואה", "מתוקין": "מתוקים", "מתחיל": "מתחיל", "מתי": "מתי", "נאה": "נאה / נעים", "נאמר": "נאמר", "נהילאי": "נהילאי (שם)", "נוגעת": "נוגעת", "נושא": "נושא", "נחמן": "נחמן (אמורא)", "נחמני": "נחמני (שם)", "נחת": "הנחית / בנחת", "נטיעות": "שתילים", "ניהו": "היא", "נימא": "שערה", "ניסן": "ניסן", "נמי": "גם", "נמלים": "נמלים", "נמצא": "נמצא (=יוצא)", "נס": "נס", "נעשה": "נעשה", "נשברים": "שבורים / סדוקים", "נתן": "נתן", "סופו": "סופו", "סיב": "הזקין", "סימן": "סימן", "סכנה": "סכנה", "ספדו": "הספידו", "ספדנייא": "המספידים", "עבדי": "עבדי", "עבדינן": "נעשה", "עבודה": "עבודה", "עברו": "עברו", "עד": "עד", "עובדים": "עובדים", "עובדין": "עובדים", "עוברת": "עוברת", "עולא": "עולא (אמורא)", "עולי": "עולי", "עומר": "עומר", "עושר": "עושר", "עזבו": "עזבו", "על": "על", "עליו": "עליו", "עמי": "עמי", "ענין": "עניין / קשר", "עץ": "עץ", "ערבית": "ערבית", "עשה": "עשה", "עשר": "עשר", "עשרה": "עשרה", "עשרים": "עשרים", "עשרין": "עשרים", "פוסק": "מפסיק", "פי": "פי", "פירותיהן": "פירותיהם", "פירותיך": "פירותיך", "פירי": "פירות", "פסח": "פסח", "פסק": "הפסיק", "פתואל": "פתואל (שם)", "צאו": "צאו", "צאצאי": "צאצאי", "צבור": "ציבור", "ציון": "ציון", "צילך": "צילך", "צמחה": "צמחה", "צריך": "צריך", "צרכיהן": "צורכיהם", "קא": "(מילת פעולה: ״הנה״)", "קאמינא": "אני אומר", "קאמר": "אומר", "קב": "קב (מידה)", "קביים": "שני קבים", "קברייא": "הקוברים", "קדוש": "קדוש", "קיים": "קיים", "קפצה": "קפצה", "קרא": "קרא", "קשיא": "קשה / קושיה", "ראש": "ראש", "ראשון": "ראשון", "ראשונה": "ראשונה", "רב": "רב (אמורא)", "רבא": "רבא (אמורא)", "רבה": "רבה (אמורא)", "רבי": "רבי", "רביעה": "רביעה (=גשם)", "רבן": "רבן", "רבנן": "חכמים", "רגלים": "רגלים", "רוה": "הרווה", "רחב": "רחב", "ריצוי": "ריצוי (=הכנה, ריצוי המלך)", "רמה": "רמה (עיר שמואל)", "רמית": "אתה מקשה", "רעב": "רעב", "רעות": "רעות", "רצון": "רצון", "ר׳": "רבי", "ר״מ": "ר׳ מאיר", "שאבוא": "שאבוא", "שאול": "שאול (המלך)", "שאין": "שאין", "שאינו": "שאינו", "שאלה": "שאלה (=בקשה)", "שבבתים": "שבבתים", "שבחורי": "שבחורי", "שבים": "שבי", "שביק": "מניח", "שביקא": "השאיר", "שבית": "שבית", "שבכתלין": "שבקירות", "שבע": "שבע", "שבעה": "שבעה", "שבשדות": "שבשדות", "שהיה": "שהיה", "שהתחיל": "שהתחיל", "שואל": "שואל (=מבקש)", "שואלין": "שואלים (=מבקשים)", "שוב": "שוב", "שחוברה": "שחוברה", "שחיטת": "שחיטת", "שיגיע": "שיגיע", "שיהא": "שיהיה", "שיהו": "שיהיו", "שיורד": "שיורד", "שיעבור": "שיעבור", "שיצא": "שיצא", "שירדו": "שירדו", "שיש": "שיש", "שישב": "שישב", "שכל": "שכל", "של": "של", "שלחו": "שלחו", "שליח": "שליח", "שמו": "שמו", "שמואל": "שמואל", "שמונה": "שסופר", "שמעון": "שמעון", "שמפיל": "שמפיל", "שמשיר": "שמשיר (=מפיל)", "שנא": "שונה", "שנאמר": "שנאמר", "שנה": "שנה", "שנוטעין": "שנוטעים", "שניה": "שנייה", "שנים": "שנים", "שעורין": "שעורים", "שעשיתו": "שעשית אותו", "שפירותיו": "שפירותיו", "שקצים": "שקצים (=חרקים)", "ששה": "שישה", "ששואל": "ששואל", "ששת": "ששת (אמורא)", "שתהא": "שתהיה", "שתי": "שתי", "שתים": "שתיים", "תברך": "תברך", "תהום": "תהום", "תורה": "תורה", "תחילתו": "תחילתו", "תחת": "תחת", "תחתיו": "תחתיו", "תחתיך": "תחתיך", "תימא": "תאמר", "תירא": "תפחד", "תלמוד": "תלמוד (=לכן נאמר)", "תלמיה": "תלמיה", "תנא": "שנה (בברייתא)", "תנאי": "תנאים", "תנו": "שנו", "תניא": "שנויה (ברייתא)", "תעתועים": "תעתועים (=שטויות)", "תפלתו": "תפילתו", "תרי": "שני", "↔": "לעומת"};
+let wbwOpen = false;
+try { wbwOpen = localStorage.getItem('gemara:wbw') === '1'; } catch (e) {}
+function setWbw(v) { if (wbwOpen === v) return; wbwOpen = v; try { localStorage.setItem('gemara:wbw', v ? '1' : '0'); } catch (e) {}
+  document.querySelectorAll('.wbw-d').forEach(d => { if (d.open !== v) d.open = v; }); setTimeout(redrawArrow, 50); }
 function wbwHTML(key) {
   const w = WBW[key];
   if (!w) return '';
-  return `<div class="wbw">${w.split('|').map(p => {
+  return `<details class="wbw-d"${wbwOpen ? ' open' : ''} onclick="event.stopPropagation()" ontoggle="setWbw(this.open)"><summary>🔤 מילה במילה</summary><div class="wbw">${w.split('|').map(p => {
     const i = p.indexOf('=');
     const a = (i < 0 ? p : p.slice(0, i)).trim(), h = i < 0 ? '' : p.slice(i + 1).trim();
     const words = a.split(/\s+/);
     if (words.length === 1) return `<span class="ww"><b>${a}</b><i>${h}</i></span>`;
     return `<span class="wg"><span class="wg-words">${words.map(x =>
       `<span class="ww"><b>${x}</b><i>${WDICT[x] || ''}</i></span>`).join('')}</span><span class="wg-mean">${h}</span></span>`;
-  }).join('')}</div>`;
+  }).join('')}</div></details>`;
 }
 
 // =======================================================
@@ -3772,9 +3834,8 @@ function renderProgress() {
     progressEl.appendChild(dot);
   }
 
-  counterEl.textContent = scenes.length > 1
-    ? `${state.sceneIdx + 1} / ${scenes.length}`
-    : '';
+  { const sc = scenes[state.sceneIdx], nm = sc ? sc.title.replace(/<[^>]+>/g, '').replace(/[״"]/g, '') : '';
+    counterEl.textContent = scenes.length > 1 ? `קטע ${state.sceneIdx + 1} מתוך ${scenes.length}${nm ? ' · ' + nm : ''}` : ''; }
 
   document.getElementById('prevSceneBtn').disabled = state.sceneIdx === 0;
   document.getElementById('nextSceneBtn').disabled = state.sceneIdx === scenes.length - 1;
@@ -4064,6 +4125,16 @@ function readHash() {
     renderScenes();
   }
 }
+
+// ===== עזרה: נפתחת לבד בפעם הראשונה =====
+function openHelp() { document.getElementById('helpOv').hidden = false; state.modal = 'help'; }
+function closeHelp() { document.getElementById('helpOv').hidden = true; state.modal = null; try { localStorage.setItem('gemara:help', '1'); } catch (e) {} showLoc(); }
+document.getElementById('helpBtn').onclick = openHelp;
+document.getElementById('helpClose').onclick = closeHelp;
+document.getElementById('helpGo').onclick = closeHelp;
+document.getElementById('helpOv').addEventListener('click', e => { if (e.target.id === 'helpOv') closeHelp(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('helpOv').hidden) closeHelp(); });
+try { if (!localStorage.getItem('gemara:help')) setTimeout(openHelp, 400); } catch (e) {}
 window.addEventListener('hashchange', readHash);
 restorePlace();
 readHash();
