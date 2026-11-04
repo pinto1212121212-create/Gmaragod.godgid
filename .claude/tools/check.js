@@ -1,0 +1,41 @@
+// בדיקת האתר בדפדפן ברוחב טלפון. הרצה מתיקיית הריפו:
+//   node .claude/tools/check.js            (צילומי מסך נשמרים ב־.claude/out/)
+// בודק: שגיאות JS, תמונות שלא נטענו, גלילה אופקית, שלכל שלב עם מיקום יש הדגשה בצילום,
+// ושכל הדפים (בית, תענית, עץ, זבחים) נטענים.
+const { chromium } = require('playwright');
+const http = require('http'), fs = require('fs'), path = require('path');
+const root = process.cwd(), out = path.join(root, '.claude', 'out');
+fs.mkdirSync(out, { recursive: true });
+const srv = http.createServer((q, r) => {
+  let f = path.join(root, decodeURIComponent(q.url.split('?')[0].split('#')[0])); if (f.endsWith('/')) f += 'index.html';
+  fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); r.end(); return; }
+    r.writeHead(200, { 'Content-Type': f.endsWith('.html') ? 'text/html; charset=utf-8' : f.endsWith('.js') ? 'text/javascript' : 'image/jpeg' }); r.end(d); });
+}).listen(8799);
+(async () => {
+  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 412, height: 915 } });
+  const errs = []; p.on('pageerror', e => errs.push(p.url().split('/').pop() + ': ' + e.message)); p.on('requestfailed', r => errs.push('לא נטען: ' + r.url()));
+  const U = 'http://localhost:8799/';
+  for (const f of ['', 'taanit.html', 'tree.html', 'zevachim.html']) {
+    await p.goto(U + f); await p.waitForTimeout(800);
+    await p.evaluate(() => { try { localStorage.setItem('gemara:help', '1'); } catch (e) {} });
+    const w = await p.evaluate(() => document.documentElement.scrollWidth); if (w > 412) errs.push(`גלילה אופקית ב־${f || 'index'}: ${w}px`);
+    await p.screenshot({ path: path.join(out, `page-${f || 'index'}.png`) });
+  }
+  await p.goto(U + 'taanit.html'); await p.waitForTimeout(700);
+  let ok = 0, miss = [];
+  const refs = await p.evaluate(() => Object.keys(BEAT_LOC));
+  for (const r of refs) {
+    const n = await p.evaluate(r => amudim[r].scenes.length, r);
+    for (let si = 0; si < n; si++) {
+      const nb = await p.evaluate(([r, si]) => { goToRef(r); state.sceneIdx = si; renderScenes(); return (amudim[r].scenes[si].beats || []).length; }, [r, si]);
+      for (let bi = 0; bi < nb; bi++) {
+        if (!await p.evaluate(([r, si, bi]) => !!beatLoc(r, si, bi), [r, si, bi])) continue;
+        await p.evaluate(bi => { focusBeat = bi; showLoc(); }, bi); await p.waitForTimeout(60);
+        (await p.evaluate(() => document.querySelectorAll('.src-hl').length)) ? ok++ : miss.push(`${r}:${si}:${bi}`);
+      }
+    }
+  }
+  console.log(`שלבים עם הדגשה: ${ok}. בלי הדגשה: ${miss.length ? miss.join(' ') : 'אין'}`);
+  console.log(errs.length ? 'שגיאות:\n' + errs.join('\n') : 'אין שגיאות ✓');
+  await b.close(); srv.close();
+})();
