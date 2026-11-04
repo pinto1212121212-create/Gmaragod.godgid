@@ -3227,16 +3227,26 @@ function showLoc() {
   if (!first) return;
   // המשתמש מזיז את הצילום בעצמו: לא מזיזים אותו בכוח (זה מה שגרם לקפיצות)
   const userPan = srcPan.on || Date.now() < srcPan.until;
+  // יציבות: מזיזים את הצילום רק אם המילים המסומנות לא נראות במלואן, ורק כמה שצריך (לא ממרכזים בכל שלב)
+  const hls = [...inner.querySelectorAll('.src-hl')];
   if (!userPan && wrap.scrollWidth > wrap.clientWidth + 4) {
-    const hls = [...inner.querySelectorAll('.src-hl')];
     const minL = Math.min(...hls.map(h => h.offsetLeft)), maxR = Math.max(...hls.map(h => h.offsetLeft + h.offsetWidth));
     const firstR = first.offsetLeft + first.offsetWidth;            // תחילת ההדגשה (ימין, בעברית)
-    const span = maxR - minL, cw = wrap.clientWidth;
-    wrap.scrollLeft = span <= cw - 16 ? Math.max(0, (minL + maxR) / 2 - cw / 2) : Math.max(0, firstR - cw + 8);
+    const cw = wrap.clientWidth, sl = wrap.scrollLeft, m = 10;
+    let to = sl;
+    if (maxR - minL <= cw - 2 * m) { if (minL < sl + m) to = minL - m; else if (maxR > sl + cw - m) to = maxR - cw + m; }
+    else if (firstR > sl + cw - m || firstR < sl + cw / 2) to = firstR - cw + m;   // ארוך מהמסך: מראים את ההתחלה
+    to = Math.max(0, Math.min(wrap.scrollWidth - cw, Math.round(to)));
+    if (Math.abs(to - sl) > 2) wrap.scrollLeft = to;
   }
   if (!userPan && wrap.scrollHeight > wrap.clientHeight + 4) {
-    const t = Math.max(0, first.offsetTop - wrap.clientHeight / 2 + first.offsetHeight / 2);
-    wrap.scrollTop = t;
+    const top = Math.min(...hls.map(h => h.offsetTop)), bot = Math.max(...hls.map(h => h.offsetTop + h.offsetHeight));
+    const ch = wrap.clientHeight, st = wrap.scrollTop, m = 6;
+    let to = st;
+    if (bot - top <= ch - 2 * m) { if (top < st + m) to = top - m; else if (bot > st + ch - m) to = bot - ch + m; }
+    else if (top < st + m || top > st + ch / 2) to = top - m;
+    to = Math.max(0, Math.min(wrap.scrollHeight - ch, Math.round(to)));
+    if (Math.abs(to - st) > 2) wrap.scrollTop = to;
   }
   setTimeout(() => drawArrow(beat, [...inner.querySelectorAll('.src-hl')], true), wrap.scrollHeight > wrap.clientHeight + 4 ? 260 : 0);
 }
@@ -3305,7 +3315,9 @@ function scrollSpy() {
   });
 }
 window.addEventListener('scroll', scrollSpy, { passive: true });
-window.addEventListener('resize', () => showLoc());
+// בטלפון, שורת הכתובת שנעלמת/מופיעה בגלילה שולחת resize — לא מזיזים את הצילום בגלל זה, רק כשהרוחב באמת משתנה
+let lastW = innerWidth;
+window.addEventListener('resize', () => { if (Math.abs(innerWidth - lastW) < 2) { redrawArrow(); return; } lastW = innerWidth; showLoc(); });
 document.addEventListener('scroll', e => {
   if (e.target.classList && e.target.classList.contains('src-wrap')) redrawArrow();
 }, true);
@@ -4309,5 +4321,6 @@ readHash();
 renderAll();
 </script>
 
+<script src="debug.js"></script><!-- לוח דיבוג זמני -->
 </body>
 </html>
