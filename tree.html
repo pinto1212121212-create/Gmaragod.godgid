@@ -91,7 +91,7 @@
     font-size: 14px; font-weight: 700; color: var(--soft); background: rgba(29,23,17,0.85); padding: 10px 16px; border-radius: 14px; transition: opacity .6s; }
 
   /* לוח הפרטים */
-  .sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; max-height: 58%; overflow: auto; background: rgba(29,23,17,0.97);
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; max-height: 68%; overflow: auto; background: rgba(29,23,17,0.97);
     border-top: 2px solid var(--rc, var(--gold)); border-radius: 20px 20px 0 0; box-shadow: 0 -14px 40px rgba(0,0,0,0.6);
     padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
     transform: translateY(105%); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
@@ -107,7 +107,9 @@
   .sh-exp { font-size: 15px; line-height: 1.65; background: rgba(244,234,213,0.06); border-right: 3px solid var(--rc); border-radius: 10px; padding: 8px 11px; }
   .sh-exp b { color: var(--rc); }
   /* סרגל כלים בחלונית: כל מה שיש בדף ההסבר — בתכלס, הקשר, הגמרא, מילה במילה, הצילום, מונחים */
-  .sh-tabs { position: sticky; top: -8px; z-index: 2; display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; margin: 10px -4px 8px; padding: 7px 4px;
+  .sh-pin { position: sticky; top: -8px; z-index: 3; margin: 8px -16px 8px; padding: 6px 16px 0; background: rgba(29,23,17,0.99); box-shadow: 0 8px 14px -10px rgba(0,0,0,.8); }
+  .sh-pin .sh-img { margin-top: 0; max-height: 128px; box-shadow: 0 0 0 1px rgba(232,183,109,0.35); }
+  .sh-tabs { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; margin: 6px -4px 0; padding: 7px 4px;
     background: rgba(29,23,17,0.98); border-bottom: 1px solid rgba(232,183,109,0.25); }
   .sh-tabs::-webkit-scrollbar { display: none; }
   .sh-tab { flex: 0 0 auto; font: 800 12.5px/1 'Heebo', sans-serif; padding: 7px 10px; border-radius: 16px; cursor: pointer;
@@ -442,7 +444,7 @@ function sheet(n) {
   sh.classList.add('open');
   sh.querySelectorAll('.sh-tab').forEach(t => t.onclick = () => { shTab = t.dataset.t; try { localStorage.setItem('gemara:shtab', shTab); } catch (e) {}
     sh.querySelectorAll('.sh-tab').forEach(x => x.classList.toggle('on', x === t)); sh.querySelectorAll('.sh-pane').forEach(x => x.classList.toggle('on', x.dataset.t === shTab));
-    if (shTab === 'img') { const mk = sh.querySelector('.mk'), sim = sh.querySelector('.sh-img'); if (mk && sim) sim.scrollTop = Math.max(0, mk.offsetTop - sim.clientHeight / 3); } });
+    shImgFocus(); });
   $('shX').onclick = () => { closeSheet(); };
   $('shUp').onclick = () => { if (n.parent && n.parent.r !== 'root') select(n.parent, true); else { closeSheet(); fit(true); } };
   sh.querySelectorAll('.kid').forEach(b => b.onclick = () => select(kids[+b.dataset.i], true));
@@ -450,7 +452,7 @@ function sheet(n) {
   $('stage').classList.add('has-sheet');
   sh.scrollTop = 0;
   const mk = sh.querySelector('.mk'); const sim = sh.querySelector('.sh-img');
-  if (mk && sim) setTimeout(() => { sim.scrollTop = Math.max(0, mk.offsetTop - sim.clientHeight / 3); }, 50);
+  if (mk && sim) setTimeout(shImgFocus, 50);
 }
 // ההסבר הארוך של צומת (TREE_CX ב־tree-data.js → CONTEXT ב־context-data.js). פתוח כברירת מחדל; זוכרים אם סגרו
 function ctxOf(n) {
@@ -499,12 +501,20 @@ function toolbar(n, kids) {
     ['cx', '🧭 ההקשר', cx ? `<div class="sh-ctxp">${cx}</div>` : ''],
     ['gm', '📜 בגמרא', gm.map(t => `<div class="g-punct">${t.replace(/״([^״]+)״/g, '<q>״$1״</q>')}</div>`).join('')],
     ['wbw', '🔤 מילה במילה', ww.map(wbwBlock).join('')],
-    ['img', '📷 בדף', `<div class="sh-img"><div class="sh-imgw"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></div>`],
     ['tm', '💡 מונחים', terms.length ? `<div class="sh-terms">${terms.map(([t, d]) => `<div><b>${t}</b><span>${d}</span></div>`).join('')}</div>` : ''],
   ];
   let cur = panes.find(p => p[0] === shTab && p[2]) ? shTab : 'tk';
-  return `<div class="sh-tabs" role="tablist">${panes.map(([id, lb, body]) => `<button class="sh-tab${id === cur ? ' on' : ''}" data-t="${id}"${body ? '' : ' disabled'}>${lb}</button>`).join('')}</div>
+  // הצילום עם המילים המודגשות — תמיד גלוי וצמוד למעלה, מעל הלשוניות (גם במילה במילה)
+  const img = `<div class="sh-img"><div class="sh-imgw"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onload="shImgFocus()" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></div>`;
+  return `<div class="sh-pin">${img}<div class="sh-tabs" role="tablist">${panes.map(([id, lb, body]) => `<button class="sh-tab${id === cur ? ' on' : ''}" data-t="${id}"${body ? '' : ' disabled'}>${lb}</button>`).join('')}</div></div>
     ${panes.map(([id, , body]) => `<div class="sh-pane${id === cur ? ' on' : ''}" data-t="${id}">${body || '<div class="sh-none">אין לשלב הזה</div>'}</div>`).join('')}`;
+}
+// מביא את המילים המודגשות למרכז הצילום הקטן
+function shImgFocus() {
+  const sim = document.querySelector('#sheet .sh-img'), mks = document.querySelectorAll('#sheet .mk');
+  if (!sim || !mks.length) return;
+  const top = Math.min(...[...mks].map(m => m.offsetTop)), bot = Math.max(...[...mks].map(m => m.offsetTop + m.offsetHeight));
+  sim.scrollTop = Math.max(0, (top + bot) / 2 - sim.clientHeight / 2);
 }
 function closeSheet() { st.sel = null; whereSoon(); flat.forEach(m => m.el.classList.remove('sel')); sheet(null); $('stage').classList.remove('has-sheet'); }
 
