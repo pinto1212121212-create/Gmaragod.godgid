@@ -1198,6 +1198,7 @@
     border: 1.5px solid var(--gold); background: transparent; color: var(--gold-bright);
     font-family: inherit; font-weight: 800; font-size: 15px; cursor: pointer; }
   .next-sec[hidden] { display: none; }
+  .step-ctl { display: none !important; }
   .after { display: none; }
   .after.on { display: block; animation: beatIn .5s ease-out both; }
   .after .kviz { margin-top: 14px; }
@@ -1585,7 +1586,7 @@
     <div class="help-head"><b>איך לומדים כאן</b><button id="helpClose" aria-label="סגור">✕</button></div>
     <div class="help-body">
       <div class="hp"><i>◀ ▶</i><p><b>החצים למטה</b> עוברים בין קטעי הדף. גם החלקה הצידה עובדת.</p></div>
-      <div class="hp"><i>👆</i><p><b>הקשה על ההסבר</b> או על ״המשך ▼״ פותחת את השלב הבא. <b>בגלילה</b> החץ והסימון עוברים לבד לכרטיס שאתה קורא.</p></div>
+      <div class="hp"><i>👆</i><p><b>גוללים ולומדים:</b> כל שלבי הקטע פתוחים, והחץ והסימון בגמרא עוברים לבד לכרטיס שאתה קורא. הקשה על כרטיס מסמנת אותו מיד.</p></div>
       <div class="hp"><i>📷</i><p><b>צילום הדף</b> נשאר למעלה, והמילים של השלב מודגשות עליו. הקשה על הצילום פותחת את הדף המלא.</p></div>
       <div class="hp"><i>🎨</i><p><b>צבעים:</b> <span class="lg" style="--c:#e8566a">שאלה / דחייה</span> <span class="lg" style="--c:#6cc35a">תירוץ</span> <span class="lg" style="--c:#f2c14e">מסקנה</span> <span class="lg" style="--c:#5ea8e0">מקור / קביעה</span> <span class="lg" style="--c:#a98de0">הסבר</span></p></div>
       <div class="hp"><i>🎯</i><p><b>בתכלס</b> אומר במשפט אחד מה השלב עושה. <b>📜 בגמרא</b> הוא הלשון עם פיסוק, ו<b>🔤 מילה במילה</b> נפתח בהקשה.</p></div>
@@ -3172,7 +3173,7 @@ function scrollSpy() {
       const d = r.top <= line && r.bottom >= line ? 0 : Math.min(Math.abs(r.top - line), Math.abs(r.bottom - line));
       if (d < bestD) { bestD = d; best = b; }
     }
-    if (!best) { redrawArrow(); return; }
+    if (!best) best = cards[0];   // לפני שמגיעים לכרטיסים: מסמנים את השלב הראשון
     const i = +best.dataset.i;
     if (i !== activeBeatIdx(sc) || (state.beat >= sc.beats.length && focusBeat == null)) { focusBeat = i; showLoc(); }
     else redrawArrow();
@@ -3767,8 +3768,7 @@ function applyBeats(scroll) {
   const el = document.querySelector('.scene.active');
   const scenes = state.tab === 'masechet' ? amudim[state.ref].scenes : tutorialScenes;
   const n = curBeats();
-  if (state.beat == null) state.beat = 0;
-  state.beat = Math.max(0, Math.min(state.beat, n));
+  state.beat = n;   // כל השלבים פתוחים תמיד; הגלילה בוחרת את השלב
   if (el && el.querySelector('.after')) {
     let last = null;
     el.querySelectorAll('.blink').forEach(l => l.classList.toggle('on', +l.dataset.i <= state.beat));
@@ -3784,8 +3784,7 @@ function applyBeats(scroll) {
     if (scroll) { const t = done ? el.querySelector('.after') : last; if (t) t.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
   }
   focusBeat = null;
-  if (scroll) spyLock = Date.now() + 900;
-  setTimeout(showLoc, scroll ? 380 : 30);
+  setTimeout(scrollSpy, 80);
   document.getElementById('prevSceneBtn').disabled = state.sceneIdx === 0;
   document.getElementById('nextSceneBtn').disabled = state.sceneIdx === scenes.length - 1;
   const ns = el && el.querySelector('.next-sec');
