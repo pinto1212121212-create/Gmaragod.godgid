@@ -111,6 +111,12 @@
   .sh-nav .sk { background: rgba(244,234,213,0.08); color: var(--parchment); }
   .sh-nav .sk:disabled { opacity: .35; cursor: default; }
   .sh-nav .play { background: linear-gradient(135deg, var(--gold), var(--gold-b)); color: var(--ink); }
+
+  .sh-img { max-height: 210px; overflow-y: auto; position: relative; }
+  .sh-imgw { position: relative; }
+  .mk { position: absolute; border-radius: 3px; pointer-events: none; mix-blend-mode: multiply;
+    background: color-mix(in srgb, var(--rc) 55%, transparent); box-shadow: 0 0 0 1.5px var(--rc); animation: mkIn .5s ease-out both; }
+  @keyframes mkIn { from { opacity: 0; transform: scaleX(.6); } to { opacity: 1; transform: none; } }
   :focus-visible { outline: 2px solid var(--gold-b); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .node.sel .halo { animation: none; } .sheet { transition: none; } }
 </style>
@@ -158,6 +164,7 @@
 </div>
 
 <script src="tree-data.js"></script>
+<script src="daf-marks.js"></script>
 <script>
 const ROLE = { m: ['📜', 'משנה / מקור'], q: ['❓', 'שאלה'], x: ['⚡', 'דחייה'], a: ['✅', 'תירוץ'], c: ['📌', 'מסקנה'], n: ['📖', 'סיפור / ראיה'], k: ['💡', 'הסבר'] };
 const COL = { m: '#5fb2ff', q: '#ff5d72', x: '#ff5d72', a: '#6fd35c', c: '#ffc94d', n: '#d7b26e', k: '#b296ff' };
@@ -173,6 +180,47 @@ const BASE = location.hostname.endsWith('github.io') || location.protocol === 'f
 const NS = 'http://www.w3.org/2000/svg';
 const $ = id => document.getElementById(id);
 const el = (t, a = {}, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+
+
+// ===== סימון המילים המדויקות של הצומת על צילום הדף =====
+const norm = t => t.replace(/<[^>]+>/g, '').replace(/[״"׳'.,:;!?()\[\]—–…⟵·]/g, ' ').replace(/\s+/g, ' ').trim();
+// איזה שלב בקטע הוא הצומת הזה? לפי חפיפת מילים
+function beatOf(ref, n) {
+  const spans = (typeof BEAT_SPAN !== 'undefined' && BEAT_SPAN[ref] && BEAT_SPAN[ref][n.s]) || null;
+  if (!spans) return null;
+  const nw = new Set(norm(n.t).split(' ').filter(w => w.length > 1));
+  let best = null, bestScore = 0;
+  for (const bi in spans) {
+    const bw = norm(BEAT_WORDS[`${ref}:${n.s}:${bi}`] || '').split(' ');
+    let sc = 0; for (const w of bw) if (nw.has(w)) sc++;
+    const r = sc / Math.max(3, Math.min(nw.size, bw.length));
+    if (r > bestScore) { bestScore = r; best = bi; }
+  }
+  return bestScore >= 0.25 ? spans[best] : null;
+}
+function slotsOf(crop) {
+  const out = [];
+  (DAF_LINES[crop] || []).forEach((ln, li) => {
+    const [y0, y1, xl, xr, t0, t1, gaps] = ln;
+    const bs = [xr, ...gaps.filter(g => g > xl + 0.01 && g < xr - 0.01).sort((a, b) => b - a), xl];
+    for (let i = 0; i < bs.length - 1; i++) out.push([li, bs[i], bs[i + 1]]);
+  });
+  return out;
+}
+function marksHTML(ref, n) {
+  const span = beatOf(ref, n); if (!span) return '';
+  const crop = `${ref}-${n.s}`, lines = DAF_LINES[crop]; if (!lines) return '';
+  const sl = slotsOf(crop), rows = [];
+  let cur = null;
+  for (let i = span[0]; i <= span[1] && i < sl.length; i++) {
+    const [li, xa, xb] = sl[i];
+    if (!cur || cur.li !== li) { cur && rows.push(cur); cur = { li, xs: xa, xe: xb }; } else cur.xe = xb;
+  }
+  cur && rows.push(cur);
+  return rows.map(c => { const [y0, y1, xl, xr, t0, t1] = lines[c.li]; const pad = (t1 - t0) * 0.06;
+    const top = Math.max(y0, t0 - pad), h = Math.min(y1, t1 + pad) - top;
+    return `<i class="mk" style="top:${top * 100}%;height:${h * 100}%;left:${c.xe * 100 - 0.3}%;width:${(c.xs - c.xe) * 100 + 0.6}%"></i>`; }).join('');
+}
 
 // ===== מצב =====
 const st = { ref: '4b', sel: null, sec: null };
@@ -319,7 +367,7 @@ function sheet(n) {
     <div class="sh-exp"><b>🎯 בתכלס:</b> ${n.e}</div>
     ${kids.length ? `<div class="sh-kids"><div class="kh">⬇ מה עונים על זה (${kids.length})</div>${kids.map((k, i) =>
       `<button class="kid" data-i="${i}" style="--kc:${COL[k.r]}"><b>${ROLE[k.r][0]} ${relLabel(k) || ROLE[k.r][1]}</b> ${k.w}: ${short(k.t, 34)}</button>`).join('')}</div>` : ''}
-    <div class="sh-img"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onerror="this.parentElement.remove()"></div>
+    <div class="sh-img"><div class="sh-imgw"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></div>
     <div class="sh-nav"><button class="sk" id="shPrev" aria-label="השלב הקודם"${n.seq === 1 ? ' disabled' : ''}>▶ הקודם</button><button class="play" id="shPlay">${story ? '❚❚ עצור' : '▶ סיפור'}</button><button class="sk" id="shNext" aria-label="השלב הבא"${n.seq === flat.length ? ' disabled' : ''}>הבא ◀</button></div>
     <div class="sh-acts"><a class="pri" href="${BASE}taanit.html#${st.ref}-${n.s}">↩ להסבר המלא</a><button class="sec" id="shUp">${n.parent && n.parent.r !== 'root' ? '⬆ לשלב שמעל' : '⤢ כל העץ'}</button></div>
     <div style="text-align:center;font-size:12px;color:var(--dim);margin-top:8px">קטע ״${SN[n.s] || n.s + 1}״</div>`;
@@ -330,6 +378,8 @@ function sheet(n) {
   $('shPrev').onclick = () => $('sPrev').click(); $('shNext').onclick = () => $('sNext').click(); $('shPlay').onclick = () => $('sPlay').click();
   $('stage').classList.add('has-sheet');
   sh.scrollTop = 0;
+  const mk = sh.querySelector('.mk'); const sim = sh.querySelector('.sh-img');
+  if (mk && sim) setTimeout(() => { sim.scrollTop = Math.max(0, mk.offsetTop - sim.clientHeight / 3); }, 50);
 }
 function closeSheet() { st.sel = null; flat.forEach(m => m.el.classList.remove('sel')); sheet(null); $('stage').classList.remove('has-sheet'); }
 
