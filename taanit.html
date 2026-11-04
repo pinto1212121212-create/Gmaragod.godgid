@@ -1387,6 +1387,37 @@
   .lg { display: inline-block; font-size: 12px; font-weight: 700; padding: 0 8px; border-radius: 10px; border-bottom: 3px solid var(--c); background: rgba(244,234,213,0.06); margin: 2px 0; }
   .help-go { display: block; width: 100%; margin-top: 12px; padding: 13px; border: 0; border-radius: 12px; background: var(--gold); color: var(--ink);
     font-family: inherit; font-weight: 800; font-size: 16px; cursor: pointer; }
+
+  /* ===== הדף המלא עם הסבר ===== */
+  .po-hl { pointer-events: auto !important; cursor: pointer; animation: none !important; opacity: .55; transition: opacity .25s, box-shadow .25s; }
+  .po-wrap.has-sel .po-hl.on { opacity: 1; box-shadow: 0 0 0 2.5px rgba(var(--hl),1), 0 0 14px rgba(var(--hl),.55); }
+  .po-no { position: absolute; top: -9px; right: -9px; min-width: 18px; height: 18px; border-radius: 9px; font: 800 11px/18px 'Heebo', sans-serif;
+    text-align: center; color: #fff; background: rgb(var(--hl)); box-shadow: 0 1px 4px rgba(0,0,0,.4); mix-blend-mode: normal; }
+  .po-call { position: absolute; z-index: 3; --hl: 230,110,20; background: rgba(29,23,17,0.96); color: var(--parchment); border-radius: 14px;
+    border: 1.5px solid rgb(var(--hl)); box-shadow: 0 10px 28px rgba(0,0,0,.55); padding: 9px 12px 10px; pointer-events: none; }
+  .po-call.hl-q, .po-call.hl-x, .po-lead.hl-q, .po-lead.hl-x { --hl: 232,86,106; }
+  .po-call.hl-a, .po-lead.hl-a { --hl: 108,195,90; }
+  .po-call.hl-c, .po-lead.hl-c { --hl: 242,193,78; }
+  .po-call.hl-n, .po-call.hl-s, .po-lead.hl-n, .po-lead.hl-s { --hl: 94,168,224; }
+  .po-call.hl-k, .po-lead.hl-k { --hl: 169,141,224; }
+  .pc-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .pc-no { min-width: 20px; height: 20px; border-radius: 10px; background: rgb(var(--hl)); color: #120e0a; font-size: 11.5px; font-weight: 900; text-align: center; line-height: 20px; }
+  .pc-role { font-size: 12px; font-weight: 900; color: rgb(var(--hl)); }
+  .pc-who { font-size: 12.5px; font-weight: 800; color: var(--parchment-soft); }
+  .pc-txt { font-size: 14.5px; line-height: 1.6; }
+  .po-lead { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; --hl: 230,110,20; overflow: visible; }
+  .po-lead path { stroke: rgb(var(--hl)); stroke-width: 2.5; fill: none; stroke-dasharray: 5 4; }
+  .po-nav { display: flex; align-items: center; gap: 8px; padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px)); background: rgba(29,23,17,0.95); border-top: 1px solid rgba(232,183,109,0.25); }
+  .po-b { width: 44px; height: 44px; flex: 0 0 44px; border-radius: 14px; border: 0; background: var(--gold); color: var(--ink); font-size: 16px; font-weight: 900; cursor: pointer; }
+  .po-b:disabled { opacity: .35; }
+  .po-b.po-z { background: rgba(244,234,213,0.1); color: var(--parchment); }
+  #poScroll { direction: ltr; }
+  #poScroll .po-wrap { direction: rtl; }
+  .po-dots { flex: 1; display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; }
+  .po-dots i { width: 12px; height: 12px; border-radius: 6px; --hl: 230,110,20; background: rgba(var(--hl),.45); cursor: pointer; transition: width .2s; }
+  .po-dots i.hl-q, .po-dots i.hl-x { --hl: 232,86,106; } .po-dots i.hl-a { --hl: 108,195,90; } .po-dots i.hl-c { --hl: 242,193,78; }
+  .po-dots i.hl-n, .po-dots i.hl-s { --hl: 94,168,224; } .po-dots i.hl-k { --hl: 169,141,224; }
+  .po-dots i.on { width: 26px; background: rgb(var(--hl)); }
   .quiz { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
   .quiz-q { background: rgba(244,234,213,0.05); border: 1px solid rgba(232,183,109,0.25); border-radius: 10px; padding: 10px 12px; }
   .quiz-q summary { cursor: pointer; font-weight: 700; color: var(--gold-bright); font-size: 14px; list-style: none; }
@@ -2372,31 +2403,90 @@ function srcBlock(src) {
       </div></div>
     </figure>`;
 }
+// ===== הדף המלא עם הסבר בתוך הדף =====
+// כל שלב בקטע מסומן בצבע התפקיד שלו עם מספר; השלב הנבחר מקבל בועת הסבר שמחוברת לשורה שלו,
+// ובתחתית יש פס ניווט בין השלבים (גם הקשה על סימון בוחרת אותו)
+const PO = { ref: null, box: null, list: [], cur: 0 };
 function openPhoto(ref, box) {
   const ov = document.getElementById('photoOverlay');
   const rect = (b, cls, label) => `<div class="${cls}" style="left:${b[0]}%;top:${b[1]}%;width:${b[2]}%;height:${b[3]}%">${label || ''}</div>`;
-  // אם נפתח מתוך קטע: מסמנים בדיוק את המילים של השלב הנוכחי, בצבע של התפקיד שלו
-  let exact = '', roleName = '';
+  PO.ref = ref; PO.box = box; PO.list = [];
   const sc = box && amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
-  if (sc && sc.src && sc.src.ref === ref && sc.beats && sc.beats.length) {
-    const n = sc.beats.length;
-    let bi = focusBeat != null ? focusBeat : Math.min(state.beat, n - 1);
-    if (!beatLoc(ref, state.sceneIdx, bi)) { bi = -1; for (let k = Math.min(state.beat, n - 1); k >= 0; k--) if (beatLoc(ref, state.sceneIdx, k)) { bi = k; break; } }
-    if (bi >= 0) {
+  if (sc && sc.src && sc.src.ref === ref && sc.beats) {
+    sc.beats.forEach((bt, bi) => {
+      const loc = beatLoc(ref, state.sceneIdx, bi); if (!loc) return;
       const span = BEAT_SPAN[ref] && BEAT_SPAN[ref][state.sceneIdx] && BEAT_SPAN[ref][state.sceneIdx][bi];
-      const role = beatRole(ref, state.sceneIdx, bi); roleName = ROLE[role][1];
-      exact = hlRects(`${ref}-${sc.src.i}`, beatLoc(ref, state.sceneIdx, bi), span).map(r =>
-        `<div class="po-hl hl-${role}" style="left:${box[0] + (1 - r.right - r.width) * box[2]}%;top:${box[1] + r.top * box[3]}%;width:${r.width * box[2]}%;height:${r.height * box[3]}%"></div>`).join('');
-    }
+      const rr = hlRects(`${ref}-${sc.src.i}`, loc, span).map(r => ({
+        l: box[0] + (1 - r.right - r.width) * box[2], t: box[1] + r.top * box[3], w: r.width * box[2], h: r.height * box[3] }));
+      if (rr.length) PO.list.push({ bi, role: beatRole(ref, state.sceneIdx, bi), who: bt[1], txt: bt[2], tk: TAKHLES[`${ref}:${state.sceneIdx}:${bi}`] || '', rr });
+    });
   }
-  const mark = box ? (exact ? rect(box, 'po-sec') + exact : rect(box, 'po-mark'))
-    : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
-  ov.innerHTML = `<div class="po-bar"><span>📷 ${AMUD_NAME[ref]}${exact ? ` · מסומן: ${roleName}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close" onclick="closePhoto()">✕</button></div>
-    <div class="po-scroll"><div class="po-wrap zoom" onclick="this.classList.toggle('zoom'); const m=this.querySelector('.po-hl, .po-mark'); if(m) m.scrollIntoView({block:'center',inline:'center'})"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}">${mark}</div></div>
-    <div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>`;
+  let marks = '';
+  if (PO.list.length) {
+    marks = rect(box, 'po-sec') + PO.list.map((x, k) => x.rr.map((r, j) =>
+      `<div class="po-hl hl-${x.role}" data-k="${k}" style="left:${r.l}%;top:${r.t}%;width:${r.w}%;height:${r.h}%">${j === 0 ? `<b class="po-no">${k + 1}</b>` : ''}</div>`).join('')).join('')
+      + '<div class="po-call" id="poCall"></div><svg class="po-lead" id="poLead" viewBox="0 0 100 100" preserveAspectRatio="none"><path id="poLeadP"/></svg>';
+    const want = focusBeat != null ? focusBeat : Math.min(state.beat, sc.beats.length - 1);
+    PO.cur = Math.max(0, PO.list.findIndex(x => x.bi >= want));
+  } else marks = box ? rect(box, 'po-mark') : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
+  ov.innerHTML = `<div class="po-bar"><span>📷 ${AMUD_NAME[ref]}${PO.list.length ? ' · הדף עם ההסבר' : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close" onclick="closePhoto()">✕</button></div>
+    <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}">${marks}</div></div>
+    ${PO.list.length ? `<div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה">🔍</button></div>`
+      : '<div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>'}`;
   ov.classList.add('open');
   state.modal = 'photo';
-  const m = ov.querySelector('.po-hl, .po-mark'); if (m) setTimeout(() => m.scrollIntoView({ block: 'center', inline: 'center' }), 60);
+  const wrap = document.getElementById('poWrap');
+  if (PO.list.length) {
+    wrap.addEventListener('click', e => { const h = e.target.closest('.po-hl'); if (h) { e.stopPropagation(); poSelect(+h.dataset.k); } });
+    document.getElementById('poPrev').onclick = () => poSelect(PO.cur - 1);
+    document.getElementById('poNext').onclick = () => poSelect(PO.cur + 1);
+    document.getElementById('poDots').onclick = e => { const d = e.target.closest('i'); if (d) poSelect(+d.dataset.k); };
+    document.getElementById('poZoom').onclick = () => { wrap.classList.toggle('zoom'); setTimeout(() => poSelect(PO.cur, true), 30); };
+    const img = wrap.querySelector('img');
+    (img.complete ? Promise.resolve() : new Promise(r => img.onload = r)).then(() => poSelect(PO.cur, true));
+  } else {
+    wrap.addEventListener('click', () => { wrap.classList.toggle('zoom'); const m = wrap.querySelector('.po-mark'); if (m) m.scrollIntoView({ block: 'center', inline: 'center' }); });
+    const m = ov.querySelector('.po-mark'); if (m) setTimeout(() => m.scrollIntoView({ block: 'center', inline: 'center' }), 60);
+  }
+}
+function poSelect(k, instant) {
+  if (!PO.list.length) return;
+  PO.cur = k = Math.max(0, Math.min(PO.list.length - 1, k));
+  const x = PO.list[k], wrap = document.getElementById('poWrap'), sc = document.getElementById('poScroll');
+  wrap.querySelectorAll('.po-hl').forEach(h => h.classList.toggle('on', +h.dataset.k === k));
+  wrap.classList.add('has-sel');
+  document.querySelectorAll('#poDots i').forEach((d, j) => d.classList.toggle('on', j === k));
+  document.getElementById('poPrev').disabled = k === 0; document.getElementById('poNext').disabled = k === PO.list.length - 1;
+  // בועת ההסבר: מתחת לשורות של השלב, או מעליהן אם אין מקום; צמודה לצד של המילים
+  const call = document.getElementById('poCall');
+  call.className = 'po-call hl-' + x.role;
+  call.innerHTML = `<div class="pc-head"><span class="pc-no">${k + 1}</span><span class="pc-role">${ROLE[x.role][0]} ${ROLE[x.role][1]}</span><span class="pc-who">${x.who}</span></div>
+    <div class="pc-txt">${x.tk || x.txt}</div>`;
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+  const top = Math.min(...x.rr.map(r => r.t)), bot = Math.max(...x.rr.map(r => r.t + r.h));
+  const left = Math.min(...x.rr.map(r => r.l)), right = Math.max(...x.rr.map(r => r.l + r.w));
+  const vw = sc.clientWidth, cw = Math.min(vw - 24, 340);
+  const cx = (left + right) / 2 / 100 * W;
+  // קודם קובעים איזה חלק של הדף נראה, ואז מניחים את הבועה בתוך החלק הנראה
+  const sl = Math.max(0, Math.min(W - vw, cx - vw / 2));
+  call.style.width = cw + 'px';
+  const ch = call.offsetHeight || 110;
+  let lx = Math.max(sl + 8, Math.min(sl + vw - cw - 8, cx - cw / 2));
+  const gap = 18, below = bot / 100 * H + gap, above = top / 100 * H - gap - ch;
+  const place = below + ch < H - 10 ? 'below' : 'above';
+  const ly = place === 'below' ? below : Math.max(6, above);
+  call.style.left = lx + 'px'; call.style.top = ly + 'px';
+  call.dataset.place = place;
+  // קו מוביל מהבועה אל המילים
+  const ax = Math.max(lx + 18, Math.min(lx + cw - 18, cx)), ay = place === 'below' ? ly : ly + call.offsetHeight;
+  const ty = place === 'below' ? bot / 100 * H : top / 100 * H;
+  const lead = document.getElementById('poLead'); lead.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  document.getElementById('poLeadP').setAttribute('d', `M ${ax} ${ay} L ${cx} ${ty}`);
+  lead.setAttribute('class', 'po-lead hl-' + x.role);
+  call.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'ease-out' });
+  // מצלמה: מביאים את המילים והבועה למרכז
+  const midY = (Math.min(top / 100 * H, ly) + Math.max(bot / 100 * H, ly + ch)) / 2;
+  sc.scrollTo({ top: Math.max(0, midY - sc.clientHeight / 2), left: sl, behavior: instant ? 'auto' : 'smooth' });
 }
 function closePhoto() {
   document.getElementById('photoOverlay').classList.remove('open');
@@ -4100,6 +4190,7 @@ document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click
 document.addEventListener('keydown', (e) => {
   if (state.modal) {
     if (e.key === 'Escape') { if (state.modal === 'photo') closePhoto(); else closeModal(); }
+    if (state.modal === 'photo' && PO.list.length) { if (e.key === 'ArrowLeft') poSelect(PO.cur + 1); if (e.key === 'ArrowRight') poSelect(PO.cur - 1); }
     return;
   }
   if (e.key === 'ArrowDown' || e.key === ' ') { if (stepBeat(1)) e.preventDefault(); return; }
