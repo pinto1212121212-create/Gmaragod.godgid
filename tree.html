@@ -97,15 +97,22 @@
     transform: translateY(105%); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
   .sheet.open { transform: none; }
   .grab { width: 44px; height: 5px; border-radius: 3px; background: rgba(244,234,213,0.25); margin: 0 auto 8px; }
-  /* תריס: החלונית יורדת לפס קטן (peek) כשמזיזים את העץ, ועולה כשבוחרים צומת / מושכים למעלה */
-  .sh-grip { margin: -8px -16px 0; padding: 10px 16px 2px; cursor: grab; touch-action: none; }
-  .sh-grip .grab { margin-bottom: 0; }
-  .sh-grip-t { display: none; text-align: center; font-size: 11px; font-weight: 800; color: var(--gold); margin-top: 3px; }
-  .sheet { transition: transform .3s cubic-bezier(.2,.8,.3,1), max-height .3s cubic-bezier(.2,.8,.3,1); }
-  .sheet.peek { max-height: 96px; overflow: hidden; }
-  .sheet.peek .sh-grip-t { display: block; }
-  .sheet.peek > :not(.sh-grip):not(.sh-head) { visibility: hidden; }
-  .sheet.peek .sh-head .sh-no { display: none; }
+  /* תריס בשלושה גבהים: פס (peek) · חצי (half) · מלא (full). גוררים את הידית — החלונית עוקבת אחרי האצבע ונעצרת בגובה הקרוב */
+  .sheet { max-height: none; transition: transform .35s cubic-bezier(.2,.8,.3,1), height .3s cubic-bezier(.2,.8,.3,1); }
+  .sheet.s-half { height: 52%; } .sheet.s-full { height: 93%; } .sheet.s-peek { height: 82px; overflow: hidden; }
+  .sheet.dragging { transition: none; }
+  .sh-grip { margin: -8px -16px 0; padding: 9px 16px 6px; cursor: grab; touch-action: none; }
+  .sh-grip .grab { margin: 0 auto; width: 52px; height: 6px; background: rgba(244,234,213,0.4); }
+  .sheet.s-peek > :not(.sh-grip):not(.sh-head) { visibility: hidden; }
+  .sheet.s-peek .sh-head .sh-no { display: none; }
+  .sh-sz { margin-inline-start: auto; font: 800 12px/1 'Heebo', sans-serif; padding: 7px 10px; border-radius: 14px; border: 1px solid rgba(232,183,109,0.45);
+    background: rgba(232,183,109,0.12); color: var(--gold-b); cursor: pointer; }
+  .sheet.s-half .sh-pin .sh-img { max-height: 92px; }
+  .sheet.s-full .sh-pin .sh-img { max-height: 170px; }
+  /* כשהחלונית פתוחה — פס ״איפה אנחנו״ מתכווץ לשורה אחת, כדי שיישאר מקום לעץ */
+  .stage.has-sheet .where .wh-l2, .stage.has-sheet .where .wh-l3 { display: none; }
+  .stage.has-sheet .where .wh-th { height: 36px; flex-basis: 20px; }
+  .stage.has-sheet .hud { top: 58px; } .stage.has-sheet .legend { top: 58px; }
   .sh-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .sh-role { font-size: 12px; font-weight: 900; color: var(--ink); background: var(--rc); border-radius: 12px; padding: 2px 10px; }
   .sh-who { font-size: 15px; font-weight: 900; }
@@ -413,8 +420,8 @@ function centerOn(n, k) {
   const { w, h } = stageBox();
   const sheetH = $('sheet').classList.contains('open') ? $('sheet').offsetHeight : 0;
   const k2 = k || Math.min(1.25, Math.max(0.75, w / (NW * 2.6)));
-  const visH = h - sheetH;
-  flyTo(w / 2 - n.x * k2, Math.max(150, 90 + (visH - 90) * 0.42) - n.y * k2, k2);
+  const top = ($('where') ? $('where').offsetHeight : 0) + 34, bot = h - sheetH - 12;
+  flyTo(w / 2 - n.x * k2, top + Math.max(40, bot - top) * 0.45 - n.y * k2, k2);
 }
 function fit(anim) {
   const { w, h } = stageBox(), all = [root, ...flat];
@@ -442,9 +449,8 @@ function sheet(n) {
   const kids = n.k || [];
   const rel = relLabel(n);
   sh.style.setProperty('--rc', COL[n.r]);
-  sh.classList.remove('peek');
-  sh.innerHTML = `<div class="sh-grip" id="shGrip"><div class="grab"></div><div class="sh-grip-t">▲ משיכה למעלה / הקשה — להסבר המלא</div></div>
-    <div class="sh-head"><span class="sh-role">${ROLE[n.r][0]} ${ROLE[n.r][1]}</span><span class="sh-who">${n.w}</span><span class="sh-no">שלב ${n.seq} מתוך ${flat.length}</span><button class="sh-x" id="shX" aria-label="סגור">✕</button></div>
+  sh.innerHTML = `<div class="sh-grip" id="shGrip" aria-label="גרירה: הגדלה / הקטנה"><div class="grab"></div></div>
+    <div class="sh-head"><span class="sh-role">${ROLE[n.r][0]} ${ROLE[n.r][1]}</span><span class="sh-who">${n.w}</span><span class="sh-no">שלב ${n.seq} מתוך ${flat.length}</span><button class="sh-sz" id="shSz"></button><button class="sh-x" id="shX" aria-label="סגור">✕</button></div>
     ${rel && n.parent && n.parent.r !== 'root' ? `<div class="sh-rel">⟵ ${rel} על: ״${short(n.parent.t, 40)}״</div>` : ''}
     <div class="sh-text">${n.t}</div>
     ${toolbar(n, kids)}
@@ -452,6 +458,7 @@ function sheet(n) {
     <div class="sh-acts"><a class="pri" href="${BASE}taanit.html#${st.ref}-${n.s}">↩ להסבר המלא</a><button class="sec" id="shUp">${n.parent && n.parent.r !== 'root' ? '⬆ לשלב שמעל' : '⤢ כל העץ'}</button></div>
     <div style="text-align:center;font-size:12px;color:var(--dim);margin-top:8px">קטע ״${SN[n.s] || n.s + 1}״</div>`;
   sh.classList.add('open');
+  sheetSize(shPref, true);
   sh.querySelectorAll('.sh-tab').forEach(t => t.onclick = () => { shTab = t.dataset.t; try { localStorage.setItem('gemara:shtab', shTab); } catch (e) {}
     sh.querySelectorAll('.sh-tab').forEach(x => x.classList.toggle('on', x === t)); sh.querySelectorAll('.sh-pane').forEach(x => x.classList.toggle('on', x.dataset.t === shTab));
     shImgFocus(); });
@@ -527,26 +534,42 @@ function shImgFocus() {
   const top = Math.min(...[...mks].map(m => m.offsetTop)), bot = Math.max(...[...mks].map(m => m.offsetTop + m.offsetHeight));
   sim.scrollTop = Math.max(0, (top + bot) / 2 - sim.clientHeight / 2);
 }
-// ===== תריס =====
-function sheetPeek(on) {
+// ===== תריס: שלושה גבהים =====
+let shState = 'half', shPref = 'half'; try { shPref = localStorage.getItem('gemara:shsize') === 'full' ? 'full' : 'half'; } catch (e) {}
+const SZ_LBL = { peek: '⬆ פתח', half: '⬆ הגדל', full: '⬇ הקטן' };
+function sheetSize(st2, quiet) {
   const sh = $('sheet'); if (!sh.classList.contains('open')) return;
-  if (sh.classList.contains('peek') === on) return;
-  sh.classList.toggle('peek', on);
-  if (on) sh.scrollTop = 0;
+  shState = st2;
+  sh.classList.remove('s-peek', 's-half', 's-full'); sh.classList.add('s-' + st2); sh.style.height = '';
+  if (st2 !== 'peek') { shPref = st2; try { localStorage.setItem('gemara:shsize', st2); } catch (e) {} } else sh.scrollTop = 0;
+  const b = $('shSz'); if (b) b.textContent = SZ_LBL[st2];
+  if (!quiet && st.sel) setTimeout(() => { if (st.sel) centerOn(st.sel); shImgFocus(); }, 330);
 }
+function sheetPeek(on) { if (on) { if (shState !== 'peek') sheetSize('peek'); } else if (shState === 'peek') sheetSize(shPref); }
 function gripInit(sh) {
-  const g = $('shGrip'); let y0 = null, t0 = 0;
-  g.addEventListener('pointerdown', e => { y0 = e.clientY; t0 = Date.now(); g.setPointerCapture(e.pointerId); e.stopPropagation(); });
-  g.addEventListener('pointerup', e => {
-    if (y0 == null) return; const dy = e.clientY - y0; y0 = null;
-    if (Math.abs(dy) < 8 && Date.now() - t0 < 400) sheetPeek(!sh.classList.contains('peek'));   // הקשה: מחליף
-    else if (dy > 30) sheetPeek(true); else if (dy < -30) sheetPeek(false);
-  });
-  // משיכה למטה כשהחלונית גלולה לראש — מורידה את התריס
+  const H = () => $('stage').getBoundingClientRect().height;
+  let d = null;
+  const start = e => {
+    if (e.target.closest('button, a')) return;
+    d = { y0: e.clientY, h0: sh.offsetHeight, t0: Date.now(), moved: false }; sh.classList.add('dragging'); e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const move = e => { if (!d) return; const dy = e.clientY - d.y0; if (Math.abs(dy) > 6) d.moved = true;
+    if (d.moved) sh.style.height = Math.max(70, Math.min(H() * 0.95, d.h0 - dy)) + 'px'; };
+  const end = e => {
+    if (!d) return; const dy = e.clientY - d.y0, v = dy / Math.max(1, Date.now() - d.t0), was = d; d = null; sh.classList.remove('dragging');
+    if (!was.moved) { sheetSize(shState === 'peek' ? shPref : shState === 'half' ? 'full' : 'half'); return; }   // הקשה: פס→פתוח, חצי→מלא, מלא→חצי
+    const h = sh.offsetHeight, hh = H(), pts = { peek: 82, half: hh * 0.52, full: hh * 0.93 };
+    let best = Object.keys(pts).reduce((a, k) => Math.abs(pts[k] - h) < Math.abs(pts[a] - h) ? k : a, 'half');
+    if (v > 0.6) best = shState === 'full' ? 'half' : 'peek'; else if (v < -0.6) best = shState === 'peek' ? 'half' : 'full';   // הנפה מהירה
+    sheetSize(best);
+  };
+  [$('shGrip'), sh.querySelector('.sh-head')].forEach(g => { g.style.touchAction = 'none'; g.addEventListener('pointerdown', start); g.addEventListener('pointermove', move); g.addEventListener('pointerup', end); g.addEventListener('pointercancel', end); });
+  $('shSz').onclick = e => { e.stopPropagation(); sheetSize(shState === 'full' ? 'half' : shState === 'half' ? 'full' : shPref); };
+  $('shSz').textContent = SZ_LBL[shState];
+  // משיכה למטה כשהתוכן כבר בראש — מקטינה בשלב אחד
   let ty = null;
-  sh.addEventListener('touchstart', e => { ty = sh.scrollTop <= 0 ? e.touches[0].clientY : null; }, { passive: true });
-  sh.addEventListener('touchmove', e => { if (ty != null && e.touches[0].clientY - ty > 70 && !sh.classList.contains('peek')) { sheetPeek(true); ty = null; } }, { passive: true });
-  sh.querySelector('.sh-head').addEventListener('click', e => { if (sh.classList.contains('peek') && !e.target.closest('.sh-x')) sheetPeek(false); });
+  sh.addEventListener('touchstart', e => { ty = sh.scrollTop <= 0 && !e.target.closest('.sh-grip, .sh-head') ? e.touches[0].clientY : null; }, { passive: true });
+  sh.addEventListener('touchmove', e => { if (ty != null && e.touches[0].clientY - ty > 80) { sheetSize(shState === 'full' ? 'half' : 'peek'); ty = null; } }, { passive: true });
 }
 function closeSheet() { st.sel = null; whereSoon(); flat.forEach(m => m.el.classList.remove('sel')); sheet(null); $('stage').classList.remove('has-sheet'); }
 
@@ -596,12 +619,12 @@ $('sNext').onclick = () => { const i = st.sel ? flat.indexOf(st.sel) + 1 : 0; if
 $('sPrev').onclick = () => { const i = st.sel ? flat.indexOf(st.sel) - 1 : 0; if (story) storyGo(i, true); else { revealUpTo(flat.length); select(flat[Math.max(0, i)], true); } };
 
 // ===== גרירה, צביטה וגלגלת =====
-const ptr = new Map(); let moved = false, last = null, pinch0 = null;
+const ptr = new Map(); let ptr0 = { x: 0, y: 0 }, peeked = false; let moved = false, last = null, pinch0 = null;
 const stg = $('stage');
 stg.addEventListener('pointerdown', e => {
   if (e.target.closest('.sheet, .story, .hud, .legend')) return;
-  sheetPeek(true);   // נוגעים בעץ: התריס יורד כדי שיהיה מקום לראות
   ptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = false; cancelAnimationFrame(tw);
+  if (ptr.size === 1) { ptr0 = { x: e.clientX, y: e.clientY }; peeked = false; }
   if (ptr.size === 2) { const [a, b] = [...ptr.values()]; pinch0 = { d: Math.hypot(a.x - b.x, a.y - b.y), k: cam.k, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2, x: cam.x, y: cam.y }; }
   last = { x: e.clientX, y: e.clientY }; stg.classList.add('drag'); hideHint();
 });
@@ -613,10 +636,12 @@ stg.addEventListener('pointermove', e => {
     const [a, b] = [...ptr.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
     const k = Math.max(0.15, Math.min(2.5, pinch0.k * d / pinch0.d));
     const cx = pinch0.cx - r.left, cy = pinch0.cy - r.top;
-    cam.x = cx - (cx - pinch0.x) * (k / pinch0.k); cam.y = cy - (cy - pinch0.y) * (k / pinch0.k); cam.k = k; moved = true; apply(); return;
+    cam.x = cx - (cx - pinch0.x) * (k / pinch0.k); cam.y = cy - (cy - pinch0.y) * (k / pinch0.k); cam.k = k; moved = true; apply();
+    if (!peeked) { peeked = true; sheetPeek(true); } return;
   }
   const dx = e.clientX - last.x, dy = e.clientY - last.y;
   if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+  if (moved && !peeked && Math.hypot(e.clientX - ptr0.x, e.clientY - ptr0.y) > 24) { peeked = true; sheetPeek(true); }   // גוררים את העץ באמת: התריס יורד
   cam.x += dx; cam.y += dy; last = { x: e.clientX, y: e.clientY }; apply();
 });
 const up = e => {
