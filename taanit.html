@@ -2398,7 +2398,7 @@ function srcBlock(src) {
     <figure class="daf-src">
       <figcaption>📷 מקור בדף · ${AMUD_NAME[src.ref]} <span>(לחיצה: הדף המלא עם סימון)</span></figcaption>
       <div class="src-wrap${srcZoom(src) > 1.05 ? ' wide' : ''}"><div class="src-inner" style="width:${srcZoom(src) * 100}%">
-        <img src="taanit-img/${src.ref}-${src.i}.jpg" alt="שורות הגמרא מתוך ${AMUD_NAME[src.ref]}"
+        <img loading="lazy" decoding="async" src="taanit-img/${src.ref}-${src.i}.jpg" alt="שורות הגמרא מתוך ${AMUD_NAME[src.ref]}"
              onload="showLoc()" onclick="openPhoto('${src.ref}', [${src.box.join(',')}])">
       </div></div>
     </figure>`;
@@ -2472,9 +2472,17 @@ function poSelect(k, instant) {
   call.style.width = cw + 'px';
   const ch = call.offsetHeight || 110;
   let lx = Math.max(sl + 8, Math.min(sl + vw - cw - 8, cx - cw / 2));
-  const gap = 18, below = bot / 100 * H + gap, above = top / 100 * H - gap - ch;
-  const place = below + ch < H - 10 ? 'below' : 'above';
-  const ly = place === 'below' ? below : Math.max(6, above);
+  // הבועה לא מכסה סימונים של שלבים אחרים: מניחים אותה מתחת לכל הסימונים של הקטע (או מעליהם),
+  // ורק אם אין מקום כך שגם המילים וגם הבועה ייראו במסך, חוזרים להניח אותה צמוד לשלב
+  const all = PO.list.flatMap(o => o.rr);
+  const uTop = Math.min(...all.map(r => r.t)) / 100 * H - 12, uBot = Math.max(...all.map(r => r.t + r.h)) / 100 * H + 12;
+  const gap = 18, vh = sc.clientHeight - 16, wTop = top / 100 * H, wBot = bot / 100 * H;
+  const fits = (y) => Math.max(wBot, y + ch) - Math.min(wTop, y) <= vh;
+  let place, ly;
+  if (uBot + gap + ch < H - 6 && fits(uBot + gap)) { place = 'below'; ly = uBot + gap; }
+  else if (uTop - gap - ch > 6 && fits(uTop - gap - ch)) { place = 'above'; ly = uTop - gap - ch; }
+  else if (wBot + gap + ch < H - 10) { place = 'below'; ly = wBot + gap; }
+  else { place = 'above'; ly = Math.max(6, wTop - gap - ch); }
   call.style.left = lx + 'px'; call.style.top = ly + 'px';
   call.dataset.place = place;
   // קו מוביל מהבועה אל המילים
