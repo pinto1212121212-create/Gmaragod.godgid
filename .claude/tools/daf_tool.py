@@ -150,7 +150,7 @@ def do_extend(ref, i, up, down):
     print(f'הוזזו טווחי המילים ב־{off}. הרץ audit {ref} {i} ובדוק!')
 
 def do_audit(ref, only=None):
-    L = html_get('DAF_LINES'); SP = html_get('BEAT_SPAN')
+    L = html_get('DAF_LINES'); SP = html_get('BEAT_SPAN'); SRC = html_get('DAF_SRC')
     f13, f20 = font(13), font(20); tiles = []
     for i in sorted({k.split('-')[1] for k in L if k.startswith(ref + '-')}, key=int):
         if only and i not in only: continue
@@ -190,11 +190,11 @@ def do_setspan(js):
 
 def do_marks():
     s = open(HTML, encoding='utf-8').read()
-    L = html_get('DAF_LINES'); SP = html_get('BEAT_SPAN')
+    L = html_get('DAF_LINES'); SP = html_get('BEAT_SPAN'); SRC = html_get('DAF_SRC')
     W = dict(re.findall(r"'(\d+[ab]:\d+:\d+)': '(.*?)',?\n", s[s.index('const WBW = {'):s.index('const WDICT')]))
     words = {k: ' '.join(p.split('=')[0].strip() for p in v.split('|')) for k, v in W.items()}
     out = '// נוצר אוטומטית מתוך taanit.html (python3 .claude/tools/daf_tool.py marks) — לא לערוך ביד\n'
-    out += 'const DAF_LINES = ' + json.dumps(L) + ';\nconst BEAT_SPAN = ' + json.dumps(SP) + ';\nconst BEAT_WORDS = ' + json.dumps(words, ensure_ascii=False) + ';\n'
+    out += 'const DAF_LINES = ' + json.dumps(L) + ';\nconst BEAT_SPAN = ' + json.dumps(SP) + ';\nconst BEAT_WORDS = ' + json.dumps(words, ensure_ascii=False) + ';\nconst DAF_SRC = ' + json.dumps(SRC) + ';\n'
     open(os.path.join(ROOT, 'daf-marks.js'), 'w', encoding='utf-8').write(out); print('daf-marks.js עודכן')
 
 def do_report():
