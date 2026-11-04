@@ -1233,9 +1233,11 @@ const perakim = [
 ];
 
 function getPerekFor(daf, amud) {
+  const pos = (d, a) => d * 2 + (a === 'b' ? 1 : 0);
+  const target = pos(daf, amud);
   let p = perakim[0];
   for (const perek of perakim) {
-    if (perek.start < daf || (perek.start === daf && perek.startAmud === 'a' && amud === 'a') || (perek.start === daf && perek.startAmud === amud)) {
+    if (pos(perek.start, perek.startAmud) <= target) {
       p = perek;
     } else {
       break;
@@ -1799,6 +1801,8 @@ function heb(n) {
   const rest = n % 100;
   if (rest === 0) return hundreds[h];
   if (rest < 10) return hundreds[h] + '״' + ones[rest];
+  if (rest === 15) return hundreds[h] + 'ט״ו';
+  if (rest === 16) return hundreds[h] + 'ט״ז';
   const t = Math.floor(rest / 10);
   const o = rest % 10;
   if (o === 0) return hundreds[h] + tens[t];
@@ -3167,6 +3171,7 @@ function openPicker() {
     content.appendChild(section);
   });
 
+  state.modal = 'picker';
   document.getElementById('modalOverlay').classList.add('open');
   document.getElementById('pickerModal').classList.add('open');
 }
@@ -3270,9 +3275,8 @@ function readHash() {
     return;
   }
   if (h && amudim[h]) {
-    state.tab = 'masechet';
-    state.ref = h;
-    renderAll();
+    switchTab('masechet');
+    goToRef(h);
   }
 }
 window.addEventListener('hashchange', readHash);
