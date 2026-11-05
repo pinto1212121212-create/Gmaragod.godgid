@@ -256,6 +256,7 @@ const el = (t, a = {}, p) => { const e = document.createElementNS(NS, t); for (c
 const norm = t => t.replace(/<[^>]+>/g, '').replace(/[״"׳'.,:;!?()\[\]—–…⟵·]/g, ' ').replace(/\s+/g, ' ').trim();
 // איזה שלב בקטע הוא הצומת הזה? לפי חפיפת מילים
 function beatOf(ref, n) {
+  if (n.sp) return n.sp;   // טווח מילים מפורש לצומת (כשכמה צמתים באותו שלב: שאלה ותשובה נפרדות)
   const spans = (typeof BEAT_SPAN !== 'undefined' && BEAT_SPAN[ref] && BEAT_SPAN[ref][n.s]) || null;
   if (!spans) return null;
   const nw = new Set(norm(n.t).split(' ').filter(w => w.length > 1));
