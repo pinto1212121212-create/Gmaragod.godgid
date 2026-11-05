@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // מי שילם: רק השרת כותב כאן (אחרי תשלום). המשתמש רק קורא את עצמו.
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // התוכן בתשלום: קורא רק מי שמחובר והמנוי שלו בתוקף.
+    match /content/{ref} {
+      allow read: if request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.paidUntil > request.time;
+      allow write: if false;
+    }
+
+    // כל השאר: נעול.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

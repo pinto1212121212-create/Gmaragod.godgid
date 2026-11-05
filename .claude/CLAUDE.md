@@ -258,3 +258,4 @@ const firebaseConfig = {
 };
 ```
 התוכנית: תוכן חינמי נשאר ב־GitHub Pages. תוכן בתשלום **לא נכנס לריפו**: הוא נשמר רק ב־Firestore/Storage, ונקרא רק כשמשתמש מחובר (Google) ומסומן `paid` ע״י Cloud Function אחרי תשלום. משתמש לא יכול לסמן את עצמו. כשמחברים, מוסיפים ל־CSP את הדומיינים של פיירבייס (`*.googleapis.com`, `*.firebaseapp.com`, `www.gstatic.com`).
+- **מצב (נוב׳ 2026):** הופעלה התחברות Google, נוסף הדומיין `pinto1212121212-create.github.io`, ונוצר Firestore `(default)` במצב Production. הכללים נמצאים ב־`.claude/firebase/firestore.rules`: `users/{uid}` (המשתמש קורא רק את עצמו, ושדה `paidUntil` נכתב רק ע״י השרת) ו־`content/{ref}` (קריאה רק כש־`paidUntil > now`). כתיבה מהדפדפן חסומה בכל מקום.
