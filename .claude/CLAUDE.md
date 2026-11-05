@@ -238,3 +238,9 @@ node .claude/tools/check.js                   # חייב: "בלי הדגשה: א
 - `out/`: פלטים זמניים (audit, צילומי מסך). לא בגיט.
 
 **אם משהו כאן לא מתאים למצב בפועל, עדכן את הקובץ הזה באותו PR.**
+
+## 8. 🔒 אבטחה (כמו ביומן של רינת, בלי סיסמה)
+בראש **כל** דף HTML (אחרי `<meta charset>`) יש בלוק אבטחה: `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `referrer` ו־`Permissions-Policy`.
+- ה־CSP מרשה רק קבצים מהאתר עצמו, Google Fonts, ותמונות `data:`/`blob:`. **דף חדש חייב לקבל את אותו בלוק.** ספרייה או אתר חיצוני חדש? מוסיפים את הדומיין ל־CSP, אחרת הוא ייחסם.
+- `X-Frame-Options` ו־`frame-ancestors` **לא עובדים בתוך meta** (רק ככותרת שרת, ו־GitHub Pages לא מאפשר). לכן לא שמנו אותם. לא להוסיף frame-buster ב־JS, כי הוא ישבור את תצוגת ה־Artifact.
+- תוכן שבא מה־URL או מ־localStorage נכנס לדף רק אחרי בדיקה (`amudim[h]`, regex) או דרך `textContent`. **לא להכניס אותו ל־innerHTML.**
