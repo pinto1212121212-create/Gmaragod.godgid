@@ -36,6 +36,17 @@ const srv = http.createServer((q, r) => {
     }
   }
   console.log(`שלבים עם הדגשה: ${ok}. בלי הדגשה: ${miss.length ? miss.join(' ') : 'אין'}`);
+  // עץ הסוגיה: לכל צומת הדגשה משלו. שני צמתים עם אותן מילים = שלב שמערבב שני דברים → לפצל (split_beat.py)
+  await p.goto(U + 'tree.html'); await p.waitForTimeout(700);
+  const dup = await p.evaluate(() => { const bad = [];
+    for (const ref in TREE) { let seq = 0; const seen = {}; const flat = [];
+      const w = n => { n.seq = ++seq; flat.push(n); (n.k || []).forEach(w); }; TREE[ref].roots.forEach(w);
+      if (TREE_CX[ref] && TREE_CX[ref].length !== flat.length) bad.push(`${ref}: TREE_CX ${TREE_CX[ref].length} ≠ ${flat.length} צמתים`);
+      for (const n of flat) { const sp = beatOf(ref, n); if (!sp) continue; const k = `${n.s}:${sp}`;
+        if (seen[k]) bad.push(`${ref}: צמתים ${seen[k]} ו־${n.seq} עם אותה הדגשה`); else seen[k] = n.seq; } }
+    return bad; });
+  console.log(`עץ: ${dup.length ? dup.join(' | ') : 'לכל צומת הדגשה משלו ✓'}`);
+  errs.push(...dup);
   console.log(errs.length ? 'שגיאות:\n' + errs.join('\n') : 'אין שגיאות ✓');
   await b.close(); srv.close();
 })();

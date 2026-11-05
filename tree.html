@@ -254,11 +254,19 @@ const el = (t, a = {}, p) => { const e = document.createElementNS(NS, t); for (c
 
 // ===== סימון המילים המדויקות של הצומת על צילום הדף =====
 const norm = t => t.replace(/<[^>]+>/g, '').replace(/[״"׳'.,:;!?()\[\]—–…⟵·]/g, ' ').replace(/\s+/g, ' ').trim();
-// איזה שלב בקטע הוא הצומת הזה? לפי חפיפת מילים
+// ההדגשה של צומת = המילים של השלבים שלו ב־taanit (לפי TREE_CX). כל שלב הוא דבר אחד (שאלה / תשובה / מקור),
+// ולכן לשני צמתים אף פעם אין אותה הדגשה. רק לצומת בלי שלב (הסבר {L}) מחפשים לפי חפיפת מילים.
 function beatOf(ref, n) {
-  if (n.sp) return n.sp;   // טווח מילים מפורש לצומת (כשכמה צמתים באותו שלב: שאלה ותשובה נפרדות)
   const spans = (typeof BEAT_SPAN !== 'undefined' && BEAT_SPAN[ref] && BEAT_SPAN[ref][n.s]) || null;
   if (!spans) return null;
+  const e = typeof TREE_CX !== 'undefined' && TREE_CX[ref] && TREE_CX[ref][n.seq - 1];
+  const keys = typeof e === 'string' ? [e] : Array.isArray(e) ? e : null;
+  if (keys) {
+    let a = Infinity, b = -1;
+    for (const k of keys) { const [r, s, bi] = k.split(':'); const v = r === ref && +s === n.s && spans[bi];
+      if (v) { a = Math.min(a, v[0]); b = Math.max(b, v[1]); } }
+    return b >= 0 ? [a, b] : null;
+  }
   const nw = new Set(norm(n.t).split(' ').filter(w => w.length > 1));
   let best = null, bestScore = 0;
   for (const bi in spans) {
