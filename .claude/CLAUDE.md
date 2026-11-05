@@ -244,3 +244,17 @@ node .claude/tools/check.js                   # חייב: "בלי הדגשה: א
 - ה־CSP מרשה רק קבצים מהאתר עצמו, Google Fonts, ותמונות `data:`/`blob:`. **דף חדש חייב לקבל את אותו בלוק.** ספרייה או אתר חיצוני חדש? מוסיפים את הדומיין ל־CSP, אחרת הוא ייחסם.
 - `X-Frame-Options` ו־`frame-ancestors` **לא עובדים בתוך meta** (רק ככותרת שרת, ו־GitHub Pages לא מאפשר). לכן לא שמנו אותם. לא להוסיף frame-buster ב־JS, כי הוא ישבור את תצוגת ה־Artifact.
 - תוכן שבא מה־URL או מ־localStorage נכנס לדף רק אחרי בדיקה (`amudim[h]`, regex) או דרך `textContent`. **לא להכניס אותו ל־innerHTML.**
+
+## 9. 🔥 פיירבייס (לתוכן בתשלום, בבנייה)
+פרויקט נפרד מהיומן: **Gkbb** (`gkbb-3c7f7`), אפליקציית ווב בשם `gemara`. ההגדרות האלה לא סודיות (רואים אותן ב־F12 בכל אתר). ההגנה היא הכללים (Rules).
+```js
+const firebaseConfig = {
+  apiKey: "AIzaSyCrvNEM4eEMMvNRf_d9JelOTbRu14yxSIA",
+  authDomain: "gkbb-3c7f7.firebaseapp.com",
+  projectId: "gkbb-3c7f7",
+  storageBucket: "gkbb-3c7f7.firebasestorage.app",
+  messagingSenderId: "801389695649",
+  appId: "1:801389695649:web:0323ab165b91e6c5b316e0"
+};
+```
+התוכנית: תוכן חינמי נשאר ב־GitHub Pages. תוכן בתשלום **לא נכנס לריפו**: הוא נשמר רק ב־Firestore/Storage, ונקרא רק כשמשתמש מחובר (Google) ומסומן `paid` ע״י Cloud Function אחרי תשלום. משתמש לא יכול לסמן את עצמו. כשמחברים, מוסיפים ל־CSP את הדומיינים של פיירבייס (`*.googleapis.com`, `*.firebaseapp.com`, `www.gstatic.com`).
