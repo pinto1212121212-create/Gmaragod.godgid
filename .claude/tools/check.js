@@ -46,6 +46,23 @@ const srv = http.createServer((q, r) => {
         if (seen[k]) bad.push(`${ref}: צמתים ${seen[k]} ו־${n.seq} עם אותה הדגשה`); else seen[k] = n.seq; } }
     return bad; });
   console.log(`עץ: ${dup.length ? dup.join(' | ') : 'לכל צומת הדגשה משלו ✓'}`);
+  // 👥 people-data.js: כל מספר צומת קיים, כל on מצביע על משפט שקיים, ולכל קושיה יש מצב
+  const pbad = await p.evaluate(() => { const bad = [];
+    for (const ref in (typeof PEOPLE !== 'undefined' ? PEOPLE : {})) {
+      const cnt = r => { let c = 0; const w = n => { c++; (n.k || []).forEach(w); }; (TREE[r] ? TREE[r].roots : []).forEach(w); return c; };
+      const okSeq = x => { const [r, q] = typeof x === 'number' ? [ref, x] : String(x).split(':'); return TREE[r] && +q >= 1 && +q <= cnt(r); };
+      for (const pp of PEOPLE[ref]) {
+        if (!pp.id || !pp.n || !pp.c || !pp.holds) bad.push(`${ref}/${pp.id || pp.n}: חסר id/n/c/holds`);
+        try { if (pp.al) new RegExp(pp.al); } catch (e) { bad.push(`${ref}/${pp.id}: al לא תקין`); }
+        (pp.says || []).forEach(s => { if (!okSeq(s[0])) bad.push(`${ref}/${pp.id}: says ${s[0]} לא קיים`); });
+        (pp.vs || []).forEach(v => { if (!okSeq(v.k)) bad.push(`${ref}/${pp.id}: קושיה ${v.k} לא קיימת`);
+          (v.on || []).forEach(o => { if (!(pp.says || [])[o - 1]) bad.push(`${ref}/${pp.id}: on ${o} אין משפט כזה`); });
+          [].concat(v.fix == null ? [] : v.fix).forEach(x => { if (!okSeq(x)) bad.push(`${ref}/${pp.id}: fix ${x} לא קיים`); });
+          if (!['ok', 'fell', 'info'].includes(v.st)) bad.push(`${ref}/${pp.id}: קושיה ${v.k} בלי st`); });
+      } }
+    return bad; });
+  console.log(`אנשים: ${pbad.length ? pbad.join(' | ') : 'הכל תקין ✓'}`);
+  errs.push(...pbad);
   errs.push(...dup);
   console.log(errs.length ? 'שגיאות:\n' + errs.join('\n') : 'אין שגיאות ✓');
   await b.close(); srv.close();

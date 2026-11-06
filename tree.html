@@ -185,6 +185,68 @@
   .mk { position: absolute; border-radius: 3px; pointer-events: none; mix-blend-mode: multiply;
     background: color-mix(in srgb, var(--rc) 55%, transparent); box-shadow: 0 0 0 1.5px var(--rc); animation: mkIn .5s ease-out both; }
   @keyframes mkIn { from { opacity: 0; transform: scaleX(.6); } to { opacity: 1; transform: none; } }
+
+  /* 👥 אנשים: פס שמות, ״זרוע״ לכל אמורא, וכרטיס ״מה הוא סובר״ */
+  .where { flex-wrap: wrap; row-gap: 6px; }
+  #whIn { display: contents; }
+  .hud, .legend { top: calc(var(--wh, 96px) + 8px) !important; }
+  .ppl { flex: 1 0 100%; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 1px 0 2px; touch-action: pan-x; }
+  .ppl::-webkit-scrollbar { display: none; }
+  .ppl:empty { display: none; }
+  .ppl .lb { flex: 0 0 auto; align-self: center; font-size: 11px; font-weight: 800; color: var(--dim); }
+  .pc { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 5px; font-family: inherit; font-size: 12.5px; font-weight: 800; color: var(--parchment); cursor: pointer;
+    background: rgba(244,234,213,0.06); border: 1.5px solid color-mix(in srgb, var(--pc) 55%, transparent); border-radius: 16px; padding: 3px 9px 3px 4px; transition: background .2s, transform .15s; }
+  .pc:active { transform: scale(.95); }
+  .pc.on { background: var(--pc); color: #120e0a; border-color: var(--pc); }
+  .pc .x { font-size: 11px; opacity: .7; margin-right: 2px; }
+  .av { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--pc); color: #120e0a; font-size: 10px; font-weight: 900; flex: 0 0 auto; }
+  .pc.on .av { background: #120e0a; color: var(--pc); }
+  .pc .bolt { color: #ff5d72; font-size: 11px; }
+  /* מצב ״זרוע״: רק הצמתים שלו בולטים */
+  .stage.pfocus .node:not(.root):not(.pin) { opacity: .16; }
+  .stage.pfocus .link:not(.pin), .stage.pfocus .lbl:not(.pin) { opacity: .1; }
+  .node.pin .halo { opacity: .9; stroke: var(--pc); stroke-dasharray: 6 5; }
+  .arm { fill: none; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+  .arm.main { stroke-width: 9; opacity: .32; }
+  .arm.flow { stroke-width: 2.5; stroke-dasharray: 2 12; animation: armflow 1.1s linear infinite; }
+  @keyframes armflow { to { stroke-dashoffset: -28; } }
+  .arm.hit { stroke: #ff5d72; stroke-width: 2.2; stroke-dasharray: 5 6; opacity: .9; }
+  .armtx { font-size: 15px; text-anchor: middle; pointer-events: none; }
+  .pbadge text { font-size: 9px; font-weight: 900; text-anchor: middle; pointer-events: none; }
+  /* בחלונית של צומת: על מי זה */
+  .sh-pp { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .pp { display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-size: 12.5px; font-weight: 800; color: var(--parchment); cursor: pointer; text-align: right;
+    background: color-mix(in srgb, var(--pc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--pc) 50%, transparent); border-radius: 12px; padding: 4px 9px 4px 5px; line-height: 1.35; }
+  .pp.vs { border-color: #ff5d72; background: rgba(255,93,114,0.12); }
+  .pp.fix { border-color: #6fd35c; background: rgba(111,211,92,0.12); }
+  .pp em { font-style: normal; color: var(--soft); font-weight: 700; }
+  .pn { color: var(--pc); font-weight: 800; border-bottom: 1.5px dotted var(--pc); cursor: pointer; }
+  .pback { margin-top: 8px; width: 100%; }
+  /* כרטיס של אמורא */
+  .pcard .sh-head .av { width: 30px; height: 30px; font-size: 12px; }
+  .p-holds { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--pc) 13%, transparent); border-right: 4px solid var(--pc); }
+  .p-holds .h { font-size: 12px; font-weight: 800; color: var(--pc); }
+  .p-holds .t { font-size: 16px; font-weight: 700; line-height: 1.6; color: var(--parchment); margin-top: 2px; }
+  .p-sec { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .p-sec > .kh { font-size: 12.5px; font-weight: 800; color: var(--gold); }
+  .say { display: flex; gap: 9px; align-items: flex-start; text-align: right; font-family: inherit; color: inherit; cursor: pointer; background: rgba(244,234,213,0.05);
+    border: 1px solid rgba(244,234,213,0.08); border-right: 3px solid var(--pc); border-radius: 10px; padding: 8px 10px; font-size: 14.5px; line-height: 1.5; }
+  .say .nm { flex: 0 0 auto; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--pc); color: var(--pc); font-size: 12px; font-weight: 900; }
+  .say small { display: block; color: var(--dim); font-size: 12.5px; }
+  .say .go { margin-right: auto; color: var(--dim); font-size: 12px; white-space: nowrap; align-self: center; }
+  .vsc { border-radius: 12px; border: 1px solid rgba(255,93,114,0.35); background: rgba(255,93,114,0.07); padding: 9px 11px; display: flex; flex-direction: column; gap: 7px; }
+  .vsc .hd { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12.5px; font-weight: 800; color: #ff8a9a; }
+  .vsc .hd .nm { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--pc); color: var(--pc); font-size: 11px; }
+  .vsc .q { font-size: 14.5px; line-height: 1.6; }
+  .vsc .tr { font-size: 13px; color: var(--soft); line-height: 1.5; padding-right: 8px; border-right: 2px solid rgba(255,93,114,0.4); }
+  .vsc .res { font-size: 14.5px; line-height: 1.6; padding: 7px 9px; border-radius: 9px; }
+  .vsc .res.ok { background: rgba(111,211,92,0.12); border-right: 3px solid #6fd35c; }
+  .vsc .res.fell { background: rgba(255,93,114,0.12); border-right: 3px solid #ff5d72; }
+  .vsc .res.info { background: rgba(95,178,255,0.12); border-right: 3px solid #5fb2ff; }
+  .vsc .jm { display: flex; gap: 6px; flex-wrap: wrap; }
+  .vsc .jm button { font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; border-radius: 10px; padding: 4px 9px; background: transparent; color: var(--gold-b); border: 1px solid rgba(232,183,109,0.4); }
+  .p-end { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(255,201,77,0.1); border-right: 4px solid #ffc94d; font-size: 15px; font-weight: 700; line-height: 1.6; }
+  .p-hint { margin-top: 10px; font-size: 12px; color: var(--dim); text-align: center; }
   :focus-visible { outline: 2px solid var(--gold-b); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .node.sel .halo { animation: none; } .sheet { transition: none; } }
 </style>
@@ -206,9 +268,9 @@
       <radialGradient id="rootG" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#fff3d0"/><stop offset="60%" stop-color="#f5d39a"/><stop offset="100%" stop-color="#c98f3c"/></radialGradient>
     </defs>
     <g class="stars" id="stars"></g>
-    <g id="world"><g id="links"></g><g id="labels"></g><g id="nodes"></g><g id="fx"></g></g>
+    <g id="world"><g id="links"></g><g id="arms"></g><g id="labels"></g><g id="nodes"></g><g id="fx"></g></g>
   </svg>
-  <div class="where" id="where"></div>
+  <div class="where" id="where"><div id="whIn"></div><div class="ppl" id="ppl" aria-label="מי בסוגיה"></div></div>
   <div class="hud">
     <button class="ib" id="zIn" aria-label="הגדל">+</button>
     <button class="ib" id="zOut" aria-label="הקטן">−</button>
@@ -235,6 +297,7 @@
 <script src="tree-data.js"></script>
 <script src="daf-marks.js"></script>
 <script src="context-data.js"></script>
+<script src="people-data.js"></script>
 <script>
 const ROLE = { m: ['📜', 'משנה / מקור'], q: ['❓', 'שאלה'], x: ['⚡', 'דחייה'], a: ['✅', 'תירוץ'], c: ['📌', 'מסקנה'], n: ['📖', 'סיפור / ראיה'], k: ['💡', 'הסבר'] };
 const COL = { m: '#5fb2ff', q: '#ff5d72', x: '#ff5d72', a: '#6fd35c', c: '#ffc94d', n: '#d7b26e', k: '#b296ff' };
@@ -304,8 +367,8 @@ function marksHTML(ref, n) {
 // ===== מצב =====
 const st = { ref: '4b', sel: null, sec: null };
 try { const s = JSON.parse(localStorage.getItem('gemara:tree2') || 'null'); if (s && TREE[s.ref]) st.ref = s.ref; } catch (e) {}
-const hm = location.hash.slice(1).match(/^(\d+[ab])(?:-(\d+))?$/);
-if (hm && TREE[hm[1]]) { st.ref = hm[1]; if (hm[2] != null) st.sec = +hm[2]; }
+const hm = location.hash.slice(1).match(/^(\d+[ab])(?:-(\d+))?(?:@(\w+))?$/);
+if (hm && TREE[hm[1]]) { st.ref = hm[1]; if (hm[2] != null) st.sec = +hm[2]; if (hm[3]) st.pAsk = hm[3]; }
 
 // ===== פריסה: כל צומת רוחב קבוע, הורה מעל מרכז ילדיו; ימין-לשמאל =====
 const NW = 136, NH = 62, GX = 16, GY = 112, RG = 70;
@@ -386,6 +449,7 @@ function draw() {
     g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(n, true); } });
     n.el = g;
   }
+  pplBadges();
 }
 
 // ===== מצלמה =====
@@ -396,8 +460,9 @@ function topOf(n) { while (n && n.parent && n.parent.r !== 'root') n = n.parent;
 let whRAF = 0;
 function whereSoon() { cancelAnimationFrame(whRAF); whRAF = requestAnimationFrame(() => where(st.sel)); }
 function where(n) {
-  const box = $('where'); if (!box || !root || !root.k) return;
+  const box = $('whIn'); if (!box || !root || !root.k) return;
   let top = n ? topOf(n) : null;
+  if (!top && st.person && st.person.nodes.size) top = topOf([...st.person.nodes].sort((a, b) => a.seq - b.seq)[0]);   // במצב זרוע: הסוגיה שלו
   if (!top) {   // אין שלב נבחר: הסוגיה שבמרכז המסך
     const { h } = stageBox(), wy = (h * 0.5 - cam.y) / cam.k;
     top = root.k[0];
@@ -413,6 +478,7 @@ function where(n) {
       <img src="taanit-img/${st.ref}-full.jpg" alt="">${src ? `<i style="left:${src[0]}%;top:${src[1]}%;width:${src[2]}%;height:${src[3]}%"></i>` : ''}</a>
     <div class="wh-tx"><div class="wh-l1">📍 <b>${TREE[st.ref].title}</b> · סוגיה ${i + 1} מתוך ${root.k.length}${SN[s] ? ` · קטע: ${SN[s]}` : ''}</div>
       <div class="wh-l2">${tp}</div><div class="wh-l3">${path}</div></div>`;
+  pplBar(i);
 }
 let tw = null;
 function flyTo(tx, ty, tk, ms = 750) {
@@ -442,12 +508,13 @@ function fit(anim) {
   const minX = Math.min(...all.map(n => n.x)) - NW / 2 - 20, maxX = Math.max(...all.map(n => n.x)) + NW / 2 + 20;
   const minY = root.y - 60, maxY = Math.max(...all.map(n => n.y)) + NH / 2 + 80;
   const k = Math.max(0.16, Math.min(1.1, w / (maxX - minX), (h - 170) / (maxY - minY)));
-  const tx = w / 2 - ((minX + maxX) / 2) * k, ty = 98 - minY * k;   // 98: מתחת לפס ״איפה אנחנו״
+  const tx = w / 2 - ((minX + maxX) / 2) * k, ty = ($('where').offsetHeight + 8) - minY * k;   // 98: מתחת לפס ״איפה אנחנו״
   if (anim) flyTo(tx, ty, k); else { cam.x = tx; cam.y = ty; cam.k = k; apply(); }
 }
 
 // ===== בחירה ולוח =====
 function select(n, fly) {
+  if (st.person && !st.person.nodes.has(n)) personOff();
   st.sel = n;
   flat.forEach(m => m.el.classList.toggle('sel', m === n));
   sheet(n);
@@ -463,10 +530,12 @@ function sheet(n) {
   const kids = n.k || [];
   const rel = relLabel(n);
   sh.style.setProperty('--rc', COL[n.r]);
+  sh.classList.remove('pcard');
   sh.innerHTML = `<div class="sh-grip" id="shGrip" aria-label="גרירה: הגדלה / הקטנה"><div class="grab"></div></div>
     <div class="sh-head"><span class="sh-role">${ROLE[n.r][0]} ${ROLE[n.r][1]}</span><span class="sh-who">${n.w}</span><span class="sh-no">שלב ${n.seq} מתוך ${flat.length}</span><button class="sh-sz" id="shSz"></button><button class="sh-x" id="shX" aria-label="סגור">✕</button></div>
     ${rel && n.parent && n.parent.r !== 'root' ? `<div class="sh-rel">⟵ ${rel} על: ״${short(n.parent.t, 40)}״</div>` : ''}
-    <div class="sh-text">${n.t}</div>
+    ${ppLine(n)}
+    <div class="sh-text">${linkNames(n.t)}</div>
     ${toolbar(n, kids)}
     <div class="sh-nav"><button class="sk" id="shPrev" aria-label="השלב הקודם"${n.seq === 1 ? ' disabled' : ''}>▶ הקודם</button><button class="play" id="shPlay">${story ? '❚❚ עצור' : '▶ סיפור'}</button><button class="sk" id="shNext" aria-label="השלב הבא"${n.seq === flat.length ? ' disabled' : ''}>הבא ◀</button></div>
     <div class="sh-acts"><a class="pri" href="${BASE}taanit.html#${st.ref}-${n.s}">↩ להסבר המלא</a><button class="sec" id="shUp">${n.parent && n.parent.r !== 'root' ? '⬆ לשלב שמעל' : '⤢ כל העץ'}</button></div>
@@ -507,7 +576,7 @@ function ctxBody(n) {
   const e = typeof TREE_CX !== 'undefined' && TREE_CX[st.ref] && TREE_CX[st.ref][n.seq - 1];
   const C = typeof CONTEXT !== 'undefined' ? CONTEXT : {};
   const parts = !e ? [] : typeof e === 'string' ? [C[e]] : Array.isArray(e) ? e.map(k => C[k]) : [e.L];
-  return parts.filter(Boolean).map(t => `<p>${t}</p>`).join('');
+  return parts.filter(Boolean).map(t => `<p>${linkNames(t)}</p>`).join('');
 }
 function wbwBlock(w) {
   const D = (typeof TX !== 'undefined' && TX.WDICT) || {};
@@ -527,7 +596,7 @@ function toolbar(n, kids) {
   const terms = (T.KEY_TERMS || []).filter(([t]) => hay.includes(t));
   const cx = ctxBody(n);
   const panes = [
-    ['tk', '🎯 בתכלס', `<div class="sh-exp"><b>🎯 בתכלס:</b> ${n.e}</div>${tks.length && !tks.includes(n.e) ? `<div class="sh-tk2">${tks.join('<br>')}</div>` : ''}
+    ['tk', '🎯 בתכלס', `<div class="sh-exp"><b>🎯 בתכלס:</b> ${linkNames(n.e)}</div>${tks.length && !tks.includes(n.e) ? `<div class="sh-tk2">${tks.join('<br>')}</div>` : ''}
       ${kids.length ? `<div class="sh-kids"><div class="kh">⬇ מה עונים על זה (${kids.length})</div>${kids.map((k, i) =>
         `<button class="kid" data-i="${i}" style="--kc:${COL[k.r]}"><b>${ROLE[k.r][0]} ${relLabel(k) || ROLE[k.r][1]}</b> ${k.w}: ${short(k.t, 34)}</button>`).join('')}</div>` : ''}`],
     ['cx', '🧭 ההקשר', cx ? `<div class="sh-ctxp">${cx}</div>` : ''],
@@ -585,7 +654,7 @@ function gripInit(sh) {
   sh.addEventListener('touchstart', e => { ty = sh.scrollTop <= 0 && !e.target.closest('.sh-grip, .sh-head') ? e.touches[0].clientY : null; }, { passive: true });
   sh.addEventListener('touchmove', e => { if (ty != null && e.touches[0].clientY - ty > 80) { sheetSize(shState === 'full' ? 'half' : 'peek'); ty = null; } }, { passive: true });
 }
-function closeSheet() { st.sel = null; whereSoon(); flat.forEach(m => m.el.classList.remove('sel')); sheet(null); $('stage').classList.remove('has-sheet'); }
+function closeSheet() { personOff(); st.sel = null; whereSoon(); flat.forEach(m => m.el.classList.remove('sel')); sheet(null); $('stage').classList.remove('has-sheet'); }
 
 // ===== סיפור הסוגיה: מעוף מצומת לצומת, הענף נמתח והניצוץ רץ =====
 let story = null;
@@ -636,7 +705,7 @@ $('sPrev').onclick = () => { const i = st.sel ? flat.indexOf(st.sel) - 1 : 0; if
 const ptr = new Map(); let ptr0 = { x: 0, y: 0 }, peeked = false; let moved = false, last = null, pinch0 = null;
 const stg = $('stage');
 stg.addEventListener('pointerdown', e => {
-  if (e.target.closest('.sheet, .story, .hud, .legend')) return;
+  if (e.target.closest('.sheet, .story, .hud, .legend, .ppl')) return;
   ptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = false; cancelAnimationFrame(tw);
   if (ptr.size === 1) { ptr0 = { x: e.clientX, y: e.clientY }; peeked = false; }
   if (ptr.size === 2) { const [a, b] = [...ptr.values()]; pinch0 = { d: Math.hypot(a.x - b.x, a.y - b.y), k: cam.k, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2, x: cam.x, y: cam.y }; }
@@ -689,23 +758,209 @@ document.addEventListener('keydown', e => {
 (function stars() { const g = $('stars'); let s = 7; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
   for (let i = 0; i < 70; i++) el('circle', { cx: (rnd() * 100) + '%', cy: (rnd() * 100) + '%', r: (rnd() * 1.2 + 0.3).toFixed(2), opacity: (rnd() * 0.35 + 0.08).toFixed(2) }, g); })();
 
+// ===== 👥 אנשים: ״זרוע״ לכל אמורא — מה הוא סובר, מה אמר, ומה מקשים עליו =====
+// הנתונים ב־people-data.js. כאן: פס שמות לכל סוגיה, סימון הזרוע בעץ, כרטיס ״מה הוא סובר״, ושורת ״על מי זה״ בכל צומת.
+const NUM = ['', '①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨'];
+let PP = [];
+const pById = id => PP.find(p => p.id === id);
+const nodeOf = x => typeof x === 'number' ? flat[x - 1] : (String(x).split(':')[0] === st.ref ? flat[+String(x).split(':')[1] - 1] : null);
+const extRef = x => typeof x === 'string' && x.includes(':') && x.split(':')[0] !== st.ref ? x.split(':') : null;
+const arr = x => x == null ? [] : Array.isArray(x) ? x : [x];
+function pplPrep() {
+  PP = ((typeof PEOPLE !== 'undefined' && PEOPLE[st.ref]) || []).map(p => {
+    const src = p.al || p.n.replace(/^(?:ר׳|רב|רבן|רבי)\s+/, '');
+    let re = null; try { re = new RegExp(src, 'g'); } catch (e) {}
+    return { ...p, re, says: p.says || [], vs: p.vs || [], nodes: new Set() };
+  });
+  return PP;
+}
+// מה התפקיד של האדם בצומת: אמר (מספר), קושיה עליו, מיישב אותו, או רק מוזכר
+function roleIn(p, n) {
+  const say = p.says.findIndex(s => nodeOf(s[0]) === n) + 1;
+  const vs = p.vs.filter(v => nodeOf(v.k) === n);
+  const fix = p.vs.filter(v => arr(v.fix).some(x => nodeOf(x) === n) && nodeOf(v.k) !== n);
+  const tried = p.vs.filter(v => (v.tried || []).some(t => nodeOf(t[0]) === n));
+  const men = !!(p.re && (p.re.lastIndex = 0, p.re.test(n.w + ' ' + n.t)));
+  return { say, vs, fix, tried, men, any: !!(say || vs.length || fix.length || tried.length || men) };
+}
+function pplIndex() { for (const p of PP) { p.nodes = new Set(flat.filter(n => roleIn(p, n).any)); } }
+// פס השמות: מי משתתף בסוגיה שעל המסך (מתעדכן לבד כשגוללים לסוגיה אחרת)
+let pplLast = '';
+function pplBar(i) {
+  const bar = $('ppl'); if (!bar) return;
+  const top = root && root.k && root.k[i]; if (!top) { bar.innerHTML = ''; return; }
+  const sub = new Set(); const col = n => { sub.add(n); (n.k || []).forEach(col); }; col(top);
+  // קודם מי שמדבר בסוגיה (לפי הסדר), אחר כך מי שרק מוזכר
+  const list = PP.map(p => { const mine = [...p.nodes].filter(n => sub.has(n)); return { p, first: Math.min(...mine.map(n => n.seq)), talks: mine.some(n => roleIn(p, n).say) }; })
+    .filter(x => isFinite(x.first)).sort((a, b) => (b.talks - a.talks) || (a.first - b.first)).map(x => x.p);
+  const key = st.ref + i + '|' + (st.person ? st.person.id : '') + list.map(p => p.id).join();
+  if (key === pplLast) return; pplLast = key;
+  bar.innerHTML = list.length ? `<span class="lb">👥 מי כאן:</span>` + list.map(p => {
+    const self = p.vs.some(v => v.self);
+    return `<button class="pc${st.person === p ? ' on' : ''}" data-p="${p.id}" style="--pc:${p.c}" aria-pressed="${st.person === p}"><span class="av">${p.ab}</span>${p.n}${self ? '<span class="bolt" title="סותר את עצמו?">⚡</span>' : ''}${st.person === p ? '<span class="x">✕</span>' : ''}</button>`;
+  }).join('') : '';
+  const on = bar.querySelector('.pc.on'); if (on) on.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+}
+$('ppl').addEventListener('click', e => { const b = e.target.closest('.pc'); if (!b) return; const p = pById(b.dataset.p); if (st.person === p) { personOff(); closeSheet(); } else personOn(p); });
+// סימן קטן על כל צומת שבו האדם מדבר (צבע + ראשי תיבות), וברק ⚡ על קושיה נגדו
+function pplBadges() {
+  pplIndex();
+  for (const n of flat) {
+    let i = 0;
+    for (const p of PP) {
+      const r = roleIn(p, n); if (!r.say && !r.vs.length) continue;
+      const g = el('g', { class: 'pbadge', transform: `translate(${-NW / 2 + 13 + i * 21} ${NH / 2})` }, n.el);
+      if (r.say) { el('circle', { r: 9.5, fill: p.c, stroke: '#120e0a', 'stroke-width': 2 }, g); const t = el('text', { y: 3.2, fill: '#120e0a' }, g); t.textContent = p.ab; }
+      else { el('circle', { r: 9.5, fill: '#2a1518', stroke: p.c, 'stroke-width': 2 }, g); const t = el('text', { y: 3.2, fill: p.c }, g); t.textContent = '⚡'; }
+      if (++i > 2) break;
+    }
+  }
+  pplBar(0); pplLast = '';
+}
+// ===== מצב ״זרוע״ =====
+function armsDraw(p) {
+  const A = $('arms'); A.innerHTML = '';
+  if (!p) return;
+  const pts = p.says.map(s => nodeOf(s[0])).filter(Boolean).sort((a, b) => a.seq - b.seq);
+  if (pts.length > 1) {
+    let d = `M ${pts[0].x} ${pts[0].y}`;
+    for (let i = 1; i < pts.length; i++) { const a = pts[i - 1], b = pts[i], mx = (a.x + b.x) / 2, my = Math.min(a.y, b.y) - 40;
+      d += ` Q ${mx} ${my} ${b.x} ${b.y}`; }
+    el('path', { d, class: 'arm main', stroke: p.c }, A);
+    el('path', { d, class: 'arm flow', stroke: p.c }, A);
+  }
+  // ברק: מכל משפט שלו אל הקושיה שתוקפת אותו
+  for (const v of p.vs) {
+    const k = nodeOf(v.k); if (!k) continue;
+    for (const o of v.on || []) {
+      const s = p.says[o - 1] && nodeOf(p.says[o - 1][0]); if (!s || s === k) continue;
+      const mx = (s.x + k.x) / 2 + 30, my = (s.y + k.y) / 2;
+      el('path', { d: `M ${s.x} ${s.y} Q ${mx} ${my} ${k.x} ${k.y}`, class: 'arm hit' }, A);
+      const t = el('text', { x: mx * 0.5 + (s.x + k.x) / 4, y: my, class: 'armtx' }, A); t.textContent = '⚡';
+    }
+  }
+}
+function personOn(p, keepSel) {
+  if (!p) return;
+  if (story) stopStory();
+  st.person = p;
+  $('stage').classList.add('pfocus');
+  flat.forEach(n => { const on = p.nodes.has(n); n.el.classList.toggle('pin', on); n.el.style.setProperty('--pc', p.c); n.linkEl.classList.toggle('pin', on); if (n.lblEl) n.lblEl.classList.toggle('pin', on); });
+  armsDraw(p);
+  pplLast = ''; where(st.sel);
+  if (!keepSel) { st.sel = null; flat.forEach(m => m.el.classList.remove('sel')); personSheet(p); setTimeout(() => personFit(p), 60); }
+}
+function personOff() {
+  if (!st.person) return;
+  st.person = null; $('stage').classList.remove('pfocus');
+  flat.forEach(n => { n.el.classList.remove('pin'); n.linkEl.classList.remove('pin'); if (n.lblEl) n.lblEl.classList.remove('pin'); });
+  armsDraw(null); pplLast = ''; whereSoon();
+}
+// המצלמה מראה את כל הצמתים שלו, בשטח שבין הפס העליון לחלונית
+function personFit(p) {
+  // רק הצמתים שבהם הוא באמת משתתף (אומר / מקשים עליו / מיישבים אותו), לא כל אזכור
+  let ns = flat.filter(n => { const r = roleIn(p, n); return r.say || r.vs.length || r.fix.length || r.tried.length; });
+  if (!ns.length) ns = [...p.nodes]; if (!ns.length) return;
+  const { w, h } = stageBox(), sh = $('sheet').classList.contains('open') ? $('sheet').offsetHeight : 0, topH = $('where').offsetHeight + 16;
+  const minX = Math.min(...ns.map(n => n.x)) - NW / 2 - 24, maxX = Math.max(...ns.map(n => n.x)) + NW / 2 + 24;
+  const minY = Math.min(...ns.map(n => n.y)) - NH / 2 - 40, maxY = Math.max(...ns.map(n => n.y)) + NH / 2 + 24;
+  const avail = Math.max(120, h - sh - topH - 10);
+  const kFit = Math.min(1.1, w / (maxX - minX), avail / (maxY - minY)), k = Math.max(0.5, kFit);
+  // אם לא נכנס הכל: מתחילים מלמעלה (מהמשפט הראשון שלו), וגוללים למטה בגרירה
+  const ty = kFit >= 0.5 ? topH + avail / 2 - ((minY + maxY) / 2) * k : topH - minY * k;
+  flyTo(w / 2 - ((minX + maxX) / 2) * k, ty, k);
+}
+// ===== כרטיס האמורא: מה הוא סובר · מה אמר · האם סותר את עצמו · השורה התחתונה =====
+const jumpBtn = (x, label) => { const e = extRef(x);
+  return e ? `<button data-ref="${e[0]}" data-seq="${e[1]}">↗ ${label} (${TREE[e[0]] ? TREE[e[0]].title : e[0]})</button>`
+           : `<button data-go="${typeof x === 'number' ? x : +String(x).split(':')[1]}">${label}</button>`; };
+function personSheet(p) {
+  const sh = $('sheet');
+  sh.style.setProperty('--rc', p.c); sh.style.setProperty('--pc', p.c);
+  const says = p.says.map((s, i) => { const e = extRef(s[0]), n = nodeOf(s[0]);
+    return `<button class="say" ${e ? `data-ref="${e[0]}" data-seq="${e[1]}"` : `data-go="${n ? n.seq : ''}"`}><span class="nm">${i + 1}</span><span>${s[1]}${s[2] ? `<small>${s[2]}</small>` : ''}</span><span class="go">${e ? '↗ ' + (TREE[e[0]] ? TREE[e[0]].title : e[0]) : n ? '#' + n.seq : ''}</span></button>`; }).join('');
+  const ST = { ok: '✅ מיושב', fell: '❌ התירוץ נפל', info: 'ℹ️ אין באמת סתירה' };
+  const vss = p.vs.map(v => {
+    const on = (v.on || []).map(o => `<span class="nm">${o}</span>`).join(v.self ? ' מול ' : ' ');
+    return `<div class="vsc"><div class="hd">⚡ ${v.self ? 'סותר את עצמו?' : 'קושיה עליו'} ${on} ${v.by ? `· <span style="color:var(--soft)">${v.by}</span>` : ''}</div>
+      <div class="q">${linkNames(v.t)}</div>
+      ${(v.tried || []).map(t => `<div class="tr">❌ ${linkNames(t[1])}</div>`).join('')}
+      <div class="res ${v.st}"><b>${ST[v.st] || ''}:</b> ${linkNames(v.res || '')}</div>
+      <div class="jm">${jumpBtn(v.k, '❓ לקושיה')}${arr(v.fix).map(x => jumpBtn(x, '✅ לתשובה')).join('')}</div></div>`; }).join('');
+  sh.innerHTML = `<div class="sh-grip" id="shGrip" aria-label="גרירה: הגדלה / הקטנה"><div class="grab"></div></div>
+    <div class="sh-head"><span class="av" style="--pc:${p.c}">${p.ab}</span><span class="sh-who">${p.n}</span><span class="sh-no">${p.kind || ''}</span><button class="sh-sz" id="shSz"></button><button class="sh-x" id="shX" aria-label="סגור">✕</button></div>
+    <div class="p-holds"><div class="h">🧠 מה הוא סובר</div><div class="t">${linkNames(p.holds, p)}</div></div>
+    ${says ? `<div class="p-sec"><div class="kh">🗣 מה הוא אומר בסוגיה (${p.says.length})</div>${says}</div>` : ''}
+    ${vss ? `<div class="p-sec"><div class="kh">⚡ מה מקשים עליו (${p.vs.length})</div>${vss}</div>` : ''}
+    ${p.end ? `<div class="p-end">🏁 <b>בשורה התחתונה:</b> ${linkNames(p.end, p)}</div>` : ''}
+    <div class="p-hint">בעץ: הצמתים שלו מודגשים, הקו בצבע שלו עובר בין מה שאמר, ו־⚡ מראה איזו קושיה פוגעת באיזה משפט</div>`;
+  sh.classList.add('open', 'pcard'); $('stage').classList.add('has-sheet');
+  sheetSize(shPref, true); gripInit(sh);
+  $('shX').onclick = () => { personOff(); closeSheet(); };
+  sh.scrollTop = 0;
+}
+// לחיצות בתוך החלונית: שם ← כרטיס האמורא; משפט/קושיה/תשובה ← הצומת; צומת בדף אחר ← מעבר לדף
+$('sheet').addEventListener('click', e => {
+  const nm = e.target.closest('.pn, .pp'); if (nm) { const p = pById(nm.dataset.p); if (p) { e.preventDefault(); personOn(p); } return; }
+  const bk = e.target.closest('.pback'); if (bk && st.person) { personSheet(st.person); personFit(st.person); return; }
+  const ex = e.target.closest('[data-ref]'); if (ex) { location.hash = `${ex.dataset.ref}-${(flatOf(ex.dataset.ref, +ex.dataset.seq) || {}).s || 0}`; return; }
+  const g = e.target.closest('[data-go]'); if (g && g.dataset.go) { const n = flat[+g.dataset.go - 1]; if (n) { const p = st.person; select(n, true); if (p) personOn(p, true); } }
+});
+function flatOf(ref, seq) { let i = 0, hit = null; const w = n => { if (++i === seq) hit = n; (n.k || []).forEach(w); }; (TREE[ref] ? TREE[ref].roots : []).forEach(w); return hit; }
+// שורת ״על מי זה״ בצומת
+function ppLine(n) {
+  const out = [];
+  for (const p of PP) {
+    const r = roleIn(p, n); if (!r.any) continue;
+    const st2 = `style="--pc:${p.c}" data-p="${p.id}"`, av = `<span class="av">${p.ab}</span>`;
+    for (const v of r.vs) { const on = (v.on || []).map(o => NUM[o]).join(' מול ');
+      out.push(`<button class="pp vs" ${st2}>${av}<span>⚡ ${v.self ? 'סתירה בדברי' : 'קושיה על'} ${p.n}${on ? ` <em>${on}</em>` : ''}</span></button>`); }
+    for (const v of r.fix) out.push(`<button class="pp fix" ${st2}>${av}<span>✅ מיישב את ${p.n} <em>${(v.on || []).map(o => NUM[o]).join(' מול ')}</em></span></button>`);
+    for (const v of r.tried) out.push(`<button class="pp" ${st2}>${av}<span>ניסיון ליישב את ${p.n} <em>(נדחה)</em></span></button>`);
+    if (r.say) out.push(`<button class="pp" ${st2}>${av}<span>${p.n} אומר ${NUM[r.say] || r.say}</span></button>`);
+    else if (!r.vs.length && !r.fix.length && !r.tried.length) out.push(`<button class="pp" ${st2}>${av}<span>${p.n}</span></button>`);
+  }
+  const back = st.person ? `<button class="sec pback">↩ חזרה ל${st.person.n}: מה הוא סובר</button>` : '';
+  return out.length || back ? `<div class="sh-pp">${out.join('')}</div>${back}` : '';
+}
+// שמות בטקסט ← לחיצים, בצבע של האמורא (רק בטקסט, לא בתוך תגיות)
+function linkNames(html, skip) {
+  if (!html || !PP.length) return html || '';
+  return String(html).split(/(<[^>]+>)/).map(seg => {
+    if (seg.startsWith('<')) return seg;
+    const hits = [];
+    for (const p of PP) { if (!p.re || p === skip) continue; p.re.lastIndex = 0; let m;
+      while ((m = p.re.exec(seg))) { if (!m[0]) { p.re.lastIndex++; continue; } hits.push([m.index, m.index + m[0].length, p]); } }
+    hits.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+    let o = '', at = 0;
+    for (const [a, b, p] of hits) { if (a < at) continue;
+      const pre = p.id !== 'rav' && seg.slice(Math.max(0, a - 5), a).match(/(?:ר׳ |רבי |רבן |רב )$/); const a2 = pre ? a - pre[0].length : a;   // ״ר׳ יוחנן״ כולו לחיץ
+      o += seg.slice(at, Math.max(at, a2)) + `<span class="pn" data-p="${p.id}" style="--pc:${p.c}">${seg.slice(Math.max(at, a2), b)}</span>`; at = b; }
+    return o + seg.slice(at);
+  }).join('');
+}
+// הפס העליון משנה גובה (חלונית פתוחה / סגורה): הכפתורים זזים איתו
+new ResizeObserver(() => $('stage').style.setProperty('--wh', $('where').offsetHeight + 'px')).observe($('where'));
+pplPrep();
+
 // ===== טעינה =====
 function save() { try { localStorage.setItem('gemara:tree2', JSON.stringify({ ref: st.ref })); } catch (e) {} }
 function load(ref, sec) {
   if (story) stopStory();
-  st.ref = ref; st.sel = null;
+  st.ref = ref; st.sel = null; st.person = null; pplPrep(); $('stage').classList.remove('pfocus');
   $('tabs').innerHTML = Object.keys(TREE).map(r => `<button class="tab${r === ref ? ' on' : ''}" data-r="${r}">${TREE[r].title}</button>`).join('');
   $('backLink').href = BASE + 'taanit.html#' + ref;
   build(ref); draw(); sheet(null); revealUpTo(flat.length);
   $('sPlay').textContent = '▶ סיפור הסוגיה'; $('sProg').textContent = `0/${flat.length}`;
   fit(false);
-  if (sec != null) { const n = flat.find(m => m.s === sec); if (n) setTimeout(() => select(n, true), 500); }
+  if (st.pAsk && pById(st.pAsk)) { const id = st.pAsk; st.pAsk = null; setTimeout(() => personOn(pById(id)), 500); }
+  else if (sec != null) { const n = flat.find(m => m.s === sec); if (n) setTimeout(() => select(n, true), 500); }
   else setTimeout(() => { if (!st.sel && !story) { const { w } = stageBox(); flyTo(w / 2 - root.x * 0.85, 120 - (root.y - 60) * 0.85, 0.85, 1100); } }, 900);
   save();
 }
 $('tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) load(b.dataset.r); });
 window.addEventListener('resize', () => { if (st.sel) centerOn(st.sel); else fit(false); });
-window.addEventListener('hashchange', () => { const m = location.hash.slice(1).match(/^(\d+[ab])(?:-(\d+))?$/); if (m && TREE[m[1]]) load(m[1], m[2] != null ? +m[2] : null); });
+window.addEventListener('hashchange', () => { const m = location.hash.slice(1).match(/^(\d+[ab])(?:-(\d+))?(?:@(\w+))?$/); if (m && TREE[m[1]]) { st.pAsk = m[3] || null; load(m[1], m[2] != null ? +m[2] : null); } });
 load(st.ref, st.sec);
 setTimeout(hideHint, 4500);
 </script>

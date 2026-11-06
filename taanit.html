@@ -1567,6 +1567,14 @@
   .el-fill.m { animation: elM 5s ease-in-out infinite; }
   @keyframes elY { 0%,10% { width: 0; } 55%,100% { width: 72%; } }
   @keyframes elM { 0%,10% { width: 0; } 75%,100% { width: 100%; } }
+  /* 👥 על מי זה (קישור לכרטיס האמורא בעץ) */
+  .bppl { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+  .bp { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--parchment); font-size: 12.5px; line-height: 1.4; max-width: 100%;
+    background: color-mix(in srgb, var(--pc) 13%, transparent); border: 1px solid color-mix(in srgb, var(--pc) 50%, transparent); border-radius: 12px; padding: 4px 9px 4px 5px; }
+  .bp i { font-style: normal; flex: 0 0 auto; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--pc); color: #120e0a; font-size: 10px; font-weight: 900; }
+  .bp b { font-weight: 800; } .bp em { display: block; font-style: normal; color: var(--soft, #d8cbb0); font-size: 12px; }
+  .bp.vs { border-color: #ff5d72; background: rgba(255,93,114,0.1); }
+  .bp.fix { border-color: #6fd35c; background: rgba(111,211,92,0.1); }
 </style>
 </head>
 <body>
@@ -1691,6 +1699,7 @@
 
 <script src="tree-data.js"></script>
 <script src="context-data.js"></script>
+<script src="people-data.js"></script>
 <script>
 // =======================================================
 // PEREK DATA — מסכת תענית
@@ -3303,6 +3312,28 @@ function goKey(k) {
   if (si !== state.sceneIdx) { state.sceneIdx = si; state.beat = 0; renderScenes(); setTimeout(jump, 120); } else jump();
 }
 document.addEventListener('click', e => { const c = e.target.closest && e.target.closest('.mt-c[data-k]'); if (c) { e.stopPropagation(); goKey(c.dataset.k); } }, true);
+// 👥 ״על מי זה״ בכרטיס: מי אומר, ועל מי הקושיה (ומה בדיוק סותר את מה). הנתונים: people-data.js + TREE_CX
+function pplBeatHTML(ref, si, bi) {
+  if (typeof PEOPLE === 'undefined' || !PEOPLE[ref] || typeof TREE_CX === 'undefined' || !TREE_CX[ref]) return '';
+  const key = `${ref}:${si}:${bi}`, seqs = [];
+  TREE_CX[ref].forEach((e, i) => { const ks = typeof e === 'string' ? [e] : Array.isArray(e) ? e : []; if (ks.includes(key)) seqs.push(i + 1); });
+  if (!seqs.length) return '';
+  const at = x => typeof x === 'number' && seqs.includes(x), N = ['', '①', '②', '③', '④', '⑤', '⑥'];
+  const short = t => (t || '').replace(/<[^>]+>/g, '').replace(/\s*\(.*?\)\s*/g, ' ').replace(/[״"]/g, '').trim();
+  const out = [];
+  for (const p of PEOPLE[ref]) {
+    const says = p.says || [], vs = p.vs || [];
+    const href = `tree.html#${ref}@${p.id}`, sty = `style="--pc:${p.c}"`, av = `<i>${p.ab}</i>`;
+    for (const v of vs) if (at(v.k)) {
+      const on = (v.on || []).map(o => says[o - 1] ? `${N[o]} ״${short(says[o - 1][1])}״` : '').filter(Boolean);
+      out.push(`<a class="bp vs" ${sty} href="${href}">${av}<span><b>⚡ ${v.self ? 'סתירה בדברי' : 'קושיה על'} ${p.n}</b>${on.length ? `<em>${on.join(v.self ? ' ⟷ ' : ' · ')}</em>` : ''}</span></a>`);
+    }
+    for (const v of vs) if ((Array.isArray(v.fix) ? v.fix : [v.fix]).some(at) && !at(v.k)) out.push(`<a class="bp fix" ${sty} href="${href}">${av}<span><b>✅ מיישב את ${p.n}</b></span></a>`);
+    const si2 = says.findIndex(x => at(x[0]));
+    if (si2 >= 0 && !vs.some(v => at(v.k))) out.push(`<a class="bp" ${sty} href="${href}">${av}<span><b>${p.n} ${says.length > 1 ? N[si2 + 1] : ''}</b><em>${short(p.holds).slice(0, 60)}</em></span></a>`);
+  }
+  return out.length ? `<div class="bppl">${out.join('')}</div>` : '';
+}
 function takhlesHTML(key) {
   const t = TAKHLES[key];
   return t ? `<div class="takhles"><span>🎯 בתכלס</span>${t}${ctxHTML(key)}</div>` : '';
@@ -3491,6 +3522,7 @@ document.addEventListener('scroll', e => {
 function pinBeat(ev, i) { ev.stopPropagation(); focusBeat = i; showLoc(); }
 // הקשה על כרטיס: אם זה לא השלב המסומן עכשיו — חוזרים אליו (הדגשה + חץ); אחרת — ממשיכים
 function onBeatsClick(ev) {
+  if (ev.target.closest('.bppl')) return;   // קישור לכרטיס האמורא בעץ
   const card = ev.target.closest('.beat');
   const sc = amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
   if (!card || !sc || !sc.beats) { stepBeat(1); return; }
@@ -4051,7 +4083,7 @@ function beatsHTML(sc, si) {
     ${b.length ? `<div class="beats" onclick="onBeatsClick(event)">${b.map((x, i) => {
       const r = beatRole(state.ref, si, i), kt = keyTerm(state.ref, si, i);
       const link = i ? `<div class="blink" data-i="${i}"><span class="bl-arrow">⬇</span><span class="bl-txt">${linkText(beatRole(state.ref, si, i - 1), r)}</span></div>` : '';
-      return link + `<div class="beat bt-${x[0]} role-${r}" data-i="${i}"><span class="bt-role">${ROLE[r][0]} ${ROLE[r][1]}</span><span class="bt-who">${x[1]}</span><span class="bt-txt">${x[2]}</span>${takhlesHTML(`${state.ref}:${si}:${i}`)}${beatLoc(state.ref, si, i) ? `<button class="bt-pin" title="איפה זה בגמרא" onclick="pinBeat(event, ${i})">📍</button>` : ''}${kt ? `<div class="bt-key">🔑 <b>${kt[0]}</b> = ${kt[1]}</div>` : ''}${punctHTML(`${state.ref}:${si}:${i}`)}${wbwHTML(`${state.ref}:${si}:${i}`)}</div>`; }).join('')}</div>
+      return link + `<div class="beat bt-${x[0]} role-${r}" data-i="${i}"><span class="bt-role">${ROLE[r][0]} ${ROLE[r][1]}</span><span class="bt-who">${x[1]}</span><span class="bt-txt">${x[2]}</span>${pplBeatHTML(state.ref, si, i)}${takhlesHTML(`${state.ref}:${si}:${i}`)}${beatLoc(state.ref, si, i) ? `<button class="bt-pin" title="איפה זה בגמרא" onclick="pinBeat(event, ${i})">📍</button>` : ''}${kt ? `<div class="bt-key">🔑 <b>${kt[0]}</b> = ${kt[1]}</div>` : ''}${punctHTML(`${state.ref}:${si}:${i}`)}${wbwHTML(`${state.ref}:${si}:${i}`)}</div>`; }).join('')}</div>
     <div class="step-ctl"><button class="step-next" onclick="stepBeat(1)">המשך ▼ <span class="step-n"></span></button>
       <button class="step-all" onclick="revealAll()">הצג הכל</button></div>` : ''}
     <div class="after">
