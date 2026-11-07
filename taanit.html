@@ -4955,7 +4955,8 @@ function readHash() {
     return;
   }
   // #4b-6 — דף וקטע (מגיעים מעץ הסוגיה); הקטע נפתח במלואו
-  const m = h.match(/^(\d+[ab])-(\d+)$/);
+  // #4b-6-2 — גם שלב; #4b-6-2-daf — וגם פותח את הדף המלא עם הסימון של השלב (מגיעים מהצילום בעץ)
+  const m = h.match(/^(\d+[ab])-(\d+)(?:-(\d+))?(-daf)?$/);
   if (m && amudim[m[1]] && amudim[m[1]].scenes[+m[2]]) {
     switchTab('masechet');
     goToRef(m[1]);
@@ -4963,6 +4964,11 @@ function readHash() {
     const sc = amudim[m[1]].scenes[+m[2]];
     state.beat = sc.beats ? sc.beats.length : 0;
     renderScenes();
+    if (m[3] != null && sc.beats && sc.beats[+m[3]]) {
+      focusBeat = +m[3];
+      setTimeout(() => { try { showLoc(); } catch (e) {}
+        if (m[4] && sc.src) openPhoto(sc.src.ref, sc.src.box); }, 350);
+    }
   }
 }
 
