@@ -243,6 +243,7 @@
   .vsc .res.ok { background: rgba(111,211,92,0.12); border-right: 3px solid #6fd35c; }
   .vsc .res.fell { background: rgba(255,93,114,0.12); border-right: 3px solid #ff5d72; }
   .vsc .res.info { background: rgba(95,178,255,0.12); border-right: 3px solid #5fb2ff; }
+  .vsc .res.open { background: rgba(255,201,77,0.1); border-right: 3px solid #ffc94d; }
   .vsc .jm { display: flex; gap: 6px; flex-wrap: wrap; }
   .vsc .jm button { font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; border-radius: 10px; padding: 4px 9px; background: transparent; color: var(--gold-b); border: 1px solid rgba(232,183,109,0.4); }
   .p-end { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(255,201,77,0.1); border-right: 4px solid #ffc94d; font-size: 15px; font-weight: 700; line-height: 1.6; }
@@ -879,7 +880,7 @@ function personSheet(p) {
   sh.style.setProperty('--rc', p.c); sh.style.setProperty('--pc', p.c);
   const says = p.says.map((s, i) => { const e = extRef(s[0]), n = nodeOf(s[0]);
     return `<button class="say" ${e ? `data-ref="${e[0]}" data-seq="${e[1]}"` : `data-go="${n ? n.seq : ''}"`}><span class="nm">${i + 1}</span><span>${s[1]}${s[2] ? `<small>${s[2]}</small>` : ''}</span><span class="go">${e ? '↗ ' + (TREE[e[0]] ? TREE[e[0]].title : e[0]) : n ? '#' + n.seq : ''}</span></button>`; }).join('');
-  const ST = { ok: '✅ מיושב', fell: '❌ התירוץ נפל', info: 'ℹ️ אין באמת סתירה' };
+  const ST = { ok: '✅ מיושב', fell: '❌ התירוץ נפל', info: 'ℹ️ אין באמת סתירה', open: '❓ נשאר בלי תשובה' };
   const vss = p.vs.map(v => {
     const on = (v.on || []).map(o => `<span class="nm">${o}</span>`).join(v.self ? ' מול ' : ' ');
     return `<div class="vsc"><div class="hd">⚡ ${v.self ? 'סותר את עצמו?' : 'קושיה עליו'} ${on} ${v.by ? `· <span style="color:var(--soft)">${v.by}</span>` : ''}</div>

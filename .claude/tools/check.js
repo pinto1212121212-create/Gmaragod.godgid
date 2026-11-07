@@ -58,7 +58,7 @@ const srv = http.createServer((q, r) => {
         (pp.vs || []).forEach(v => { if (!okSeq(v.k)) bad.push(`${ref}/${pp.id}: קושיה ${v.k} לא קיימת`);
           (v.on || []).forEach(o => { if (!(pp.says || [])[o - 1]) bad.push(`${ref}/${pp.id}: on ${o} אין משפט כזה`); });
           [].concat(v.fix == null ? [] : v.fix).forEach(x => { if (!okSeq(x)) bad.push(`${ref}/${pp.id}: fix ${x} לא קיים`); });
-          if (!['ok', 'fell', 'info'].includes(v.st)) bad.push(`${ref}/${pp.id}: קושיה ${v.k} בלי st`); });
+          if (!['ok', 'fell', 'info', 'open'].includes(v.st)) bad.push(`${ref}/${pp.id}: קושיה ${v.k} בלי st`); });
       } }
     return bad; });
   console.log(`אנשים: ${pbad.length ? pbad.join(' | ') : 'הכל תקין ✓'}`);
