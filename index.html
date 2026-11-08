@@ -115,7 +115,7 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
   </section>
 </div>
 <script>
-const AM = { '2a': 'ב׳ ע״א', '3a': 'ג׳ ע״א', '4a': 'ד׳ ע״א', '4b': 'ד׳ ע״ב', '5a': 'ה׳ ע״א', '5b': 'ה׳ ע״ב', '6a': 'ו׳ ע״א' };
+const AM = { '2a': 'ב׳ ע״א', '3a': 'ג׳ ע״א', '3b': 'ג׳ ע״ב', '4a': 'ד׳ ע״א', '4b': 'ד׳ ע״ב', '5a': 'ה׳ ע״א', '5b': 'ה׳ ע״ב', '6a': 'ו׳ ע״א' };
 const NAME = { taanit: 'תענית', zevachim: 'זבחים' };
 function heb(n) { const o = ['', 'א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט'], t = ['', 'י', 'כ', 'ל', 'מ', 'נ', 'ס', 'ע', 'פ', 'צ'];
   if (n === 15) return 'ט״ו'; if (n === 16) return 'ט״ז'; if (n < 10) return o[n];
