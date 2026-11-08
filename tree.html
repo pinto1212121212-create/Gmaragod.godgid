@@ -252,6 +252,26 @@
   .p-hint { margin-top: 10px; font-size: 12px; color: var(--dim); text-align: center; }
   :focus-visible { outline: 2px solid var(--gold-b); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .node.sel .halo { animation: none; } .sheet { transition: none; } }
+
+  /* ===== 🖥️ מחשב: החלונית נפתחת כלוח צד משמאל, והעץ בשאר המסך ===== */
+  @media (min-width: 1100px) {
+    .sheet, .sheet.s-half, .sheet.s-full, .sheet.s-peek { top: calc(var(--wh, 96px) + 0px); bottom: 0; right: auto; left: 0; width: min(500px, 40vw);
+      height: auto !important; border-top: 0; border-right: 2px solid var(--rc, var(--gold)); border-radius: 0 18px 0 0;
+      box-shadow: 14px 0 40px rgba(0,0,0,0.55); transform: translateX(-105%); overflow: auto; }
+    .sheet.open { transform: none; }
+    .sheet.s-peek > :not(.sh-grip):not(.sh-head) { visibility: visible; }
+    .sh-grip, .sh-sz { display: none; }
+    .sheet .sh-pin .sh-img, .sheet.s-half .sh-pin .sh-img, .sheet.s-full .sh-pin .sh-img { max-height: 240px; }
+    .stage.has-sheet .hud { left: calc(min(500px, 40vw) + 14px); }
+    .stage.has-sheet .story { opacity: 1; pointer-events: auto; left: calc(50% + min(250px, 20vw)); }
+    .stage.has-sheet .where .wh-l2 { display: block; }
+    .sh-text { font-size: 22px; }
+  }
+
+  @media (min-width: 1100px) {
+    .tabs { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); max-width: 1100px; margin-inline: auto; }
+    .tab:hover { border-color: var(--gold); color: var(--gold-b); }
+  }
 </style>
 </head>
 <body>
@@ -499,12 +519,14 @@ function flyTo(tx, ty, tk, ms = 750) {
   tw = requestAnimationFrame(step);
 }
 function stageBox() { const r = $('stage').getBoundingClientRect(); return { w: r.width, h: r.height }; }
+const isDesk = () => matchMedia('(min-width: 1100px)').matches;   // מחשב: החלונית בצד
+const sideW = () => isDesk() && $('sheet').classList.contains('open') ? $('sheet').offsetWidth : 0;
 function centerOn(n, k) {
   const { w, h } = stageBox();
-  const sheetH = $('sheet').classList.contains('open') ? $('sheet').offsetHeight : 0;
+  const sheetH = $('sheet').classList.contains('open') && !isDesk() ? $('sheet').offsetHeight : 0, sw = sideW();
   const k2 = k || Math.min(1.25, Math.max(0.75, w / (NW * 2.6)));
   const top = ($('where') ? $('where').offsetHeight : 0) + 34, bot = h - sheetH - 12;
-  flyTo(w / 2 - n.x * k2, top + Math.max(40, bot - top) * 0.45 - n.y * k2, k2);
+  flyTo(sw + (w - sw) / 2 - n.x * k2, top + Math.max(40, bot - top) * 0.45 - n.y * k2, k2);
 }
 function fit(anim) {
   const { w, h } = stageBox(), all = [root, ...flat];
@@ -633,7 +655,7 @@ function sheetSize(st2, quiet) {
   const b = $('shSz'); if (b) b.textContent = SZ_LBL[st2];
   if (!quiet && st.sel) setTimeout(() => { if (st.sel) centerOn(st.sel); shImgFocus(); }, 330);
 }
-function sheetPeek(on) { if (on) { if (shState !== 'peek') sheetSize('peek'); } else if (shState === 'peek') sheetSize(shPref); }
+function sheetPeek(on) { if (isDesk()) return; if (on) { if (shState !== 'peek') sheetSize('peek'); } else if (shState === 'peek') sheetSize(shPref); }
 function gripInit(sh) {
   const H = () => $('stage').getBoundingClientRect().height;
   let d = null;
@@ -866,14 +888,14 @@ function personFit(p) {
   // רק הצמתים שבהם הוא באמת משתתף (אומר / מקשים עליו / מיישבים אותו), לא כל אזכור
   let ns = flat.filter(n => { const r = roleIn(p, n); return r.say || r.vs.length || r.fix.length || r.tried.length; });
   if (!ns.length) ns = [...p.nodes]; if (!ns.length) return;
-  const { w, h } = stageBox(), sh = $('sheet').classList.contains('open') ? $('sheet').offsetHeight : 0, topH = $('where').offsetHeight + 16;
+  const { w: W0, h } = stageBox(), sw = sideW(), w = W0 - sw, sh = $('sheet').classList.contains('open') && !isDesk() ? $('sheet').offsetHeight : 0, topH = $('where').offsetHeight + 16;
   const minX = Math.min(...ns.map(n => n.x)) - NW / 2 - 24, maxX = Math.max(...ns.map(n => n.x)) + NW / 2 + 24;
   const minY = Math.min(...ns.map(n => n.y)) - NH / 2 - 40, maxY = Math.max(...ns.map(n => n.y)) + NH / 2 + 24;
   const avail = Math.max(120, h - sh - topH - 10);
   const kFit = Math.min(1.1, w / (maxX - minX), avail / (maxY - minY)), k = Math.max(0.5, kFit);
   // אם לא נכנס הכל: מתחילים מלמעלה (מהמשפט הראשון שלו), וגוללים למטה בגרירה
   const ty = kFit >= 0.5 ? topH + avail / 2 - ((minY + maxY) / 2) * k : topH - minY * k;
-  flyTo(w / 2 - ((minX + maxX) / 2) * k, ty, k);
+  flyTo(sw + w / 2 - ((minX + maxX) / 2) * k, ty, k);
 }
 // ===== כרטיס האמורא: מה הוא סובר · מה אמר · האם סותר את עצמו · השורה התחתונה =====
 const jumpBtn = (x, label) => { const e = extRef(x);

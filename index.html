@@ -66,6 +66,18 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
   .step p { font-size: 14px; line-height: 1.6; color: var(--soft); }
   .step b { color: var(--parchment); }
   a:focus-visible { outline: 2px solid var(--gold-b); outline-offset: 2px; }
+
+  /* ===== 🖥️ מחשב: רחב יותר, המסכתות זו ליד זו, וההסבר בשני טורים ===== */
+  @media (min-width: 1000px) {
+    .app { max-width: 1080px; padding-block: 40px 60px; }
+    h1 { font-size: 58px; }
+    .continue { max-width: 640px; margin-inline: auto; margin-bottom: 30px; }
+    .app > h2 { margin-inline: 4px; }
+    .mgrid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; align-items: start; }
+    .mgrid .m-card { margin-bottom: 0; }
+    .steps { grid-template-columns: 1fr 1fr; }
+    .amudim a:hover, .btn:hover { filter: brightness(1.12); }
+  }
 </style>
 </head>
 <body>
@@ -84,6 +96,7 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
 
   <h2>המסכתות</h2>
 
+  <div class="mgrid">
   <div class="m-card">
     <div class="m-head"><div class="m-name">תענית</div><div class="m-range">ב׳ ע״א — ו׳ ע״א</div></div>
     <p class="m-desc">כל סוגיה מפורקת לשלבים: שאלה, תירוץ, דחייה ומסקנה. כל שלב מסומן על צילום הדף, עם תרגום מילה במילה.</p>
@@ -102,6 +115,7 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
       <a class="btn pri" href="zevachim.html" onclick="go('zevachim')">📖 ללמוד</a>
       <a class="btn sec" href="zevachim.html#tutorial">🎓 איך לקרוא גמרא</a>
     </div>
+  </div>
   </div>
 
   <section class="how">
