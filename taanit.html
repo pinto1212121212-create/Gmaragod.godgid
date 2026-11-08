@@ -1575,6 +1575,21 @@
   .bp b { font-weight: 800; } .bp em { display: block; font-style: normal; color: var(--soft, #d8cbb0); font-size: 12px; }
   .bp.vs { border-color: #ff5d72; background: rgba(255,93,114,0.1); }
   .bp.fix { border-color: #6fd35c; background: rgba(111,211,92,0.1); }
+
+  /* ===== 🖥️ מחשב: הצילום צמוד בימין, ההסבר בשמאל ===== */
+  @media (min-width: 1100px) {
+    .app { max-width: 1360px; padding: 16px 28px 110px; }
+    header, .tabs, .amud-tabs, .view-tabs { max-width: 1360px; }
+    .scene.active { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); column-gap: 44px; align-items: start; }
+    .scene.active > * { grid-column: 2; min-width: 0; }
+    .scene.active > .scene-tag, .scene.active > .scene-title { grid-column: 1 / -1; }
+    .scene.active > .daf-src { grid-column: 1; grid-row: 3 / span 30; position: sticky; top: 14px; margin: 4px 0 0; }
+    .scene.active .src-wrap { max-height: calc(100vh - 150px); }
+    .scene.active > .mpair { margin-top: 4px; }
+    .beat { font-size: 17px; }
+    .bt-txt { line-height: 1.7; }
+  }
+  @media (min-width: 1500px) { .scene.active { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); } }
 </style>
 </head>
 <body>
@@ -4372,7 +4387,7 @@ function goKey(k) {
   const jump = () => {
     const card = document.querySelector(`.scene.active .beat[data-i="${bi}"]`);
     focusBeat = bi; spyLock = Date.now() + 900; showLoc();
-    if (card) { const src = document.querySelector('.scene.active .daf-src'); const top = card.getBoundingClientRect().top + scrollY - (src ? src.getBoundingClientRect().height : 0) - 30; window.scrollTo({ top, behavior: 'smooth' }); }
+    if (card) { const src = document.querySelector('.scene.active .daf-src'); const top = card.getBoundingClientRect().top + scrollY - (isDesk() ? innerHeight * 0.3 : (src ? src.getBoundingClientRect().height : 0) + 30); window.scrollTo({ top, behavior: 'smooth' }); }
   };
   if (si !== state.sceneIdx) { state.sceneIdx = si; state.beat = 0; renderScenes(); setTimeout(jump, 120); } else jump();
 }
@@ -4449,6 +4464,7 @@ document.addEventListener('wheel', e => { if (e.target.closest && e.target.close
 function activeBeatIdx(sc) {
   return focusBeat != null ? focusBeat : Math.min(state.beat, sc.beats.length - 1);
 }
+const isDesk = () => matchMedia('(min-width: 1100px)').matches;   // מחשב: הצילום בטור הימני
 function showLoc() {
   const svg = document.getElementById('beatArrow');
   const el = document.querySelector('.scene.active');
@@ -4522,14 +4538,18 @@ function drawArrow(beat, hls, animate) {
   const W = beat.closest('.scene').querySelector('.src-wrap').getBoundingClientRect();
   if (B.top > innerHeight || B.bottom < 0 || H.bottom < W.top - 2 || H.top > W.bottom + 2) { svg.innerHTML = ''; return; }
   // החץ עובר בשוליים שמחוץ לצילום, ונעצר בקצה הצילום מול השורה, בלי לעבור על המילים
-  const gx = Math.max(4, W.left - 8);
+  const side = B.right < W.left;                 // מחשב: הכרטיס משמאל לצילום
+  const gx = side ? (B.right + W.left) / 2 : Math.max(4, W.left - 8);
+  const bx = side ? B.right : B.left;
   const by = B.top + Math.min(22, B.height / 2);
   const hy = Math.max(W.top + 6, Math.min(W.bottom - 6, H.top + H.height / 2));
-  const hx = W.left + 1, r = Math.min(8, Math.abs(by - hy) / 2);
-  const d = `M ${B.left} ${by} H ${gx + r} Q ${gx} ${by} ${gx} ${by - r} V ${hy + r} Q ${gx} ${hy} ${gx + r} ${hy} H ${hx}`;
+  const hx = W.left + 1, r = Math.min(8, Math.abs(by - hy) / 2), up = hy < by ? -1 : 1;
+  const d = side
+    ? `M ${bx} ${by} H ${gx - r} Q ${gx} ${by} ${gx} ${by + up * r} V ${hy - up * r} Q ${gx} ${hy} ${gx + r} ${hy} H ${hx}`
+    : `M ${B.left} ${by} H ${gx + r} Q ${gx} ${by} ${gx} ${by - r} V ${hy + r} Q ${gx} ${hy} ${gx + r} ${hy} H ${hx}`;
   svg.innerHTML = `<path class="ba-line${animate ? ' draw' : ''}" d="${d}"/>
     <path class="ba-head" d="M ${hx - 9} ${hy - 6} L ${hx} ${hy} L ${hx - 9} ${hy + 6} Z"/>
-    <circle class="ba-dot" cx="${B.left}" cy="${by}" r="4"/>`;
+    <circle class="ba-dot" cx="${bx}" cy="${by}" r="4"/>`;
 }
 let arrowRAF = 0;
 function redrawArrow() {
@@ -4554,7 +4574,7 @@ function scrollSpy() {
     const sc = amudim[state.ref].scenes[state.sceneIdx];
     if (!sc || !sc.beats || !sc.src) { redrawArrow(); return; }
     const src = el.querySelector('.daf-src');
-    const line = (src ? src.getBoundingClientRect().bottom : 0) + 110;  // קו הקריאה: מתחת לצילום, איפה שהעין קוראת
+    const line = isDesk() ? innerHeight * 0.36 : (src ? src.getBoundingClientRect().bottom : 0) + 110;  // קו הקריאה: מתחת לצילום, איפה שהעין קוראת
     const cards = [...el.querySelectorAll('.beat.on')].filter(b => beatLoc(state.ref, state.sceneIdx, +b.dataset.i));
     if (!cards.length) { redrawArrow(); return; }
     let best = null, bestD = Infinity;
