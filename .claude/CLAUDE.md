@@ -249,6 +249,9 @@ node .claude/tools/check.js                   # חייב: "בלי הדגשה: א
 
 **אם משהו כאן לא מתאים למצב בפועל, עדכן את הקובץ הזה באותו PR.**
 
+## 7א. 🔄 עדכונים אצל המשתמש
+GitHub Pages שולח `Cache-Control: max-age=600`, ולכן הדפדפן בטלפון מראה עותק ישן עד 10 דקות אחרי העלאה (המשתמש חשב שהתיקון לא עובד). בראש `index.html`, `taanit.html` ו־`tree.html` יש סקריפט קטן: משווה את ה־ETag של העותק השמור לזה שבשרת (`HEAD`, `no-store`), ואם שונה טוען מחדש פעם אחת (`sessionStorage gemara:rl:<path>`). דף חדש — להוסיף גם לו.
+
 ## 8. 🔒 אבטחה (כמו ביומן של רינת, בלי סיסמה)
 בראש **כל** דף HTML (אחרי `<meta charset>`) יש בלוק אבטחה: `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `referrer` ו־`Permissions-Policy`.
 - ה־CSP מרשה רק קבצים מהאתר עצמו, Google Fonts, ותמונות `data:`/`blob:`. **דף חדש חייב לקבל את אותו בלוק.** ספרייה או אתר חיצוני חדש? מוסיפים את הדומיין ל־CSP, אחרת הוא ייחסם.

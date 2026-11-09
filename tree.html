@@ -273,6 +273,16 @@
     .tab:hover { border-color: var(--gold); color: var(--gold-b); }
   }
 </style>
+<script>
+// 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
+(async () => { try {
+  const u = location.pathname, k = 'gemara:rl:' + u;
+  const [a, b] = await Promise.all([fetch(u, { cache: 'force-cache' }), fetch(u, { method: 'HEAD', cache: 'no-store' })]);
+  const ea = a.headers.get('etag') || a.headers.get('last-modified'), eb = b.headers.get('etag') || b.headers.get('last-modified');
+  if (ea && eb && ea !== eb && !sessionStorage.getItem(k)) { sessionStorage.setItem(k, '1'); location.reload(); }
+  else sessionStorage.removeItem(k);
+} catch (e) {} })();
+</script>
 </head>
 <body>
 <div class="top">

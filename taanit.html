@@ -1598,6 +1598,16 @@
   }
   .modal-close.po-back { width: auto; padding: 0 14px; border-radius: 18px; font: 800 14px 'Heebo', sans-serif; white-space: nowrap; }
 </style>
+<script>
+// 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
+(async () => { try {
+  const u = location.pathname, k = 'gemara:rl:' + u;
+  const [a, b] = await Promise.all([fetch(u, { cache: 'force-cache' }), fetch(u, { method: 'HEAD', cache: 'no-store' })]);
+  const ea = a.headers.get('etag') || a.headers.get('last-modified'), eb = b.headers.get('etag') || b.headers.get('last-modified');
+  if (ea && eb && ea !== eb && !sessionStorage.getItem(k)) { sessionStorage.setItem(k, '1'); location.reload(); }
+  else sessionStorage.removeItem(k);
+} catch (e) {} })();
+</script>
 </head>
 <body>
 
@@ -5592,7 +5602,8 @@ function readHash() {
   // #4b-6 — דף וקטע (מגיעים מעץ הסוגיה); הקטע נפתח במלואו
   // #4b-6-2 — גם שלב; #4b-6-2-daf — וגם פותח את הדף המלא עם הסימון של השלב (מגיעים מהצילום בעץ)
   const m = h.match(/^(\d+[ab])-(\d+)(?:-(\d+))?(-daf)?(?:-n(\d+))?$/);
-  PO.back = m && m[5] ? `tree.html#${m[1]}-${m[2]}n${m[5]}` : null;   // הגיעו מהעץ: ✕ מחזיר לאותו צומת
+  PO.back = m && m[5] ? `tree.html#${m[1]}-${m[2]}n${m[5]}`
+    : m && m[4] && /\/tree\.html/.test(document.referrer) ? `tree.html#${m[1]}-${m[2]}` : null;   // הגיעו מהעץ: הכפתור מחזיר לאותו צומת
   if (m && amudim[m[1]] && amudim[m[1]].scenes[+m[2]]) {
     switchTab('masechet');
     goToRef(m[1]);
