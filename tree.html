@@ -390,8 +390,10 @@ function marksHTML(ref, n) {
 // ===== מצב =====
 const st = { ref: '4b', sel: null, sec: null };
 try { const s = JSON.parse(localStorage.getItem('gemara:tree2') || 'null'); if (s && TREE[s.ref]) st.ref = s.ref; } catch (e) {}
-const hm = location.hash.slice(1).match(/^(\d+[ab])(?:-(\d+))?(?:@(\w+))?$/);
-if (hm && TREE[hm[1]]) { st.ref = hm[1]; if (hm[2] != null) st.sec = +hm[2]; if (hm[3]) st.pAsk = hm[3]; }
+// #4b · #4b-8 (קטע) · #4b-8n21 (צומת 21: חזרה מהדף המלא) · #4b@yochanan (אמורא)
+const HASH_RE = /^(\d+[ab])(?:-(\d+))?(?:n(\d+))?(?:@(\w+))?$/;
+const hm = location.hash.slice(1).match(HASH_RE);
+if (hm && TREE[hm[1]]) { st.ref = hm[1]; if (hm[2] != null) st.sec = +hm[2]; if (hm[3]) st.nAsk = +hm[3]; if (hm[4]) st.pAsk = hm[4]; }
 
 // ===== פריסה: כל צומת רוחב קבוע, הורה מעל מרכז ילדיו; ימין-לשמאל =====
 const NW = 136, NH = 62, GX = 16, GY = 112, RG = 70;
@@ -632,7 +634,7 @@ function toolbar(n, kids) {
   let cur = panes.find(p => p[0] === shTab && p[2]) ? shTab : 'tk';
   // הצילום עם המילים המודגשות — תמיד גלוי וצמוד למעלה, מעל הלשוניות (גם במילה במילה)
   const bk = ks.map(k => k.split(':')).find(([r, s]) => r === st.ref && +s === n.s);
-  const dafHref = `${BASE}taanit.html#${st.ref}-${n.s}${bk ? '-' + bk[2] : ''}-daf`;
+  const dafHref = `${BASE}taanit.html#${st.ref}-${n.s}${bk ? '-' + bk[2] : ''}-daf-n${n.seq}`;   // n = הצומת, כדי לחזור אליו
   const img = `<a class="sh-img sh-daf" href="${dafHref}" aria-label="הדף המלא עם הסימון"><span class="sh-dafhint">📖 לדף המלא</span><div class="sh-imgw"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onload="shImgFocus()" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></a>`;
   return `<div class="sh-pin">${img}<div class="sh-tabs" role="tablist">${panes.map(([id, lb, body]) => `<button class="sh-tab${id === cur ? ' on' : ''}" data-t="${id}"${body ? '' : ' disabled'}>${lb}</button>`).join('')}</div></div>
     ${panes.map(([id, , body]) => `<div class="sh-pane${id === cur ? ' on' : ''}" data-t="${id}">${body || '<div class="sh-none">אין לשלב הזה</div>'}</div>`).join('')}`;
@@ -981,13 +983,14 @@ function load(ref, sec) {
   $('sPlay').textContent = '▶ סיפור הסוגיה'; $('sProg').textContent = `0/${flat.length}`;
   fit(false);
   if (st.pAsk && pById(st.pAsk)) { const id = st.pAsk; st.pAsk = null; setTimeout(() => personOn(pById(id)), 500); }
+  else if (st.nAsk && flat[st.nAsk - 1]) { const n = flat[st.nAsk - 1]; st.nAsk = null; setTimeout(() => select(n, true), 400); }
   else if (sec != null) { const n = flat.find(m => m.s === sec); if (n) setTimeout(() => select(n, true), 500); }
   else setTimeout(() => { if (!st.sel && !story) { const { w } = stageBox(); flyTo(w / 2 - root.x * 0.85, 120 - (root.y - 60) * 0.85, 0.85, 1100); } }, 900);
   save();
 }
 $('tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) load(b.dataset.r); });
 window.addEventListener('resize', () => { if (st.sel) centerOn(st.sel); else fit(false); });
-window.addEventListener('hashchange', () => { const m = location.hash.slice(1).match(/^(\d+[ab])(?:-(\d+))?(?:@(\w+))?$/); if (m && TREE[m[1]]) { st.pAsk = m[3] || null; load(m[1], m[2] != null ? +m[2] : null); } });
+window.addEventListener('hashchange', () => { const m = location.hash.slice(1).match(HASH_RE); if (m && TREE[m[1]]) { st.nAsk = m[3] ? +m[3] : null; st.pAsk = m[4] || null; load(m[1], m[2] != null ? +m[2] : null); } });
 load(st.ref, st.sec);
 setTimeout(hideHint, 4500);
 </script>
