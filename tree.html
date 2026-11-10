@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="theme.css">
+<script src="prefs.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -299,6 +300,19 @@
   .ex-pbox button { display: flex; align-items: center; gap: 10px; font: inherit; font-size: 14px; font-weight: 800; color: #f3efe6; background: rgba(232,183,109,.12); border: 1px solid rgba(232,183,109,.45); border-radius: 12px; padding: 6px; text-align: right; cursor: pointer; }
   .ex-pbox button img { width: 52px; height: 52px; object-fit: cover; object-position: top; border-radius: 8px; }
   .ex-pbox .ex-pc { justify-content: center; background: transparent; }
+
+  /* ⚙️ חלונית נוחות + ♿ אזורי מגע */
+  .pf-pop { position: absolute; left: 62px; top: 110px; z-index: 30; width: min(340px, calc(100vw - 80px)); background: var(--t-bg-2); border: 1.5px solid var(--t-line-gold); border-radius: var(--t-r-lg); padding: 10px; box-shadow: var(--t-shadow); }
+  .pf-pop[hidden] { display: none; }
+  .pf-h { display: flex; align-items: center; justify-content: space-between; color: var(--t-gold-b); margin-bottom: 8px; padding: 0 4px; }
+  .pf-x { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--t-line-gold); background: transparent; color: var(--t-gold-b); cursor: pointer; }
+  .sh-x { min-width: 40px; min-height: 40px; }
+  .sh-sz { min-height: 34px; }
+  .sh-tab { min-height: 36px; }
+  .tab { min-height: 38px; }
+  .sh-text { font-size: calc(20px * var(--fz, 1)); }
+  @media (min-width: 1100px) { .sh-text { font-size: calc(22px * var(--fz, 1)); } }
+  .sh-pane, .sh-ctx p { font-size: calc(14.5px * var(--fz, 1)); }
 </style>
 <script>
 // 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
@@ -336,7 +350,9 @@
     <button class="ib" id="zOut" aria-label="הקטן">−</button>
     <button class="ib" id="zFit" aria-label="כל העץ">⤢</button>
     <button class="ib" id="lgBtn" aria-label="מקרא">🎨</button>
+    <button class="ib" id="pfBtn" aria-label="נוחות ונגישות" aria-expanded="false">⚙️</button>
   </div>
+  <div class="pf-pop" id="pfPop" hidden role="dialog" aria-label="נוחות ונגישות"></div>
   <div class="legend hide" id="legend">
     <span><i style="--c:var(--m)"></i>משנה / מקור</span>
     <span><i style="--c:var(--q)"></i>שאלה / דחייה</span>
@@ -617,7 +633,7 @@ function sheet(n) {
   sh.style.setProperty('--rc', COL[n.r]);
   sh.classList.remove('pcard');
   sh.innerHTML = `<div class="sh-grip" id="shGrip" aria-label="גרירה: הגדלה / הקטנה"><div class="grab"></div></div>
-    <div class="sh-head"><span class="sh-role">${ROLE[n.r][0]} ${ROLE[n.r][1]}</span><span class="sh-who">${n.w}</span><span class="sh-no">שלב ${n.seq} מתוך ${flat.length}</span><button class="sh-sz" id="shSz"></button><button class="sh-x" id="shX" aria-label="סגור">✕</button></div>
+    <div class="sh-head"><span class="sh-role">${ROLE[n.r][0]} ${ROLE[n.r][1]}</span><span class="sh-who">${n.w}</span><span class="sh-no">שלב ${n.seq} מתוך ${flat.length}</span>${canSpeak ? '<button type="button" class="speak-btn" id="shSay" aria-label="הקראה בקול" aria-pressed="false" title="הקראה בקול">🔊</button>' : ''}<button class="sh-sz" id="shSz"></button><button class="sh-x" id="shX" aria-label="סגור">✕</button></div>
     ${rel && n.parent && n.parent.r !== 'root' ? `<div class="sh-rel">⟵ ${rel} על: ״${short(n.parent.t, 40)}״</div>` : ''}
     ${ppLine(n)}
     <div class="sh-text">${linkNames(n.t)}</div>
@@ -835,6 +851,15 @@ stg.addEventListener('wheel', e => {
 function zoomBy(f) { const { w, h } = stageBox(); const k = Math.max(0.15, Math.min(2.5, cam.k * f)); flyTo(w / 2 - (w / 2 - cam.x) * (k / cam.k), h / 2 - (h / 2 - cam.y) * (k / cam.k), k, 300); }
 $('zIn').onclick = () => zoomBy(1.35); $('zOut').onclick = () => zoomBy(1 / 1.35); $('zFit').onclick = () => { closeSheet(); fit(true); };
 $('lgBtn').onclick = () => $('legend').classList.toggle('hide');
+// ⚙️ נוחות ונגישות (prefs.js)
+$('pfBtn').onclick = () => { const p = $('pfPop'), open = p.hidden;
+  if (open) { p.innerHTML = `<div class="pf-h"><b>⚙️ נוחות ונגישות</b><button type="button" class="pf-x" aria-label="סגור">✕</button></div>${prefsHTML()}`; prefBind(p); p.querySelector('.pf-x').onclick = () => $('pfBtn').click(); }
+  p.hidden = !open; $('pfBtn').setAttribute('aria-expanded', open); if (open) p.querySelector('.pf-x').focus(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('pfPop').hidden) $('pfBtn').click(); });
+// 🔊 הקראת הצומת הפתוח: מי, מה, ובתכלס
+document.addEventListener('click', e => { const b = e.target.closest('#shSay'); if (!b || !st.sel) return;
+  const n = st.sel, T = typeof TX !== 'undefined' ? TX : {}, tk = cxKeys(n).map(k => (T.TAKHLES || {})[k]).filter(Boolean).join(' ');
+  speak(`${n.w}. ${n.t}. ${n.e || ''}. ${tk ? 'בתכלס: ' + tk : ''}`.replace(/<[^>]+>/g, ' '), b); });
 function hideHint() { const h = $('hint'); if (h) { h.style.opacity = 0; setTimeout(() => h.remove(), 600); } }
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeSheet();

@@ -18,6 +18,7 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="theme.css">
+<script src="prefs.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -123,8 +124,10 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
   <div class="quick" id="quick">
     <a class="q-it" id="qStars" href="taanit.html#stars" hidden>⭐ <b>השמורים שלי</b><small id="qStarsN"></small></a>
     <a class="q-it" href="tree.html">🌳 <b>עץ הסוגיה</b><small>כל הדף כמפה</small></a>
+    <button type="button" class="q-it" id="qPrefs" aria-expanded="false">⚙️ <b>נוחות ונגישות</b><small>גודל אותיות, ניגודיות, מרווח</small></button>
     <button type="button" class="q-it" id="qInstall" hidden>📲 <b>התקן כאפליקציה</b><small>אייקון במסך הבית, עובד גם בלי אינטרנט</small></button>
   </div>
+  <div id="prefsBox" hidden></div>
   <div class="ios-tip" id="iosTip" hidden>📲 להתקנה באייפון: לוחצים על <b>שיתוף</b> ⬆️ ואז <b>״הוסף למסך הבית״</b>.</div>
 
   <h2>המסכתות</h2>
@@ -187,6 +190,8 @@ const standalone = matchMedia('(display-mode: standalone)').matches || navigator
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEv = e; if (!standalone) document.getElementById('qInstall').hidden = false; });
 document.getElementById('qInstall').onclick = async () => { if (!installEv) return; installEv.prompt(); try { await installEv.userChoice; } catch (e) {} installEv = null; document.getElementById('qInstall').hidden = true; };
 if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) document.getElementById('iosTip').hidden = false;
+document.getElementById('qPrefs').onclick = () => { const b = document.getElementById('prefsBox'), open = b.hidden;
+  if (open) { b.innerHTML = prefsHTML(); prefBind(b); } b.hidden = !open; document.getElementById('qPrefs').setAttribute('aria-expanded', open); };
 const tp = read('gemara:taanit');
 document.getElementById('taanitAmudim').innerHTML = Object.entries(AM).map(([r, n]) =>
   `<a href="taanit.html#${r}" onclick="go('taanit')" class="${tp && tp.ref === r ? 'here' : ''}">${n}</a>`).join('');

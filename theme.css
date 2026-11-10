@@ -50,3 +50,30 @@ html { scrollbar-color: rgba(232,183,109,0.35) transparent; scrollbar-width: thi
   .ex-scroll img { display: block; width: 100%; max-width: 900px; margin: 0 auto; }
   .ex-view.zoom .ex-scroll img { width: 200%; max-width: none; }
   .ex-view.zoom .ex-z { background: #e8b76d; color: #111829; }
+
+/* ♿ הגדרות נוחות (prefs.js) */
+.pf-box { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: var(--t-r); background: rgba(232,183,109,0.07); border: 1px solid var(--t-line-gold); margin-bottom: 12px; }
+.pf-row { display: flex; align-items: center; gap: 10px; padding: 6px 6px; border-radius: var(--t-r-sm); cursor: pointer; color: var(--t-text); }
+.pf-row > span:first-child { flex: 1; display: flex; flex-direction: column; }
+.pf-row b { font-size: 14.5px; } .pf-row small { font-size: 12px; color: var(--t-text-dim); }
+.pf-fz { display: inline-flex; align-items: center; gap: 6px; }
+.pf-fz button { min-width: 44px; min-height: 40px; border-radius: 10px; border: 1px solid rgba(232,183,109,.5); background: rgba(232,183,109,.14); color: var(--t-gold-b); font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; }
+.pf-fz output { min-width: 46px; text-align: center; color: var(--t-gold-b); font-weight: 800; }
+.pf-sw { appearance: none; -webkit-appearance: none; width: 48px; height: 28px; border-radius: 14px; background: rgba(236,233,226,.18); position: relative; cursor: pointer; flex: 0 0 auto; transition: background .2s; }
+.pf-sw::after { content: ''; position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: right .2s; }
+.pf-sw:checked { background: var(--t-a); } .pf-sw:checked::after { right: 23px; }
+.pf-note { font-size: 12.5px; color: var(--t-text-dim); padding: 2px 6px; }
+.speak-btn { border: none; background: transparent; color: var(--t-text-dim); font-size: 17px; cursor: pointer; min-width: 36px; min-height: 36px; border-radius: 50%; }
+.speak-btn.on { background: rgba(111,211,92,.2); color: var(--t-a); animation: spk 1.2s ease-in-out infinite; }
+@keyframes spk { 50% { box-shadow: 0 0 0 6px rgba(111,211,92,.15); } }
+
+/* 🌓 ניגודיות גבוהה */
+html.p-hc { --t-text: #ffffff; --t-text-soft: #f1f1f1; --t-text-dim: #cfd6e6; --t-line: rgba(255,255,255,0.35); --t-line-gold: rgba(245,211,154,0.8); --t-bg: #05070d; --t-bg-2: #0b0f1c; --t-surface: #121a30; }
+html.p-hc body { background: #05070d !important; }
+html.p-hc .beat, html.p-hc .takhles, html.p-hc .ctx .ctx-t, html.p-hc .flow li, html.p-hc .flow li span, html.p-hc .bottom-line { color: #fff !important; }
+html.p-hc .beat, html.p-hc .takhles, html.p-hc .m-card, html.p-hc .toc-list button, html.p-hc .ex-card { border-color: rgba(255,255,255,0.45) !important; }
+html.p-hc .src-hl, html.p-hc .mk { filter: saturate(1.5) contrast(1.15); }
+/* 📏 שורות מרווחות */
+html.p-ls .beat, html.p-ls .takhles, html.p-ls .ctx .ctx-t, html.p-ls .bottom-line, html.p-ls .g-punct, html.p-ls .sh-pane, html.p-ls .m-desc { line-height: 2 !important; letter-spacing: .01em; }
+/* 🧘 בלי תנועה */
+html.p-rm *, html.p-rm *::before, html.p-rm *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
