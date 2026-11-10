@@ -9,7 +9,7 @@ fs.mkdirSync(out, { recursive: true });
 const srv = http.createServer((q, r) => {
   let f = path.join(root, decodeURIComponent(q.url.split('?')[0].split('#')[0])); if (f.endsWith('/')) f += 'index.html';
   fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); r.end(); return; }
-    r.writeHead(200, { 'Content-Type': f.endsWith('.html') ? 'text/html; charset=utf-8' : f.endsWith('.js') ? 'text/javascript' : 'image/jpeg' }); r.end(d); });
+    r.writeHead(200, { 'Content-Type': ({ html: 'text/html; charset=utf-8', js: 'text/javascript', css: 'text/css', webmanifest: 'application/manifest+json', png: 'image/png' })[f.split('.').pop()] || 'image/jpeg' }); r.end(d); });
 }).listen(8799);
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 412, height: 915 } });

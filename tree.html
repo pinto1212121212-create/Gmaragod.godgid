@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="theme-color" content="#0e1322">
 <!-- 🔒 אבטחה (כמו ביומן של רינת, בלי סיסמה) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://pinto1212121212-create.github.io; connect-src 'self'; media-src 'self'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://pinto1212121212-create.github.io; connect-src 'self'; media-src 'self'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=()">
@@ -13,12 +13,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="הגמרא שלי">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>if ('serviceWorker' in navigator && location.protocol === 'https:') window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));</script>
 <style>
   /* פריסה: מסך מלא — סרגל עליון דק, במה של מפה חיה שגוררים ומגדילים, ולוח פרטים שעולה מלמטה */
   :root {
-    --ink: #0a0e19; --ink-2: #111829; --card: #1b2339;
-    --parchment: #f3efe6; --soft: #dbd7cf; --dim: #9aa4ba;
-    --gold: #e8b76d; --gold-b: #f5d39a;
+    --ink: var(--t-bg-deep); --ink-2: var(--t-bg-2); --card: var(--t-surface);
+    --parchment: var(--t-text); --soft: var(--t-text-soft); --dim: var(--t-text-dim);
+    --gold: var(--t-gold); --gold-b: var(--t-gold-b);
     --q: #ff5d72; --a: #6fd35c; --c: #ffc94d; --m: #5fb2ff; --n: #d7b26e; --k: #b296ff; --x: #ff5d72;
     color-scheme: dark;
   }
@@ -34,7 +42,9 @@
   .ttl { text-align: center; line-height: 1.1; }
   .ttl small { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: .25em; color: var(--gold); }
   .ttl b { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 900; color: var(--gold-b); }
-  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 6px; }
+  .tabs { display: flex; gap: 6px; margin-top: 6px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; padding-bottom: 2px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs .tab { flex: 0 0 auto; min-width: 74px; scroll-snap-align: center; }
   .tab { font-family: inherit; font-size: 13.5px; font-weight: 800; padding: 7px 2px; border-radius: 10px; border: 1px solid rgba(232,183,109,0.3); background: transparent; color: var(--soft); cursor: pointer; }
   .tab.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
 
@@ -272,28 +282,10 @@
   }
 
   @media (min-width: 1100px) {
-    .tabs { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); max-width: 1100px; margin-inline: auto; }
+    .tabs { justify-content: center; flex-wrap: wrap; max-width: 1100px; margin-inline: auto; -webkit-mask-image: none; mask-image: none; }
+    .tabs .tab { min-width: 96px; }
     .tab:hover { border-color: var(--gold); color: var(--gold-b); }
   }
-  /* 🖼️ הסבר מאויר (explain-data.js) */
-  .ex-card { display: flex; align-items: center; gap: 12px; width: 100%; margin: 4px 0 14px; padding: 8px 10px 8px 14px; border-radius: 14px; border: 1.5px solid rgba(232,183,109,0.55); background: linear-gradient(135deg, rgba(232,183,109,0.16), rgba(232,183,109,0.05)); color: #f3efe6; font: inherit; text-align: right; cursor: pointer; }
-  .ex-card:hover { border-color: #f5d39a; }
-  .ex-thumb { flex: 0 0 74px; height: 74px; border-radius: 10px; overflow: hidden; background: #0c1120; box-shadow: 0 0 0 1px rgba(232,183,109,0.35); }
-  .ex-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
-  .ex-t { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-  .ex-t b { font-size: 16px; color: #f5d39a; }
-  .ex-t small { font-size: 13px; color: #d0ccc5; line-height: 1.4; }
-  .ex-go { flex: 0 0 auto; font-size: 13px; font-weight: 800; color: #111829; background: #e8b76d; border-radius: 10px; padding: 5px 10px; }
-  .ex-view { position: fixed; inset: 0; z-index: 9000; background: #0a0e19; display: none; flex-direction: column; }
-  .ex-view.on { display: flex; }
-  html.ex-open, html.ex-open body { overflow: hidden; }
-  .ex-bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid rgba(232,183,109,0.3); color: #f5d39a; font-weight: 800; font-size: 15px; }
-  .ex-h { flex: 1; text-align: center; }
-  .ex-bar button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(232,183,109,0.45); background: rgba(232,183,109,0.12); color: #f5d39a; font-size: 18px; cursor: pointer; }
-  .ex-scroll { flex: 1; overflow: auto; direction: ltr; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-  .ex-scroll img { display: block; width: 100%; max-width: 900px; margin: 0 auto; }
-  .ex-view.zoom .ex-scroll img { width: 200%; max-width: none; }
-  .ex-view.zoom .ex-z { background: #e8b76d; color: #111829; }
   .ex-map { cursor: pointer; }
   .ex-map rect { fill: rgba(232,183,109,0.18); stroke: #e8b76d; stroke-width: 1.5; }
   .ex-map text { fill: #f5d39a; font-size: 13px; font-weight: 800; text-anchor: middle; }
@@ -1045,6 +1037,7 @@ function load(ref, sec) {
   if (story) stopStory();
   st.ref = ref; st.sel = null; st.person = null; pplPrep(); $('stage').classList.remove('pfocus');
   $('tabs').innerHTML = Object.keys(TREE).map(r => `<button class="tab${r === ref ? ' on' : ''}" data-r="${r}">${TREE[r].title}</button>`).join('');
+  { const on = $('tabs').querySelector('.tab.on'); if (on) requestAnimationFrame(() => on.scrollIntoView({ inline: 'center', block: 'nearest' })); }
   $('backLink').href = BASE + 'taanit.html#' + ref;
   build(ref); draw(); sheet(null); revealUpTo(flat.length);
   $('sPlay').textContent = '▶ סיפור הסוגיה'; $('sProg').textContent = `0/${flat.length}`;

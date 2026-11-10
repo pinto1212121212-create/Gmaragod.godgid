@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="theme-color" content="#0e1322">
 <!-- 🔒 אבטחה (כמו ביומן של רינת, בלי סיסמה) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://pinto1212121212-create.github.io; connect-src 'self'; media-src 'self'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://pinto1212121212-create.github.io; connect-src 'self'; media-src 'self'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=()">
@@ -13,16 +13,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="הגמרא שלי">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>if ('serviceWorker' in navigator && location.protocol === 'https:') window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));</script>
 <style>
   :root {
-    --ink: #0e1322;
-    --ink-2: #151c30;
-    --parchment: #f3efe6;
-    --parchment-soft: #e2ded6;
-    --parchment-dim: #a3acc0;
-    --gold: #e8b76d;
-    --gold-bright: #f5d39a;
-    --gold-deep: #8a6638;
+    --ink: var(--t-bg);
+    --ink-2: var(--t-bg-2);
+    --parchment: var(--t-text);
+    --parchment-soft: var(--t-text-soft);
+    --parchment-dim: var(--t-text-dim);
+    --gold: var(--t-gold);
+    --gold-bright: var(--t-gold-b);
+    --gold-deep: var(--t-gold-deep);
     --gold-shadow: #5a4220;
     --crimson: #c14a5a;
     --crimson-glow: #e87080;
@@ -1599,25 +1607,6 @@
     .po-call { max-width: 1100px; margin-inline: auto; }
   }
   .modal-close.po-back { width: auto; padding: 0 14px; border-radius: 18px; font: 800 14px 'Heebo', sans-serif; white-space: nowrap; }
-  /* 🖼️ הסבר מאויר (explain-data.js) */
-  .ex-card { display: flex; align-items: center; gap: 12px; width: 100%; margin: 4px 0 14px; padding: 8px 10px 8px 14px; border-radius: 14px; border: 1.5px solid rgba(232,183,109,0.55); background: linear-gradient(135deg, rgba(232,183,109,0.16), rgba(232,183,109,0.05)); color: #f3efe6; font: inherit; text-align: right; cursor: pointer; }
-  .ex-card:hover { border-color: #f5d39a; }
-  .ex-thumb { flex: 0 0 74px; height: 74px; border-radius: 10px; overflow: hidden; background: #0c1120; box-shadow: 0 0 0 1px rgba(232,183,109,0.35); }
-  .ex-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
-  .ex-t { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-  .ex-t b { font-size: 16px; color: #f5d39a; }
-  .ex-t small { font-size: 13px; color: #d0ccc5; line-height: 1.4; }
-  .ex-go { flex: 0 0 auto; font-size: 13px; font-weight: 800; color: #111829; background: #e8b76d; border-radius: 10px; padding: 5px 10px; }
-  .ex-view { position: fixed; inset: 0; z-index: 9000; background: #0a0e19; display: none; flex-direction: column; }
-  .ex-view.on { display: flex; }
-  html.ex-open, html.ex-open body { overflow: hidden; }
-  .ex-bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid rgba(232,183,109,0.3); color: #f5d39a; font-weight: 800; font-size: 15px; }
-  .ex-h { flex: 1; text-align: center; }
-  .ex-bar button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(232,183,109,0.45); background: rgba(232,183,109,0.12); color: #f5d39a; font-size: 18px; cursor: pointer; }
-  .ex-scroll { flex: 1; overflow: auto; direction: ltr; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-  .ex-scroll img { display: block; width: 100%; max-width: 900px; margin: 0 auto; }
-  .ex-view.zoom .ex-scroll img { width: 200%; max-width: none; }
-  .ex-view.zoom .ex-z { background: #e8b76d; color: #111829; }
 
   /* 📑 תוכן הדף + גודל אותיות */
   .nav-mid { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
@@ -6065,6 +6054,7 @@ function readHash() {
     switchTab('tutorial');
     return;
   }
+  if (h === 'stars') { setTimeout(openToc, 250); return; }   // מדף הבית: ⭐ השמורים שלי
   if (h && amudim[h]) {
     switchTab('masechet');
     goToRef(h);
