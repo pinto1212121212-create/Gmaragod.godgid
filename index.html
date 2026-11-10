@@ -2,6 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#0e1322">
 <!-- 🔒 אבטחה (כמו ביומן של רינת, בלי סיסמה) -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://pinto1212121212-create.github.io; connect-src 'self'; media-src 'self'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -19,14 +20,14 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
 <style>
   /* פריסה: טור אחד — ״המשך״ קודם כל, אחר כך המסכתות, ובסוף הסבר קצר */
   :root {
-    --ink: #1a1410; --ink-2: #221a14; --card: #2a2119;
-    --parchment: #f4ead5; --soft: #e2d5ba; --dim: #a8987a;
+    --ink: #0e1322; --ink-2: #151c30; --card: #1b2339;
+    --parchment: #f3efe6; --soft: #dbd7cf; --dim: #9aa4ba;
     --gold: #e8b76d; --gold-b: #f5d39a; --sage: #6cc35a; --sky: #5ea8e0;
     color-scheme: dark;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: var(--ink); color: var(--parchment); font-family: 'Heebo', sans-serif; overflow-x: clip; }
-  body { min-height: 100vh; background: radial-gradient(ellipse at 50% 0%, rgba(232,183,109,0.11), transparent 60%), linear-gradient(180deg, #1a1410, #221a14 60%, #1a1410); }
+  body { min-height: 100vh; background: radial-gradient(ellipse at 50% -10%, rgba(242,185,80,0.14), transparent 55%), radial-gradient(ellipse at 100% 100%, rgba(90,120,220,0.10), transparent 50%), linear-gradient(180deg, #0e1322, #151c30 60%, #0e1322); }
   .app { max-width: 640px; margin: 0 auto; padding-block: 26px 50px;
     padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
   header { text-align: center; margin-bottom: 22px; }
@@ -42,26 +43,26 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
   .continue[hidden] { display: none; }
 
   h2 { font-size: 13px; font-weight: 800; letter-spacing: .15em; color: var(--gold); margin: 0 4px 10px; }
-  .m-card { background: var(--card); border: 1px solid rgba(244,234,213,0.08); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+  .m-card { background: var(--card); border: 1px solid rgba(236,233,226,0.08); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
   .m-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
   .m-name { font-family: 'Frank Ruhl Libre', serif; font-size: 30px; font-weight: 900; color: var(--gold-b); }
   .m-range { font-size: 13px; font-weight: 700; color: var(--dim); }
   .m-desc { font-size: 14.5px; line-height: 1.6; color: var(--soft); margin: 6px 0 12px; }
   .m-feat { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-  .m-feat span { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 12px; background: rgba(244,234,213,0.07); color: var(--soft); }
+  .m-feat span { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 12px; background: rgba(236,233,226,0.07); color: var(--soft); }
   .m-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .btn { display: block; text-align: center; text-decoration: none; font-weight: 800; font-size: 15px; padding: 12px 8px; border-radius: 12px; }
   .btn.pri { background: var(--gold); color: var(--ink); }
   .btn.sec { border: 1.5px solid rgba(232,183,109,0.45); color: var(--gold-b); }
   .amudim { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
   .amudim a { font-size: 14px; font-weight: 800; text-decoration: none; color: var(--parchment); padding: 7px 13px; border-radius: 12px;
-    background: rgba(244,234,213,0.06); border: 1px solid rgba(244,234,213,0.1); }
+    background: rgba(236,233,226,0.06); border: 1px solid rgba(236,233,226,0.1); }
   .amudim a.here { border-color: var(--gold); color: var(--gold-b); }
   .m-card.muted .m-name { color: var(--soft); }
 
   .how { margin-top: 26px; }
   .steps { display: grid; gap: 8px; }
-  .step { display: flex; gap: 12px; align-items: flex-start; background: rgba(244,234,213,0.04); border-radius: 12px; padding: 11px 13px; }
+  .step { display: flex; gap: 12px; align-items: flex-start; background: rgba(236,233,226,0.04); border-radius: 12px; padding: 11px 13px; }
   .step i { font-style: normal; font-size: 22px; line-height: 1.2; }
   .step p { font-size: 14px; line-height: 1.6; color: var(--soft); }
   .step b { color: var(--parchment); }
