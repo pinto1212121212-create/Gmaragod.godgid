@@ -1667,6 +1667,47 @@
   .toc-pf summary::-webkit-details-marker { display: none; }
   .toc-pf summary small { display: block; font-weight: 500; font-size: 11.5px; color: var(--parchment-dim); }
   .toc-pf[open] summary { margin-bottom: 8px; }
+
+  /* ===== 🧹 דף לימוד רגוע ===== */
+  /* כותרת בשורה אחת: 🏠 ‹ תענית · דף › ❓ */
+  header { padding: 4px 0 8px; margin-bottom: 8px; display: grid; grid-template-columns: auto auto 1fr auto auto; align-items: center; gap: 6px; }
+  header .topbar, header .daf-nav { display: contents; }
+  header .topbar > .tb-btn:first-child { grid-column: 1; grid-row: 1; }
+  header #helpBtn { grid-column: 5; grid-row: 1; }
+  header .masechet-name { display: none; }
+  header #prevDafBtn { grid-column: 2; grid-row: 1; } header #nextDafBtn { grid-column: 4; grid-row: 1; }
+  header .daf-display { grid-column: 3; grid-row: 1; text-align: center; }
+  header .daf-display h1 { font-size: 21px !important; line-height: 1.2; margin: 0; }
+  header .daf-display h1::before { content: 'תענית · '; color: var(--gold); font-weight: 800; }
+  header .perek-name { font-size: 11.5px !important; margin-top: 1px; }
+  header .tb-btn, header .nav-arrow { width: 40px !important; height: 40px !important; font-size: 17px; }
+  header .tabs { grid-column: 1 / -1; grid-row: 2; display: flex; justify-content: center; background: none !important; border: 0 !important; padding: 0 !important; margin: 2px 0 0 !important; }
+  header .tabs .tab.active { display: none; }
+  header .tabs .tab { flex: 0 0 auto; background: none !important; border: 0 !important; box-shadow: none !important; color: var(--parchment-dim) !important; font-size: 12.5px !important; padding: 4px 10px !important; min-height: 32px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(232,183,109,.4); }
+  body.tutorial-mode header { grid-template-columns: auto 1fr auto; }
+  body.tutorial-mode header #helpBtn { grid-column: 3; }
+  /* סרגל: הדף · רש״י · תוספות · עץ — שורה דקה */
+  .action-bar { gap: 6px !important; margin-bottom: 10px !important; }
+  .action-btn { min-height: 38px; padding: 6px 8px !important; font-size: 13px !important; border-radius: 12px !important; border-width: 1px !important; }
+  .action-btn .count { font-size: 10px !important; min-width: 18px; height: 18px; }
+  /* הסבר מאויר: שורה דקה במקום כרטיס גדול */
+  .scene .ex-card { padding: 6px 8px 6px 10px; margin: 2px 0 10px; gap: 8px; border-width: 1px; }
+  .scene .ex-thumb { flex-basis: 34px; height: 34px; border-radius: 8px; }
+  .scene .ex-t b { font-size: 14px; } .scene .ex-t small { font-size: 12px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .scene .ex-go { font-size: 12px; padding: 4px 9px; }
+  /* כרטיס: לשוניות פרטים */
+  .bt-more { flex: 1 0 100%; margin-top: 8px; }
+  .bt-tabs { display: flex; flex-wrap: wrap; gap: 5px; }
+  .bt-tabs::-webkit-scrollbar { display: none; }
+  .bt-tab { flex: 0 0 auto; min-height: 32px; font: inherit; font-size: 12.5px; font-weight: 700; color: var(--parchment-dim); background: rgba(236,233,226,0.05); border: 1px solid rgba(236,233,226,0.12); border-radius: 16px; padding: 4px 11px; cursor: pointer; white-space: nowrap; }
+  .bt-tab.on { color: var(--ink); background: var(--gold); border-color: var(--gold); }
+  .bt-pane { display: none; margin-top: 8px; }
+  .bt-pane.on { display: block; animation: btp .2s ease-out; }
+  @keyframes btp { from { opacity: 0; transform: translateY(-4px); } }
+  .bt-pane .ctx { margin-top: 0; border-top: 0; padding-top: 0; }
+  .bt-pane .g-punct, .bt-pane .wbw { margin-top: 0; }
+  .bt-pane .bppl { margin-top: 0; }
+  .beat .takhles { margin-top: 8px; }
 </style>
 <script>
 // 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
@@ -5046,7 +5087,43 @@ document.addEventListener('scroll', e => {
 }, true);
 function pinBeat(ev, i) { ev.stopPropagation(); focusBeat = i; showLoc(); }
 // הקשה על כרטיס: אם זה לא השלב המסומן עכשיו — חוזרים אליו (הדגשה + חץ); אחרת — ממשיכים
+
+// ===== כרטיס רגוע: רק העיקר גלוי (מי · מה · בתכלס), והשאר בלשוניות קטנות שנפתחות אחת־אחת =====
+// הלשונית שנבחרה נזכרת לכל הכרטיסים (gemara:btab). '' = הכל סגור.
+let bTab = ''; try { bTab = localStorage.getItem('gemara:btab') || ''; } catch (e) {}
+function tkOnly(key) { const t = TAKHLES[key]; return t ? `<div class="takhles"><span>🎯 בתכלס</span>${t}</div>` : ''; }
+function beatMore(ref, si, bi, kt) {
+  const key = `${ref}:${si}:${bi}`;
+  const c = typeof CONTEXT !== 'undefined' && CONTEXT[key], f = flowHTML(key);
+  const ww = wbwHTML(key).replace(/^<details[^>]*><summary>.*?<\/summary>/, '').replace(/<\/details>$/, '');
+  const pp = pplBeatHTML(ref, si, bi);
+  const tabs = [
+    ['ctx', '🧭 ההקשר', c || f ? `<div class="ctx">${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</div>` : ''],
+    ['gm', '📜 בגמרא', punctHTML(key)],
+    ['ww', '🔤 מילה במילה', ww],
+    ['pp', /class="bp vs"/.test(pp) ? '⚡ מי ומה' : '👤 מי', pp],
+    ['kt', '🔑 מונח', kt ? `<div class="bt-key">🔑 <b>${kt[0]}</b> = ${kt[1]}</div>` : ''],
+  ].filter(t => t[2]);
+  if (!tabs.length) return '';
+  const on = tabs.some(t => t[0] === bTab) ? bTab : '';
+  return `<div class="bt-more"><div class="bt-tabs" role="tablist">${tabs.map(([id, lb]) => `<button type="button" role="tab" class="bt-tab${id === on ? ' on' : ''}" data-bt="${id}" aria-selected="${id === on}">${lb}</button>`).join('')}</div>
+    ${tabs.map(([id, , body]) => `<div class="bt-pane${id === on ? ' on' : ''}" data-bt="${id}" role="tabpanel">${body}</div>`).join('')}</div>`;
+}
+function btTabClick(b) {
+  const id = b.dataset.bt, was = b.classList.contains('on');
+  bTab = was ? '' : id; try { localStorage.setItem('gemara:btab', bTab); } catch (e) {}
+  // כל הכרטיסים באותו מצב — כמו שהיה ״ההקשר פתוח/סגור״
+  document.querySelectorAll('.scene.active .bt-more').forEach(m => {
+    const has = m.querySelector(`.bt-tab[data-bt="${bTab}"]`);
+    m.querySelectorAll('.bt-tab').forEach(t => { const o = has && t.dataset.bt === bTab; t.classList.toggle('on', o); t.setAttribute('aria-selected', o); });
+    m.querySelectorAll('.bt-pane').forEach(p => p.classList.toggle('on', !!has && p.dataset.bt === bTab));
+  });
+  setTimeout(() => { try { showLoc(); } catch (e) {} }, 30);
+}
+
 function onBeatsClick(ev) {
+  { const bt = ev.target.closest('.bt-tab'); if (bt) { ev.stopPropagation(); btTabClick(bt); return; } }
+  if (ev.target.closest('.bt-pane')) return;   // בתוך לשונית פתוחה: לא מחליפים שלב
   if (ev.target.closest('.bppl')) return;   // קישור לכרטיס האמורא בעץ
   const card = ev.target.closest('.beat');
   const sc = amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
@@ -5609,7 +5686,7 @@ function beatsHTML(sc, si) {
     ${b.length ? `<div class="beats" onclick="onBeatsClick(event)">${b.map((x, i) => {
       const r = beatRole(state.ref, si, i), kt = keyTerm(state.ref, si, i);
       const link = i ? `<div class="blink" data-i="${i}"><span class="bl-arrow">⬇</span><span class="bl-txt">${linkText(beatRole(state.ref, si, i - 1), r)}</span></div>` : '';
-      return link + `<div class="beat bt-${x[0]} role-${r}" data-i="${i}"><span class="bt-role">${ROLE[r][0]} ${ROLE[r][1]}</span><span class="bt-who">${x[1]}</span><span class="bt-txt">${x[2]}</span>${pplBeatHTML(state.ref, si, i)}${takhlesHTML(`${state.ref}:${si}:${i}`)}${state.tab === 'masechet' ? starBtn(`${state.ref}:${si}:${i}`) : ''}${canSpeak ? `<button type="button" class="speak-btn bt-say" aria-label="הקראה בקול" aria-pressed="false" title="הקראה בקול" onclick="sayBeat(event, ${si}, ${i})">🔊</button>` : ''}${beatLoc(state.ref, si, i) ? `<button class="bt-pin" title="איפה זה בגמרא" onclick="pinBeat(event, ${i})">📍</button>` : ''}${kt ? `<div class="bt-key">🔑 <b>${kt[0]}</b> = ${kt[1]}</div>` : ''}${punctHTML(`${state.ref}:${si}:${i}`)}${wbwHTML(`${state.ref}:${si}:${i}`)}</div>`; }).join('')}</div>
+      return link + `<div class="beat bt-${x[0]} role-${r}" data-i="${i}"><span class="bt-role">${ROLE[r][0]} ${ROLE[r][1]}</span><span class="bt-who">${x[1]}</span><span class="bt-txt">${x[2]}</span>${tkOnly(`${state.ref}:${si}:${i}`)}${state.tab === 'masechet' ? starBtn(`${state.ref}:${si}:${i}`) : ''}${canSpeak ? `<button type="button" class="speak-btn bt-say" aria-label="הקראה בקול" aria-pressed="false" title="הקראה בקול" onclick="sayBeat(event, ${si}, ${i})">🔊</button>` : ''}${beatMore(state.ref, si, i, kt)}</div>`; }).join('')}</div>
     <div class="step-ctl"><button class="step-next" onclick="stepBeat(1)">המשך ▼ <span class="step-n"></span></button>
       <button class="step-all" onclick="revealAll()">הצג הכל</button></div>` : ''}
     <div class="after">
