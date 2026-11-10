@@ -292,6 +292,18 @@
   .ex-scroll img { display: block; width: 100%; max-width: 900px; margin: 0 auto; }
   .ex-view.zoom .ex-scroll img { width: 200%; max-width: none; }
   .ex-view.zoom .ex-z { background: #e8b76d; color: #1d1711; }
+  .ex-map { cursor: pointer; }
+  .ex-map rect { fill: rgba(232,183,109,0.18); stroke: #e8b76d; stroke-width: 1.5; }
+  .ex-map text { fill: #f5d39a; font-size: 13px; font-weight: 800; text-anchor: middle; }
+  .ex-map:hover rect { fill: rgba(232,183,109,0.32); }
+  .wh-ex { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; }
+  .wh-ex button { font: inherit; font-size: 12px; font-weight: 800; color: #1d1711; background: #e8b76d; border: 0; border-radius: 10px; padding: 3px 9px; cursor: pointer; }
+  .ex-pick { position: fixed; inset: 0; z-index: 8900; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .ex-pick[hidden] { display: none; }
+  .ex-pbox { background: #221a12; border: 1.5px solid #e8b76d; border-radius: 16px; padding: 14px; width: min(380px, 100%); display: flex; flex-direction: column; gap: 8px; color: #f5d39a; }
+  .ex-pbox button { display: flex; align-items: center; gap: 10px; font: inherit; font-size: 14px; font-weight: 800; color: #f4ead5; background: rgba(232,183,109,.12); border: 1px solid rgba(232,183,109,.45); border-radius: 12px; padding: 6px; text-align: right; cursor: pointer; }
+  .ex-pbox button img { width: 52px; height: 52px; object-fit: cover; object-position: top; border-radius: 8px; }
+  .ex-pbox .ex-pc { justify-content: center; background: transparent; }
 </style>
 <script>
 // 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
@@ -485,7 +497,13 @@ function draw() {
     if (lb) { const t = el('text', { x: n.x, y: n.y - NH / 2 - 9, class: 'lbl', fill: COL[n.r] }, B); t.textContent = lb + ' ⟵'; n.lblEl = t; }
   }
   // כותרת לכל סוגיה בדף
-  root.k.forEach((top, i) => { const tp = (SUGYA_TOPIC[st.ref] || [])[i]; const t = el('text', { x: 0, y: top.y - NH / 2 - 26, class: 'lbl', fill: '#f5d39a', style: 'font-size:13px' }, B); t.textContent = `סוגיה ${i + 1}` + (tp ? ` · ${short(tp, 34)}` : ''); });
+  root.k.forEach((top, i) => { const tp = (SUGYA_TOPIC[st.ref] || [])[i]; const t = el('text', { x: 0, y: top.y - NH / 2 - 26, class: 'lbl', fill: '#f5d39a', style: 'font-size:13px' }, B); t.textContent = `סוגיה ${i + 1}` + (tp ? ` · ${short(tp, 34)}` : '');
+    const ex = typeof explainNames === 'function' ? explainNames(st.ref, top) : [];
+    if (ex.length) { const g = el('g', { class: 'ex-map', transform: `translate(${top.x + NW / 2 + 52} ${top.y})` }, N);
+      el('rect', { x: -42, y: -17, width: 84, height: 34, rx: 17 }, g);
+      const tx = el('text', { x: 0, y: 5 }, g); tx.textContent = ex.length > 1 ? `🖼️ איור ×${ex.length}` : '🖼️ איור';
+      g.addEventListener('click', e => { e.stopPropagation(); ex.length > 1 ? exPick(ex) : openExplain(ex[0]); });
+      g.addEventListener('pointerdown', e => e.stopPropagation()); } });
   // שורש: הדף עצמו
   const rg = el('g', { class: 'node root', transform: `translate(${root.x} ${root.y})` }, N);
   el('circle', { r: 46, class: 'disc', fill: 'url(#rootG)' }, rg);
@@ -533,8 +551,22 @@ function where(n) {
   box.innerHTML = `<a class="wh-th" href="${BASE}taanit.html#${st.ref}-${s}" aria-label="המקום בדף">
       <img src="taanit-img/${st.ref}-full.jpg" alt="">${src ? `<i style="left:${src[0]}%;top:${src[1]}%;width:${src[2]}%;height:${src[3]}%"></i>` : ''}</a>
     <div class="wh-tx"><div class="wh-l1">📍 <b>${TREE[st.ref].title}</b> · סוגיה ${i + 1} מתוך ${root.k.length}${SN[s] ? ` · קטע: ${SN[s]}` : ''}</div>
-      <div class="wh-l2">${tp}</div><div class="wh-l3">${path}</div></div>`;
+      <div class="wh-l2">${tp}</div><div class="wh-l3">${path}</div>${exChips(top)}</div>`;
   pplBar(i);
+}
+// 🖼️ ההסברים המאוירים של הסוגיה שעל המסך: כפתורים בפס ״איפה אנחנו״
+function exChips(top) {
+  const ex = typeof explainNames === 'function' ? explainNames(st.ref, top) : [];
+  return ex.length ? `<div class="wh-ex">${ex.map(x => `<button type="button" onclick="openExplain('${x}')">🖼️ ${EXPLAIN_TITLE[x] || 'הסבר מאויר'}</button>`).join('')}</div>` : '';
+}
+function exPick(ex) {   // כמה איורים לסוגיה: תפריט בחירה
+  let m = document.getElementById('exPick');
+  if (!m) { m = document.createElement('div'); m.id = 'exPick'; m.className = 'ex-pick'; document.body.appendChild(m);
+    m.addEventListener('click', e => { if (e.target === m) m.hidden = true; }); }
+  m.innerHTML = `<div class="ex-pbox"><b>🖼️ הסברים מאוירים לסוגיה</b>${ex.map(x => `<button type="button" data-x="${x}"><img src="explain/${x}.jpg" alt="">${EXPLAIN_TITLE[x] || x}</button>`).join('')}<button type="button" class="ex-pc">סגור</button></div>`;
+  m.querySelectorAll('[data-x]').forEach(b => b.onclick = () => { m.hidden = true; openExplain(b.dataset.x); });
+  m.querySelector('.ex-pc').onclick = () => { m.hidden = true; };
+  m.hidden = false;
 }
 let tw = null;
 function flyTo(tx, ty, tk, ms = 750) {

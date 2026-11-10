@@ -24,14 +24,14 @@ function explainCardN(n) {
 }
 function explainCard(ref, si) { const n = EXPLAIN[`${ref}:${si}`]; return n ? explainCardN(n) : ''; }
 // בעץ: האיור של הקטע של הצומת, ואחריו האיורים של שאר הקטעים באותה סוגיה (אותו שורש)
-function explainTree(ref, node) {
+function explainNames(ref, node) {
   const roots = (typeof TREE !== 'undefined' && TREE[ref]) ? TREE[ref].roots : [];
   const has = x => x === node || (x.k || []).some(has);
   const root = roots.find(has), ss = [node.s];
   if (root) { const w = x => { ss.push(x.s); (x.k || []).forEach(w); }; w(root); }
-  const names = [...new Set(ss.map(s => EXPLAIN[`${ref}:${s}`]).filter(Boolean))];
-  return names.map(explainCardN).join('');
+  return [...new Set(ss.map(s => EXPLAIN[`${ref}:${s}`]).filter(Boolean))];
 }
+function explainTree(ref, node) { return explainNames(ref, node).map(explainCardN).join(''); }
 function openExplain(n) {
   if (!/^[\w-]+$/.test(n)) return;
   let v = document.getElementById('exView');
