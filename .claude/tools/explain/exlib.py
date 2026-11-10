@@ -6,13 +6,13 @@ CSS += """
 .step.x .num{background:#ff9f43} .step.x{border-color:rgba(255,159,67,.45)}
 .step.s .num{background:#5fb2ff} .step.s{border-color:rgba(95,178,255,.4)}
 .chain{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px}
-.node{background:rgba(244,234,213,.07);border:2px solid rgba(232,183,109,.45);border-radius:16px;padding:10px 14px;text-align:center;font-size:20px;line-height:1.45;color:var(--p);min-width:150px}
+.node{background:rgba(236,233,226,.07);border:2px solid rgba(232,183,109,.45);border-radius:16px;padding:10px 14px;text-align:center;font-size:20px;line-height:1.45;color:var(--p);min-width:150px}
 .node small{display:block;font-size:16px;color:var(--soft)}
 .node.gd{border-color:var(--gold);background:rgba(232,183,109,.16)} .node.gr{border-color:#6fd35c;background:rgba(111,211,92,.12)} .node.rd{border-color:#ff5d72;background:rgba(255,93,114,.12)} .node.bl{border-color:#5fb2ff;background:rgba(95,178,255,.12)}
 .arr{font-size:30px;color:var(--gold);font-weight:900}
 table.t{width:100%;border-collapse:separate;border-spacing:6px;margin-top:12px;font-size:20px}
 table.t th{color:var(--gb);font-size:18px;padding:6px;background:rgba(232,183,109,.12);border-radius:10px}
-table.t td{background:rgba(244,234,213,.06);border-radius:10px;padding:8px;text-align:center;color:var(--p);line-height:1.4}
+table.t td{background:rgba(236,233,226,.06);border-radius:10px;padding:8px;text-align:center;color:var(--p);line-height:1.4}
 table.t td.ok{background:rgba(111,211,92,.18);color:#bff3b3;font-weight:800} table.t td.no{background:rgba(255,93,114,.18);color:#ffc2ca;font-weight:800}
 table.t td.n{color:var(--gb);font-weight:900}
 .lst{margin-top:10px;font-size:22px;line-height:1.7;color:var(--soft);padding-right:4px}
