@@ -113,12 +113,19 @@ def do_crop(ref, only=None):
     def prof(x0, x1): reg = a[:, x0:x1]; return (reg < np.median(reg) - 45).mean(axis=1)
     pn, pw = prof(*nb), prof(*wb)
     pr = lambda yy: pn[yy] if yy < thr else pw[yy]
+    bands = P[ref][4] if len(P[ref]) > 4 else None
     D = html_get('DAF_SRC'); L = html_get('DAF_LINES')
     D.setdefault(ref, {})
     for i, (y0, y1) in R[ref].items():
         if only and i not in only: continue
         y0 = snap(a, pr, y0, -1); y1 = snap(a, pr, y1, 1); R[ref][i] = [y0, y1]
-        if y1 <= thr: c = im.crop((nb[0], y0, nb[1], y1)); x0, x1 = nb
+        if bands:  # כמה רוחבים (P[ref][4] = [[y_from, x0, x1], ...]): תופרים כל רצועה ברוחב שלה
+            parts = [(max(y0, b[0]), min(y1, bands[k + 1][0] if k + 1 < len(bands) else Hh), b[1], b[2]) for k, b in enumerate(bands)]
+            parts = [q for q in parts if q[1] > q[0]]
+            x0 = min(q[2] for q in parts); x1 = max(q[3] for q in parts)
+            c = Image.new('RGB', (x1 - x0, y1 - y0), (240, 236, 226))
+            for (a0, a1, b0, b1) in parts: c.paste(im.crop((b0, a0, b1, a1)), (b0 - x0, a0 - y0))
+        elif y1 <= thr: c = im.crop((nb[0], y0, nb[1], y1)); x0, x1 = nb
         elif y0 >= thr: c = im.crop((wb[0], y0, wb[1], y1)); x0, x1 = wb
         else:
             x0 = min(nb[0], wb[0]); x1 = max(nb[1], wb[1])
