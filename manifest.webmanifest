@@ -1,0 +1,22 @@
+{
+  "name": "הגמרא שלי — לימוד גמרא שלב אחר שלב",
+  "short_name": "הגמרא שלי",
+  "description": "לימוד גמרא בעיון: צילום הדף מסומן, מילה במילה, עץ הסוגיה והסברים מאוירים.",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./?source=app",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1322",
+  "theme_color": "#0e1322",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "המשך ללמוד", "url": "./taanit.html" },
+    { "name": "עץ הסוגיה", "url": "./tree.html" }
+  ]
+}
