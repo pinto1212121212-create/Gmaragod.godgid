@@ -166,7 +166,8 @@
     border: 1px solid rgba(244,234,213,0.08); border-right: 3px solid var(--kc); border-radius: 10px; padding: 7px 10px; font-size: 14px; }
   .kid b { color: var(--kc); white-space: nowrap; font-size: 12.5px; }
   .sh-daf { position: relative; display: block; cursor: zoom-in; }
-  .sh-dafhint { position: sticky; float: left; top: 4px; left: 4px; z-index: 2; margin: 4px; font-size: 11.5px; font-weight: 800; color: #120e0a; background: rgba(245,211,154,0.92); border-radius: 10px; padding: 2px 8px; pointer-events: none; }
+  .sh-dafbar { position: sticky; top: 0; height: 0; z-index: 2; }
+  .sh-dafhint { position: absolute; top: 4px; left: 4px; z-index: 2; margin: 0; font-size: 11.5px; font-weight: 800; color: #120e0a; background: rgba(245,211,154,0.92); border-radius: 10px; padding: 2px 8px; pointer-events: none; }
   .sh-img { margin-top: 10px; border-radius: 10px; overflow: hidden; background: #efe9dc; }
   .sh-img img { display: block; width: 100%; height: auto; }
   .sh-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
@@ -645,7 +646,7 @@ function toolbar(n, kids) {
   // הצילום עם המילים המודגשות — תמיד גלוי וצמוד למעלה, מעל הלשוניות (גם במילה במילה)
   const bk = ks.map(k => k.split(':')).find(([r, s]) => r === st.ref && +s === n.s);
   const dafHref = `${BASE}taanit.html#${st.ref}-${n.s}${bk ? '-' + bk[2] : ''}-daf-n${n.seq}`;   // n = הצומת, כדי לחזור אליו
-  const img = `<a class="sh-img sh-daf" href="${dafHref}" aria-label="הדף המלא עם הסימון"><span class="sh-dafhint">📖 לדף המלא</span><div class="sh-imgw"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onload="shImgFocus()" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></a>`;
+  const img = `<a class="sh-img sh-daf" href="${dafHref}" aria-label="הדף המלא עם הסימון"><div class="sh-dafbar"><span class="sh-dafhint">📖 לדף המלא</span></div><div class="sh-imgw"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onload="shImgFocus()" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></a>`;
   return `<div class="sh-pin">${img}<div class="sh-tabs" role="tablist">${panes.map(([id, lb, body]) => `<button class="sh-tab${id === cur ? ' on' : ''}" data-t="${id}"${body ? '' : ' disabled'}>${lb}</button>`).join('')}</div></div>
     ${panes.map(([id, , body]) => `<div class="sh-pane${id === cur ? ' on' : ''}" data-t="${id}">${body || '<div class="sh-none">אין לשלב הזה</div>'}</div>`).join('')}`;
 }
