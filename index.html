@@ -152,7 +152,7 @@ let last = null; try { last = localStorage.getItem('gemara:last'); } catch (e) {
 const place = last && read('gemara:' + last);
 if (place && place.ref) {
   const c = document.getElementById('continue');
-  c.href = (last === 'zevachim' ? 'zevachim.html' : 'taanit.html');
+  c.href = last === 'zevachim' ? 'zevachim.html' : ('taanit.html' + (/^\d+[ab]$/.test(place.ref) && place.tab !== 'tutorial' ? `#${place.ref}-${(place.sceneIdx | 0)}` : ''));
   document.getElementById('contTitle').textContent = `מסכת ${NAME[last] || ''} · דף ${refName(place.ref)}`;
   document.getElementById('contSub').textContent = place.tab === 'tutorial' ? 'איך לקרוא גמרא' : `קטע ${(place.sceneIdx | 0) + 1} — ממשיכים בדיוק מאותה נקודה`;
   c.hidden = false;

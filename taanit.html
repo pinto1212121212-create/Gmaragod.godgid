@@ -1650,6 +1650,18 @@
   .bottom-line { font-size: calc(15px * var(--fz, 1)); }
   .g-punct { font-size: calc(17px * var(--fz, 1)); }
   .flow li { font-size: calc(13px * var(--fz, 1)); }
+
+  /* ⭐ שמורים */
+  .bt-star { position: absolute; top: 6px; left: 8px; z-index: 2; border: none; background: transparent; color: var(--parchment-dim); font-size: 18px; line-height: 1; cursor: pointer; padding: 0 2px; opacity: .55; }
+  .bt-star.on { color: #ffd34d; opacity: 1; }
+  .bt-star:hover { opacity: 1; }
+  .toc-box { overflow-y: auto; }
+  .toc-list { overflow: visible; }
+  .toc-sec { font-size: 12.5px; font-weight: 800; color: var(--gold); margin: 4px 2px 6px; }
+  .toc-st0 { font-size: 13px; color: var(--parchment-dim); padding: 8px 10px; border: 1px dashed rgba(232,183,109,.3); border-radius: 12px; margin-bottom: 10px; }
+  .toc-stars { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .toc-stars button { text-align: right; font: inherit; font-size: 13.5px; line-height: 1.45; color: var(--parchment); background: rgba(255,211,77,0.08); border: 1px solid rgba(255,211,77,0.35); border-radius: 12px; padding: 7px 10px; cursor: pointer; }
+  .toc-stars small { display: block; font-size: 11px; font-weight: 800; color: #ffd34d; }
 </style>
 <script>
 // 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
@@ -5591,7 +5603,7 @@ function beatsHTML(sc, si) {
     ${b.length ? `<div class="beats" onclick="onBeatsClick(event)">${b.map((x, i) => {
       const r = beatRole(state.ref, si, i), kt = keyTerm(state.ref, si, i);
       const link = i ? `<div class="blink" data-i="${i}"><span class="bl-arrow">⬇</span><span class="bl-txt">${linkText(beatRole(state.ref, si, i - 1), r)}</span></div>` : '';
-      return link + `<div class="beat bt-${x[0]} role-${r}" data-i="${i}"><span class="bt-role">${ROLE[r][0]} ${ROLE[r][1]}</span><span class="bt-who">${x[1]}</span><span class="bt-txt">${x[2]}</span>${pplBeatHTML(state.ref, si, i)}${takhlesHTML(`${state.ref}:${si}:${i}`)}${beatLoc(state.ref, si, i) ? `<button class="bt-pin" title="איפה זה בגמרא" onclick="pinBeat(event, ${i})">📍</button>` : ''}${kt ? `<div class="bt-key">🔑 <b>${kt[0]}</b> = ${kt[1]}</div>` : ''}${punctHTML(`${state.ref}:${si}:${i}`)}${wbwHTML(`${state.ref}:${si}:${i}`)}</div>`; }).join('')}</div>
+      return link + `<div class="beat bt-${x[0]} role-${r}" data-i="${i}"><span class="bt-role">${ROLE[r][0]} ${ROLE[r][1]}</span><span class="bt-who">${x[1]}</span><span class="bt-txt">${x[2]}</span>${pplBeatHTML(state.ref, si, i)}${takhlesHTML(`${state.ref}:${si}:${i}`)}${state.tab === 'masechet' ? starBtn(`${state.ref}:${si}:${i}`) : ''}${beatLoc(state.ref, si, i) ? `<button class="bt-pin" title="איפה זה בגמרא" onclick="pinBeat(event, ${i})">📍</button>` : ''}${kt ? `<div class="bt-key">🔑 <b>${kt[0]}</b> = ${kt[1]}</div>` : ''}${punctHTML(`${state.ref}:${si}:${i}`)}${wbwHTML(`${state.ref}:${si}:${i}`)}</div>`; }).join('')}</div>
     <div class="step-ctl"><button class="step-next" onclick="stepBeat(1)">המשך ▼ <span class="step-n"></span></button>
       <button class="step-all" onclick="revealAll()">הצג הכל</button></div>` : ''}
     <div class="after">
@@ -5712,6 +5724,29 @@ function renderProgress() {
   document.getElementById('nextSceneBtn').disabled = state.sceneIdx === scenes.length - 1;
 }
 
+
+// ===== ⭐ שמורים: שלבים שהמשתמש סימן, לחזרה מהירה (gemara:stars) =====
+function stars() { try { const a = JSON.parse(localStorage.getItem('gemara:stars') || '[]'); return Array.isArray(a) ? a.filter(k => /^\d+[ab]:\d+:\d+$/.test(k)) : []; } catch (e) { return []; } }
+function starBtn(k) { const on = stars().includes(k); return `<button type="button" class="bt-star${on ? ' on' : ''}" data-k="${k}" title="${on ? 'הסר מהשמורים' : 'שמור לחזרה'}" aria-pressed="${on}" onclick="toggleStar(event)">${on ? '★' : '☆'}</button>`; }
+function toggleStar(ev) {
+  ev.stopPropagation(); const b = ev.currentTarget, k = b.dataset.k; let a = stars();
+  a = a.includes(k) ? a.filter(x => x !== k) : [k, ...a].slice(0, 200);
+  try { localStorage.setItem('gemara:stars', JSON.stringify(a)); } catch (e) {}
+  const on = a.includes(k); b.classList.toggle('on', on); b.textContent = on ? '★' : '☆'; b.setAttribute('aria-pressed', on); b.title = on ? 'הסר מהשמורים' : 'שמור לחזרה';
+}
+function goStar(k) {
+  const [ref] = k.split(':'); if (!amudim[ref] || !amudim[ref].scenes) return;
+  closeToc();
+  if (state.tab !== 'masechet') switchTab('masechet');
+  if (ref !== state.ref) { goToRef(ref); setTimeout(() => goKey(k), 150); } else goKey(k);
+}
+function starsHTML() {
+  const a = stars().filter(k => { const [r, s, b] = k.split(':'); const sc = amudim[r] && amudim[r].scenes && amudim[r].scenes[+s]; return sc && sc.beats && sc.beats[+b]; });
+  if (!a.length) return `<div class="toc-st0">⭐ אין עדיין שמורים. לוחצים על ☆ בכרטיס כדי לשמור שלב לחזרה.</div>`;
+  return `<div class="toc-sec">⭐ השמורים שלי (${a.length})</div><div class="toc-stars">${a.map(k => { const [r, s, b] = k.split(':'); const x = amudim[r].scenes[+s].beats[+b];
+    return `<button type="button" data-star="${k}"><small>${AMUD_NAME[r] || r} · קטע ${+s + 1} · ${x[1].replace(/<[^>]+>/g, '')}</small>${x[2].replace(/<[^>]+>/g, '').slice(0, 90)}</button>`; }).join('')}</div>`;
+}
+
 // ===== 📑 תוכן הדף + גודל אותיות =====
 const FZ = [0.92, 1, 1.1, 1.22, 1.36];
 function fzIdx() { let i = 1; try { const v = localStorage.getItem('gemara:fz'); if (v !== null) i = +v; } catch (e) {} return FZ[i] ? i : 1; }
@@ -5736,9 +5771,11 @@ function openToc() {
   ov.innerHTML = `<div class="toc-box" role="dialog" aria-label="כל הקטעים">
     <div class="toc-h"><b>📑 ${state.tab === 'masechet' ? AMUD_NAME[state.ref] || '' : 'איך לקרוא גמרא'} · כל הקטעים</b><button type="button" class="toc-x" aria-label="סגור">✕</button></div>
     <div class="toc-fz"><span>🔠 גודל אותיות</span><button type="button" data-fz="-1" aria-label="קטן יותר">א−</button><b id="tocFz">${Math.round(FZ[fzIdx()] * 100)}%</b><button type="button" data-fz="1" aria-label="גדול יותר">א+</button></div>
+    ${state.tab === 'masechet' ? starsHTML() : ''}<div class="toc-sec">📑 הקטעים בדף</div>
     <ol class="toc-list">${scenes.map((sc, i) => `<li><button type="button" data-i="${i}" class="${i === state.sceneIdx ? 'on' : ''}"><span class="toc-n">${i + 1}</span><span class="toc-t"><small>${sc.tag || ''}</small>${(sc.title || '').replace(/<[^>]+>/g, '')}</span>${state.tab === 'masechet' && ex(`${state.ref}:${i}`) ? '<span class="toc-ex" title="יש הסבר מאויר">🖼️</span>' : ''}<span class="toc-c">${(sc.beats || []).length ? (sc.beats.length + ' שלבים') : (sc.quiz ? 'חזרה' : '')}</span></button></li>`).join('')}</ol></div>`;
   ov.querySelector('.toc-x').onclick = closeToc;
   ov.querySelectorAll('[data-fz]').forEach(b => b.onclick = () => setFz(+b.dataset.fz));
+  ov.querySelectorAll('[data-star]').forEach(b => b.onclick = () => goStar(b.dataset.star));
   ov.querySelectorAll('[data-i]').forEach(b => b.onclick = () => { closeToc(); state.sceneIdx = +b.dataset.i; state.beat = 0; renderScenes(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
   ov.classList.add('on');
   const cur = ov.querySelector('.toc-list .on'); if (cur) cur.scrollIntoView({ block: 'center' });
