@@ -5,7 +5,7 @@ const EXPLAIN = {
   '2b:2': '2b-lulav', '2b:3': '2b-lulav', '2b:4': '2b-lulav',
   '2b:8': '2b-mayim', '2b:9': '2b-mayim', '2b:10': '2b-mayim', '3a:1': '2b-mayim',
   '3a:2': '3a-nisuch', '3a:3': '3a-nisuch', '3a:4': '3a-mi', '3a:5': '3a-mi',
-  '3b:3': '3b-machzirin', '4a:7': '4a-ein',
+  '3b:3': '3b-machzirin', '4a:7': '4a-ein', '4b:1': '4a-ein', '4b:2': '4b-ramin',
   '4b:3': '4b-ramin', '4b:4': '4b-ramin', '4b:5': '4b-ramin', '4b:6': 'yosef-4b', '4b:7': 'rabba-4b',
   '4b:8': '4b-halacha', '4b:9': '4b-trei', '5a:0': '4b-trei',
   '5a:1': '5a-yoel', '5a:2': '5a-yoel', '5a:3': '5a-yoel', '5a:4': '5a-yoel',
@@ -19,9 +19,18 @@ const EXPLAIN_TITLE = {
   '4b-trei': 'תרי יומי בחוץ לארץ', '5a-yoel': '״יורה בניסן?!״ והנס בימי יואל', '6a-yoreh': 'יורה ומלקוש', '6a-revios': 'שלוש רביעות',
 };
 // כרטיס פתיחה + מסך מלא (משותף לשני הדפים)
-function explainCard(ref, si) {
-  const n = EXPLAIN[`${ref}:${si}`]; if (!n) return '';
+function explainCardN(n) {
   return `<button type="button" class="ex-card" onclick="openExplain('${n}')"><span class="ex-thumb"><img src="explain/${n}.jpg" loading="lazy" alt=""></span><span class="ex-t"><b>🖼️ הסבר מאויר</b><small>${EXPLAIN_TITLE[n] || ''} · כל הסוגיה צעד אחר צעד</small></span><span class="ex-go">פתח ◀</span></button>`;
+}
+function explainCard(ref, si) { const n = EXPLAIN[`${ref}:${si}`]; return n ? explainCardN(n) : ''; }
+// בעץ: האיור של הקטע של הצומת, ואחריו האיורים של שאר הקטעים באותה סוגיה (אותו שורש)
+function explainTree(ref, node) {
+  const roots = (typeof TREE !== 'undefined' && TREE[ref]) ? TREE[ref].roots : [];
+  const has = x => x === node || (x.k || []).some(has);
+  const root = roots.find(has), ss = [node.s];
+  if (root) { const w = x => { ss.push(x.s); (x.k || []).forEach(w); }; w(root); }
+  const names = [...new Set(ss.map(s => EXPLAIN[`${ref}:${s}`]).filter(Boolean))];
+  return names.map(explainCardN).join('');
 }
 function openExplain(n) {
   if (!/^[\w-]+$/.test(n)) return;

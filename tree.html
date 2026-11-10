@@ -377,7 +377,7 @@ function beatOf(ref, n) {
   const spans = (typeof BEAT_SPAN !== 'undefined' && BEAT_SPAN[ref] && BEAT_SPAN[ref][n.s]) || null;
   if (!spans) return null;
   const e = typeof TREE_CX !== 'undefined' && TREE_CX[ref] && TREE_CX[ref][n.seq - 1];
-  const keys = typeof e === 'string' ? [e] : Array.isArray(e) ? e : null;
+  const keys = typeof e === 'string' ? [e] : Array.isArray(e) ? e : (e && e.k) ? e.k : null;  // {L, k:[...]}: הסבר ייעודי + הדגשה מהשלבים
   if (keys) {
     let a = Infinity, b = -1;
     for (const k of keys) { const [r, s, bi] = k.split(':'); const v = r === ref && +s === n.s && spans[bi];
@@ -628,7 +628,7 @@ function ctxOf(n) {
 let shTab = 'tk'; try { shTab = localStorage.getItem('gemara:shtab') || 'tk'; } catch (e) {}
 function cxKeys(n) {
   const e = typeof TREE_CX !== 'undefined' && TREE_CX[st.ref] && TREE_CX[st.ref][n.seq - 1];
-  return typeof e === 'string' ? [e] : Array.isArray(e) ? e : [];
+  return typeof e === 'string' ? [e] : Array.isArray(e) ? e : (e && e.k) || [];
 }
 function ctxBody(n) {
   const e = typeof TREE_CX !== 'undefined' && TREE_CX[st.ref] && TREE_CX[st.ref][n.seq - 1];
@@ -668,7 +668,7 @@ function toolbar(n, kids) {
   const dafHref = `${BASE}taanit.html#${st.ref}-${n.s}${bk ? '-' + bk[2] : ''}-daf-n${n.seq}`;   // n = הצומת, כדי לחזור אליו
   const img = `<a class="sh-img sh-daf" href="${dafHref}" aria-label="הדף המלא עם הסימון"><div class="sh-dafbar"><span class="sh-dafhint">📖 לדף המלא</span></div><div class="sh-imgw"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onload="shImgFocus()" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></a>`;
   return `<div class="sh-pin">${img}<div class="sh-tabs" role="tablist">${panes.map(([id, lb, body]) => `<button class="sh-tab${id === cur ? ' on' : ''}" data-t="${id}"${body ? '' : ' disabled'}>${lb}</button>`).join('')}</div></div>
-    ${typeof explainCard === 'function' ? explainCard(st.ref, n.s) : ''}
+    ${typeof explainTree === 'function' ? explainTree(st.ref, n) : ''}
     ${panes.map(([id, , body]) => `<div class="sh-pane${id === cur ? ' on' : ''}" data-t="${id}">${body || '<div class="sh-none">אין לשלב הזה</div>'}</div>`).join('')}`;
 }
 // מביא את המילים המודגשות למרכז הצילום הקטן

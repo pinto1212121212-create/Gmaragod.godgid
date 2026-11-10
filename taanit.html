@@ -4699,7 +4699,7 @@ function nodeOfKey(key) {
     const walk = (n, parent) => {
       const node = { n, parent, kids: [] }; if (parent) parent.kids.push(node);
       const e = TREE_CX[ref][seq++];
-      (typeof e === 'string' ? [e] : Array.isArray(e) ? e : []).forEach(k => { if (!map[k]) map[k] = node; });
+      (typeof e === 'string' ? [e] : Array.isArray(e) ? e : (e && e.k) || []).forEach(k => { if (!map[k]) map[k] = node; });
       (n.k || []).forEach(c => walk(c, node));
     };
     TREE[ref].roots.forEach(r => walk(r, null));
@@ -4781,7 +4781,7 @@ document.addEventListener('click', e => { const c = e.target.closest && e.target
 function pplBeatHTML(ref, si, bi) {
   if (typeof PEOPLE === 'undefined' || !PEOPLE[ref] || typeof TREE_CX === 'undefined' || !TREE_CX[ref]) return '';
   const key = `${ref}:${si}:${bi}`, seqs = [];
-  TREE_CX[ref].forEach((e, i) => { const ks = typeof e === 'string' ? [e] : Array.isArray(e) ? e : []; if (ks.includes(key)) seqs.push(i + 1); });
+  TREE_CX[ref].forEach((e, i) => { const ks = typeof e === 'string' ? [e] : Array.isArray(e) ? e : (e && e.k) || []; if (ks.includes(key)) seqs.push(i + 1); });
   if (!seqs.length) return '';
   const at = x => typeof x === 'number' && seqs.includes(x), N = ['', '①', '②', '③', '④', '⑤', '⑥'];
   const short = t => (t || '').replace(/<[^>]+>/g, '').replace(/\s*\(.*?\)\s*/g, ' ').replace(/[״"]/g, '').trim();
