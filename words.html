@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="theme-color" content="#0e1322">
+<!-- 🔒 אבטחה (כמו ביומן של רינת, בלי סיסמה) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://pinto1212121212-create.github.io; connect-src 'self'; media-src 'self'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=()">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, ">
+<title>לימוד מילים — מסכת תענית</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<script src="prefs.js"></script>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="הגמרא שלי">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>if ('serviceWorker' in navigator && location.protocol === 'https:') window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));</script>
+
+<script>
+// 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
+(async () => { try {
+  const u = location.pathname, k = 'gemara:rl:' + u;
+  const [a, b] = await Promise.all([fetch(u, { cache: 'force-cache' }), fetch(u, { method: 'HEAD', cache: 'no-store' })]);
+  const ea = a.headers.get('etag') || a.headers.get('last-modified'), eb = b.headers.get('etag') || b.headers.get('last-modified');
+  if (ea && eb && ea !== eb && !sessionStorage.getItem(k)) { sessionStorage.setItem(k, '1'); location.reload(); }
+  else sessionStorage.removeItem(k);
+} catch (e) {} })();
+</script>
+<style>
+  :root { --ink: var(--t-bg); --ink-2: var(--t-bg-2); --card: var(--t-surface); --text: var(--t-text); --soft: var(--t-text-soft); --dim: var(--t-text-dim); --gold: var(--t-gold); --gold-b: var(--t-gold-b); --ok: #6fd35c; --no: #ff5d72; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--ink); color: var(--text); font-family: var(--t-font); min-height: 100%; }
+  body { background: radial-gradient(ellipse at 50% -10%, rgba(242,185,80,0.13), transparent 55%), radial-gradient(ellipse at 100% 100%, rgba(90,120,220,0.10), transparent 50%), linear-gradient(180deg, #0e1322, #151c30 60%, #0e1322); min-height: 100vh; }
+  .app { max-width: 680px; margin: 0 auto; padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 40px; }
+  header { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .ib { width: 44px; height: 44px; border-radius: 14px; border: 1px solid var(--t-line-gold); background: rgba(232,183,109,.08); color: var(--gold-b); font-size: 19px; display: grid; place-items: center; text-decoration: none; cursor: pointer; }
+  h1 { text-align: center; font-size: 22px; color: var(--gold-b); line-height: 1.2; }
+  h1 small { display: block; font-size: 12px; font-weight: 500; color: var(--dim); }
+  /* התקדמות */
+  .prog { display: flex; gap: 8px; margin: 4px 0 12px; }
+  .pg { flex: 1; border-radius: var(--t-r); padding: 8px 10px; background: var(--card); border: 1px solid var(--t-line); text-align: center; }
+  .pg b { display: block; font-size: 22px; line-height: 1.1; }
+  .pg span { font-size: 12px; color: var(--dim); }
+  .pg.k b { color: var(--ok); } .pg.l b { color: var(--gold-b); } .pg.n b { color: #8cc4ef; }
+  .bar { height: 8px; border-radius: 4px; background: rgba(236,233,226,.08); overflow: hidden; display: flex; margin: -4px 0 14px; }
+  .bar i { display: block; height: 100%; } .bar .k { background: var(--ok); } .bar .l { background: var(--gold); }
+  /* לשוניות */
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 4px; border-radius: 16px; background: rgba(236,233,226,.05); border: 1px solid var(--t-line); margin-bottom: 12px; }
+  .tab { min-height: 42px; border: 0; border-radius: 12px; background: transparent; color: var(--soft); font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; }
+  .tab.on { background: var(--gold); color: var(--ink); }
+  /* מסננים */
+  .filt { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; margin-bottom: 8px; }
+  .filt::-webkit-scrollbar { display: none; }
+  .ch { flex: 0 0 auto; min-height: 34px; padding: 4px 12px; border-radius: 17px; border: 1px solid var(--t-line); background: rgba(236,233,226,.04); color: var(--soft); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .ch.on { background: rgba(232,183,109,.2); border-color: var(--gold); color: var(--gold-b); }
+  .fl { font-size: 11.5px; color: var(--dim); font-weight: 800; margin: 2px 2px 4px; }
+  .pane { display: none; } .pane.on { display: block; animation: up .25s ease-out; }
+  @keyframes up { from { opacity: 0; transform: translateY(6px); } }
+  /* כרטיסייה */
+  .fc-meta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--dim); margin: 8px 2px; }
+  .card { position: relative; min-height: 290px; perspective: 1200px; cursor: pointer; margin-bottom: 12px; }
+  .card-in { position: absolute; inset: 0; transition: transform .45s cubic-bezier(.2,.7,.2,1); transform-style: preserve-3d; }
+  .card.flip .card-in { transform: rotateY(180deg); }
+  .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 22px; padding: 18px 18px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    background: linear-gradient(160deg, #1d2741, #141b2f); border: 1.5px solid var(--t-line-gold); box-shadow: var(--t-shadow); }
+  .face.back { transform: rotateY(180deg); justify-content: flex-start; overflow-y: auto; }
+  .lvl { position: absolute; top: 12px; right: 14px; display: flex; gap: 3px; }
+  .lvl i { width: 7px; height: 7px; border-radius: 50%; background: rgba(236,233,226,.15); } .lvl i.on { background: var(--ok); }
+  .ty { position: absolute; top: 9px; left: 12px; font-size: 11px; font-weight: 800; color: var(--dim); }
+  .aw { font-family: var(--t-font-daf); font-size: calc(46px * var(--fz, 1)); font-weight: 900; color: #fff; line-height: 1.25; }
+  .aw.ph { font-size: calc(34px * var(--fz, 1)); }
+  .hint { margin-top: 16px; font-size: 13px; color: var(--dim); }
+  .mean { font-size: calc(26px * var(--fz, 1)); font-weight: 800; color: var(--gold-b); margin: 18px 0 4px; line-height: 1.35; }
+  .bw { font-family: var(--t-font-daf); font-size: 20px; color: var(--soft); }
+  .ex { margin-top: 12px; width: 100%; text-align: right; background: rgba(236,233,226,.92); color: #10172a; border-radius: 12px; padding: 8px 10px; font-family: var(--t-font-daf); font-size: calc(16px * var(--fz, 1)); line-height: 1.7; }
+  .ex mark { background: #ffd770; border-radius: 4px; padding: 0 2px; }
+  .ex small { display: block; font-family: var(--t-font); font-size: 11px; font-weight: 800; color: #8a6638; }
+  .where { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
+  .where a { font-size: 12px; font-weight: 800; color: var(--gold-b); text-decoration: none; padding: 3px 9px; border-radius: 10px; border: 1px solid var(--t-line-gold); }
+  .say { position: absolute; bottom: 10px; left: 10px; }
+  .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .btn { min-height: 52px; border-radius: 16px; border: 0; font: inherit; font-weight: 900; font-size: 16px; cursor: pointer; }
+  .btn.no { background: rgba(255,93,114,.16); color: #ffb3bd; border: 1.5px solid rgba(255,93,114,.5); }
+  .btn.ok { background: rgba(111,211,92,.16); color: #c4f2b8; border: 1.5px solid rgba(111,211,92,.5); }
+  .btn.pri { background: var(--gold); color: var(--ink); width: 100%; }
+  .btn.sec { background: transparent; color: var(--gold-b); border: 1.5px solid var(--t-line-gold); width: 100%; }
+  .btn:disabled { opacity: .4; }
+  .done { text-align: center; padding: 30px 10px; }
+  .done .big { font-size: 54px; } .done h2 { color: var(--gold-b); margin: 6px 0; } .done p { color: var(--soft); margin-bottom: 14px; }
+  /* מבחן */
+  .qset { background: var(--card); border: 1px solid var(--t-line); border-radius: var(--t-r-lg); padding: 14px; }
+  .qset h3 { font-size: 15px; color: var(--gold-b); margin-bottom: 8px; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .qhead { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--dim); margin-bottom: 8px; }
+  .qbar { height: 6px; border-radius: 3px; background: rgba(236,233,226,.08); margin-bottom: 12px; overflow: hidden; } .qbar i { display: block; height: 100%; background: var(--gold); transition: width .3s; }
+  .qq { text-align: center; padding: 20px 12px; border-radius: 20px; background: linear-gradient(160deg, #1d2741, #141b2f); border: 1.5px solid var(--t-line-gold); margin-bottom: 12px; }
+  .qq small { display: block; font-size: 12.5px; color: var(--dim); margin-bottom: 6px; }
+  .qq .aw { font-size: calc(40px * var(--fz, 1)); }
+  .qq .mq { font-size: calc(24px * var(--fz, 1)); font-weight: 800; color: var(--gold-b); }
+  .opts { display: grid; gap: 8px; }
+  .opt { min-height: 54px; text-align: right; padding: 10px 14px; border-radius: 14px; border: 1.5px solid var(--t-line); background: rgba(236,233,226,.04); color: var(--text); font: inherit; font-size: calc(16px * var(--fz, 1)); font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .opt .k { flex: 0 0 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: rgba(232,183,109,.15); color: var(--gold-b); font-size: 13px; font-weight: 900; }
+  .opt.daf { font-family: var(--t-font-daf); font-size: calc(21px * var(--fz, 1)); }
+  .opt.right { border-color: var(--ok); background: rgba(111,211,92,.16); } .opt.right .k { background: var(--ok); color: #0a0e19; }
+  .opt.wrong { border-color: var(--no); background: rgba(255,93,114,.16); } .opt.wrong .k { background: var(--no); color: #0a0e19; }
+  .opt:disabled { cursor: default; }
+  .fb { min-height: 24px; margin: 10px 2px; font-size: 14px; font-weight: 700; }
+  .fb.ok { color: var(--ok); } .fb.no { color: #ffb3bd; }
+  .score { text-align: center; padding: 18px 8px; }
+  .score .ring { width: 130px; height: 130px; border-radius: 50%; margin: 0 auto 10px; display: grid; place-items: center; font-size: 34px; font-weight: 900; color: #fff;
+    background: conic-gradient(var(--ok) calc(var(--p) * 1%), rgba(236,233,226,.1) 0); position: relative; }
+  .score .ring::after { content: ''; position: absolute; inset: 12px; border-radius: 50%; background: var(--ink); }
+  .score .ring span { position: relative; z-index: 1; }
+  .mist { text-align: right; margin: 12px 0; display: grid; gap: 6px; }
+  .mist div { padding: 8px 12px; border-radius: 12px; background: rgba(255,93,114,.08); border: 1px solid rgba(255,93,114,.3); }
+  .mist b { font-family: var(--t-font-daf); font-size: 18px; margin-left: 8px; }
+  /* רשימה */
+  .search { width: 100%; min-height: 46px; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--t-line-gold); background: rgba(236,233,226,.05); color: var(--text); font: inherit; font-size: 16px; margin-bottom: 8px; }
+  .list { display: grid; gap: 6px; }
+  .li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 14px; background: rgba(236,233,226,.04); border: 1px solid var(--t-line); cursor: pointer; text-align: right; font: inherit; color: var(--text); width: 100%; }
+  .li .w { font-family: var(--t-font-daf); font-size: calc(20px * var(--fz, 1)); font-weight: 700; color: #fff; }
+  .li .m { font-size: calc(14px * var(--fz, 1)); color: var(--soft); }
+  .li .st { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 9px; white-space: nowrap; }
+  .st.k { background: rgba(111,211,92,.18); color: var(--ok); } .st.l { background: rgba(232,183,109,.18); color: var(--gold-b); } .st.n { background: rgba(95,178,255,.15); color: #8cc4ef; }
+  .cnt { font-size: 12.5px; color: var(--dim); margin: 6px 2px; }
+  .empty { text-align: center; color: var(--dim); padding: 30px 10px; }
+  .reset { margin-top: 18px; background: none; border: 0; color: var(--dim); text-decoration: underline; font: inherit; font-size: 12.5px; cursor: pointer; min-height: 36px; }
+  @media (min-width: 900px) { .app { padding-top: 24px; } .card { min-height: 340px; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <a class="ib" href="index.html" aria-label="דף הבית">🏠</a>
+    <h1>🔤 לימוד מילים<small>כל המילים מהדפים שלמדנו בתענית</small></h1>
+    <a class="ib" href="taanit.html" aria-label="חזרה ללימוד הדף">📖</a>
+  </header>
+
+  <div class="prog" aria-live="polite">
+    <div class="pg k"><b id="nK">0</b><span>✅ יודע</span></div>
+    <div class="pg l"><b id="nL">0</b><span>📈 בלמידה</span></div>
+    <div class="pg n"><b id="nN">0</b><span>🆕 חדשות</span></div>
+  </div>
+  <div class="bar" aria-hidden="true"><i class="k" id="bK"></i><i class="l" id="bL"></i></div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-t="fc">🃏 כרטיסיות</button>
+    <button class="tab" role="tab" data-t="qz">✍️ מבחן</button>
+    <button class="tab" role="tab" data-t="ls">📋 כל המילים</button>
+  </div>
+
+  <div class="fl">📄 מאיזה דף</div>
+  <div class="filt" id="fRef"></div>
+  <div class="fl">🔠 מה ללמוד</div>
+  <div class="filt" id="fType"></div>
+
+  <section class="pane" id="p-fc" role="tabpanel">
+    <div class="fc-meta"><span id="fcInfo"></span><button class="ch" id="fcShuffle" type="button">🔀 ערבב</button></div>
+    <div id="fcBox"></div>
+  </section>
+
+  <section class="pane" id="p-qz" role="tabpanel"><div id="qzBox"></div></section>
+
+  <section class="pane" id="p-ls" role="tabpanel">
+    <input class="search" id="q" type="search" placeholder="🔍 חיפוש מילה או פירוש..." aria-label="חיפוש">
+    <div class="cnt" id="lsCnt"></div>
+    <div class="list" id="lsBox"></div>
+    <button class="reset" id="reset" type="button">איפוס ההתקדמות</button>
+  </section>
+</div>
+
+<script src="daf-marks.js"></script>
+<script>
+// ===== 🔤 לימוד מילים — כל המילים והביטויים מ״מילה במילה״ (TX.WBW), המילון (TX.WDICT) והמונחים (TX.KEY_TERMS) =====
+// התקדמות: localStorage 'gemara:words' = { מילה: {b: תיבה 0..5, d: מתי לחזור (ms), r: נכון, w: טעות} } — שיטת לייטנר
+const $ = id => document.getElementById(id);
+const AMN = { '2a': 'ב׳ ע״א', '2b': 'ב׳ ע״ב', '3a': 'ג׳ ע״א', '3b': 'ג׳ ע״ב', '4a': 'ד׳ ע״א', '4b': 'ד׳ ע״ב', '5a': 'ה׳ ע״א', '5b': 'ה׳ ע״ב', '6a': 'ו׳ ע״א' };
+const REFS = Object.keys(AMN);
+const clean = s => String(s || '').replace(/<[^>]+>/g, '').replace(/[֑-ׇ״"׳'.,:;!?()\[\]]/g, '').replace(/\s+/g, ' ').trim();
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// --- בניית המאגר ---
+const W = new Map();
+function add(w, m, type, key) {
+  w = String(w).trim(); m = String(m).trim(); if (!w || !m) return;
+  const cw = clean(w), cm = clean(m);
+  const core = clean(m.replace(/\([^)]*\)/g, ' ').replace(/[־–—-]/g, ' ')), strip = t => t.replace(/^[והבלמשד](?=\S{2})/, '');
+  const same = core === cw || strip(core) === cw || core === strip(cw) || strip(core) === strip(cw) || core.split(' / ').includes(cw);
+  if (cw.length < 2 || !cm || same || /\((אמורא|שם|תנא|אמוראים)/.test(m) || /^[\d\s]+$/.test(cw)) return;
+  let x = W.get(cw);
+  if (!x) { x = { id: cw, w, type, ms: {}, refs: new Set(), keys: [] }; W.set(cw, x); }
+  x.ms[m] = (x.ms[m] || 0) + 1;
+  if (key) { const r = key.split(':')[0]; x.refs.add(r); if (x.keys.length < 3 && !x.keys.includes(key)) x.keys.push(key); }
+  if (type === 'term') x.type = 'term';
+}
+for (const [key, v] of Object.entries(TX.WBW || {})) for (const p of v.split('|')) {
+  const i = p.indexOf('='); if (i < 0) continue;
+  const a = p.slice(0, i).trim(), h = p.slice(i + 1).trim(), n = a.split(/\s+/).length;
+  if (n <= 4) add(a, h, n > 1 ? 'ph' : 'w', key);
+}
+for (const [w, m] of Object.entries(TX.WDICT || {})) {
+  const cw = clean(w); if (W.has(cw)) continue;
+  const key = Object.keys(TX.WBW || {}).find(k => (' ' + clean(TX.WBW[k].split('|').map(p => p.split('=')[0]).join(' ')) + ' ').includes(' ' + cw + ' '));
+  add(w, m, 'w', key);
+}
+for (const [t, m] of (TX.KEY_TERMS || [])) { const cw = clean(t); const old = W.get(cw); add(t, m, 'term', old && old.keys[0]); const x = W.get(cw); if (x) { x.type = 'term'; x.ms = { [m]: 99 }; } }
+const ALL = [...W.values()].map(x => { x.m = Object.entries(x.ms).sort((a, b) => b[1] - a[1])[0][0]; x.refs = REFS.filter(r => x.refs.has(r)); return x; })
+  .filter(x => x.refs.length || x.type === 'term');
+
+// --- התקדמות ---
+let P = {}; try { P = JSON.parse(localStorage.getItem('gemara:words') || '{}') || {}; } catch (e) {}
+const save = () => { try { localStorage.setItem('gemara:words', JSON.stringify(P)); } catch (e) {} };
+const DAY = 864e5, IV = [0, 0.02, 1, 3, 7, 16];   // ימים עד חזרה לפי תיבה (תיבה 1 ≈ חצי שעה)
+const box = x => (P[x.id] && P[x.id].b) || 0;
+const stat = x => !P[x.id] ? 'n' : box(x) >= 3 ? 'k' : 'l';
+function mark(x, ok) {
+  const p = P[x.id] || (P[x.id] = { b: 0, r: 0, w: 0 });
+  if (ok) { p.b = Math.min(5, p.b + 1); p.r++; } else { p.b = 1; p.w++; }
+  p.d = Date.now() + IV[p.b] * DAY; save(); stats();
+}
+
+// --- מסננים ---
+let fRef = 'all', fType = 'w'; try { const s = JSON.parse(localStorage.getItem('gemara:wfilt') || '{}'); if (s.r) fRef = s.r; if (s.t) fType = s.t; } catch (e) {}
+{ const r = new URLSearchParams(location.search).get('ref'); if (r && AMN[r]) fRef = r; }   // מדף הלימוד: taanit → words.html?ref=4b
+const TYPES = [['w', '🔤 מילים'], ['ph', '💬 ביטויים'], ['term', '🔑 מונחי גמרא'], ['all', 'הכל']];
+function pool() { return ALL.filter(x => (fRef === 'all' || x.refs.includes(fRef)) && (fType === 'all' || x.type === fType)); }
+function chips() {
+  const cnt = r => ALL.filter(x => (r === 'all' || x.refs.includes(r)) && (fType === 'all' || x.type === fType)).length;
+  $('fRef').innerHTML = [['all', 'כל הדפים'], ...REFS.map(r => [r, AMN[r]])].map(([r, n]) => `<button type="button" class="ch${r === fRef ? ' on' : ''}" data-r="${r}">${n} <small>${cnt(r)}</small></button>`).join('');
+  $('fType').innerHTML = TYPES.map(([t, n]) => `<button type="button" class="ch${t === fType ? ' on' : ''}" data-t="${t}">${n}</button>`).join('');
+}
+function setFilt(r, t) { if (r) fRef = r; if (t) fType = t; try { localStorage.setItem('gemara:wfilt', JSON.stringify({ r: fRef, t: fType })); } catch (e) {} chips(); stats(); render(); }
+$('fRef').onclick = e => { const b = e.target.closest('[data-r]'); if (b) setFilt(b.dataset.r); };
+$('fType').onclick = e => { const b = e.target.closest('[data-t]'); if (b) setFilt(null, b.dataset.t); };
+
+function stats() {
+  const pl = pool(), k = pl.filter(x => stat(x) === 'k').length, l = pl.filter(x => stat(x) === 'l').length;
+  $('nK').textContent = k; $('nL').textContent = l; $('nN').textContent = pl.length - k - l;
+  $('bK').style.width = (pl.length ? k / pl.length * 100 : 0) + '%'; $('bL').style.width = (pl.length ? l / pl.length * 100 : 0) + '%';
+}
+const where = x => x.refs.map(r => { const k = x.keys.find(k => k.startsWith(r + ':')); return `<a href="taanit.html#${k ? k.split(':').slice(0, 3).join('-') : r}">${AMN[r]}</a>`; }).join('');
+function example(x) {
+  const k = x.keys.find(k => TX.PUNCT && TX.PUNCT[k]); if (!k) return '';
+  let t = esc(clean(TX.PUNCT[k]) ? TX.PUNCT[k].replace(/<[^>]+>/g, '') : '');
+  const re = new RegExp('(' + x.w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '[\\s\\u0591-\\u05C7״"׳,.:;!?—-]*') + ')');
+  t = t.replace(re, '<mark>$1</mark>');
+  return `<div class="ex"><small>📜 בגמרא · ${AMN[k.split(':')[0]]}</small>${t}</div>`;
+}
+const lvl = x => `<span class="lvl" aria-label="רמה ${box(x)} מתוך 5">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= box(x) ? 'on' : ''}"></i>`).join('')}</span>`;
+const TYN = { w: 'מילה', ph: 'ביטוי', term: 'מונח' };
+
+// --- 🃏 כרטיסיות ---
+let deck = [], di = 0, sess = { ok: 0, no: 0 };
+function buildDeck(shuffle) {
+  const now = Date.now(), pl = pool();
+  const due = pl.filter(x => P[x.id] && (P[x.id].d || 0) <= now && box(x) < 5).sort((a, b) => box(a) - box(b));
+  const fresh = pl.filter(x => !P[x.id]);
+  const rest = pl.filter(x => P[x.id] && (P[x.id].d || 0) > now).sort((a, b) => (P[a.id].d || 0) - (P[b.id].d || 0));
+  let d = [...due, ...fresh.slice(0, Math.max(5, 20 - due.length))];
+  if (!d.length) d = rest.slice(0, 20);
+  if (shuffle) d.sort(() => Math.random() - .5);
+  deck = d.slice(0, 20); di = 0; sess = { ok: 0, no: 0 };
+}
+function fc() {
+  const box_ = $('fcBox');
+  if (!pool().length) { box_.innerHTML = '<div class="empty">אין מילים במסנן הזה</div>'; $('fcInfo').textContent = ''; return; }
+  if (di >= deck.length) {
+    $('fcInfo').textContent = '';
+    box_.innerHTML = `<div class="done"><div class="big">🎉</div><h2>סיימת סבב!</h2><p>ידעת ${sess.ok} · לחזרה ${sess.no}</p>
+      <button class="btn pri" type="button" id="fcMore">🃏 עוד סבב</button><br><br><button class="btn sec" type="button" id="fcQuiz">✍️ למבחן על המילים</button></div>`;
+    $('fcMore').onclick = () => { buildDeck(); fc(); }; $('fcQuiz').onclick = () => tab('qz');
+    return;
+  }
+  const x = deck[di];
+  $('fcInfo').textContent = `כרטיס ${di + 1} מתוך ${deck.length}`;
+  box_.innerHTML = `<div class="card" id="card" role="button" tabindex="0" aria-label="הקשה להפוך את הכרטיס">
+    <div class="card-in">
+      <div class="face front">${lvl(x)}<span class="ty">${TYN[x.type]}</span><div class="aw${x.type !== 'w' ? ' ph' : ''}">${esc(x.w)}</div><div class="hint">👆 הקשה להפוך · מה הפירוש?</div>
+        ${canSpeak ? '<button type="button" class="speak-btn say" id="sayW" aria-label="השמע את המילה">🔊</button>' : ''}</div>
+      <div class="face back">${lvl(x)}<div class="bw">${esc(x.w)}</div><div class="mean">${esc(x.m)}</div>${example(x)}<div class="where">${where(x)}</div></div>
+    </div></div>
+    <div class="acts"><button class="btn no" type="button" id="fcNo">❌ לא ידעתי</button><button class="btn ok" type="button" id="fcOk">✅ ידעתי</button></div>`;
+  const card = $('card'); card.onclick = e => { if (e.target.closest('a,button')) return; card.classList.toggle('flip'); };
+  card.onkeydown = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); card.classList.toggle('flip'); } };
+  const sw = $('sayW'); if (sw) sw.onclick = e => { e.stopPropagation(); speak(x.w, sw); };
+  $('fcOk').onclick = () => { mark(x, true); sess.ok++; di++; fc(); };
+  $('fcNo').onclick = () => { mark(x, false); sess.no++; deck.push(x); di++; fc(); };
+}
+$('fcShuffle').onclick = () => { buildDeck(true); fc(); };
+
+// --- ✍️ מבחן ---
+let QZ = null, qDir = 'a2h', qLen = 10;
+try { const s = JSON.parse(localStorage.getItem('gemara:wquiz') || '{}'); if (s.d) qDir = s.d; if (s.n) qLen = s.n; } catch (e) {}
+function qzSetup() {
+  const n = pool().length;
+  $('qzBox').innerHTML = `<div class="qset">
+    <h3>✍️ מבחן על ${n} מילים</h3>
+    <div class="fl">כיוון</div><div class="row">
+      <button class="ch${qDir === 'a2h' ? ' on' : ''}" data-d="a2h" type="button">ארמית ← עברית</button>
+      <button class="ch${qDir === 'h2a' ? ' on' : ''}" data-d="h2a" type="button">עברית ← ארמית</button>
+      <button class="ch${qDir === 'mix' ? ' on' : ''}" data-d="mix" type="button">🔀 מעורב</button></div>
+    <div class="fl">כמה שאלות</div><div class="row">${[10, 20, 30].map(k => `<button class="ch${qLen === k ? ' on' : ''}" data-n="${k}" type="button">${k}</button>`).join('')}</div>
+    <button class="btn pri" type="button" id="qzGo" ${n < 4 ? 'disabled' : ''}>▶ התחל מבחן</button>
+    ${n < 4 ? '<p class="cnt">צריך לפחות 4 מילים במסנן</p>' : '<p class="cnt">המבחן מתחיל מהמילים שקשות לך יותר.</p>'}</div>`;
+  $('qzBox').querySelectorAll('[data-d]').forEach(b => b.onclick = () => { qDir = b.dataset.d; persistQ(); qzSetup(); });
+  $('qzBox').querySelectorAll('[data-n]').forEach(b => b.onclick = () => { qLen = +b.dataset.n; persistQ(); qzSetup(); });
+  const go = $('qzGo'); if (go) go.onclick = () => qzStart();
+}
+function persistQ() { try { localStorage.setItem('gemara:wquiz', JSON.stringify({ d: qDir, n: qLen })); } catch (e) {} }
+function qzStart(only) {
+  const pl = pool();
+  let items = only || [...pl].sort((a, b) => (box(a) - box(b)) || (((P[b.id] || {}).w || 0) - ((P[a.id] || {}).w || 0)) || (Math.random() - .5)).slice(0, Math.min(qLen, pl.length)).sort(() => Math.random() - .5);
+  QZ = { items, i: 0, ok: 0, wrong: [] }; qzQ();
+}
+function qzQ() {
+  const z = QZ; if (z.i >= z.items.length) return qzEnd();
+  const x = z.items[z.i], dir = qDir === 'mix' ? (Math.random() < .5 ? 'a2h' : 'h2a') : qDir;
+  const pl = pool().length >= 4 ? pool() : ALL;
+  const val = y => dir === 'a2h' ? y.m : y.w;
+  const others = pl.filter(y => y !== x && clean(val(y)) !== clean(val(x)) && y.type === x.type);
+  const src = others.length >= 3 ? others : pl.filter(y => y !== x && clean(val(y)) !== clean(val(x)));
+  const opts = [x]; while (opts.length < 4 && opts.length <= src.length) { const y = src[Math.floor(Math.random() * src.length)]; if (!opts.includes(y) && !opts.some(o => clean(val(o)) === clean(val(y)))) opts.push(y); }
+  opts.sort(() => Math.random() - .5);
+  $('qzBox').innerHTML = `<div class="qhead"><span>שאלה ${z.i + 1} מתוך ${z.items.length}</span><span>✅ ${z.ok}</span></div>
+    <div class="qbar"><i style="width:${z.i / z.items.length * 100}%"></i></div>
+    <div class="qq">${dir === 'a2h' ? `<small>מה פירוש</small><div class="aw">${esc(x.w)}</div>` : `<small>איך אומרים בגמרא</small><div class="mq">${esc(x.m)}</div>`}</div>
+    <div class="opts">${opts.map((o, j) => `<button type="button" class="opt${dir === 'h2a' ? ' daf' : ''}" data-j="${j}"><span class="k">${'אבגד'[j]}</span>${esc(val(o))}</button>`).join('')}</div>
+    <div class="fb" id="fb" aria-live="polite"></div><button class="btn pri" type="button" id="qNext" hidden>הבא ◀</button>`;
+  $('qzBox').querySelectorAll('.opt').forEach(b => b.onclick = () => {
+    const o = opts[+b.dataset.j], ok = o === x;
+    $('qzBox').querySelectorAll('.opt').forEach(c => { c.disabled = true; if (opts[+c.dataset.j] === x) c.classList.add('right'); });
+    if (!ok) { b.classList.add('wrong'); z.wrong.push(x); } else z.ok++;
+    mark(x, ok);
+    $('fb').className = 'fb ' + (ok ? 'ok' : 'no');
+    $('fb').innerHTML = ok ? '✅ נכון!' : `❌ <b>${esc(x.w)}</b> = ${esc(x.m)} · <span style="font-weight:500">${x.refs.map(r => AMN[r]).join(', ')}</span>`;
+    const nx = $('qNext'); nx.hidden = false; nx.focus();
+    nx.onclick = () => { z.i++; qzQ(); };
+    if (ok) setTimeout(() => { if (QZ === z && z.items[z.i] === x) { z.i++; qzQ(); } }, 900);
+  });
+}
+function qzEnd() {
+  const z = QZ, p = Math.round(z.ok / z.items.length * 100);
+  const msg = p === 100 ? 'מושלם! 🏆' : p >= 80 ? 'יפה מאוד! 👏' : p >= 50 ? 'בדרך הנכונה 💪' : 'עוד קצת חזרה 📚';
+  $('qzBox').innerHTML = `<div class="score"><div class="ring" style="--p:${p}"><span>${p}%</span></div><h2 style="color:var(--gold-b)">${msg}</h2>
+    <p class="cnt">${z.ok} נכונות מתוך ${z.items.length}</p>
+    ${z.wrong.length ? `<div class="mist">${z.wrong.map(x => `<div><b>${esc(x.w)}</b> = ${esc(x.m)}</div>`).join('')}</div>
+      <button class="btn pri" type="button" id="qRe">🔁 שוב רק על הטעויות</button><br><br>` : ''}
+    <button class="btn sec" type="button" id="qNew">✍️ מבחן חדש</button></div>`;
+  const re = $('qRe'); if (re) re.onclick = () => qzStart([...new Set(z.wrong)].sort(() => Math.random() - .5));
+  $('qNew').onclick = qzSetup;
+}
+
+// --- 📋 רשימה ---
+function ls() {
+  const q = clean($('q').value), pl = pool().filter(x => !q || clean(x.w).includes(q) || clean(x.m).includes(q))
+    .sort((a, b) => a.id.localeCompare(b.id, 'he'));
+  $('lsCnt').textContent = `${pl.length} ${fType === 'term' ? 'מונחים' : fType === 'ph' ? 'ביטויים' : 'מילים'}`;
+  const SN = { k: '✅ יודע', l: '📈 לומד', n: '🆕 חדשה' };
+  $('lsBox').innerHTML = pl.length ? pl.slice(0, 400).map(x => `<button type="button" class="li" data-id="${esc(x.id)}"><span class="w">${esc(x.w)}</span><span class="m">${esc(x.m)}</span><span class="st ${stat(x)}">${SN[stat(x)]}</span></button>`).join('') : '<div class="empty">לא נמצא</div>';
+}
+$('q').oninput = ls;
+$('lsBox').onclick = e => { const b = e.target.closest('.li'); if (!b) return; const x = W.get(b.dataset.id); if (!x) return;
+  deck = [x, ...deck.filter(y => y !== x)]; di = 0; tab('fc'); fc(); setTimeout(() => { const c = $('card'); if (c) c.classList.add('flip'); }, 50); };
+$('reset').onclick = () => { if (confirm('לאפס את כל ההתקדמות בלימוד המילים?')) { P = {}; save(); stats(); render(); } };
+
+// --- לשוניות ---
+let cur = 'fc'; try { cur = localStorage.getItem('gemara:wtab') || 'fc'; } catch (e) {}
+if (/^#(fc|qz|ls)$/.test(location.hash)) cur = location.hash.slice(1);
+function tab(t) {
+  cur = t; try { localStorage.setItem('gemara:wtab', t); } catch (e) {}
+  document.querySelectorAll('.tab').forEach(b => { b.classList.toggle('on', b.dataset.t === t); b.setAttribute('aria-selected', b.dataset.t === t); });
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + t));
+  render();
+}
+function render() { if (cur === 'fc') { if (!deck.length || deck.some(x => !pool().includes(x))) buildDeck(); fc(); } else if (cur === 'qz') { if (!QZ || QZ.i >= QZ.items.length || QZ.items.some(x => !pool().includes(x))) qzSetup(); } else ls(); }
+document.querySelector('.tabs').onclick = e => { const b = e.target.closest('.tab'); if (b) { if (b.dataset.t === 'qz') QZ = null; tab(b.dataset.t); } };
+document.addEventListener('keydown', e => {
+  if (cur === 'fc' && $('card') && !e.target.closest('input')) {
+    if (e.key === 'ArrowLeft') $('fcOk').click(); else if (e.key === 'ArrowRight') $('fcNo').click();
+  }
+  if (cur === 'qz' && /^[1-4]$/.test(e.key)) { const o = $('qzBox').querySelectorAll('.opt')[+e.key - 1]; if (o && !o.disabled) o.click(); }
+});
+chips(); stats(); tab(cur);
+</script>
+</body>
+</html>
