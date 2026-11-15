@@ -1455,7 +1455,7 @@
     text-align: center; color: #fff; background: rgb(var(--hl)); box-shadow: 0 1px 4px rgba(0,0,0,.4); mix-blend-mode: normal; }
   /* בועת ההסבר יושבת בפס קבוע מתחת לצילום — אף פעם לא על האותיות */
   .po-call { position: relative; flex: 0 0 auto; z-index: 3; --hl: 230,110,20; background: rgba(17,24,41,0.98); color: var(--parchment);
-    border-top: 3px solid rgb(var(--hl)); padding: 9px 14px 10px; max-height: 34vh; overflow-y: auto; }
+    border-top: 3px solid rgb(var(--hl)); padding: 9px 14px 10px; max-height: 40vh; overflow-y: auto; overscroll-behavior: contain; }
   .po-call:empty { display: none; }
   .po-call.hl-q, .po-call.hl-x, .po-lead.hl-q, .po-lead.hl-x { --hl: 232,86,106; }
   .po-call.hl-a, .po-lead.hl-a { --hl: 108,195,90; }
@@ -1712,6 +1712,29 @@
   /* הדף המלא: מעבר לקטע הבא בלי לצאת */
   .po-b.po-more { width: auto; flex: 0 0 auto; padding: 0 14px; font-size: 14px; white-space: nowrap; background: var(--gold-bright); box-shadow: 0 0 0 3px rgba(245,211,154,.25); }
   .po-bar span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* 🌳 עץ הקטע בדף המלא */
+  .st { margin: 8px 0 4px; border-top: 1px dashed rgba(236,233,226,.18); padding-top: 6px; }
+  .st summary { cursor: pointer; list-style: none; font-size: 12.5px; font-weight: 800; color: var(--gold-bright); }
+  .st summary::-webkit-details-marker { display: none; }
+  .st summary::after { content: ' ▾'; } .st[open] summary::after { content: ' ▴'; }
+  .st summary small { font-weight: 500; color: var(--parchment-dim); }
+  .st-ol { list-style: none; margin: 6px 0 2px; padding: 0; }
+  .st-li { position: relative; padding-right: calc(var(--d) * 18px); margin: 3px 0; }
+  .st-li::before { content: ''; position: absolute; top: -4px; bottom: 50%; right: calc(var(--d) * 18px - 11px); width: 10px; border-right: 1.5px solid rgba(232,183,109,.35); border-bottom: 1.5px solid rgba(232,183,109,.35); border-bottom-right-radius: 6px; }
+  .st-li[style*="--d:0"]::before { display: none; }
+  .st-n { --c: 232,183,109; width: 100%; display: flex; align-items: flex-start; gap: 6px; text-align: right; font: inherit; font-size: 12.5px; line-height: 1.45; color: var(--parchment-soft); background: rgba(var(--c), .08); border: 1px solid rgba(var(--c), .3); border-right: 3px solid rgb(var(--c)); border-radius: 9px; padding: 5px 8px; cursor: pointer; min-height: 32px; }
+  .st-n:disabled { cursor: default; }
+  .st-n.r-q, .st-n.r-x { --c: 232,86,106; } .st-n.r-a { --c: 108,195,90; } .st-n.r-c { --c: 242,193,78; }
+  .st-n.r-m, .st-n.r-n { --c: 94,168,224; } .st-n.r-k { --c: 169,141,224; }
+  .st-n i { font-style: normal; flex: 0 0 auto; }
+  .st-t { flex: 1; min-width: 0; }
+  .st-t em { font-style: normal; font-weight: 800; color: rgb(var(--c)); margin-left: 4px; }
+  .st-t b { color: var(--parchment); }
+  .st-n.cur { background: rgba(var(--c), .26); border-color: rgb(var(--c)); box-shadow: 0 0 0 2px rgba(var(--c), .25); color: #fff; }
+  .st-here { flex: 0 0 auto; font-size: 10.5px; font-weight: 800; color: #0a0e19; background: rgb(var(--c)); border-radius: 8px; padding: 1px 6px; align-self: center; }
+  .st-li.anc .st-n { opacity: .6; background: transparent; border-style: dashed; border-right-style: solid; }
+  .st-full { display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 800; color: var(--gold-bright); text-decoration: none; }
 </style>
 <script>
 // 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
@@ -3501,6 +3524,41 @@ function poStep(d) {
   PO.back = back; openPhoto(sc.src.ref, sc.src.box);
   try { history.replaceState(null, '', `#${state.ref}-${i}`); } catch (e) {}
 }
+
+// ===== 🌳 עץ הקטע: בדף המלא, רק הצמתים של הקטע הזה (ומעליהם השאלה שהם עונים עליה) =====
+let stOpen = true; try { stOpen = localStorage.getItem('gemara:potree') !== '0'; } catch (e) {}
+function secTreeHTML(ref, si, curBi) {
+  if (typeof TREE === 'undefined' || !TREE[ref] || typeof TREE_CX === 'undefined' || !TREE_CX[ref]) return '';
+  let seq = 0; const all = [];
+  const walk = (n, parent, d) => { const e = TREE_CX[ref][seq++];
+    const keys = typeof e === 'string' ? [e] : Array.isArray(e) ? e : (e && e.k) || [];
+    const node = { n, parent, kids: [], d, bis: keys.filter(k => k.startsWith(`${ref}:${si}:`)).map(k => +k.split(':')[2]) };
+    if (parent) parent.kids.push(node); all.push(node); (n.k || []).forEach(c => walk(c, node, d + 1)); };
+  TREE[ref].roots.forEach(r => walk(r, null, 0));
+  const inSec = all.filter(x => x.n.s === si); if (!inSec.length) return '';
+  const set = new Set(inSec);
+  // השורשים בתוך הקטע: צמתים שההורה שלהם לא בקטע. מעליהם מראים עד שני אבות לרקע (עמומים)
+  const tops = inSec.filter(x => !x.parent || !set.has(x.parent));
+  const lab = x => { const R = FLOW_RN[x.n.r]; if (!R || !x.parent) return ''; const same = x.parent.kids.filter(k => k.n.r === x.n.r), i = same.indexOf(x);
+    return same.length > 1 ? `${R[0]} ${R[1][i] || i + 1}` : R[0]; };
+  const row = (x, cls, depth) => {
+    const cur = x.bis.includes(curBi), bi = x.bis.length ? x.bis[0] : null, L = x.parent ? lab(x) : '';
+    return `<li class="st-li${cls ? ' ' + cls : ''}" style="--d:${Math.min(depth, 5)}"><button type="button" class="st-n r-${x.n.r}${cur ? ' cur' : ''}"${bi != null && !cls ? ` data-bi="${bi}"` : ' disabled'} aria-current="${cur}">
+      <i>${FLOW_IC[x.n.r] || '•'}</i><span class="st-t">${L ? `<em>${L}</em>` : ''}<b>${x.n.w}</b> ${x.n.e || ''}</span>${cur ? '<span class="st-here">אתה כאן</span>' : ''}</button></li>`;
+  };
+  let h = '';
+  const seenAnc = new Set();
+  for (const t of tops) {
+    const anc = []; for (let a = t.parent; a && anc.length < 2; a = a.parent) anc.unshift(a);
+    anc.forEach((a, i) => { if (!seenAnc.has(a)) { seenAnc.add(a); h += row(a, 'anc', i); } });
+    const base = anc.length;
+    const sub = (x, d) => { h += row(x, '', d); x.kids.filter(k => set.has(k)).forEach(k => sub(k, d + 1)); };
+    sub(t, base);
+  }
+  return `<details class="st"${stOpen ? ' open' : ''} ontoggle="stOpen=this.open;try{localStorage.setItem('gemara:potree',this.open?'1':'0')}catch(e){}"><summary>🌳 עץ הקטע <small>— איך השלבים מתחברים</small></summary><ol class="st-ol">${h}</ol>
+    <a class="st-full" href="tree.html#${ref}-${si}">פתח בעץ המלא ◀</a></details>`;
+}
+
 function poSelect(k, instant) {
   if (!PO.list.length) return;
   PO.cur = k = Math.max(0, Math.min(PO.list.length - 1, k));
@@ -3520,7 +3578,8 @@ function poSelect(k, instant) {
   const call = document.getElementById('poCall');
   call.className = 'po-call hl-' + x.role;
   call.innerHTML = `<div class="pc-head"><span class="pc-no">${k + 1}</span><span class="pc-role">${ROLE[x.role][0]} ${ROLE[x.role][1]}</span><span class="pc-who">${x.who}</span></div>
-    <div class="pc-txt">${x.tk || x.txt}</div>${ctxHTML(`${PO.ref}:${state.sceneIdx}:${x.bi}`)}`;
+    <div class="pc-txt">${x.tk || x.txt}</div>${secTreeHTML(PO.ref, state.sceneIdx, x.bi)}${ctxHTML(`${PO.ref}:${state.sceneIdx}:${x.bi}`)}`;
+  call.querySelectorAll('.st-n[data-bi]').forEach(b => b.onclick = e => { e.stopPropagation(); const j = PO.list.findIndex(y => y.bi === +b.dataset.bi); if (j >= 0) poSelect(j); });
   call.scrollTop = 0;
   call.animate([{ opacity: 0.3 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
   // מצלמה: מביאים את המילים של השלב למרכז החלק הנראה של הצילום (אחרי שהבועה תפסה את מקומה)
