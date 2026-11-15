@@ -1708,6 +1708,10 @@
   .bt-pane .g-punct, .bt-pane .wbw { margin-top: 0; }
   .bt-pane .bppl { margin-top: 0; }
   .beat .takhles { margin-top: 8px; }
+
+  /* הדף המלא: מעבר לקטע הבא בלי לצאת */
+  .po-b.po-more { width: auto; flex: 0 0 auto; padding: 0 14px; font-size: 14px; white-space: nowrap; background: var(--gold-bright); box-shadow: 0 0 0 3px rgba(245,211,154,.25); }
+  .po-bar span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
 <script>
 // 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
@@ -3458,7 +3462,7 @@ function openPhoto(ref, box) {
     const want = focusBeat != null ? focusBeat : Math.min(state.beat, sc.beats.length - 1);
     PO.cur = Math.max(0, PO.list.findIndex(x => x.bi >= want));
   } else marks = box ? rect(box, 'po-mark') : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
-  ov.innerHTML = `<div class="po-bar"><span>📷 ${AMUD_NAME[ref]}${PO.list.length ? ' · הדף עם ההסבר' : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '🌳 חזרה לעץ' : '✕'}</button></div>
+  ov.innerHTML = `<div class="po-bar"><span>📷 ${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '🌳 חזרה לעץ' : '✕'}</button></div>
     <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}">${marks}</div></div>
     ${PO.list.length ? `<div class="po-call" id="poCall"></div><div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה">🔍</button></div>`
       : '<div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>'}`;
@@ -3468,8 +3472,8 @@ function openPhoto(ref, box) {
   poLockZoom(true); poPinch(wrap, document.getElementById('poScroll'));
   if (PO.list.length) {
     wrap.addEventListener('click', e => { const h = e.target.closest('.po-hl'); if (h) { e.stopPropagation(); poSelect(+h.dataset.k); } });
-    document.getElementById('poPrev').onclick = () => poSelect(PO.cur - 1);
-    document.getElementById('poNext').onclick = () => poSelect(PO.cur + 1);
+    document.getElementById('poPrev').onclick = () => poStep(-1);
+    document.getElementById('poNext').onclick = () => poStep(1);
     document.getElementById('poDots').onclick = e => { const d = e.target.closest('i'); if (d) poSelect(+d.dataset.k); };
     document.getElementById('poZoom').onclick = () => { poZoomToggle(wrap); setTimeout(() => poSelect(PO.cur, true), 30); };
     const img = wrap.querySelector('img');
@@ -3479,6 +3483,24 @@ function openPhoto(ref, box) {
     const m = ov.querySelector('.po-mark'); if (m) setTimeout(() => m.scrollIntoView({ block: 'center', inline: 'center' }), 60);
   }
 }
+// הקטע הבא/הקודם שיש לו שלבים מסומנים בדף (או null)
+function poScene(d) {
+  const scs = amudim[state.ref] && amudim[state.ref].scenes; if (!scs) return null;
+  for (let i = state.sceneIdx + d; i >= 0 && i < scs.length; i += d) {
+    const sc = scs[i]; if (sc && sc.src && sc.beats && sc.beats.some((b, bi) => beatLoc(state.ref, i, bi))) return i;
+  }
+  return null;
+}
+function poStep(d) {
+  const k = PO.cur + d;
+  if (k >= 0 && k < PO.list.length) return poSelect(k);
+  const i = poScene(d); if (i == null) return;
+  const back = PO.back, sc = amudim[state.ref].scenes[i];
+  state.sceneIdx = i; state.beat = 0; renderScenes();
+  focusBeat = d > 0 ? 0 : sc.beats.length - 1;
+  PO.back = back; openPhoto(sc.src.ref, sc.src.box);
+  try { history.replaceState(null, '', `#${state.ref}-${i}`); } catch (e) {}
+}
 function poSelect(k, instant) {
   if (!PO.list.length) return;
   PO.cur = k = Math.max(0, Math.min(PO.list.length - 1, k));
@@ -3486,7 +3508,14 @@ function poSelect(k, instant) {
   wrap.querySelectorAll('.po-hl').forEach(h => h.classList.toggle('on', +h.dataset.k === k));
   wrap.classList.add('has-sel');
   document.querySelectorAll('#poDots i').forEach((d, j) => d.classList.toggle('on', j === k));
-  document.getElementById('poPrev').disabled = k === 0; document.getElementById('poNext').disabled = k === PO.list.length - 1;
+  { // בקצה הקטע: הכפתור ממשיך לקטע הבא/הקודם בלי לצאת מהדף המלא
+    const pv = document.getElementById('poPrev'), nx = document.getElementById('poNext');
+    const atS = k === 0, atE = k === PO.list.length - 1, ps = atS ? poScene(-1) : null, ns = atE ? poScene(1) : null;
+    pv.disabled = atS && ps == null; nx.disabled = atE && ns == null;
+    nx.classList.toggle('po-more', ns != null); pv.classList.toggle('po-more', ps != null);
+    nx.innerHTML = ns != null ? 'לקטע הבא ◀' : '◀'; pv.innerHTML = ps != null ? '▶ לקטע הקודם' : '▶';
+    nx.setAttribute('aria-label', ns != null ? 'לקטע הבא' : 'השלב הבא'); pv.setAttribute('aria-label', ps != null ? 'לקטע הקודם' : 'השלב הקודם');
+  }
   // בועת ההסבר: בפס קבוע מתחת לצילום, כך שלא מסתירה ולא מכהה שום מילה בדף
   const call = document.getElementById('poCall');
   call.className = 'po-call hl-' + x.role;
@@ -6102,7 +6131,7 @@ document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click
 document.addEventListener('keydown', (e) => {
   if (state.modal) {
     if (e.key === 'Escape') { if (state.modal === 'photo') closePhoto(); else closeModal(); }
-    if (state.modal === 'photo' && PO.list.length) { if (e.key === 'ArrowLeft') poSelect(PO.cur + 1); if (e.key === 'ArrowRight') poSelect(PO.cur - 1); }
+    if (state.modal === 'photo' && PO.list.length) { if (e.key === 'ArrowLeft') poStep(1); if (e.key === 'ArrowRight') poStep(-1); }
     return;
   }
   if (e.key === 'ArrowDown' || e.key === ' ') { if (stepBeat(1)) e.preventDefault(); return; }
@@ -6172,8 +6201,9 @@ function readHash() {
     renderScenes();
     if (m[3] != null && sc.beats && sc.beats[+m[3]]) {
       focusBeat = +m[3];
-      setTimeout(() => { try { showLoc(); } catch (e) {}
-        if (m[4] && sc.src) openPhoto(sc.src.ref, sc.src.box); }, 350);
+      const fb = +m[3];
+      setTimeout(() => { focusBeat = fb; try { showLoc(); } catch (e) {}   // scrollSpy עלול לשנות את השלב בינתיים
+        if (m[4] && sc.src) { focusBeat = fb; openPhoto(sc.src.ref, sc.src.box); } }, 350);
     }
   }
 }
