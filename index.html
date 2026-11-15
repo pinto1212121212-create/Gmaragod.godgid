@@ -124,6 +124,7 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
   <div class="quick" id="quick">
     <a class="q-it" id="qStars" href="taanit.html#stars" hidden>⭐ <b>השמורים שלי</b><small id="qStarsN"></small></a>
     <a class="q-it" href="tree.html">🌳 <b>עץ הסוגיה</b><small>כל הדף כמפה</small></a>
+    <a class="q-it" href="words.html">🔤 <b>לימוד מילים</b><small id="qWords">כרטיסיות ומבחן על כל המילים</small></a>
     <button type="button" class="q-it" id="qPrefs" aria-expanded="false">⚙️ <b>נוחות ונגישות</b><small>גודל אותיות, ניגודיות, מרווח</small></button>
     <button type="button" class="q-it" id="qInstall" hidden>📲 <b>התקן כאפליקציה</b><small>אייקון במסך הבית, עובד גם בלי אינטרנט</small></button>
   </div>
@@ -182,6 +183,8 @@ if (place && place.ref) {
   document.getElementById('contSub').textContent = place.tab === 'tutorial' ? 'איך לקרוא גמרא' : `קטע ${(place.sceneIdx | 0) + 1} — ממשיכים בדיוק מאותה נקודה`;
   c.hidden = false;
 }
+// 🔤 מילים: כמה כבר יודעים
+try { const wp = JSON.parse(localStorage.getItem('gemara:words') || '{}'); const k = Object.values(wp).filter(v => v && v.b >= 3).length; if (Object.keys(wp).length) document.getElementById('qWords').textContent = `✅ ${k} מילים שאתה כבר יודע`; } catch (e) {}
 // ⭐ שמורים
 try { const st = JSON.parse(localStorage.getItem('gemara:stars') || '[]'); if (Array.isArray(st) && st.length) { document.getElementById('qStars').hidden = false; document.getElementById('qStarsN').textContent = `${st.length} שלבים לחזרה`; } } catch (e) {}
 // 📲 התקנה כאפליקציה
