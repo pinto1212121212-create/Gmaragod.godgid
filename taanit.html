@@ -1735,6 +1735,7 @@
   .st-here { flex: 0 0 auto; font-size: 10.5px; font-weight: 800; color: #0a0e19; background: rgb(var(--c)); border-radius: 8px; padding: 1px 6px; align-self: center; }
   .st-li.anc .st-n { opacity: .6; background: transparent; border-style: dashed; border-right-style: solid; }
   .st-full { display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 800; color: var(--gold-bright); text-decoration: none; }
+  .po-b.po-daf { background: linear-gradient(135deg, #f5d39a, #e8b76d); box-shadow: 0 0 0 3px rgba(111,211,92,.35); }
 </style>
 <script>
 // 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
@@ -3506,23 +3507,30 @@ function openPhoto(ref, box) {
     const m = ov.querySelector('.po-mark'); if (m) setTimeout(() => m.scrollIntoView({ block: 'center', inline: 'center' }), 60);
   }
 }
-// הקטע הבא/הקודם שיש לו שלבים מסומנים בדף (או null)
+// הקטע הבא/הקודם שיש לו שלבים מסומנים — גם בדף הבא/הקודם. מחזיר {ref, i} או null
+function poHasMarks(ref, i) { const sc = amudim[ref] && amudim[ref].scenes && amudim[ref].scenes[i];
+  return !!(sc && sc.src && sc.beats && sc.beats.some((b, bi) => beatLoc(ref, i, bi))); }
 function poScene(d) {
-  const scs = amudim[state.ref] && amudim[state.ref].scenes; if (!scs) return null;
-  for (let i = state.sceneIdx + d; i >= 0 && i < scs.length; i += d) {
-    const sc = scs[i]; if (sc && sc.src && sc.beats && sc.beats.some((b, bi) => beatLoc(state.ref, i, bi))) return i;
+  let r = allRefs.indexOf(state.ref), i = state.sceneIdx + d;
+  while (r >= 0 && r < allRefs.length) {
+    const ref = allRefs[r], scs = (amudim[ref] && amudim[ref].scenes) || [];
+    if (i === null) i = d > 0 ? 0 : scs.length - 1;
+    for (; i >= 0 && i < scs.length; i += d) if (poHasMarks(ref, i)) return { ref, i };
+    r += d; i = null;
   }
   return null;
 }
 function poStep(d) {
   const k = PO.cur + d;
   if (k >= 0 && k < PO.list.length) return poSelect(k);
-  const i = poScene(d); if (i == null) return;
-  const back = PO.back, sc = amudim[state.ref].scenes[i];
-  state.sceneIdx = i; state.beat = 0; renderScenes();
+  const t = poScene(d); if (!t) return;
+  const back = PO.back;
+  if (t.ref !== state.ref) goToRef(t.ref);
+  const sc = amudim[t.ref].scenes[t.i];
+  state.sceneIdx = t.i; state.beat = 0; renderScenes();
   focusBeat = d > 0 ? 0 : sc.beats.length - 1;
   PO.back = back; openPhoto(sc.src.ref, sc.src.box);
-  try { history.replaceState(null, '', `#${state.ref}-${i}`); } catch (e) {}
+  try { history.replaceState(null, '', `#${state.ref}-${t.i}`); } catch (e) {}
 }
 
 // ===== 🌳 עץ הקטע: בדף המלא, רק הצמתים של הקטע הזה (ומעליהם השאלה שהם עונים עליה) =====
@@ -3569,10 +3577,13 @@ function poSelect(k, instant) {
   { // בקצה הקטע: הכפתור ממשיך לקטע הבא/הקודם בלי לצאת מהדף המלא
     const pv = document.getElementById('poPrev'), nx = document.getElementById('poNext');
     const atS = k === 0, atE = k === PO.list.length - 1, ps = atS ? poScene(-1) : null, ns = atE ? poScene(1) : null;
-    pv.disabled = atS && ps == null; nx.disabled = atE && ns == null;
-    nx.classList.toggle('po-more', ns != null); pv.classList.toggle('po-more', ps != null);
-    nx.innerHTML = ns != null ? 'לקטע הבא ◀' : '◀'; pv.innerHTML = ps != null ? '▶ לקטע הקודם' : '▶';
-    nx.setAttribute('aria-label', ns != null ? 'לקטע הבא' : 'השלב הבא'); pv.setAttribute('aria-label', ps != null ? 'לקטע הקודם' : 'השלב הקודם');
+    pv.disabled = atS && !ps; nx.disabled = atE && !ns;
+    nx.classList.toggle('po-more', !!ns); pv.classList.toggle('po-more', !!ps);
+    nx.classList.toggle('po-daf', !!ns && ns.ref !== state.ref); pv.classList.toggle('po-daf', !!ps && ps.ref !== state.ref);
+    const nl = !ns ? '' : ns.ref !== state.ref ? `לדף ${AMUD_NAME[ns.ref] || ns.ref}` : 'לקטע הבא';
+    const pl = !ps ? '' : ps.ref !== state.ref ? `לדף ${AMUD_NAME[ps.ref] || ps.ref}` : 'לקטע הקודם';
+    nx.innerHTML = ns ? nl + ' ◀' : '◀'; pv.innerHTML = ps ? '▶ ' + pl : '▶';
+    nx.setAttribute('aria-label', ns ? nl : 'השלב הבא'); pv.setAttribute('aria-label', ps ? pl : 'השלב הקודם');
   }
   // בועת ההסבר: בפס קבוע מתחת לצילום, כך שלא מסתירה ולא מכהה שום מילה בדף
   const call = document.getElementById('poCall');
