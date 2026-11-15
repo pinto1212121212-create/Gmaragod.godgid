@@ -1747,6 +1747,9 @@
   .photo-overlay.loading .po-load { animation: poPulse 1.2s ease-in-out infinite; pointer-events: none; }
   @keyframes poPulse { 50% { opacity: .6; } }
   .po-load button { min-height: 40px; padding: 0 16px; border-radius: 12px; border: 0; background: var(--gold); color: var(--ink); font: inherit; font-weight: 900; cursor: pointer; }
+  .po-wrap { overflow: hidden; border-radius: 6px; }
+  .po-full { position: absolute; }
+  .po-full img { border-radius: 0 !important; }
 </style>
 <script>
 // 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
@@ -3474,6 +3477,15 @@ function srcBlock(src) {
 // ===== הדף המלא עם הסבר בתוך הדף =====
 // כל שלב בקטע מסומן בצבע התפקיד שלו עם מספר; השלב הנבחר מקבל בועת הסבר שמחוברת לשורה שלו,
 // ובתחתית יש פס ניווט בין השלבים (גם הקשה על סימון בוחרת אותו)
+
+// ✂️ הדף בלבד: חיתוך תצוגה של הצילום המלא, בלי השולחן והעמוד השכן. [x0, y0, x1, y1] בפיקסלים של הצילום (900×1600).
+// הסימונים נשארים באחוזים של הצילום המלא, כי השכבה הפנימית (po-full) היא הצילום כולו, מוזז ומוגדל.
+const PAGE_BOX = { '2a': [10, 315, 785, 1485], '2b': [0, 335, 900, 1560], '3a': [90, 335, 825, 1450], '3b': [45, 295, 895, 1440],
+  '4a': [78, 195, 842, 1410], '4b': [0, 118, 892, 1400], '5a': [0, 208, 880, 1472], '5b': [0, 138, 900, 1342], '6a': [0, 140, 900, 1382] };
+function pageCrop(ref) {
+  const [x0, y0, x1, y1] = PAGE_BOX[ref] || [0, 0, 900, 1600], w = x1 - x0, h = y1 - y0;
+  return { x0, y0, w, h, wrap: `aspect-ratio:${w}/${h}`, inner: `width:${900 / w * 100}%;left:${-x0 / w * 100}%;top:${-y0 / h * 100}%` };
+}
 const PO = { ref: null, box: null, list: [], cur: 0 };
 function openPhoto(ref, box) {
   const ov = document.getElementById('photoOverlay');
@@ -3500,7 +3512,7 @@ function openPhoto(ref, box) {
   const oldImg = ov.querySelector('#poWrap img');
   const keepImg = oldImg && oldImg.complete && oldImg.naturalWidth && oldImg.getAttribute('src').split('?')[0] === `taanit-img/${ref}-full.jpg` ? oldImg : null;
   ov.innerHTML = `<div class="po-bar"><span>📷 ${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '🌳 חזרה לעץ' : '✕'}</button></div>
-    <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}" width="900" height="1600" decoding="async">${marks}</div><div class="po-load" aria-live="polite">⏳ טוען את הדף…</div></div>
+    <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap" style="${pageCrop(ref).wrap}"><div class="po-full" style="${pageCrop(ref).inner}"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}" width="900" height="1600" decoding="async">${marks}</div></div><div class="po-load" aria-live="polite">⏳ טוען את הדף…</div></div>
     ${PO.list.length ? `<div class="po-call" id="poCall"></div><div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה">🔍</button></div>`
       : '<div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>'}`;
   ov.classList.add('open');
@@ -3623,12 +3635,13 @@ function poSelect(k, instant) {
   call.scrollTop = 0;
   call.animate([{ opacity: 0.3 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
   // מצלמה: מביאים את המילים של השלב למרכז החלק הנראה של הצילום (אחרי שהבועה תפסה את מקומה)
-  const W = wrap.clientWidth, H = wrap.clientHeight;
+  const W = wrap.clientWidth, H = wrap.clientHeight, C = pageCrop(PO.ref);
+  const px = l => (l / 100 * 900 - C.x0) / C.w * W, py = t => (t / 100 * 1600 - C.y0) / C.h * H;   // מאחוזים בצילום המלא לפיקסלים בתוך הדף החתוך
   const top = Math.min(...x.rr.map(r => r.t)), bot = Math.max(...x.rr.map(r => r.t + r.h));
   const left = Math.min(...x.rr.map(r => r.l)), right = Math.max(...x.rr.map(r => r.l + r.w));
-  const vw = sc.clientWidth, cx = (left + right) / 2 / 100 * W;
+  const vw = sc.clientWidth, cx = (px(left) + px(right)) / 2;
   const sl = Math.max(0, Math.min(W - vw, cx - vw / 2));
-  const midY = (top + bot) / 2 / 100 * H;
+  const midY = (py(top) + py(bot)) / 2;
   sc.scrollTo({ top: Math.max(0, midY - sc.clientHeight / 2), left: sl, behavior: instant ? 'auto' : 'smooth' });
 }
 // הגדלה בתוך הדף המלא: הצביטה מגדילה רק את הצילום (לא את כל המסך), כך שהכותרת, ההסבר והכפתורים תמיד נשארים במקום
