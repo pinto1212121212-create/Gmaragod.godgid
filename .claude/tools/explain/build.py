@@ -11,7 +11,11 @@ pages = dict(E)
 from exlib import upgrade_raw
 for f in glob.glob(os.path.join(H, 'raw', '*.html')): pages[os.path.basename(f)[:-5]] = upgrade_raw(open(f, encoding='utf-8').read())
 names = sys.argv[1:] or list(pages)
-for n in names: open(os.path.join(OUT, n + '.html'), 'w', encoding='utf-8').write(pages[n])
+import re
+# 🔠 אותיות גדולות יותר (המשתמש: ״זה קטן״): כל font-size בפיקסלים ×1.3, רוחב הדף נשאר 900
+FS = 1.3
+big = lambda h: re.sub(r'font-size:\s*(\d+(?:\.\d+)?)px', lambda m: f'font-size:{round(float(m.group(1)) * FS)}px', h)
+for n in names: open(os.path.join(OUT, n + '.html'), 'w', encoding='utf-8').write(big(pages[n]))
 js = """const { chromium } = require('playwright'); const [D, ...names] = process.argv.slice(2);
 (async () => { const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 900, height: 1000 }, deviceScaleFactor: 2 });
   for (const n of names) { await p.goto('file://' + D + '/' + n + '.html'); await p.waitForTimeout(300); await p.screenshot({ path: D + '/' + n + '.png', fullPage: true }); }
