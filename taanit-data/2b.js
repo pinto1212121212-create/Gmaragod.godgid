@@ -65,7 +65,7 @@ amudim['2b'].scenes = [
       ['q', 'הגמרא', '״<b>ור׳ יוחנן מאי טעמא לא קא חשיב להא?</b>״ למה הוא לא מנה את הפרנסה?'],
       ['a', 'הגמרא', '״אמר לך: <b>גשמים היינו פרנסה</b>״']
     ],
-    viz: kv('ג׳ מפתחות — ובמערבא: ד׳?', kn('🌧️', 'גשמים', '', 'animation:kAppear 5s infinite .2s') + kn('👶', 'חיה', '', 'animation:kAppear 5s infinite .9s') + kn('🌅', 'תחיית המתים', '', 'animation:kAppear 5s infinite 1.6s') + kn('🍞', 'פרנסה?<br><small>״גשמים היינו פרנסה״</small>', 'gold', 'animation:kAppear 5s infinite 2.3s'), 'במערבא מוסיפים פרנסה. ר׳ יוחנן: היא כבר בתוך הגשמים'),
+    viz: kv('ג׳ מפתחות — ובמערבא: ד׳?', kn('🌧️', 'גשמים', '', 'animation:kAppear 5s infinite .2s') + kn('🍼', 'חיה', '', 'animation:kAppear 5s infinite .9s') + kn('🌅', 'תחיית המתים', '', 'animation:kAppear 5s infinite 1.6s') + kn('🍞', 'פרנסה?<br><small>״גשמים היינו פרנסה״</small>', 'gold', 'animation:kAppear 5s infinite 2.3s'), 'במערבא מוסיפים פרנסה. ר׳ יוחנן: היא כבר בתוך הגשמים'),
     bottom: 'במערבא מונים ארבעה מפתחות, עם פרנסה. ר׳ יוחנן לא מונה אותה, כי הגשם הוא הפרנסה.' },
 
   { tag: 'איבעיא', title: 'ר׳ אליעזר: <span class="accent">מלולב או מניסוך?</span>',

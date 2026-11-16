@@ -23,8 +23,11 @@ CSS += "\n/* ===================== 🎨 עיצוב משודרג (נוב׳ 2026) 
 import re as _re
 ROLE_LBL = {"q": "❓ שאלה", "a": "✅ תשובה", "x": "⚡ דחייה", "s": "📜 מקור", "k": "💡 הסבר", "n": "📖 מעשה / ראיה"}
 def page(title, sub, body):
-    m = _re.match(r'^\s*([^\w\s״"׳<]{1,3})\s*(.*)$', title)   # האמוג׳י בתחילת הכותרת → סמל גדול
-    ic, t = (m.group(1), m.group(2)) if m else ('📜', title)
+    if title.startswith('<svg'):   # דמות עם כיפה בתחילת הכותרת
+        k = title.index('</svg>') + 6; ic, t = _re.sub(r'width="[^"]*" height="[^"]*"', 'width="1.45em" height="1.45em"', title[:k]), title[k:].strip()
+    else:
+        m = _re.match(r'^\s*([^\w\s״"׳<]{1,3})\s*(.*)$', title)   # האמוג׳י בתחילת הכותרת → סמל גדול
+        ic, t = (m.group(1), m.group(2)) if m else ('📜', title)
     daf, _, rest = sub.partition(' · ')
     hero = f'<div class="hero"><div class="ic">{ic}</div><h1>{t}</h1><div class="sub">{rest or daf}</div>' + (f'<div class="daf">📖 {daf}</div>' if rest else '') + '</div>'
     foot = f'<div class="foot">גמרא בעיון · <b>{daf}</b></div>'
