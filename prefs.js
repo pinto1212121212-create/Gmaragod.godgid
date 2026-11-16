@@ -15,7 +15,8 @@
   prefApply();
   // 🔊 הקראה בקול (Web Speech, עברית). speak(טקסט, כפתור) — לחיצה שנייה עוצרת.
   let curBtn = null;
-  window.canSpeak = 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
+  // 🔇 ההקראה בקול הוסרה מהאתר לבקשת המשתמש (כל כפתורי 🔊 תלויים ב־canSpeak). להחזרה: 'speechSynthesis' in window
+  window.canSpeak = false;
   window.speak = function (text, btn) {
     if (!canSpeak) return;
     const was = curBtn; speechSynthesis.cancel(); if (curBtn) { curBtn.classList.remove('on'); curBtn.setAttribute('aria-pressed', 'false'); } curBtn = null;

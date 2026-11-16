@@ -23,7 +23,7 @@ const srv = http.createServer((q, r) => {
   }
   await p.goto(U + 'taanit.html'); await p.waitForTimeout(700);
   // הדפים נטענים לפי דרישה (taanit-data/) — לבדיקה טוענים את כולם
-  await p.evaluate(() => Promise.all(Object.keys(DATA_V).map(r => loadPage(r))));
+  await p.evaluate(() => Promise.all(MAS.refs.map(r => loadPage(r))));
   let ok = 0, miss = [];
   const refs = await p.evaluate(() => Object.keys(BEAT_LOC));
   for (const r of refs) {
@@ -40,6 +40,7 @@ const srv = http.createServer((q, r) => {
   console.log(`שלבים עם הדגשה: ${ok}. בלי הדגשה: ${miss.length ? miss.join(' ') : 'אין'}`);
   // עץ הסוגיה: לכל צומת הדגשה משלו. שני צמתים עם אותן מילים = שלב שמערבב שני דברים → לפצל (split_beat.py)
   await p.goto(U + 'tree.html'); await p.waitForTimeout(700);
+  await p.evaluate(() => Promise.all(MAS.refs.map(r => loadPack(r))));   // העץ טוען דפים לפי דרישה — לבדיקה טוענים את כולם
   const dup = await p.evaluate(() => { const bad = [];
     for (const ref in TREE) { let seq = 0; const seen = {}; const flat = [];
       const w = n => { n.seq = ++seq; flat.push(n); (n.k || []).forEach(w); }; TREE[ref].roots.forEach(w);
