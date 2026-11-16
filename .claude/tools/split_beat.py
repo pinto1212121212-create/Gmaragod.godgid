@@ -9,12 +9,13 @@ spec.json = [ { "key": "4b:8:4", "parts": [ {beat, wbw, punct, takhles, context,
 
 מה הכלי עושה:
   * מחליף את השלב בשלבים החדשים ב־amudim[ref].scenes[s].beats
-  * מזיז +N-1 את כל המפתחות 'ref:s:j' (j > b) ב־taanit.html, context-data.js, tree-data.js
+  * מזיז +N-1 את כל המפתחות 'ref:s:j' (j > b) ב־.claude/src/taanit.src.html, context-data.js, tree-data.js
   * מעדכן BEAT_LOC ו־BEAT_SPAN
   * ב־TREE_CX: ההופעה ה־k של 'ref:s:b' (לפי סדר הצמתים) הופכת לחלק ה־k
 אחרי הריצה: daf_tool.py marks, report, check.js.
 """
-import json, re, sys
+import json, re, sys, subprocess, os
+SRC = '.claude/src/taanit.src.html'   # המקור; אחרי השינוי בונים מחדש את taanit.html
 
 def jq(s):  # מחרוזת JS בגרש בודד
     return "'" + s.replace('\\', '\\\\').replace("'", "\\'") + "'"
@@ -34,7 +35,7 @@ def keyed_line(src, const, key, newlines):
 
 def main(spec_path):
     spec = json.load(open(spec_path, encoding='utf-8'))
-    T = open('taanit.html', encoding='utf-8').read()
+    T = open(SRC, encoding='utf-8').read()
     C = open('context-data.js', encoding='utf-8').read()
     R = open('tree-data.js', encoding='utf-8').read()
     # מבצעים מהסוף להתחלה בתוך אותו קטע, כדי שהמספרים לא יזוזו מתחת לרגליים
@@ -91,9 +92,10 @@ def main(spec_path):
         seg = re.sub(re.escape(f"'{item['key']}'"), rep, seg)
         R = R[:blk] + seg + R[blk_end:]
         print(f"{item['key']} → {', '.join(new_keys)}  (בעץ: {cnt[0]} הופעות)")
-    open('taanit.html', 'w', encoding='utf-8').write(T)
+    open(SRC, 'w', encoding='utf-8').write(T)
     open('context-data.js', 'w', encoding='utf-8').write(C)
     open('tree-data.js', 'w', encoding='utf-8').write(R)
+    subprocess.run([sys.executable, '.claude/tools/build.py'], check=True)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2: print(__doc__); sys.exit(1)
