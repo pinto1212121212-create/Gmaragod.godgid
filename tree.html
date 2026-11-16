@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="theme.css">
-<script src="prefs.js?v=22b44212"></script>
+<script src="prefs.js?v=accee32f"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -633,7 +633,7 @@ function sheet(n) {
   sh.style.setProperty('--rc', COL[n.r]);
   sh.classList.remove('pcard');
   sh.innerHTML = `<div class="sh-grip" id="shGrip" aria-label="גרירה: הגדלה / הקטנה"><div class="grab"></div></div>
-    <div class="sh-head"><span class="sh-role">${ROLE[n.r][0]} ${ROLE[n.r][1]}</span><span class="sh-who">${n.w}</span><span class="sh-no">שלב ${n.seq} מתוך ${flat.length}</span>${canSpeak ? '<button type="button" class="speak-btn" id="shSay" aria-label="הקראה בקול" aria-pressed="false" title="הקראה בקול">🔊</button>' : ''}<button class="sh-sz" id="shSz"></button><button class="sh-x" id="shX" aria-label="סגור">✕</button></div>
+    <div class="sh-head"><span class="sh-role">${ROLE[n.r][0]} ${ROLE[n.r][1]}</span><span class="sh-who">${n.w}</span><span class="sh-no">שלב ${n.seq} מתוך ${flat.length}</span>${canSpeak ? '' : ''}<button class="sh-sz" id="shSz"></button><button class="sh-x" id="shX" aria-label="סגור">✕</button></div>
     ${rel && n.parent && n.parent.r !== 'root' ? `<div class="sh-rel">⟵ ${rel} על: ״${short(n.parent.t, 40)}״</div>` : ''}
     ${ppLine(n)}
     <div class="sh-text">${linkNames(n.t)}</div>
