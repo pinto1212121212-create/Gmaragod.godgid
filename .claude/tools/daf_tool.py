@@ -25,7 +25,10 @@ ROOT = os.getcwd()
 DATA = os.path.join(ROOT, '.claude', 'data')
 OUT = os.path.join(ROOT, '.claude', 'out')
 IMG = os.path.join(ROOT, 'taanit-img')
-HTML = os.path.join(ROOT, 'taanit.html')
+HTML = os.path.join(ROOT, '.claude', 'src', 'taanit.src.html')   # המקור. taanit.html + taanit-data/ נבנים ממנו (build.py)
+def rebuild():
+    import subprocess, sys
+    subprocess.run([sys.executable, os.path.join(ROOT, '.claude', 'tools', 'build.py')], check=True)
 os.makedirs(OUT, exist_ok=True)
 
 def jload(name, default=None):
@@ -47,7 +50,7 @@ def html_set(name, obj):
     new = 'const %s = %s;\n' % (name, json.dumps(obj, ensure_ascii=False))
     s, n = re.subn(r'const %s = \{.*?\};\n' % name, lambda m: new, s, count=1, flags=re.S)
     if not n: raise SystemExit(f'{name} לא נמצא ב-taanit.html')
-    open(HTML, 'w', encoding='utf-8').write(s)
+    open(HTML, 'w', encoding='utf-8').write(s); rebuild()
 def src_path(ref):
     m = jload('sources.json', {})
     return os.path.join(ROOT, m.get(ref, f'taanit-img/{ref}-full.jpg'))
@@ -140,7 +143,7 @@ def do_crop(ref, only=None):
     jsave('ranges.json', R)
     s = open(HTML, encoding='utf-8').read()
     s = re.sub(r'const DAF_SRC = \{.*?\};', lambda m: 'const DAF_SRC = ' + json.dumps(D) + ';', s, count=1, flags=re.S)
-    open(HTML, 'w', encoding='utf-8').write(s)
+    open(HTML, 'w', encoding='utf-8').write(s); rebuild()
     html_set('DAF_LINES', L)
 
 def do_extend(ref, i, up, down):
@@ -200,7 +203,7 @@ def do_marks():
     L = html_get('DAF_LINES'); SP = html_get('BEAT_SPAN'); SRC = html_get('DAF_SRC')
     W = dict(re.findall(r"'(\d+[ab]:\d+:\d+)': '(.*?)',?\n", s[s.index('const WBW = {'):s.index('const WDICT')]))
     words = {k: ' '.join(p.split('=')[0].strip() for p in v.split('|')) for k, v in W.items()}
-    out = '// נוצר אוטומטית מתוך taanit.html (python3 .claude/tools/daf_tool.py marks) — לא לערוך ביד\n'
+    out = '// נוצר אוטומטית מתוך .claude/src/taanit.src.html (python3 .claude/tools/daf_tool.py marks) — לא לערוך ביד\n'
     out += 'const DAF_LINES = ' + json.dumps(L) + ';\nconst BEAT_SPAN = ' + json.dumps(SP) + ';\nconst BEAT_WORDS = ' + json.dumps(words, ensure_ascii=False) + ';\nconst DAF_SRC = ' + json.dumps(SRC) + ';\n'
     # תוכן ההסבר לעץ (מילה במילה, פיסוק, בתכלס, מילון, מונחים) — כדי שהחלונית בעץ תציג כל מה שיש בדף ההסבר
     def kv(name):

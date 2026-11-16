@@ -22,6 +22,8 @@ const srv = http.createServer((q, r) => {
     await p.screenshot({ path: path.join(out, `page-${f || 'index'}.png`) });
   }
   await p.goto(U + 'taanit.html'); await p.waitForTimeout(700);
+  // הדפים נטענים לפי דרישה (taanit-data/) — לבדיקה טוענים את כולם
+  await p.evaluate(() => Promise.all(Object.keys(DATA_V).map(r => loadPage(r))));
   let ok = 0, miss = [];
   const refs = await p.evaluate(() => Object.keys(BEAT_LOC));
   for (const r of refs) {
