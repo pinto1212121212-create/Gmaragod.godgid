@@ -2,17 +2,17 @@
    צבעים, רדיוסים, צללים ורכיבים משותפים. דף חדש: <link rel="stylesheet" href="theme.css"> לפני ה־<style> שלו.
    כל דף ממפה את השמות הישנים שלו (--ink, --parchment...) לאסימונים האלה, כך שמשנים צבע רק כאן. */
 :root {
-  /* רקע ומשטחים: כחול־לילה */
-  --t-bg: #0e1322; --t-bg-deep: #0a0e19; --t-bg-2: #151c30; --t-surface: #1b2339; --t-surface-2: #222c46;
-  --t-line: rgba(236,233,226,0.12); --t-line-gold: rgba(232,183,109,0.35);
+  /* רקע ומשטחים: שחור חם עם זהב (נוב׳ 2026, בהשראת האתר ״פינטו הסעים״) */
+  --t-bg: #0a0a0a; --t-bg-deep: #050505; --t-bg-2: #121212; --t-surface: #171717; --t-surface-2: #1f1f1f;
+  --t-line: rgba(245,241,232,0.13); --t-line-gold: rgba(200,168,90,0.38);
   /* טקסט */
-  --t-text: #f3efe6; --t-text-soft: #dbd7cf; --t-text-dim: #9aa4ba;
+  --t-text: #f5f1e8; --t-text-soft: #dbd7cf; --t-text-dim: #a09a8c;
   /* זהב — הצבע המוביל */
-  --t-gold: #e8b76d; --t-gold-b: #f5d39a; --t-gold-deep: #8a6638;
+  --t-gold: #c8a85a; --t-gold-b: #dcc078; --t-gold-deep: #7a6430;
   /* תפקידים בסוגיה */
   --t-q: #ff5d72; --t-a: #6fd35c; --t-c: #ffc94d; --t-s: #5fb2ff; --t-k: #b296ff; --t-x: #ff9f43;
   /* צורה */
-  --t-r-sm: 10px; --t-r: 14px; --t-r-lg: 20px;
+  --t-r-sm: 12px; --t-r: 18px; --t-r-lg: 28px;
   --t-shadow: 0 10px 30px rgba(0,0,0,.35); --t-shadow-sm: 0 4px 12px rgba(0,0,0,.25);
   --t-font: 'Heebo', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
   --t-font-daf: 'Frank Ruhl Libre', 'David', 'Times New Roman', serif;
@@ -20,43 +20,43 @@
 }
 
 /* נגישות ונוחות */
-::selection { background: rgba(232,183,109,0.35); color: #fff; }
+::selection { background: rgba(200,168,90,0.35); color: #fff; }
 :focus-visible { outline: 2px solid var(--t-gold-b); outline-offset: 2px; border-radius: 6px; }
 button, a { -webkit-tap-highlight-color: transparent; }
-html { scrollbar-color: rgba(232,183,109,0.35) transparent; scrollbar-width: thin; }
+html { scrollbar-color: rgba(200,168,90,0.35) transparent; scrollbar-width: thin; }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: rgba(232,183,109,0.3); border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(200,168,90,0.3); border-radius: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 /* מצב אפליקציה (מותקן למסך הבית): מרווח לאזורים הבטוחים של הטלפון */
 @media (display-mode: standalone) { body { padding-top: env(safe-area-inset-top); } }
 
 /* 🖼️ הסבר מאויר (explain-data.js) — משותף לדף הלימוד ולעץ */
-  .ex-card { display: flex; align-items: center; gap: 12px; width: 100%; margin: 4px 0 14px; padding: 8px 10px 8px 14px; border-radius: 14px; border: 1.5px solid rgba(232,183,109,0.55); background: linear-gradient(135deg, rgba(232,183,109,0.16), rgba(232,183,109,0.05)); color: #f3efe6; font: inherit; text-align: right; cursor: pointer; }
-  .ex-card:hover { border-color: #f5d39a; }
-  .ex-thumb { flex: 0 0 74px; height: 74px; border-radius: 10px; overflow: hidden; background: #0c1120; box-shadow: 0 0 0 1px rgba(232,183,109,0.35); }
+  .ex-card { display: flex; align-items: center; gap: 12px; width: 100%; margin: 4px 0 14px; padding: 8px 10px 8px 14px; border-radius: 14px; border: 1.5px solid rgba(200,168,90,0.55); background: linear-gradient(135deg, rgba(200,168,90,0.16), rgba(200,168,90,0.05)); color: #f5f1e8; font: inherit; text-align: right; cursor: pointer; }
+  .ex-card:hover { border-color: #dcc078; }
+  .ex-thumb { flex: 0 0 74px; height: 74px; border-radius: 10px; overflow: hidden; background: #0c1120; box-shadow: 0 0 0 1px rgba(200,168,90,0.35); }
   .ex-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
   .ex-t { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-  .ex-t b { font-size: 16px; color: #f5d39a; }
+  .ex-t b { font-size: 16px; color: #dcc078; }
   .ex-t small { font-size: 13px; color: #d0ccc5; line-height: 1.4; }
-  .ex-go { flex: 0 0 auto; font-size: 13px; font-weight: 800; color: #111829; background: #e8b76d; border-radius: 10px; padding: 5px 10px; }
-  .ex-view { position: fixed; inset: 0; z-index: 9000; background: #0a0e19; display: none; flex-direction: column; }
+  .ex-go { flex: 0 0 auto; font-size: 13px; font-weight: 800; color: #111111; background: #c8a85a; border-radius: 10px; padding: 5px 10px; }
+  .ex-view { position: fixed; inset: 0; z-index: 9000; background: #050505; display: none; flex-direction: column; }
   .ex-view.on { display: flex; }
   html.ex-open, html.ex-open body { overflow: hidden; }
-  .ex-bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid rgba(232,183,109,0.3); color: #f5d39a; font-weight: 800; font-size: 15px; }
+  .ex-bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid rgba(200,168,90,0.3); color: #dcc078; font-weight: 800; font-size: 15px; }
   .ex-h { flex: 1; text-align: center; }
-  .ex-bar button { min-width: 40px; height: 40px; padding: 0 6px; border-radius: 20px; border: 1px solid rgba(232,183,109,0.45); background: rgba(232,183,109,0.12); color: #f5d39a; font-size: 18px; cursor: pointer; }
+  .ex-bar button { min-width: 40px; height: 40px; padding: 0 6px; border-radius: 20px; border: 1px solid rgba(200,168,90,0.45); background: rgba(200,168,90,0.12); color: #dcc078; font-size: 18px; cursor: pointer; }
   .ex-scroll { flex: 1; overflow: auto; direction: ltr; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-x pan-y; }
   .ex-scroll img { display: block; width: 100%; max-width: 900px; margin: 0 auto; }
-  .ex-view.zoom .ex-z { background: #e8b76d; color: #111829; }
+  .ex-view.zoom .ex-z { background: #c8a85a; color: #111111; }
 
 /* ♿ הגדרות נוחות (prefs.js) */
-.pf-box { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: var(--t-r); background: rgba(232,183,109,0.07); border: 1px solid var(--t-line-gold); margin-bottom: 12px; }
+.pf-box { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: var(--t-r); background: rgba(200,168,90,0.07); border: 1px solid var(--t-line-gold); margin-bottom: 12px; }
 .pf-row { display: flex; align-items: center; gap: 10px; padding: 6px 6px; border-radius: var(--t-r-sm); cursor: pointer; color: var(--t-text); }
 .pf-row > span:first-child { flex: 1; display: flex; flex-direction: column; }
 .pf-row b { font-size: 14.5px; } .pf-row small { font-size: 12px; color: var(--t-text-dim); }
 .pf-fz { display: inline-flex; align-items: center; gap: 6px; }
-.pf-fz button { min-width: 44px; min-height: 40px; border-radius: 10px; border: 1px solid rgba(232,183,109,.5); background: rgba(232,183,109,.14); color: var(--t-gold-b); font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; }
+.pf-fz button { min-width: 44px; min-height: 40px; border-radius: 10px; border: 1px solid rgba(200,168,90,.5); background: rgba(200,168,90,.14); color: var(--t-gold-b); font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; }
 .pf-fz output { min-width: 46px; text-align: center; color: var(--t-gold-b); font-weight: 800; }
 .pf-sw { appearance: none; -webkit-appearance: none; width: 48px; height: 28px; border-radius: 14px; background: rgba(236,233,226,.18); position: relative; cursor: pointer; flex: 0 0 auto; transition: background .2s; }
 .pf-sw::after { content: ''; position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: right .2s; }
@@ -67,8 +67,8 @@ html { scrollbar-color: rgba(232,183,109,0.35) transparent; scrollbar-width: thi
 @keyframes spk { 50% { box-shadow: 0 0 0 6px rgba(111,211,92,.15); } }
 
 /* 🌓 ניגודיות גבוהה */
-html.p-hc { --t-text: #ffffff; --t-text-soft: #f1f1f1; --t-text-dim: #cfd6e6; --t-line: rgba(255,255,255,0.35); --t-line-gold: rgba(245,211,154,0.8); --t-bg: #05070d; --t-bg-2: #0b0f1c; --t-surface: #121a30; }
-html.p-hc body { background: #05070d !important; }
+html.p-hc { --t-text: #ffffff; --t-text-soft: #f1f1f1; --t-text-dim: #d2cec4; --t-line: rgba(255,255,255,0.35); --t-line-gold: rgba(220,192,120,0.8); --t-bg: #000000; --t-bg-2: #0b0b0b; --t-surface: #141414; }
+html.p-hc body { background: #000000 !important; }
 html.p-hc .beat, html.p-hc .takhles, html.p-hc .ctx .ctx-t, html.p-hc .flow li, html.p-hc .flow li span, html.p-hc .bottom-line { color: #fff !important; }
 html.p-hc .beat, html.p-hc .takhles, html.p-hc .m-card, html.p-hc .toc-list button, html.p-hc .ex-card { border-color: rgba(255,255,255,0.45) !important; }
 html.p-hc .src-hl, html.p-hc .mk { filter: saturate(1.5) contrast(1.15); }
