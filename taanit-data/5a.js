@@ -135,7 +135,7 @@ amudim['5a'].scenes = [
       ['a', 'רב חסדא', '״קנה — <b>זרת</b>, שיבולת — <b>זרתים</b>״'],
       ['k', 'תוספות', 'אם צמח מיד בזריעה, למה ״11 יום״ ולא 13? (התירוץ לא ברור בצילום)']
     ],
-    viz: kv('השור והשיבולת', kn('🐂😢', 'הלוך<br><small>חורש ובוכה</small>') + ar('→') + kn('🐂😋', 'בחזרה<br><small>כבר צמח!</small>', 'good', 'animation:kAppear 4s infinite 1s')) +
+    viz: kv('השור והשיבולת', kn('🐂💧', 'הלוך<br><small>חורש ובוכה</small>') + ar('→') + kn('🐂🌾', 'בחזרה<br><small>כבר צמח!</small>', 'good', 'animation:kAppear 4s infinite 1s')) +
       kv('נס השיבולת', `<div class="stalk-cmp"><div class="sc-col"><div class="sc-ear" style="height:22px"></div><div class="sc-stem" style="height:80px"></div><span>רגיל</span></div>
         <div class="sc-col miracle"><div class="sc-ear" style="height:56px"></div><div class="sc-stem" style="height:28px"></div><span>בימי יואל</span></div></div>`, 'רש״י: בדרך כלל הקנה ארוך פי 3–4 מהשיבולת') },
 

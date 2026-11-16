@@ -66,7 +66,7 @@ amudim['6a'].scenes = [
       ['q', 'הנמשל', 'תורה? יש לך. עושר? יש לך. בנים? יש לך'],
       ['a', 'הברכה', '״<b>שיהו צאצאי מעיך כמותך</b>״']
     ],
-    viz: kv('', kn('📜', 'תורה ✓', 'good') + kn('💰', 'עושר ✓', 'good') + kn('👨‍👧', 'בנים ✓', 'good') + ar() + kn('🌱', 'צאצאים<br>כמותך', 'gold', 'animation:kPulse 2.5s infinite')) },
+    viz: kv('', kn('📜', 'תורה ✓', 'good') + kn('💰', 'עושר ✓', 'good') + kn(KIP.young, 'בנים ✓', 'good') + ar() + kn('🌱', 'צאצאים<br>כמותך', 'gold', 'animation:kPulse 2.5s infinite')) },
 
   { tag: 'ברייתא', title: 'מה פירוש <span class="accent">״יורה״?</span>',
     beats: [

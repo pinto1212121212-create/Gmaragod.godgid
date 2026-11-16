@@ -1885,8 +1885,8 @@
 </div>
 
 <script src="data/common.js?v=d61f11d4"></script>
-<script src="data/taanit/index.js?v=a04f4ac2"></script>
-<script src="loader.js?v=66b606b0"></script>
+<script src="data/taanit/index.js?v=c660b877"></script>
+<script src="loader.js?v=c847b339"></script>
 <script src="explain.js?v=f62dd961"></script>
 <script>
 // =======================================================
@@ -1922,7 +1922,7 @@ for (let d = 2; d <= 31; d++) {
 }
 
 // ===== 📦 טעינת דף לפי דרישה: התוכן של כל דף נמצא ב־taanit-data/<ref>.js (נבנה ע״י .claude/tools/build.py) =====
-const DATA_V = {"4b": "0af6ac21", "5a": "d6095d32", "5b": "41632ee0", "6a": "f2f27841", "2a": "7eabd767", "3a": "549f97c9", "4a": "43478e95", "3b": "2c499272", "2b": "55d9d503", "6b": "127e215f", "7a": "50239015", "7b": "8df3cc73", "8a": "5ade00e5", "8b": "d4174761"};
+const DATA_V = {"4b": "0af6ac21", "5a": "53d5fd15", "5b": "4779d3c2", "6a": "d5c63d16", "2a": "0893006d", "3a": "63b3536a", "4a": "d9001056", "3b": "06baee53", "2b": "e35eb94f", "6b": "0a8e7e3e", "7a": "83be42c8", "7b": "f7207bf5", "8a": "5a228eff", "8b": "baebfd4b"};
 const LOADED = new Set(), PAGE_WAIT = {};
 const isBuilt = ref => Object.prototype.hasOwnProperty.call(DATA_V, ref);
 const isLoaded = ref => !isBuilt(ref) || LOADED.has(ref);
@@ -2687,7 +2687,7 @@ function beatMore(ref, si, bi, kt) {
     ['ctx', '🧭 ההקשר', c || f ? `<div class="ctx">${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</div>` : ''],
     ['gm', '📜 בגמרא', punctHTML(key)],
     ['ww', '🔤 מילה במילה', ww ? ww + `<a class="ww-go" href="words.html?ref=${ref}">🃏 לתרגל את המילים של הדף ◀</a>` : ''],
-    ['pp', /class="bp vs"/.test(pp) ? '⚡ מי ומה' : '👤 מי', pp],
+    ['pp', /class="bp vs"/.test(pp) ? '⚡ מי ומה' : KIP.young + ' מי', pp],
     ['kt', '🔑 מונח', kt ? `<div class="bt-key">🔑 <b>${kt[0]}</b> = ${kt[1]}</div>` : ''],
   ].filter(t => t[2]);
   if (!tabs.length) return '';
