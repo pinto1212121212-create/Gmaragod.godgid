@@ -8,7 +8,8 @@ sys.path.insert(0, H)
 from spec import E
 OUT = os.path.join(ROOT, '.claude', 'out', 'explain'); os.makedirs(OUT, exist_ok=True)
 pages = dict(E)
-for f in glob.glob(os.path.join(H, 'raw', '*.html')): pages[os.path.basename(f)[:-5]] = open(f, encoding='utf-8').read()
+from exlib import upgrade_raw
+for f in glob.glob(os.path.join(H, 'raw', '*.html')): pages[os.path.basename(f)[:-5]] = upgrade_raw(open(f, encoding='utf-8').read())
 names = sys.argv[1:] or list(pages)
 for n in names: open(os.path.join(OUT, n + '.html'), 'w', encoding='utf-8').write(pages[n])
 js = """const { chromium } = require('playwright'); const [D, ...names] = process.argv.slice(2);
