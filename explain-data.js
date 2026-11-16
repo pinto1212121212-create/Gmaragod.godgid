@@ -10,12 +10,12 @@ const EXPLAIN = {
   '4b:8': '4b-halacha', '4b:9': '4b-trei', '5a:0': '4b-trei',
   '5a:1': '5a-yoel', '5a:2': '5a-yoel', '5a:3': '5a-yoel', '5a:4': '5a-yoel',
   '6a:1': '6a-yoreh', '6a:2': '6a-yoreh', '6a:3': '6a-yoreh', '6a:4': '6a-revios',
-  '6b:1': '6b-sheniya', '6b:2': '6b-sheniya', '6b:3': '6b-sheniya', '6b:4': '6b-sheniya', '6b:5': '6b-kelala', '6b:6': '6b-kelala', '6b:7': '6b-kelala', '6b:8': '6b-bracha',
+  '6b:0': '6b-sheniya', '6b:1': '6b-sheniya', '6b:2': '6b-sheniya', '6b:3': '6b-sheniya', '6b:4': '6b-kelala', '6b:5': '6b-kelala', '6b:6': '6b-kelala', '6b:7': '6b-bracha',
   '5b:1': '5b-shmuel', '5b:2': '5b-shmuel', '5b:3': '5b-shmuel', '5b:4': '5b-yaakov',
-  '8b:1': '8b-tefila', '8b:2': '8b-tefila', '8b:3': '8b-tefila', '8b:4': '8b-tefila', '8b:5': '8b-tefila', '8b:6': '8b-tefila', '8b:7': '8b-tefila', '8b:8': '8b-tefila', '8b:9': '8b-tefila', '8b:10': '8b-tefila',
-  '8a:1': '8a-barzel', '8a:2': '8a-barzel', '8a:3': '8a-barzel', '8a:4': '8a-barzel', '8a:5': '8a-barzel', '8a:6': '8a-barzel', '8a:7': '8a-tefila', '8a:8': '8a-tefila', '8a:9': '8a-tefila', '8a:10': '8a-tefila',
-  '7b:3': '7b-neetzarin', '7b:4': '7b-neetzarin', '7b:5': '7b-neetzarin', '7b:6': '7b-neetzarin', '7b:7': '7b-neetzarin', '7b:8': '7b-neetzarin',
-  '7a:1': '7a-gadol', '7a:2': '7a-gadol', '7a:3': '7a-hagun', '7a:4': '7a-hagun', '7a:5': '7a-hagun', '7a:9': '7a-hagun', '7a:6': '7a-meshalim', '7a:7': '7a-meshalim', '7a:8': '7a-meshalim', '7a:10': '7a-meshalim', '7a:11': '7a-meshalim',
+  '8b:0': '8b-tefila', '8b:1': '8b-tefila', '8b:2': '8b-tefila', '8b:3': '8b-tefila', '8b:4': '8b-tefila', '8b:5': '8b-tefila', '8b:6': '8b-tefila', '8b:7': '8b-tefila', '8b:8': '8b-tefila', '8b:9': '8b-tefila',
+  '8a:0': '8a-barzel', '8a:1': '8a-barzel', '8a:2': '8a-barzel', '8a:3': '8a-barzel', '8a:4': '8a-barzel', '8a:5': '8a-barzel', '8a:6': '8a-tefila', '8a:7': '8a-tefila', '8a:8': '8a-tefila', '8a:9': '8a-tefila',
+  '7b:2': '7b-neetzarin', '7b:3': '7b-neetzarin', '7b:4': '7b-neetzarin', '7b:5': '7b-neetzarin', '7b:6': '7b-neetzarin', '7b:7': '7b-neetzarin',
+  '7a:0': '7a-gadol', '7a:1': '7a-gadol', '7a:2': '7a-hagun', '7a:3': '7a-hagun', '7a:4': '7a-hagun', '7a:8': '7a-hagun', '7a:5': '7a-meshalim', '7a:6': '7a-meshalim', '7a:7': '7a-meshalim', '7a:9': '7a-meshalim', '7a:10': '7a-meshalim',
 };
 const EXPLAIN_TITLE = {
   '2a-mishna': 'מאימתי מזכירין — המשנה', '2a-gevurot': 'למה ״גבורות״ גשמים', '2b-lulav': 'מלולב או מניסוך?',
