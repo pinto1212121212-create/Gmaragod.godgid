@@ -2,15 +2,16 @@
 // קוד ונתונים (html/js/css): קודם מהרשת (תמיד הגרסה החדשה), ואם אין רשת — מהשמור.
 // תמונות (צילומי דף, איורים, אייקונים): קודם מהשמור, כי הן כמעט לא משתנות; מתעדכנות ברקע.
 // שינוי גדול במבנה, או שינוי של תמונה קיימת (חיתוך מחדש, שינוי מספור קטעים)? מעלים את VERSION — אחרת הטלפון יציג את התמונה הישנה מהשמור.
-const VERSION = 'v11';
-const CORE = ['./', 'index.html', 'taanit.html', 'tree.html', 'words.html', 'theme.css', 'prefs.js', 'tree-data.js', 'context-data.js',
-  'people-data.js', 'explain-data.js', 'daf-marks.js', 'manifest.webmanifest', 'icons/icon-192.png'];
-const PAGES = ['2a', '2b', '3a', '3b', '4a', '4b', '5a', '5b', '6a', '6b', '7a', '7b', '8a', '8b'];   // צילומי הדפים המלאים — נשמרים מראש, כדי שהדף המלא ייפתח מיד גם ברשת חלשה
+const VERSION = 'v12';
+const CORE = ['./', 'index.html', 'taanit.html', 'tree.html', 'words.html', 'theme.css', 'prefs.js', 'loader.js', 'explain.js',
+  'data/common.js', 'data/taanit/index.js', 'data/taanit/words.js', 'manifest.webmanifest', 'icons/icon-192.png'];
+// רשימת הדפים הבנויים — מהמפה של המסכת (MAS), כך שאין צורך לעדכן כאן כשמוסיפים דף
+let PAGES = []; try { importScripts('data/taanit/index.js'); PAGES = MAS.refs; } catch (e) {}
 self.addEventListener('install', e => {
   e.waitUntil(caches.open('core-' + VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
   caches.open('img-' + VERSION).then(c => Promise.all(PAGES.map(p => c.add('taanit-img/' + p + '-full.jpg').catch(() => {}))));
-  // התוכן של כל דף (taanit-data/<ref>.js) — נשמר מראש ברקע, כדי שכל הדפים ייפתחו גם בלי אינטרנט
-  caches.open('core-' + VERSION).then(c => Promise.all(PAGES.map(p => c.add('taanit-data/' + p + '.js').catch(() => {}))));
+  // התוכן של כל דף (taanit-data/ + data/<מסכת>/) — נשמר מראש ברקע, כדי שכל הדפים ייפתחו גם בלי אינטרנט
+  caches.open('core-' + VERSION).then(c => Promise.all(PAGES.flatMap(p => ['taanit-data/' + p + '.js', 'data/taanit/' + p + '.js']).map(u => c.add(u).catch(() => {}))));
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => !k.endsWith(VERSION)).map(k => caches.delete(k))))

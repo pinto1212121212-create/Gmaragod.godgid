@@ -68,6 +68,8 @@ def obj_block(s, name):
 
 
 def main():
+    import subprocess
+    subprocess.run(['node', os.path.join(ROOT, '.claude', 'tools', 'build-pack.js')], check=True)
     s = open(SRC, encoding='utf-8').read()
     bi = s.index('const BEAT_LOC = ') + len('const BEAT_LOC = ')
     refs = list(json.loads(s[bi:s.index(';\n', bi)]).keys())
@@ -98,42 +100,32 @@ def main():
     for r, rows in per.items():
         parts[r].append("for (const [i, cfg] of [\n  " + ',\n  '.join(rows) + "\n]) Object.assign(amudim['" + r + "'].scenes[i], cfg);")
 
-    # 3. WBW / PUNCT / TAKHLES — שורה לכל שלב
-    for name in ['WBW', 'PUNCT', 'TAKHLES']:
-        i, j = obj_block(s, name)
-        keep, per = [], {}
-        for ln in s[i:j].split('\n'):
-            mm = re.match(r"^\s*'(\w+):\d+:\d+':", ln)
-            if mm and mm.group(1) in parts:
-                per.setdefault(mm.group(1), []).append(ln.strip().rstrip(','))
-            else:
-                keep.append(ln)
-        s = s[:i] + '\n'.join(keep) + s[j:]
-        for r, rows in per.items():
-            parts[r].append(f"Object.assign({name}, {{\n" + ',\n'.join(rows) + "\n});")
-
-    # 4. DAF_LINES
-    a = 'const DAF_LINES = '; i = s.index(a) + len(a); j = s.index(';\n', i)
-    DL = json.loads(s[i:j]); keep = {}
-    per = {}
-    for k, v in DL.items():
-        r = k.rsplit('-', 1)[0]
-        (per.setdefault(r, {}) if r in parts else keep)[k] = v
-    s = s[:i] + json.dumps(keep, ensure_ascii=False) + s[j:]
-    for r, d in per.items():
-        parts[r].append('Object.assign(DAF_LINES, ' + json.dumps(d, ensure_ascii=False) + ');')
-
-    # 4ב. CONTEXT (ההסבר הארוך) — גם הוא לפי דף. tree.html ממשיך לטעון את context-data.js כולו
-    C = open(os.path.join(ROOT, 'context-data.js'), encoding='utf-8').read()
-    per = {}
-    for ln in C.split('\n'):
-        mm = re.match(r"^'(\w+):\d+:\d+':", ln)
-        if mm and mm.group(1) in parts: per.setdefault(mm.group(1), []).append(ln.strip().rstrip(','))
-    for r, rows in per.items():
-        parts[r].append("Object.assign(CONTEXT, {\n" + ',\n'.join(rows) + "\n});")
-    tag = '<script src="context-data.js"></script>'
-    if tag not in s: raise SystemExit('לא נמצא ' + tag)
-    s = s.replace(tag, '<script>const CONTEXT = {};   /* ההסבר הארוך נטען עם כל דף (taanit-data) */</script>')
+    # 3. נתונים שעברו לחבילה של כל דף (data/<מסכת>/<ref>.js, build-pack.js) — מוחקים מ־taanit.html
+    for name in ['WBW', 'PUNCT', 'TAKHLES', 'DAF_LINES', 'BEAT_SPAN', 'BEAT_LOC', 'DAF_SRC', 'WDICT', 'KEY_TERMS']:
+        a = f'const {name} = '; i = s.index(a); j = scan_expr_end(s, i + len(a))
+        s = s[:i] + f'/* {name}: נטען לפי דף (loader.js) */' + s[j:]
+    # MISHNA / PAIRS (״זה מול זה״): כל דף מקבל רק את מה שהקטעים שלו צריכים
+    PJ = json.load(open(os.path.join(ROOT, '.claude', 'out', 'pairs.json'), encoding='utf-8'))
+    for name in ['MISHNA', 'PAIRS']:
+        a = f'const {name} = '; i = s.index(a); j = scan_expr_end(s, i + len(a))
+        s = s[:i] + f'const {name} = {{}};   /* נטען לפי דף (taanit-data) */' + s[j:]
+        a = f'Object.assign({name}, {{'
+        while a in s:
+            i = s.index(a); j = scan_expr_end(s, i + len('Object.assign'))
+            s = s[:i] + s[j:].lstrip('\n')
+    for r in refs:
+        names = sorted(set(re.findall(r"pair: '(\w+)'", '\n'.join(parts[r]))))
+        if not names: continue
+        P = {n: PJ['PAIRS'][n] for n in names if n in PJ['PAIRS']}
+        M = {k: PJ['MISHNA'][k] for v in P.values() for k in (v.get('a'), v.get('b')) if k in PJ['MISHNA']}
+        parts[r].insert(0, 'Object.assign(MISHNA, ' + json.dumps(M, ensure_ascii=False) + ');\nObject.assign(PAIRS, ' + json.dumps(P, ensure_ascii=False) + ');')
+    # תגיות הסקריפטים: במקום קבצי הנתונים הגדולים — המפה, המילון והטוען
+    vs = {f: hashlib.md5(open(os.path.join(ROOT, f), 'rb').read()).hexdigest()[:8] for f in ['data/common.js', 'data/taanit/index.js', 'loader.js', 'explain.js']}
+    new_tags = ''.join(f'<script src="{f}?v={vs[f]}"></script>\n' for f in ['data/common.js', 'data/taanit/index.js', 'loader.js', 'explain.js'])
+    for t in ['tree-data.js', 'context-data.js', 'people-data.js', 'explain-data.js']:
+        tag = f'<script src="{t}"></script>\n'
+        if tag not in s: raise SystemExit('לא נמצא ' + tag)
+        s = s.replace(tag, new_tags if t == 'tree-data.js' else '')
 
     # 5. כתיבה
     os.makedirs(DDIR, exist_ok=True)
@@ -151,6 +143,15 @@ def main():
     s = s.replace(a, 'const DATA_V = ' + json.dumps(ver) + ';')
     s = s.replace('<!-- ✳️ BUILD NOTE -->', '<!-- ✳️ הקובץ נוצר אוטומטית (.claude/tools/build.py). עורכים רק את המקור. -->')
     open(OUT, 'w', encoding='utf-8').write(s)
+    # גרסה לפי תוכן בתגיות של שאר הדפים (tree/words/index), כדי שהטלפון לא יערבב קבצים ישנים וחדשים
+    for pg in ['tree.html', 'words.html', 'index.html']:
+        P = os.path.join(ROOT, pg); t = open(P, encoding='utf-8').read()
+        def stamp(m):
+            f = m.group(2)
+            if not os.path.exists(os.path.join(ROOT, f)): return m.group(0)
+            return f'{m.group(1)}="{f}?v=' + hashlib.md5(open(os.path.join(ROOT, f), 'rb').read()).hexdigest()[:8] + '"'
+        t2 = re.sub(r'(src)="((?:data/[\w/]+|loader|prefs|explain)\.js)(?:\?v=\w+)?"', stamp, t)
+        if t2 != t: open(P, 'w', encoding='utf-8').write(t2)
     tot = sum(os.path.getsize(os.path.join(DDIR, f'{r}.js')) for r in refs)
     print(f'taanit.html {len(s.encode()) // 1024}KB · taanit-data: {len(refs)} דפים, {tot // 1024}KB')
 

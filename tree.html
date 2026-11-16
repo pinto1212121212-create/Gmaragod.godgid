@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="theme.css">
-<script src="prefs.js"></script>
+<script src="prefs.js?v=22b44212"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -370,11 +370,11 @@
   <div class="sheet" id="sheet" aria-live="polite"></div>
 </div>
 
-<script src="tree-data.js"></script>
-<script src="daf-marks.js"></script>
-<script src="context-data.js"></script>
-<script src="people-data.js"></script>
-<script src="explain-data.js"></script>
+<!-- 📦 הנתונים נטענים לפי דף: המפה של המסכת + מילון, ואז loader.js טוען את data/<מסכת>/<ref>.js כשנכנסים לדף -->
+<script src="data/common.js?v=d61f11d4"></script>
+<script src="data/taanit/index.js?v=559e705e"></script>
+<script src="loader.js?v=66b606b0"></script>
+<script src="explain.js?v=f62dd961"></script>
 <script>
 const ROLE = { m: ['📜', 'משנה / מקור'], q: ['❓', 'שאלה'], x: ['⚡', 'דחייה'], a: ['✅', 'תירוץ'], c: ['📌', 'מסקנה'], n: ['📖', 'סיפור / ראיה'], k: ['💡', 'הסבר'] };
 const COL = { m: '#5fb2ff', q: '#ff5d72', x: '#ff5d72', a: '#6fd35c', c: '#ffc94d', n: '#d7b26e', k: '#b296ff' };
@@ -443,11 +443,11 @@ function marksHTML(ref, n) {
 
 // ===== מצב =====
 const st = { ref: '4b', sel: null, sec: null };
-try { const s = JSON.parse(localStorage.getItem('gemara:tree2') || 'null'); if (s && TREE[s.ref]) st.ref = s.ref; } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem('gemara:tree2') || 'null'); if (s && masHas(s.ref)) st.ref = s.ref; } catch (e) {}
 // #4b · #4b-8 (קטע) · #4b-8n21 (צומת 21: חזרה מהדף המלא) · #4b@yochanan (אמורא)
 const HASH_RE = /^(\d+[ab])(?:-(\d+))?(?:n(\d+))?(?:@(\w+))?$/;
 const hm = location.hash.slice(1).match(HASH_RE);
-if (hm && TREE[hm[1]]) { st.ref = hm[1]; if (hm[2] != null) st.sec = +hm[2]; if (hm[3]) st.nAsk = +hm[3]; if (hm[4]) st.pAsk = hm[4]; }
+if (hm && masHas(hm[1])) { st.ref = hm[1]; if (hm[2] != null) st.sec = +hm[2]; if (hm[3]) st.nAsk = +hm[3]; if (hm[4]) st.pAsk = hm[4]; }
 
 // ===== פריסה: כל צומת רוחב קבוע, הורה מעל מרכז ילדיו; ימין-לשמאל =====
 const NW = 136, NH = 62, GX = 16, GY = 112, RG = 70;
@@ -985,13 +985,13 @@ function personFit(p) {
 }
 // ===== כרטיס האמורא: מה הוא סובר · מה אמר · האם סותר את עצמו · השורה התחתונה =====
 const jumpBtn = (x, label) => { const e = extRef(x);
-  return e ? `<button data-ref="${e[0]}" data-seq="${e[1]}">↗ ${label} (${TREE[e[0]] ? TREE[e[0]].title : e[0]})</button>`
+  return e ? `<button data-ref="${e[0]}" data-seq="${e[1]}">↗ ${label} (${MAS.titles[e[0]] || e[0]})</button>`
            : `<button data-go="${typeof x === 'number' ? x : +String(x).split(':')[1]}">${label}</button>`; };
 function personSheet(p) {
   const sh = $('sheet');
   sh.style.setProperty('--rc', p.c); sh.style.setProperty('--pc', p.c);
   const says = p.says.map((s, i) => { const e = extRef(s[0]), n = nodeOf(s[0]);
-    return `<button class="say" ${e ? `data-ref="${e[0]}" data-seq="${e[1]}"` : `data-go="${n ? n.seq : ''}"`}><span class="nm">${i + 1}</span><span>${s[1]}${s[2] ? `<small>${s[2]}</small>` : ''}</span><span class="go">${e ? '↗ ' + (TREE[e[0]] ? TREE[e[0]].title : e[0]) : n ? '#' + n.seq : ''}</span></button>`; }).join('');
+    return `<button class="say" ${e ? `data-ref="${e[0]}" data-seq="${e[1]}"` : `data-go="${n ? n.seq : ''}"`}><span class="nm">${i + 1}</span><span>${s[1]}${s[2] ? `<small>${s[2]}</small>` : ''}</span><span class="go">${e ? '↗ ' + (MAS.titles[e[0]] || e[0]) : n ? '#' + n.seq : ''}</span></button>`; }).join('');
   const ST = { ok: '✅ מיושב', fell: '❌ התירוץ נפל', info: 'ℹ️ אין באמת סתירה', open: '❓ נשאר בלי תשובה' };
   const vss = p.vs.map(v => {
     const on = (v.on || []).map(o => `<span class="nm">${o}</span>`).join(v.self ? ' מול ' : ' ');
@@ -1016,7 +1016,7 @@ function personSheet(p) {
 $('sheet').addEventListener('click', e => {
   const nm = e.target.closest('.pn, .pp'); if (nm) { const p = pById(nm.dataset.p); if (p) { e.preventDefault(); personOn(p); } return; }
   const bk = e.target.closest('.pback'); if (bk && st.person) { personSheet(st.person); personFit(st.person); return; }
-  const ex = e.target.closest('[data-ref]'); if (ex) { location.hash = `${ex.dataset.ref}-${(flatOf(ex.dataset.ref, +ex.dataset.seq) || {}).s || 0}`; return; }
+  const ex = e.target.closest('[data-ref]'); if (ex) { location.hash = `${ex.dataset.ref}n${+ex.dataset.seq}`; return; }   // דף אחר: נטען ונפתח על הצומת
   const g = e.target.closest('[data-go]'); if (g && g.dataset.go) { const n = flat[+g.dataset.go - 1]; if (n) { const p = st.person; select(n, true); if (p) personOn(p, true); } }
 });
 function flatOf(ref, seq) { let i = 0, hit = null; const w = n => { if (++i === seq) hit = n; (n.k || []).forEach(w); }; (TREE[ref] ? TREE[ref].roots : []).forEach(w); return hit; }
@@ -1059,10 +1059,14 @@ pplPrep();
 // ===== טעינה =====
 function save() { try { localStorage.setItem('gemara:tree2', JSON.stringify({ ref: st.ref })); } catch (e) {} }
 function load(ref, sec) {
+  if (!PACKS.has(ref)) {   // הנתונים של הדף עוד לא נטענו
+    st.ref = ref; tabsDraw(ref); $('where').classList.add('loading');
+    loadPack(ref).then(ok => { $('where').classList.remove('loading'); if (ok && st.ref === ref) load(ref, sec); else if (!ok) alert('הדף לא נטען. בדקו את החיבור לאינטרנט ונסו שוב.'); });
+    return;
+  }
   if (story) stopStory();
   st.ref = ref; st.sel = null; st.person = null; pplPrep(); $('stage').classList.remove('pfocus');
-  $('tabs').innerHTML = Object.keys(TREE).map(r => `<button class="tab${r === ref ? ' on' : ''}" data-r="${r}">${TREE[r].title}</button>`).join('');
-  { const on = $('tabs').querySelector('.tab.on'); if (on) requestAnimationFrame(() => on.scrollIntoView({ inline: 'center', block: 'nearest' })); }
+  tabsDraw(ref);
   $('backLink').href = BASE + 'taanit.html#' + ref;
   build(ref); draw(); sheet(null); revealUpTo(flat.length);
   $('sPlay').textContent = '▶ סיפור הסוגיה'; $('sProg').textContent = `0/${flat.length}`;
@@ -1073,9 +1077,13 @@ function load(ref, sec) {
   else setTimeout(() => { if (!st.sel && !story) { const { w } = stageBox(); flyTo(w / 2 - root.x * 0.85, 120 - (root.y - 60) * 0.85, 0.85, 1100); } }, 900);
   save();
 }
+function tabsDraw(ref) {   // הלשוניות מהמפה של המסכת — בלי לטעון את הדפים
+  $('tabs').innerHTML = MAS.refs.filter(r => MAS.titles[r]).map(r => `<button class="tab${r === ref ? ' on' : ''}" data-r="${r}">${MAS.titles[r]}</button>`).join('');
+  const on = $('tabs').querySelector('.tab.on'); if (on) requestAnimationFrame(() => on.scrollIntoView({ inline: 'center', block: 'nearest' }));
+}
 $('tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) load(b.dataset.r); });
 window.addEventListener('resize', () => { if (st.sel) centerOn(st.sel); else fit(false); });
-window.addEventListener('hashchange', () => { const m = location.hash.slice(1).match(HASH_RE); if (m && TREE[m[1]]) { st.nAsk = m[3] ? +m[3] : null; st.pAsk = m[4] || null; load(m[1], m[2] != null ? +m[2] : null); } });
+window.addEventListener('hashchange', () => { const m = location.hash.slice(1).match(HASH_RE); if (m && masHas(m[1])) { st.nAsk = m[3] ? +m[3] : null; st.pAsk = m[4] || null; load(m[1], m[2] != null ? +m[2] : null); } });
 load(st.ref, st.sec);
 setTimeout(hideHint, 4500);
 </script>

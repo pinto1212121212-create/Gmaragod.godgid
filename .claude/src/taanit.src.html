@@ -1926,23 +1926,20 @@ const DATA_V = {};
 const LOADED = new Set(), PAGE_WAIT = {};
 const isBuilt = ref => Object.prototype.hasOwnProperty.call(DATA_V, ref);
 const isLoaded = ref => !isBuilt(ref) || LOADED.has(ref);
-function loadPage(ref, tries = 0) {
+// דף = שני קבצים: data/<מסכת>/<ref>.js (עץ, הקשר, מילה במילה, סימונים — משותף עם העץ, loader.js)
+// ו־taanit-data/<ref>.js (הקטעים, התרגום, רש״י ותוספות — רק לדף הלימוד)
+function loadPage(ref) {
   if (isLoaded(ref)) return Promise.resolve(true);
-  if (PAGE_WAIT[ref]) return PAGE_WAIT[ref].p;
-  let res; const p = new Promise(r => res = r); PAGE_WAIT[ref] = { p, res };
-  const go = n => {
-    const sc = document.createElement('script');
-    sc.src = `taanit-data/${ref}.js?v=${DATA_V[ref]}${n ? '&r=' + n : ''}`;
-    sc.onerror = () => { sc.remove(); if (n < 3) setTimeout(() => go(n + 1), 700 * (n + 1)); else { delete PAGE_WAIT[ref]; res(false); pageFail(ref); } };
-    document.head.appendChild(sc);
-  };
-  go(tries);
-  return p;
+  if (PAGE_WAIT[ref]) return PAGE_WAIT[ref];
+  const study = loadScript(`taanit-data/${ref}.js?v=${DATA_V[ref]}`);
+  PAGE_WAIT[ref] = Promise.all([loadPack(ref), study]).then(([a, b]) => {
+    delete PAGE_WAIT[ref];
+    if (!a || !b) { pageFail(ref); return false; }
+    attachSrc(ref); LOADED.add(ref); return true;
+  });
+  return PAGE_WAIT[ref];
 }
-function pageLoaded(ref) {   // נקרא מסוף taanit-data/<ref>.js
-  attachSrc(ref); LOADED.add(ref);
-  if (PAGE_WAIT[ref]) { PAGE_WAIT[ref].res(true); delete PAGE_WAIT[ref]; }
-}
+function pageLoaded(ref) {}   // נקרא מסוף taanit-data/<ref>.js (הטעינה נגמרת ב־loadPage)
 function pageFail(ref) {
   const st = document.getElementById('stage'); if (!st || state.ref !== ref) return;
   st.innerHTML = `<section class="scene active"><div class="stub"><div class="stub-icon">📶</div><h3>הדף לא נטען</h3><p>נראה שאין חיבור לאינטרנט.</p><p><button type="button" class="stub-back" id="pageRetry">🔄 נסה שוב</button></p></div></section>`;
@@ -4426,14 +4423,13 @@ amudim['8b'].scenes = [
 // =======================================================
 const DAF_SRC = {"4b": {"1": [34.22, 17.69, 25.89, 3.62], "2": [34.22, 20.31, 25.89, 2.06], "3": [34.22, 21.31, 25.89, 4.19], "4": [34.22, 23.44, 25.89, 4.19], "5": [34.22, 26.62, 25.89, 5.12], "6": [34.22, 30.69, 42.89, 5.19], "7": [34.22, 34.88, 42.89, 6.0], "8": [34.22, 38.94, 42.89, 13.56], "9": [34.22, 47.94, 42.89, 5.12]}, "5a": {"0": [38.67, 23.25, 25.33, 6.88], "1": [38.67, 29.12, 25.33, 3.94], "2": [21.33, 31.94, 43.44, 4.88], "3": [21.33, 35.06, 43.44, 5.88], "4": [21.33, 39.94, 43.44, 4.75], "5": [21.33, 42.88, 43.44, 5.62], "6": [21.33, 47.5, 43.44, 6.94], "7": [21.33, 53.37, 43.44, 5.0], "8": [21.33, 57.19, 43.44, 4.06], "9": [21.33, 60.19, 43.44, 4.38]}, "5b": {"0": [36.11, 19.81, 25.56, 10.62], "1": [36.11, 29.31, 25.56, 6.19], "2": [36.11, 34.62, 25.56, 15.81], "3": [36.11, 49.44, 25.56, 5.31], "4": [35.33, 53.56, 42.89, 9.06], "5": [35.33, 61.62, 42.89, 3.0], "7": [35.33, 63.56, 42.89, 9.44]}, "6a": {"0": [35.78, 18.62, 26.22, 4.69], "1": [35.78, 22.25, 26.22, 7.38], "2": [10.0, 28.62, 52.11, 7.25], "3": [10.0, 34.62, 52.11, 5.31], "4": [10.0, 38.94, 52.11, 9.94], "6": [10.0, 47.06, 52.11, 8.0]}, "2a": {"1": [34.22, 27.94, 26.56, 14.81], "2": [34.22, 40.0, 26.56, 6.5], "3": [34.22, 43.69, 26.56, 11.38], "4": [34.22, 52.19, 26.56, 12.94], "5": [34.22, 62.06, 45.33, 7.12], "6": [34.56, 66.06, 45.0, 6.44]}, "3a": {"1": [41.11, 28.38, 23.56, 3.19], "2": [41.11, 29.19, 23.56, 6.38], "3": [41.11, 33.12, 23.56, 12.06], "4": [41.11, 43.62, 23.56, 8.31], "5": [41.11, 49.44, 23.56, 9.19], "6": [41.11, 56.25, 23.56, 9.5]}, "4a": {"1": [39.33, 21.44, 26.56, 6.5], "2": [39.33, 26.12, 26.56, 9.06], "3": [39.33, 32.44, 26.56, 5.56], "4": [39.33, 36.12, 26.56, 8.38], "5": [39.33, 42.56, 26.56, 10.56], "6": [20.44, 51.06, 46.0, 11.88], "7": [20.44, 62.0, 46.0, 5.0]}, "3b": {"1": [31.22, 26.12, 25.89, 3.88], "2": [31.22, 28.25, 25.89, 9.88], "3": [31.22, 36.25, 25.89, 7.19], "4": [31.22, 41.69, 25.89, 13.0], "5": [31.22, 52.75, 25.89, 9.69], "6": [31.22, 59.5, 25.89, 10.19]}, "2b": {"1": [37.89, 27.31, 28.22, 5.94], "2": [37.89, 30.69, 28.22, 8.88], "3": [37.89, 36.88, 28.22, 5.38], "4": [37.89, 40.38, 28.22, 7.44], "5": [37.89, 45.94, 28.22, 9.06], "6": [37.89, 51.81, 28.22, 10.62], "7": [37.89, 60.31, 47.67, 8.94], "8": [16.89, 65.94, 68.67, 6.94], "9": [16.89, 69.25, 68.67, 4.81], "10": [16.89, 70.31, 68.67, 4.88]}, "6b": {"0": [34.78, 11.84, 28.78, 8.29], "1": [34.78, 18.94, 28.78, 4.26], "2": [34.78, 21.47, 49.44, 14.21], "3": [34.78, 34.33, 49.44, 6.95], "4": [34.78, 40.02, 49.44, 10.89], "5": [34.78, 49.72, 49.44, 5.6], "6": [34.78, 53.99, 49.44, 8.13], "7": [34.78, 60.85, 49.44, 9.55]}, "7a": {"0": [34.44, 10.61, 31.33, 11.1], "1": [34.44, 20.08, 31.33, 11.1], "2": [34.44, 29.39, 31.33, 6.37], "3": [34.44, 34.12, 31.33, 12.16], "4": [12.78, 44.73, 53.0, 13.96], "5": [12.78, 57.14, 53.0, 7.76], "6": [12.78, 63.59, 53.0, 9.39], "7": [12.78, 69.8, 53.0, 7.51], "8": [12.78, 74.45, 53.0, 10.61], "9": [12.78, 82.2, 75.11, 10.61], "10": [12.78, 89.96, 75.11, 8.98]}, "7b": {"0": [34.22, 11.56, 31.11, 6.62], "1": [34.22, 16.68, 53.56, 11.56], "2": [34.22, 26.74, 53.56, 15.45], "3": [34.22, 38.39, 53.56, 12.27], "4": [34.22, 48.81, 53.56, 13.59], "5": [34.22, 60.72, 53.56, 13.59], "6": [34.22, 72.55, 53.56, 10.15], "7": [34.22, 81.02, 53.56, 10.06]}, "8a": {"0": [34.44, 12.67, 31.33, 8.79], "1": [34.44, 20.04, 31.33, 8.2], "2": [34.44, 25.63, 31.33, 9.54], "3": [34.44, 33.83, 31.33, 12.82], "4": [34.44, 45.01, 31.33, 16.69], "5": [13.11, 59.24, 53.33, 6.93], "6": [13.11, 64.53, 53.33, 8.57], "7": [13.11, 70.34, 53.33, 6.93], "8": [13.11, 74.52, 53.33, 9.76], "9": [13.11, 81.67, 53.33, 5.44]}, "8b": {"0": [34.44, 14.81, 30.67, 15.22], "1": [34.44, 28.18, 30.67, 4.99], "2": [34.44, 31.56, 30.67, 10.63], "3": [34.44, 40.58, 30.67, 13.53], "4": [34.44, 50.81, 30.67, 12.0], "5": [34.44, 58.37, 30.67, 13.77], "6": [34.44, 67.63, 52.44, 9.02], "7": [34.44, 74.88, 52.44, 6.36], "8": [34.44, 79.47, 52.44, 12.32], "9": [12.67, 88.49, 74.22, 11.03]}};
 function attachSrc(ref) {
+  amudim[ref].photo = `taanit-img/${ref}-full.jpg`;
   for (const i in DAF_SRC[ref] || {}) {
     const sc = amudim[ref].scenes[+i];
     if (sc) sc.src = { ref, i: +i, box: DAF_SRC[ref][i] };
   }
 }
-for (const ref in DAF_SRC) attachSrc(ref);
-for (const ref in DAF_SRC) amudim[ref].photo = `taanit-img/${ref}-full.jpg`;
-function lastBuiltRef() { const r = Object.keys(BEAT_LOC); return r.sort((x, y) => parseInt(x) - parseInt(y) || x.localeCompare(y))[r.length - 1]; }
+function lastBuiltRef() { return MAS.refs[MAS.refs.length - 1]; }
 const AMUD_NAME = { '2a': 'ב׳ ע״א', '2b': 'ב׳ ע״ב', '3a': 'ג׳ ע״א', '3b': 'ג׳ ע״ב', '4a': 'ד׳ ע״א', '4b': 'ד׳ ע״ב', '5a': 'ה׳ ע״א', '5b': 'ה׳ ע״ב', '6a': 'ו׳ ע״א', '6b': 'ו׳ ע״ב', '7a': 'ז׳ ע״א', '7b': 'ז׳ ע״ב', '8a': 'ח׳ ע״א', '8b': 'ח׳ ע״ב' };
 // שורות רחבות (כל רוחב הדף) מוגדלות לגודל אותיות כמו בטור הצר, וגוללות לצד המילים המסומנות
 function srcZoom(src) { if (matchMedia('(min-width: 1100px)').matches) return 1;   // מחשב: הטור רחב מספיק, בלי גלילה לצדדים
@@ -4512,10 +4508,10 @@ function openPhoto(ref, box) {
 }
 // הקטע הבא/הקודם שיש לו שלבים מסומנים — גם בדף הבא/הקודם. מחזיר {ref, i} או null
 function poHasMarks(ref, i) {
-  if (!isLoaded(ref)) { const L = BEAT_LOC[ref] && BEAT_LOC[ref][i]; return !!(DAF_SRC[ref] && DAF_SRC[ref][i] && L && L.some(x => x)); }   // דף שעוד לא נטען
+  if (!isLoaded(ref)) return !!(MAS.marks[ref] && MAS.marks[ref].includes(i));   // דף שעוד לא נטען: מהמפה
   const sc = amudim[ref] && amudim[ref].scenes && amudim[ref].scenes[i];
   return !!(sc && sc.src && sc.beats && sc.beats.some((b, bi) => beatLoc(ref, i, bi))); }
-const scenesCount = ref => isLoaded(ref) ? ((amudim[ref] && amudim[ref].scenes) || []).length : ((typeof SECTION_NAMES !== 'undefined' && SECTION_NAMES[ref]) || []).length;
+const scenesCount = ref => isLoaded(ref) ? ((amudim[ref] && amudim[ref].scenes) || []).length : (MAS.scenes[ref] || 0);
 function poScene(d) {
   let r = allRefs.indexOf(state.ref), i = state.sceneIdx + d;
   while (r >= 0 && r < allRefs.length) {
@@ -7540,8 +7536,7 @@ function renderActionBar() {
 
 
 // ===== קטעים שיש להם עץ =====
-window.TREE_SECS = {};
-if (typeof TREE !== 'undefined') for (const r in TREE) { const set = new Set(); const w = n => { set.add(n.s); (n.k || []).forEach(w); }; TREE[r].roots.forEach(w); TREE_SECS[r] = [...set]; }
+// TREE_SECS (קטעים שיש להם עץ) נבנה ב־loader.js כשהדף נטען
 // ===== מנוע השלבים =====
 function beatsHTML(sc, si) {
   const b = sc.beats || [];

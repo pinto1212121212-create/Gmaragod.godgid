@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="theme.css">
-<script src="prefs.js"></script>
+<script src="prefs.js?v=22b44212"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -176,9 +176,12 @@
   </section>
 </div>
 
-<script src="daf-marks.js"></script>
+<script src="data/common.js?v=d61f11d4"></script>
+<script src="data/taanit/index.js?v=559e705e"></script>
+<script src="data/taanit/words.js?v=3ceac99d"></script>
+<script src="loader.js?v=66b606b0"></script>
 <script>
-// ===== 🔤 לימוד מילים — כל המילים והביטויים מ״מילה במילה״ (TX.WBW), המילון (TX.WDICT) והמונחים (TX.KEY_TERMS) =====
+// ===== 🔤 לימוד מילים — כל המילים והביטויים מ״מילה במילה״, המילון והמונחים (מחושב מראש ב־data/<מסכת>/words.js) =====
 // התקדמות: localStorage 'gemara:words' = { מילה: {b: תיבה 0..5, d: מתי לחזור (ms), r: נכון, w: טעות} } — שיטת לייטנר
 const $ = id => document.getElementById(id);
 const AMN = { '2a': 'ב׳ ע״א', '2b': 'ב׳ ע״ב', '3a': 'ג׳ ע״א', '3b': 'ג׳ ע״ב', '4a': 'ד׳ ע״א', '4b': 'ד׳ ע״ב', '5a': 'ה׳ ע״א', '5b': 'ה׳ ע״ב', '6a': 'ו׳ ע״א', '6b': 'ו׳ ע״ב', '7a': 'ז׳ ע״א', '7b': 'ז׳ ע״ב', '8a': 'ח׳ ע״א', '8b': 'ח׳ ע״ב' };
@@ -186,35 +189,8 @@ const REFS = Object.keys(AMN);
 const clean = s => String(s || '').replace(/<[^>]+>/g, '').replace(/[֑-ׇ״"׳'.,:;!?()\[\]]/g, '').replace(/\s+/g, ' ').trim();
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-// --- בניית המאגר ---
-const W = new Map();
-function add(w, m, type, key) {
-  w = String(w).trim(); m = String(m).trim(); if (!w || !m) return;
-  const cw = clean(w), cm = clean(m);
-  const core = clean(m.replace(/\([^)]*\)/g, ' ').replace(/[־–—-]/g, ' ')), strip = t => t.replace(/^[והבלמשד](?=\S{2})/, '');
-  const same = core === cw || strip(core) === cw || core === strip(cw) || strip(core) === strip(cw) || core.split(' / ').includes(cw);
-  if (cw.length < 2 || !cm || same || /\((אמורא|שם|תנא|אמוראים)/.test(m) || /^[\d\s]+$/.test(cw)) return;
-  let x = W.get(cw);
-  if (!x) { x = { id: cw, w, type, ms: {}, refs: new Set(), keys: [] }; W.set(cw, x); }
-  x.ms[m] = (x.ms[m] || 0) + 1;
-  if (key) { const r = key.split(':')[0]; x.refs.add(r); if (x.keys.length < 3 && !x.keys.includes(key)) x.keys.push(key); }
-  if (type === 'term') x.type = 'term';
-}
-for (const [key, v] of Object.entries(TX.WBW || {})) for (const p of v.split('|')) {
-  const i = p.indexOf('='); if (i < 0) continue;
-  const a = p.slice(0, i).trim(), h = p.slice(i + 1).trim(), n = a.split(/\s+/).length;
-  if (n <= 4) add(a, h, n > 1 ? 'ph' : 'w', key);
-}
-// אינדקס מילה → השלב הראשון שבו היא מופיעה (נבנה פעם אחת; קודם חיפשנו בכל WBW לכל מילה במילון — איטי מאוד בטלפון)
-const FIRST = new Map();
-for (const k of Object.keys(TX.WBW || {})) for (const t of clean(TX.WBW[k].split('|').map(p => p.split('=')[0]).join(' ')).split(' ')) if (t && !FIRST.has(t)) FIRST.set(t, k);
-for (const [w, m] of Object.entries(TX.WDICT || {})) {
-  const cw = clean(w); if (W.has(cw)) continue;
-  add(w, m, 'w', FIRST.get(cw));
-}
-for (const [t, m] of (TX.KEY_TERMS || [])) { const cw = clean(t); const old = W.get(cw); add(t, m, 'term', old && old.keys[0]); const x = W.get(cw); if (x) { x.type = 'term'; x.ms = { [m]: 99 }; } }
-const ALL = [...W.values()].map(x => { x.m = Object.entries(x.ms).sort((a, b) => b[1] - a[1])[0][0]; x.refs = REFS.filter(r => x.refs.has(r)); return x; })
-  .filter(x => x.refs.length || x.type === 'term');
+// --- המאגר: מחושב מראש ע״י .claude/tools/build.py (data/<מסכת>/words.js → WORDS), כך שלא טוענים את כל הדפים ---
+const ALL = WORDS.map(o => ({ id: o.id || clean(o.w), w: o.w, m: o.m, type: o.t || 'w', refs: o.r.filter(r => AMN[r]), keys: o.k }));
 
 // --- התקדמות ---
 let P = {}; try { P = JSON.parse(localStorage.getItem('gemara:words') || '{}') || {}; } catch (e) {}
@@ -249,7 +225,11 @@ function stats() {
 }
 const where = x => x.refs.map(r => { const k = x.keys.find(k => k.startsWith(r + ':')); return `<a href="taanit.html#${k ? k.split(':').slice(0, 3).join('-') : r}">${AMN[r]}</a>`; }).join('');
 function example(x) {
-  const k = x.keys.find(k => TX.PUNCT && TX.PUNCT[k]); if (!k) return '';
+  const k = x.keys.find(k => TX.PUNCT && TX.PUNCT[k]);
+  if (!k) {   // הדף של המילה עוד לא נטען: טוענים ברקע ומציירים שוב את הכרטיס
+    const r = (x.keys[0] || '').split(':')[0]; if (r && masHas(r) && !PACKS.has(r)) loadPack(r).then(ok => { if (ok && typeof fc === 'function' && deck[di] === x) fc(); });
+    return '';
+  }
   let t = esc(clean(TX.PUNCT[k]) ? TX.PUNCT[k].replace(/<[^>]+>/g, '') : '');
   const re = new RegExp('(' + x.w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '[\\s\\u0591-\\u05C7״"׳,.:;!?—-]*') + ')');
   t = t.replace(re, '<mark>$1</mark>');
