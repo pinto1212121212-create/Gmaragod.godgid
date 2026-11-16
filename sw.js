@@ -1,8 +1,8 @@
 // 📲 Service worker: האתר נפתח גם בלי אינטרנט, ונטען מהר.
 // קוד ונתונים (html/js/css): קודם מהרשת (תמיד הגרסה החדשה), ואם אין רשת — מהשמור.
 // תמונות (צילומי דף, איורים, אייקונים): קודם מהשמור, כי הן כמעט לא משתנות; מתעדכנות ברקע.
-// שינוי גדול במבנה? מעלים את VERSION.
-const VERSION = 'v9';
+// שינוי גדול במבנה, או שינוי של תמונה קיימת (חיתוך מחדש, שינוי מספור קטעים)? מעלים את VERSION — אחרת הטלפון יציג את התמונה הישנה מהשמור.
+const VERSION = 'v10';
 const CORE = ['./', 'index.html', 'taanit.html', 'tree.html', 'words.html', 'theme.css', 'prefs.js', 'tree-data.js', 'context-data.js',
   'people-data.js', 'explain-data.js', 'daf-marks.js', 'manifest.webmanifest', 'icons/icon-192.png'];
 const PAGES = ['2a', '2b', '3a', '3b', '4a', '4b', '5a', '5b', '6a', '6b', '7a', '7b', '8a', '8b'];   // צילומי הדפים המלאים — נשמרים מראש, כדי שהדף המלא ייפתח מיד גם ברשת חלשה
