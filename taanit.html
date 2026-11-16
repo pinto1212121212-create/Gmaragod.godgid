@@ -449,6 +449,7 @@
     letter-spacing: 0.2em;
     margin-bottom: 4px;
   }
+  .stub .stub-back { display: inline-block; margin-top: 6px; padding: 10px 18px; min-height: 44px; border-radius: 12px; background: var(--gold, #e8b76d); color: #0e1322; font-weight: 800; text-decoration: none; }
   .stub .stub-perek-name {
     font-size: 16px;
     color: var(--parchment);
@@ -4392,6 +4393,7 @@ for (const ref in DAF_SRC) {
   }
 }
 for (const ref in DAF_SRC) amudim[ref].photo = `taanit-img/${ref}-full.jpg`;
+function lastBuiltRef() { const r = Object.keys(BEAT_LOC); return r.sort((x, y) => parseInt(x) - parseInt(y) || x.localeCompare(y))[r.length - 1]; }
 const AMUD_NAME = { '2a': 'ב׳ ע״א', '2b': 'ב׳ ע״ב', '3a': 'ג׳ ע״א', '3b': 'ג׳ ע״ב', '4a': 'ד׳ ע״א', '4b': 'ד׳ ע״ב', '5a': 'ה׳ ע״א', '5b': 'ה׳ ע״ב', '6a': 'ו׳ ע״א', '6b': 'ו׳ ע״ב', '7a': 'ז׳ ע״א', '7b': 'ז׳ ע״ב', '8a': 'ח׳ ע״א', '8b': 'ח׳ ע״ב' };
 // שורות רחבות (כל רוחב הדף) מוגדלות לגודל אותיות כמו בטור הצר, וגוללות לצד המילים המסומנות
 function srcZoom(src) { if (matchMedia('(min-width: 1100px)').matches) return 1;   // מחשב: הטור רחב מספיק, בלי גלילה לצדדים
@@ -6958,8 +6960,9 @@ function addPerekContext() {
       html: `
         <div class="stub">
           <div class="stub-icon">📜</div>
-          <h3>תוכן עוד לא נכתב</h3>
-          <p>זהו תשתית מוכנה. ניתן להוסיף סצנות אנימציה, רש״י ותוספות לדף הזה.</p>
+          <h3>הדף הזה עוד לא נבנה</h3>
+          <p>כדי לבנות אותו — צלמו את הדף ושלחו. בינתיים אפשר לחזור לדף האחרון שמוכן:</p>
+          <p><a class="stub-back" href="#${lastBuiltRef()}">⬅ ל${AMUD_NAME[lastBuiltRef()]}</a></p>
           <div class="stub-perek">
             <div class="stub-perek-label">הפרק שבו דף זה</div>
             <div class="stub-perek-name">פרק ${perek.num} — ${perek.name}</div>
