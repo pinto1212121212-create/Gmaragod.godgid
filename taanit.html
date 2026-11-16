@@ -1885,7 +1885,7 @@
 </div>
 
 <script src="data/common.js?v=d61f11d4"></script>
-<script src="data/taanit/index.js?v=559e705e"></script>
+<script src="data/taanit/index.js?v=a04f4ac2"></script>
 <script src="loader.js?v=66b606b0"></script>
 <script src="explain.js?v=f62dd961"></script>
 <script>
@@ -1922,7 +1922,7 @@ for (let d = 2; d <= 31; d++) {
 }
 
 // ===== 📦 טעינת דף לפי דרישה: התוכן של כל דף נמצא ב־taanit-data/<ref>.js (נבנה ע״י .claude/tools/build.py) =====
-const DATA_V = {"4b": "e472795c", "5a": "d6095d32", "5b": "41632ee0", "6a": "f2f27841", "2a": "371a3763", "3a": "966ec57e", "4a": "53f16dd6", "3b": "ef406722", "2b": "bf13e5e7", "6b": "127e215f", "7a": "50239015", "7b": "8df3cc73", "8a": "5ade00e5", "8b": "d4174761"};
+const DATA_V = {"4b": "0af6ac21", "5a": "d6095d32", "5b": "41632ee0", "6a": "f2f27841", "2a": "7eabd767", "3a": "549f97c9", "4a": "43478e95", "3b": "2c499272", "2b": "55d9d503", "6b": "127e215f", "7a": "50239015", "7b": "8df3cc73", "8a": "5ade00e5", "8b": "d4174761"};
 const LOADED = new Set(), PAGE_WAIT = {};
 const isBuilt = ref => Object.prototype.hasOwnProperty.call(DATA_V, ref);
 const isLoaded = ref => !isBuilt(ref) || LOADED.has(ref);
@@ -1952,7 +1952,9 @@ function pageLoading() {
 // טעינה מוקדמת של הדפים השכנים ברקע, כדי שהמעבר אליהם יהיה מיידי
 function prefetchNear(ref) {
   const i = allRefs.indexOf(ref), near = [allRefs[i + 1], allRefs[i - 1]].filter(r => r && isBuilt(r) && !isLoaded(r));
-  const run = () => near.forEach(r => loadPage(r));
+  // וגם הצילום של הקטע הראשון בדף השכן, כדי שהמעבר בחצים יציג את הדף מיד
+  const imgs = [allRefs[i + 1], allRefs[i - 1]].filter(r => r && isBuilt(r)).map(r => `taanit-img/${r}-${(MAS.marks[r] || [0])[0] || 0}.jpg`);
+  const run = () => { near.forEach(r => loadPage(r)); imgs.forEach(u => { const im = new Image(); im.decoding = 'async'; im.src = u; }); };
   (window.requestIdleCallback || (f => setTimeout(f, 1200)))(run);
 }
 

@@ -69,15 +69,6 @@ amudim['4b'].tosafot = [
 ];
 
 amudim['4b'].scenes = [
-  { tag: 'רקע', title: 'שני סוגי <span class="accent">תפילה על גשם</span>',
-    beats: [
-      ['s', 'הזכרה', '״משיב הרוח ומוריד הגשם״: <b>שבח</b>, בברכת מחיה המתים'],
-      ['s', 'שאלה', '״ותן טל ומטר״: <b>בקשה</b>, בברכת השנים. רק בתפילת חול'],
-      ['k', 'שאלת הסוגיה', 'מתי מתחילים ומתי מפסיקים כל אחת, והאם הן <b>הולכות יחד</b>?']
-    ],
-    viz: kv('ציר השנה', VZ.year, '<span style="color:var(--gold-bright)">■</span> הזכרה מהחג · <span style="color:var(--sky-glow)">■</span> שאלה סמוך לגשמים'),
-    bottom: 'הזכרה היא שבח ושאלה היא בקשה. כל הסוגיה בודקת מה היחס ביניהן.' },
-
   { tag: 'סוגיה 1', title: '״אין שואלין <span class="accent">אלא סמוך לגשמים״</span>',
     beats: [
       ['q', 'הגמרא', 'של מי המשנה? כנראה של ר׳ יהושע, שמאחר את ההזכרה ״משעת הנחתו״ של הלולב'],
@@ -196,13 +187,13 @@ amudim['4b'].scenes = [
     ] }
 ];
 
-for (const [i, cfg] of [[3, { pair: 'yehuda', pairOpen: true }],
-                        [4, { pair: 'yehuda', pairOpen: true, pairTags: ['״כאן להזכיר״', '״כאן לשאול״'] }],
-                        [5, { pair: 'yehuda' }], [6, { pair: 'yehuda' }], [7, { pair: 'yehuda' }],
-                        [8, { pair: 'rg', pairOpen: true }]]) Object.assign(amudim['4b'].scenes[i], cfg);
+for (const [i, cfg] of [[2, { pair: 'yehuda', pairOpen: true }],
+                        [3, { pair: 'yehuda', pairOpen: true, pairTags: ['״כאן להזכיר״', '״כאן לשאול״'] }],
+                        [4, { pair: 'yehuda' }], [5, { pair: 'yehuda' }], [6, { pair: 'yehuda' }],
+                        [7, { pair: 'rg', pairOpen: true }]]) Object.assign(amudim['4b'].scenes[i], cfg);
 
 for (const [i, cfg] of [
-  [9, { pair: 'rs', pairOpen: true }]
+  [8, { pair: 'rs', pairOpen: true }]
 ]) Object.assign(amudim['4b'].scenes[i], cfg);
 
 pageLoaded('4b');

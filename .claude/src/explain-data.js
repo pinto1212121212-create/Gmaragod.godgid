@@ -1,13 +1,13 @@
 // 🖼️ הסברים מאוירים (explain/<שם>.jpg) לסוגיות המסובכות. מפתח: 'ref:קטע' → שם הקובץ בלי סיומת.
 // נטען בדף הלימוד (taanit.html) ובעץ (tree.html). איור חדש: מוסיפים קובץ ל־explain/ ושורה כאן.
 const EXPLAIN = {
-  '2a:1': '2a-mishna', '2a:2': '2a-mishna', '2a:4': '2a-gevurot',
-  '2b:2': '2b-lulav', '2b:3': '2b-lulav', '2b:4': '2b-lulav',
-  '2b:8': '2b-mayim', '2b:9': '2b-mayim', '2b:10': '2b-mayim', '3a:1': '2b-mayim',
-  '3a:2': '3a-nisuch', '3a:3': '3a-nisuch', '3a:4': '3a-mi', '3a:5': '3a-mi',
-  '3b:3': '3b-machzirin', '4a:7': '4a-ein', '4b:1': '4a-ein', '4b:2': '4b-ramin',
-  '4b:3': '4b-ramin', '4b:4': '4b-ramin', '4b:5': '4b-ramin', '4b:6': 'yosef-4b', '4b:7': 'rabba-4b',
-  '4b:8': '4b-halacha', '4b:9': '4b-trei', '5a:0': '4b-trei',
+  '2a:0': '2a-mishna', '2a:1': '2a-mishna', '2a:3': '2a-gevurot',
+  '2b:1': '2b-lulav', '2b:2': '2b-lulav', '2b:3': '2b-lulav',
+  '2b:7': '2b-mayim', '2b:8': '2b-mayim', '2b:9': '2b-mayim', '3a:0': '2b-mayim',
+  '3a:1': '3a-nisuch', '3a:2': '3a-nisuch', '3a:3': '3a-mi', '3a:4': '3a-mi',
+  '3b:2': '3b-machzirin', '4a:6': '4a-ein', '4b:0': '4a-ein', '4b:1': '4b-ramin',
+  '4b:2': '4b-ramin', '4b:3': '4b-ramin', '4b:4': '4b-ramin', '4b:5': 'yosef-4b', '4b:6': 'rabba-4b',
+  '4b:7': '4b-halacha', '4b:8': '4b-trei', '5a:0': '4b-trei',
   '5a:1': '5a-yoel', '5a:2': '5a-yoel', '5a:3': '5a-yoel', '5a:4': '5a-yoel',
   '6a:1': '6a-yoreh', '6a:2': '6a-yoreh', '6a:3': '6a-yoreh', '6a:4': '6a-revios',
   '6b:0': '6b-sheniya', '6b:1': '6b-sheniya', '6b:2': '6b-sheniya', '6b:3': '6b-sheniya', '6b:4': '6b-kelala', '6b:5': '6b-kelala', '6b:6': '6b-kelala', '6b:7': '6b-bracha',

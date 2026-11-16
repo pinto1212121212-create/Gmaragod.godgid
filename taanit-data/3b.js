@@ -66,15 +66,6 @@ amudim['3b'].tosafot = [
 ];
 
 amudim['3b'].scenes = [
-  { tag: 'רקע', title: 'טל, רוחות, <span class="accent">עבים</span>',
-    beats: [
-      ['s', 'מדף ג.', 'על <b>טל ורוחות</b> לא חובה להזכיר, כי הם <b>לא נעצרים</b> (ר׳ חנינא)'],
-      ['k', 'השאלה', 'אם הטל <b>לא נעצר</b>, למה <b>אליהו נשבע</b> עליו?'],
-      ['k', 'המשך הדף', '<b>מתי מחזירים</b> את מי שטעה בתפילה, ומה עושים <b>עבים, רוחות, שמש ושלג</b>']
-    ],
-    viz: kv('מה נעצר ומה לא', kn('🌧️', 'מטר<br><small>נעצר</small>') + kn('💧', 'טל<br><small>לא נעצר</small>', 'good') + kn('🌬️', 'רוחות<br><small>לא נעצרות</small>', 'good') + kn('☁️', 'עבים<br><small>לא נעצרים</small>', 'good')),
-    bottom: 'בסוף דף ג. למדנו שטל לא נעצר. כאן הגמרא שואלת: אז על מה אליהו נשבע? וממשיכה לרוחות, לעבים ולסוגי הגשם.' },
-
   { tag: 'אליהו', title: '״אליהו <span class="accent">אשתבועי למה ליה?</span>״',
     beats: [
       ['k', 'סוף המשפט', '״משום <b>דלא מיעצר</b>״: סוף התשובה מדף ג.'],
@@ -176,7 +167,7 @@ amudim['3b'].scenes = [
 ];
 
 for (const [i, cfg] of [
-  [5, { pair: 'zk', pairOpen: true, pairTags: ['ברכה', 'קללה'] }]
+  [4, { pair: 'zk', pairOpen: true, pairTags: ['ברכה', 'קללה'] }]
 ]) Object.assign(amudim['3b'].scenes[i], cfg);
 
 pageLoaded('3b');

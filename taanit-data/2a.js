@@ -47,15 +47,6 @@ amudim['2a'].tosafot = [
 ]
 
 amudim['2a'].scenes = [
-  { tag: 'רקע', title: 'פתיחת המסכת: <span class="accent">גשם בתפילה</span>',
-    beats: [
-      ['s', 'הזכרה', '״משיב הרוח ומוריד הגשם״: <b>שבח</b> לה׳, בברכה השנייה של העמידה (״אתה גבור״)'],
-      ['s', 'שאלה', '״ותן טל ומטר לברכה״: <b>בקשה</b>, בברכת השנים (״ברך עלינו״)'],
-      ['k', 'שאלת הפרק', '<b>״מאימתי?״</b> מאיזה יום בסוכות מתחילים להזכיר, ומתי מפסיקים?']
-    ],
-    viz: kv('ציר השנה', VZ.year, '<span style="color:var(--gold-bright)">■</span> הזכרה · <span style="color:var(--sky-glow)">■</span> שאלה'),
-    bottom: 'המשנה פותחת ב״מאימתי״, כאילו כבר ידוע שמזכירים גשמים בתפילה. הגמרא תשאל: מאיפה זה ידוע?' },
-
   { tag: 'משנה', title: '<span class="accent">מאימתי</span> מזכירין גבורות גשמים?',
     beats: [
       ['s', 'המשנה', '״<b>מאימתי מזכירין גבורות גשמים?</b>״'],
@@ -144,7 +135,7 @@ amudim['2a'].scenes = [
 ];
 
 for (const [i, cfg] of [
-  [1, { pair: 'rery', pairOpen: true }]
+  [0, { pair: 'rery', pairOpen: true }]
 ]) Object.assign(amudim['2a'].scenes[i], cfg);
 
 pageLoaded('2a');
