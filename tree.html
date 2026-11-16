@@ -313,6 +313,7 @@
   .sh-text { font-size: calc(20px * var(--fz, 1)); }
   @media (min-width: 1100px) { .sh-text { font-size: calc(22px * var(--fz, 1)); } }
   .sh-pane, .sh-ctx p { font-size: calc(14.5px * var(--fz, 1)); }
+  #where.loading::after { content: '⏳ טוען את הדף…'; display: block; text-align: center; font-weight: 800; color: var(--gold, #e8b76d); padding: 4px 0; }
 </style>
 <script>
 // 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
@@ -545,7 +546,7 @@ function topOf(n) { while (n && n.parent && n.parent.r !== 'root') n = n.parent;
 let whRAF = 0;
 function whereSoon() { cancelAnimationFrame(whRAF); whRAF = requestAnimationFrame(() => where(st.sel)); }
 function where(n) {
-  const box = $('whIn'); if (!box || !root || !root.k) return;
+  const box = $('whIn'); if (!box || !root || !root.k || !TREE[st.ref]) return;
   let top = n ? topOf(n) : null;
   if (!top && st.person && st.person.nodes.size) top = topOf([...st.person.nodes].sort((a, b) => a.seq - b.seq)[0]);   // במצב זרוע: הסוגיה שלו
   if (!top) {   // אין שלב נבחר: הסוגיה שבמרכז המסך
@@ -1059,11 +1060,12 @@ pplPrep();
 // ===== טעינה =====
 function save() { try { localStorage.setItem('gemara:tree2', JSON.stringify({ ref: st.ref })); } catch (e) {} }
 function load(ref, sec) {
-  if (!PACKS.has(ref)) {   // הנתונים של הדף עוד לא נטענו
-    st.ref = ref; tabsDraw(ref); $('where').classList.add('loading');
-    loadPack(ref).then(ok => { $('where').classList.remove('loading'); if (ok && st.ref === ref) load(ref, sec); else if (!ok) alert('הדף לא נטען. בדקו את החיבור לאינטרנט ונסו שוב.'); });
+  if (!PACKS.has(ref)) {   // הנתונים של הדף עוד לא נטענו. st.ref נשאר על הדף הקודם עד שהחדש נטען (כדי שלחיצות בינתיים לא ייפלו)
+    st.want = ref; tabsDraw(ref); $('where').classList.add('loading');
+    loadPack(ref).then(ok => { $('where').classList.remove('loading'); if (ok && st.want === ref) load(ref, sec); else if (!ok) alert('הדף לא נטען. בדקו את החיבור לאינטרנט ונסו שוב.'); });
     return;
   }
+  st.want = ref;
   if (story) stopStory();
   st.ref = ref; st.sel = null; st.person = null; pplPrep(); $('stage').classList.remove('pfocus');
   tabsDraw(ref);
