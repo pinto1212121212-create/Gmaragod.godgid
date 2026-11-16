@@ -2,10 +2,10 @@
 // קוד ונתונים (html/js/css): קודם מהרשת (תמיד הגרסה החדשה), ואם אין רשת — מהשמור.
 // תמונות (צילומי דף, איורים, אייקונים): קודם מהשמור, כי הן כמעט לא משתנות; מתעדכנות ברקע.
 // שינוי גדול במבנה? מעלים את VERSION.
-const VERSION = 'v7';
+const VERSION = 'v8';
 const CORE = ['./', 'index.html', 'taanit.html', 'tree.html', 'words.html', 'theme.css', 'prefs.js', 'tree-data.js', 'context-data.js',
   'people-data.js', 'explain-data.js', 'daf-marks.js', 'manifest.webmanifest', 'icons/icon-192.png'];
-const PAGES = ['2a', '2b', '3a', '3b', '4a', '4b', '5a', '5b', '6a', '6b', '7a', '7b'];   // צילומי הדפים המלאים — נשמרים מראש, כדי שהדף המלא ייפתח מיד גם ברשת חלשה
+const PAGES = ['2a', '2b', '3a', '3b', '4a', '4b', '5a', '5b', '6a', '6b', '7a', '7b', '8a'];   // צילומי הדפים המלאים — נשמרים מראש, כדי שהדף המלא ייפתח מיד גם ברשת חלשה
 self.addEventListener('install', e => {
   e.waitUntil(caches.open('core-' + VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
   caches.open('img-' + VERSION).then(c => Promise.all(PAGES.map(p => c.add('taanit-img/' + p + '-full.jpg').catch(() => {}))));
