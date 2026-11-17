@@ -2,7 +2,7 @@
 // קוד ונתונים (html/js/css): קודם מהרשת (תמיד הגרסה החדשה), ואם אין רשת — מהשמור.
 // תמונות (צילומי דף, איורים, אייקונים): קודם מהשמור, כי הן כמעט לא משתנות; מתעדכנות ברקע.
 // שינוי גדול במבנה, או שינוי של תמונה קיימת (חיתוך מחדש, שינוי מספור קטעים)? מעלים את VERSION — אחרת הטלפון יציג את התמונה הישנה מהשמור.
-const VERSION = 'v18';
+const VERSION = 'v19';
 const CORE = ['./', 'index.html', 'taanit.html', 'tree.html', 'words.html', 'theme.css', 'vip.css', 'prefs.js', 'loader.js', 'explain.js',
   'data/common.js', 'data/taanit/index.js', 'data/taanit/words.js', 'manifest.webmanifest', 'icons/icon-192.png'];
 // רשימת הדפים הבנויים — מהמפה של המסכת (MAS), כך שאין צורך לעדכן כאן כשמוסיפים דף
