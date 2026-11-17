@@ -1,0 +1,76 @@
+/* 👑 vip.css — שכבת ״VIP״: זהב מבריק, מסגרות זהב, ברק בכפתורים ועיטורים.
+   נטען אחרי העיצוב של כל דף (index, taanit, tree, words), ולכן גובר עליו. צבעים — רק מתוך theme.css.
+   (המשתמש, נוב׳ 2026: ״VIP כזה, תעשה משהו יפה וטוב״) */
+:root {
+  --vip-gold: linear-gradient(135deg, #8a6d2f 0%, #e9d18a 26%, #c8a85a 48%, #f6e7b0 70%, #9a7a35 100%);
+  --vip-gold-soft: linear-gradient(135deg, rgba(138,109,47,.55), rgba(233,209,138,.75) 30%, rgba(200,168,90,.5) 55%, rgba(246,231,176,.7) 75%, rgba(154,122,53,.5));
+  --vip-card: linear-gradient(180deg, #161513 0%, #0e0d0b 100%);
+  --vip-glow: 0 0 0 1px rgba(200,168,90,.08), 0 20px 50px rgba(0,0,0,.55), 0 0 40px rgba(200,168,90,.06);
+}
+
+/* רקע: זרקור זהב עדין ודוגמה דקיקה */
+body {
+  background:
+    radial-gradient(ellipse 80% 45% at 50% 0%, rgba(200,168,90,.13), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(200,168,90,.05), transparent 70%),
+    repeating-linear-gradient(45deg, rgba(200,168,90,.018) 0 1px, transparent 1px 14px),
+    #0a0a0a !important;
+  background-attachment: fixed !important;
+}
+
+/* טקסט זהב מבריק */
+.vip-gold, .home h1 em, .masechet-name, .ttl b, .m-name, .scene-title {
+  background: var(--vip-gold); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent !important; -webkit-text-fill-color: transparent;
+  text-shadow: none !important;
+}
+.scene-title .accent, .scene-title .flame-c, .scene-title .water-c { -webkit-text-fill-color: #f5f1e8; color: #f5f1e8 !important; }
+.masechet-name small { -webkit-text-fill-color: var(--t-text-dim); }
+.vip-ico { font-style: normal; -webkit-text-fill-color: initial; color: initial; background: none; }
+
+/* כפתורי זהב: מילוי מתכתי + ברק שעובר */
+.btn.pri, .continue, .nav-btn, .q-go {
+  background: var(--vip-gold) !important; color: #141109 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), inset 0 -2px 6px rgba(90,65,20,.35), 0 10px 26px rgba(200,168,90,.22) !important;
+  position: relative; overflow: hidden; isolation: isolate;
+}
+.btn.pri::after, .continue::after, .nav-btn::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.55) 48%, transparent 66%);
+  transform: translateX(-120%); animation: vipShine 4.5s ease-in-out infinite;
+}
+@keyframes vipShine { 0%, 62% { transform: translateX(-120%); } 82%, 100% { transform: translateX(120%); } }
+.nav-btn:disabled::after { display: none; }
+
+/* כפתור מתאר: מסגרת זהב דקה */
+.btn.sec { border: 1px solid transparent !important; background: linear-gradient(#111, #111) padding-box, var(--vip-gold-soft) border-box !important; color: var(--t-gold-b) !important; }
+
+/* כרטיסים: מסגרת זהב מתכתית */
+.m-card, .q-it, .vip-card {
+  border: 1px solid transparent !important;
+  background: var(--vip-card) padding-box, var(--vip-gold-soft) border-box !important;
+  box-shadow: var(--vip-glow) !important;
+}
+.q-it:hover, .m-card:hover { box-shadow: 0 0 0 1px rgba(200,168,90,.25), 0 24px 56px rgba(0,0,0,.6), 0 0 50px rgba(200,168,90,.12) !important; }
+
+/* כותרות קטנות עם עיטור: ── ✦ המסכתות ✦ ── */
+.vip-h { display: flex !important; align-items: center; justify-content: center; gap: 14px; }
+.vip-h::before, .vip-h::after { content: ''; flex: 1; max-width: 90px; height: 1px; background: linear-gradient(90deg, transparent, rgba(200,168,90,.7)); }
+.vip-h::after { transform: scaleX(-1); }
+
+/* סמל (חותם) בראש דף הבית */
+.vip-crest { width: 92px; height: 92px; margin: 0 auto 18px; display: block; filter: drop-shadow(0 6px 22px rgba(200,168,90,.35)); }
+.vip-rule { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 18px auto 0; color: var(--t-gold); font-size: 11px; }
+.vip-rule::before, .vip-rule::after { content: ''; width: 70px; height: 1px; background: linear-gradient(90deg, transparent, rgba(200,168,90,.8)); }
+.vip-rule::after { transform: scaleX(-1); }
+
+/* תגית־גלולה: מסגרת זהב מתכתית */
+.home .eyebrow { border: 1px solid transparent !important; background: linear-gradient(#0d0c0a, #0d0c0a) padding-box, var(--vip-gold-soft) border-box !important; letter-spacing: .04em; }
+
+/* דף הלימוד: כרטיסי השלבים וכותרות הקטעים */
+.scene-tag { background: transparent !important; color: var(--t-gold-b) !important; border: 1px solid rgba(200,168,90,.55); letter-spacing: .05em; }
+.beat { box-shadow: inset 0 1px 0 rgba(200,168,90,.10); }
+.beat.focus { box-shadow: 0 0 0 1.5px rgba(220,192,120,.8), 0 12px 30px rgba(0,0,0,.45), 0 0 26px rgba(200,168,90,.14) !important; }
+
+@media (prefers-reduced-motion: reduce) { .btn.pri::after, .continue::after, .nav-btn::after { animation: none; display: none; } }
+html.p-hc .m-card, html.p-hc .q-it { background: #000 padding-box, var(--vip-gold) border-box !important; }
