@@ -1699,6 +1699,28 @@
   .scene .ex-go { font-size: 12px; padding: 4px 9px; }
   /* כרטיס: לשוניות פרטים */
   .bt-more { flex: 1 0 100%; margin-top: 8px; }
+  /* 🧰 סרגל כלי עזר */
+  .dock { max-width: 720px; margin: 0 auto 10px; }
+  .dock[hidden] { display: none; }
+  .dock-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; direction: rtl; }
+  .dock-tabs::-webkit-scrollbar { display: none; }
+  .dock-tab { flex: 1 0 auto; min-height: 40px; font: inherit; font-size: 14px; font-weight: 700; color: #f5f1e8; background: #141414; border: 1px solid rgba(245,241,232,0.14); border-radius: 12px; padding: 0 12px; cursor: pointer; }
+  .dock-tab.on { background: var(--gold); color: #111; border-color: var(--gold); }
+  .dock-tab:disabled { opacity: .35; cursor: default; }
+  .dock-pane { max-height: min(38vh, 340px); overflow-y: auto; overscroll-behavior: contain; margin-bottom: 8px; padding: 12px 14px 14px; border-radius: 18px; background: #111; border: 1px solid rgba(200,168,90,0.32); box-shadow: 0 -10px 30px rgba(0,0,0,.55); animation: btp .2s ease-out; font-size: calc(15px * var(--fz, 1)); line-height: 1.7; }
+  .dock-pane[hidden] { display: none; }
+  .dock-h { position: sticky; top: -12px; z-index: 1; display: flex; align-items: center; gap: 8px; margin: -12px -14px 8px; padding: 10px 14px 8px; background: #111; border-bottom: 1px solid rgba(245,241,232,0.08); font-size: 13.5px; }
+  .dock-h b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #f5f1e8; }
+  .dock-no { min-width: 24px; height: 24px; line-height: 22px; text-align: center; border-radius: 50%; font-size: 12px; font-weight: 700; border: 1px solid currentColor; }
+  .dock-role { font-weight: 700; }
+  .dock-h.role-q, .dock-h.role-x { color: #ff8a98; } .dock-h.role-a { color: #8fdc7e; } .dock-h.role-c { color: #ffd36e; }
+  .dock-h.role-s, .dock-h.role-n { color: #8cc4ef; } .dock-h.role-k { color: #c4b0ff; }
+  .dock-x { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(245,241,232,0.16); background: transparent; color: #f5f1e8; font-size: 14px; cursor: pointer; }
+  .dock-body .ctx { margin-top: 0; border-top: 0; padding-top: 0; }
+  .dock-body .g-punct, .dock-body .wbw, .dock-body .bppl { margin-top: 0; }
+  .nav { background: linear-gradient(180deg, transparent, var(--ink) 22%) !important; padding-top: 14px !important; }
+  .app { padding-bottom: 170px !important; }
+  body.dock-open .app { padding-bottom: calc(min(38vh, 340px) + 190px) !important; }
   .bt-tabs { display: flex; flex-wrap: wrap; gap: 5px; }
   .bt-tabs::-webkit-scrollbar { display: none; }
   .bt-tab { flex: 0 0 auto; min-height: 32px; font: inherit; font-size: 12.5px; font-weight: 700; color: var(--parchment-dim); background: rgba(236,233,226,0.05); border: 1px solid rgba(236,233,226,0.12); border-radius: 16px; padding: 4px 11px; cursor: pointer; white-space: nowrap; }
@@ -1812,6 +1834,7 @@
 </div>
 
 <nav class="nav">
+  <div class="dock masechet-only" id="dock" hidden><div class="dock-pane" id="dockPane" role="tabpanel" hidden></div><div class="dock-tabs" id="dockTabs" role="tablist" aria-label="כלי עזר"></div></div>
   <div class="nav-inner">
     <button class="nav-btn" id="prevSceneBtn" title="הקטע הקודם" aria-label="הקטע הקודם"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button>
     <div class="nav-mid"><button type="button" class="toc-btn" id="tocBtn" onclick="openToc()" aria-label="כל הקטעים בדף"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg> <span id="tocLbl"></span></button><div class="progress" id="progress"></div></div>
@@ -1923,7 +1946,7 @@ for (let d = 2; d <= 31; d++) {
 }
 
 // ===== 📦 טעינת דף לפי דרישה: התוכן של כל דף נמצא ב־taanit-data/<ref>.js (נבנה ע״י .claude/tools/build.py) =====
-const DATA_V = {"4b": "0af6ac21", "5a": "53d5fd15", "5b": "4779d3c2", "6a": "d5c63d16", "2a": "0893006d", "3a": "63b3536a", "4a": "d9001056", "3b": "06baee53", "2b": "e35eb94f", "6b": "0a8e7e3e", "7a": "83be42c8", "7b": "f7207bf5", "8a": "5a228eff", "8b": "baebfd4b", "9a": "0f7b5a0f", "9b": "f7400987"};
+const DATA_V = {"4b": "0af6ac21", "5a": "53d5fd15", "5b": "4779d3c2", "6a": "d5c63d16", "2a": "0893006d", "3a": "63b3536a", "4a": "d9001056", "3b": "06baee53", "2b": "e35eb94f", "6b": "0a8e7e3e", "7a": "83be42c8", "7b": "f7207bf5", "8a": "5a228eff", "8b": "baebfd4b", "9a": "0f7b5a0f", "9b": "575ed87c"};
 const LOADED = new Set(), PAGE_WAIT = {};
 const isBuilt = ref => Object.prototype.hasOwnProperty.call(DATA_V, ref);
 const isLoaded = ref => !isBuilt(ref) || LOADED.has(ref);
@@ -1962,7 +1985,7 @@ function prefetchNear(ref) {
 // ---------- helpers for building scenes ----------
 const kv = (head, stage, cap, stageStyle) => `
   <div class="kviz">
-    <div class="kviz-head">🎬 ${head}</div>
+    <div class="kviz-head">${head}</div>
     <div class="kviz-stage"${stageStyle ? ` style="${stageStyle}"` : ''}>${stage}</div>
     ${cap ? `<div class="kviz-cap">${cap}</div>` : ''}
   </div>`;
@@ -2405,7 +2428,7 @@ function flowHTML(key) {
   const prev = node.parent.kids.slice(0, node.parent.kids.indexOf(node));
   li += prev.map(pn => flowLine(pn, 'prev') + pn.kids.filter(k => k.n.r === 'x' || k.n.r === 'c').map(k => flowLine(k, 'prev sub')).join('')).join('');
   li += flowLine(node, 'cur');
-  return `<div class="flow"><div class="flow-h">🔁 המהלך עד כאן</div><ol>${li}</ol></div>`;
+  return `<div class="flow"><div class="flow-h">המהלך עד כאן</div><ol>${li}</ol></div>`;
 }
 function ctxHTML(key) {
   const c = typeof CONTEXT !== 'undefined' && CONTEXT[key];
@@ -2531,6 +2554,7 @@ function activeBeatIdx(sc) {
 }
 const isDesk = () => matchMedia('(min-width: 1100px)').matches;   // מחשב: הצילום בטור הימני
 function showLoc() {
+  try { dockUpdate(); } catch (e) {}
   const svg = document.getElementById('beatArrow');
   const el = document.querySelector('.scene.active');
   document.querySelectorAll('.src-hl, .src-dim').forEach(h => h.remove());
@@ -2696,6 +2720,45 @@ function beatMore(ref, si, bi, kt) {
   return `<div class="bt-more"><div class="bt-tabs" role="tablist">${tabs.map(([id, lb]) => `<button type="button" role="tab" class="bt-tab${id === on ? ' on' : ''}" data-bt="${id}" aria-selected="${id === on}">${lb}</button>`).join('')}</div>
     ${tabs.map(([id, , body]) => `<div class="bt-pane${id === on ? ' on' : ''}" data-bt="${id}" role="tabpanel">${body}</div>`).join('')}</div>`;
 }
+// 🧰 סרגל כלי עזר (המשתמש: ״כלי עזר כמו סרגל שכל הזמן נפתח״): לשוניות קבועות מעל הניווט התחתון.
+// התוכן תמיד של השלב שקוראים עכשיו (activeBeatIdx), ומתחלף לבד בגלילה. הלשונית שנבחרה נזכרת (gemara:dock).
+let dockTab = ''; try { dockTab = localStorage.getItem('gemara:dock') || ''; } catch (e) {}
+let dockKey = '';
+function beatTabs(ref, si, bi) {
+  const key = `${ref}:${si}:${bi}`;
+  const c = typeof CONTEXT !== 'undefined' && CONTEXT[key], f = flowHTML(key);
+  const ww = wbwHTML(key).replace(/^<details[^>]*><summary>.*?<\/summary>/, '').replace(/<\/details>$/, '');
+  const pp = pplBeatHTML(ref, si, bi), kt = keyTerm(ref, si, bi);
+  return [
+    ['ctx', 'ההקשר', c || f ? `<div class="ctx">${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</div>` : ''],
+    ['gm', 'בגמרא', punctHTML(key)],
+    ['ww', 'מילה במילה', ww ? ww + `<a class="ww-go" href="words.html?ref=${ref}">לתרגל את המילים של הדף ←</a>` : ''],
+    ['pp', /class="bp vs"/.test(pp) ? 'מי ומה' : 'מי', pp],
+    ['kt', 'מונח', kt ? `<div class="bt-key"><b>${kt[0]}</b> = ${kt[1]}</div>` : ''],
+  ];
+}
+function dockUpdate(force) {
+  const dock = document.getElementById('dock'); if (!dock) return;
+  const sc = state.tab === 'masechet' && amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
+  if (!sc || !sc.beats || !sc.beats.length || state.modal) { dock.hidden = true; document.body.classList.remove('dock-open'); return; }
+  const bi = activeBeatIdx(sc), key = `${state.ref}:${state.sceneIdx}:${bi}`;
+  dock.hidden = false;
+  if (key === dockKey && !force) return;
+  dockKey = key;
+  const tabs = beatTabs(state.ref, state.sceneIdx, bi), on = tabs.some(t => t[0] === dockTab && t[2]) ? dockTab : '';
+  const R = beatRole(state.ref, state.sceneIdx, bi), who = (sc.beats[bi] || [])[1] || '';
+  document.getElementById('dockTabs').innerHTML = tabs.map(([id, lb, body]) =>
+    `<button type="button" role="tab" class="dock-tab${id === on ? ' on' : ''}" data-dk="${id}" aria-selected="${id === on}"${body ? '' : ' disabled'}>${lb}</button>`).join('');
+  const pane = document.getElementById('dockPane'), t = tabs.find(x => x[0] === on);
+  pane.hidden = !t;
+  document.body.classList.toggle('dock-open', !!t);
+  if (t) pane.innerHTML = `<div class="dock-h role-${R}"><span class="dock-no">${bi + 1}</span><span class="dock-role">${ROLE[R][1]}</span><b>${who}</b><button type="button" class="dock-x" aria-label="סגור">✕</button></div><div class="dock-body">${t[2]}</div>`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.dock-tab');
+  if (b && !b.disabled) { dockTab = b.classList.contains('on') ? '' : b.dataset.dk; try { localStorage.setItem('gemara:dock', dockTab); } catch (er) {} dockUpdate(true); const p = document.getElementById('dockPane'); if (p) p.scrollTop = 0; return; }
+  if (e.target.closest('.dock-x')) { dockTab = ''; try { localStorage.setItem('gemara:dock', ''); } catch (er) {} dockUpdate(true); }
+});
 function btTabClick(b) {
   const id = b.dataset.bt, was = b.classList.contains('on');
   bTab = was ? '' : id; try { localStorage.setItem('gemara:btab', bTab); } catch (e) {}
@@ -3281,7 +3344,7 @@ function beatsHTML(sc, si) {
     ${b.length ? `<div class="beats" onclick="onBeatsClick(event)">${b.map((x, i) => {
       const r = beatRole(state.ref, si, i), kt = keyTerm(state.ref, si, i);
       const link = i ? `<div class="blink" data-i="${i}"><span class="bl-arrow">↓</span><span class="bl-txt">${linkText(beatRole(state.ref, si, i - 1), r)}</span></div>` : '';
-      return link + `<div class="beat bt-${x[0]} role-${r}" data-i="${i}"><span class="bt-role">${ROLE[r][0]} ${ROLE[r][1]}</span><span class="bt-who">${x[1]}</span><span class="bt-txt">${x[2]}</span>${tkOnly(`${state.ref}:${si}:${i}`)}${state.tab === 'masechet' ? starBtn(`${state.ref}:${si}:${i}`) : ''}${canSpeak ? `<button type="button" class="speak-btn bt-say" aria-label="הקראה בקול" aria-pressed="false" title="הקראה בקול" onclick="sayBeat(event, ${si}, ${i})">🔊</button>` : ''}${beatMore(state.ref, si, i, kt)}</div>`; }).join('')}</div>
+      return link + `<div class="beat bt-${x[0]} role-${r}" data-i="${i}"><span class="bt-role">${ROLE[r][0]} ${ROLE[r][1]}</span><span class="bt-who">${x[1]}</span><span class="bt-txt">${x[2]}</span>${tkOnly(`${state.ref}:${si}:${i}`)}${state.tab === 'masechet' ? starBtn(`${state.ref}:${si}:${i}`) : ''}${canSpeak ? `<button type="button" class="speak-btn bt-say" aria-label="הקראה בקול" aria-pressed="false" title="הקראה בקול" onclick="sayBeat(event, ${si}, ${i})">🔊</button>` : ''}${''}</div>`; }).join('')}</div>
     <div class="step-ctl"><button class="step-next" onclick="stepBeat(1)">המשך ▼ <span class="step-n"></span></button>
       <button class="step-all" onclick="revealAll()">הצג הכל</button></div>` : ''}
     <div class="after">
