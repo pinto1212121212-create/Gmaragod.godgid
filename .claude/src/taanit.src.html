@@ -1699,6 +1699,22 @@
   .scene .ex-go { font-size: 12px; padding: 4px 9px; }
   /* כרטיס: לשוניות פרטים */
   .bt-more { flex: 1 0 100%; margin-top: 8px; }
+  /* 🔖 איפה הייתי */
+  .backpill { max-width: 720px; margin: 0 auto 8px; display: flex; gap: 6px; align-items: center; }
+  .backpill[hidden] { display: none; }
+  .bp-go { flex: 1; min-width: 0; min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(200,168,90,.6); background: #15130f; color: #f5f1e8; font: inherit; font-size: 13.5px; cursor: pointer; text-align: right; }
+  .bp-go b { color: var(--gold); font-size: 16px; }
+  .bp-go span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bp-x { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(245,241,232,.16); background: #111; color: #f5f1e8; cursor: pointer; }
+  .dot.read { background: rgba(200,168,90,.75); }
+  .toc-hist { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .toc-hist button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: right; font: inherit; font-size: 13.5px; color: #f5f1e8; background: #141414; border: 1px solid rgba(245,241,232,.12); border-radius: 12px; padding: 9px 12px; cursor: pointer; }
+  .toc-hist small { font-size: 11.5px; color: var(--parchment-dim); }
+  .toc-ex { font-size: 11px; color: var(--gold); border: 1px solid rgba(200,168,90,.45); border-radius: 999px; padding: 1px 7px; }
+  .toc-here { font-style: normal; font-weight: 700; color: var(--gold); }
+  .toc-done { font-style: normal; color: #8fdc7e; }
+  .toc-prog { font-weight: 500; color: var(--parchment-dim); }
+  @media (min-width: 1100px) { .backpill { max-width: none; width: calc((min(100vw, 1360px) - 100px) / 2.05); margin-left: calc(max(0px, (100vw - 1360px) / 2) + 10px); margin-right: auto; } }
   /* 🧰 סרגל כלי עזר */
   .dock { max-width: 720px; margin: 0 auto 10px; }
   .dock[hidden] { display: none; }
@@ -1862,6 +1878,7 @@
 </div>
 
 <nav class="nav">
+  <div class="backpill" id="backPill" hidden><button type="button" class="bp-go" onclick="goPlace(jumpBack)"><b>↩</b><span></span></button><button type="button" class="bp-x" aria-label="סגור" onclick="jumpBack=null;backPill()">✕</button></div>
   <div class="dock masechet-only" id="dock" hidden><div class="dock-pane" id="dockPane" role="tabpanel" hidden></div><div class="dock-tabs" id="dockTabs" role="tablist" aria-label="כלי עזר"></div></div>
   <div class="nav-inner">
     <button class="nav-btn" id="prevSceneBtn" title="הקטע הקודם" aria-label="הקטע הקודם"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button>
@@ -7519,6 +7536,7 @@ function activeBeatIdx(sc) {
 const isDesk = () => matchMedia('(min-width: 1100px)').matches;   // מחשב: הצילום בטור הימני
 function showLoc() {
   try { dockUpdate(); } catch (e) {}
+  try { trackPlace(); } catch (e) {}
   const svg = document.getElementById('beatArrow');
   const el = document.querySelector('.scene.active');
   document.querySelectorAll('.src-hl, .src-dim').forEach(h => h.remove());
@@ -8372,6 +8390,71 @@ function stepBeat(delta) {
 
 // ===== זיכרון מיקום: מסכת, דף, סצנה ולשונית =====
 const SAVE_KEY = 'gemara:taanit';
+// ===== 🔖 איפה הייתי / איפה אני (נוב׳ 2026) =====
+// gemara:hist  — היסטוריה: [{r, s, b, t}] (עד 30, קטע אחד = רשומה אחת, החדש ראשון)
+// gemara:read  — מה כבר למדתי: {ref: {n: מספר הקטעים, s: [קטעים שהגיעו לשלב האחרון שלהם]}}
+// ״חזרה למקום הקודם״: כשקופצים (עץ, שמורים, מיני־עץ, כל הקטעים, דף אחר) — כפתור קטן מחזיר בדיוק לשלב שהיינו בו, וגם בחזרה.
+const lsJ = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? d : v; } catch (e) { return d; } };
+const lsW = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+let lastPos = null, jumpBack = null, jumpT = 0;
+{ const h0 = lsJ('gemara:hist', []); if (Array.isArray(h0) && h0[0]) lastPos = h0[0]; }
+function isJump(a, b) {
+  if (!a || !b) return false;
+  if (a.r !== b.r) { const R = typeof MAS !== 'undefined' ? MAS.refs : allRefs; return Math.abs(R.indexOf(a.r) - R.indexOf(b.r)) > 1; }
+  return Math.abs(a.s - b.s) > 1;
+}
+// נרשם רק אחרי שהמקום יציב שנייה (בלי מצבי ביניים של טעינה/מעבר)
+let trackT = 0, readT = 0;
+const posKey = () => { const sc = amudim[state.ref] && amudim[state.ref].scenes && amudim[state.ref].scenes[state.sceneIdx]; return sc && sc.beats && sc.beats.length ? `${state.ref}:${state.sceneIdx}:${activeBeatIdx(sc)}` : ''; };
+function trackPlace() {   // showLoc נקרא הרבה: בודקים פעם בשנייה, ורושמים רק אם המקום לא זז בינתיים
+  if (trackT) return;
+  const k0 = posKey();
+  trackT = setTimeout(() => { trackT = 0; if (posKey() === k0) trackNow(); else trackPlace(); }, 1000);
+}
+function trackNow() {
+  if (state.tab !== 'masechet' || state.modal) return;
+  const sc = amudim[state.ref] && amudim[state.ref].scenes && amudim[state.ref].scenes[state.sceneIdx];
+  if (!sc || !sc.beats || !sc.beats.length) return;
+  const pos = { r: state.ref, s: state.sceneIdx, b: activeBeatIdx(sc), t: Date.now() };
+  // היסטוריה
+  let h = lsJ('gemara:hist', []); if (!Array.isArray(h)) h = [];
+  if (h[0] && h[0].r === pos.r && h[0].s === pos.s) h[0] = pos; else h = [pos, ...h.filter(x => !(x.r === pos.r && x.s === pos.s))].slice(0, 30);
+  lsW('gemara:hist', h);
+  // המקום המדויק (לדף הבית: ״המשך מאיפה שעצרת״ עד השלב)
+  try { const p = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}'); p.bi = pos.b; p.ref = pos.r; p.sceneIdx = pos.s; localStorage.setItem(SAVE_KEY, JSON.stringify(p)); } catch (e) {}
+  // נקרא: הגיעו לשלב האחרון של הקטע
+  if (pos.b >= sc.beats.length - 1) {
+    const rd = lsJ('gemara:read', {}), e = rd[pos.r] || { n: 0, s: [] };
+    e.n = amudim[pos.r].scenes.filter(x => x.beats && x.beats.length).length;
+    if (!e.s.includes(pos.s)) { e.s.push(pos.s); rd[pos.r] = e; lsW('gemara:read', rd); const d = document.querySelectorAll('#progress .dot')[pos.s]; if (d) d.classList.add('read'); }
+  }
+  // קפיצה?
+  if (lastPos && isJump(lastPos, pos)) { jumpBack = { ...lastPos }; jumpT = Date.now(); }
+  if (jumpBack && jumpBack.r === pos.r && jumpBack.s === pos.s) jumpBack = null;   // חזרו בעצמם
+  lastPos = pos;
+  backPill();
+}
+function isRead(r, s) { const e = lsJ('gemara:read', {})[r]; return !!(e && e.s && e.s.includes(s)); }
+function placeName(p) {
+  const sc = isLoaded(p.r) && amudim[p.r].scenes && amudim[p.r].scenes[p.s];
+  return `${AMUD_NAME[p.r] || p.r} · קטע ${p.s + 1}${sc ? ' · ' + (SECTION_NAMES[p.r] && SECTION_NAMES[p.r][p.s] || sc.title.replace(/<[^>]+>/g, '')) : ''}`;
+}
+function agoText(t) {
+  const m = Math.round((Date.now() - t) / 60000);
+  return m < 1 ? 'עכשיו' : m < 60 ? `לפני ${m} דק׳` : m < 1440 ? `לפני ${Math.round(m / 60)} שע׳` : `לפני ${Math.round(m / 1440)} ימים`;
+}
+function goPlace(p) {
+  if (!p || !amudim[p.r]) return;
+  closeToc(); if (state.tab !== 'masechet') switchTab('masechet');
+  const go = () => goStar(`${p.r}:${p.s}:${p.b | 0}`);
+  if (!isLoaded(p.r)) loadPage(p.r).then(ok => ok && go()); else go();
+}
+function backPill() {
+  const el = document.getElementById('backPill'); if (!el) return;
+  const on = jumpBack && Date.now() - jumpT < 4 * 60000 && state.tab === 'masechet';
+  el.hidden = !on;
+  if (on) el.querySelector('span').textContent = 'חזרה ל־' + placeName(jumpBack);
+}
 function savePlace() {
   try {
     localStorage.setItem('gemara:last', 'taanit');
@@ -8422,7 +8505,7 @@ function renderProgress() {
   progressEl.innerHTML = '';
   for (let i = 0; i < scenes.length; i++) {
     const dot = document.createElement('div');
-    dot.className = 'dot' + (i === state.sceneIdx ? ' active' : '');
+    dot.className = 'dot' + (i === state.sceneIdx ? ' active' : '') + (state.tab === 'masechet' && isRead(state.ref, i) ? ' read' : '');
     dot.addEventListener('click', () => {
       state.sceneIdx = i;
       state.beat = 0;
@@ -8463,6 +8546,15 @@ function goStar(k) {
   if (state.tab !== 'masechet') switchTab('masechet');
   if (ref !== state.ref) goToRef(ref, () => setTimeout(() => goKey(k), 150)); else goKey(k);
 }
+function histHTML() {
+  const h = lsJ('gemara:hist', []).map((p, i) => ({ ...p, i })).filter(p => !(p.r === state.ref && p.s === state.sceneIdx) && amudim[p.r]).slice(0, 6);
+  if (!h.length) return '';
+  return `<div class="toc-sec">איפה הייתי לאחרונה</div><div class="toc-hist">${h.map(p => `<button type="button" data-hist="${p.i}"><span>${placeName(p)}</span><small>${agoText(p.t)}${p.b ? ` · שלב ${p.b + 1}` : ''}</small></button>`).join('')}</div>`;
+}
+function readSum() {
+  const n = amudim[state.ref].scenes.filter(x => x.beats && x.beats.length).length, e = lsJ('gemara:read', {})[state.ref], k = e && e.s ? e.s.length : 0;
+  return k ? ` <small class="toc-prog">· נלמדו ${k} מתוך ${n}</small>` : '';
+}
 function starsHTML() {
   const a = stars().filter(k => { const [r, s, b] = k.split(':'); if (!isLoaded(r)) return false; const sc = amudim[r] && amudim[r].scenes && amudim[r].scenes[+s]; return sc && sc.beats && sc.beats[+b]; });
   if (!a.length) return `<div class="toc-st0">אין עדיין שמורים. לוחצים על ☆ בכרטיס כדי לשמור שלב לחזרה.</div>`;
@@ -8491,13 +8583,14 @@ function openToc() {
   const ex = k => typeof EXPLAIN !== 'undefined' && EXPLAIN[k];
   ov.innerHTML = `<div class="toc-box" role="dialog" aria-modal="true" aria-label="כל הקטעים">
     <div class="toc-h"><b>${state.tab === 'masechet' ? AMUD_NAME[state.ref] || '' : 'איך לקרוא גמרא'} · כל הקטעים</b><button type="button" class="toc-x" aria-label="סגור">✕</button></div>
-    <details class="toc-pf"><summary>⚙️ נוחות ונגישות <small>גודל אותיות · ניגודיות · מרווח · תנועה</small></summary>${prefsHTML()}</details>
-    ${state.tab === 'masechet' ? `<a class="toc-words" href="words.html?ref=${state.ref}">🔤 <b>לימוד מילים ומבחן</b><small>כל המילים של ${AMUD_NAME[state.ref] || 'הדף'} — כרטיסיות ומבחן</small></a>` : ''}
-    ${state.tab === 'masechet' ? starsHTML() : ''}<div class="toc-sec">הקטעים בדף</div>
-    <ol class="toc-list">${scenes.map((sc, i) => `<li><button type="button" data-i="${i}" class="${i === state.sceneIdx ? 'on' : ''}"><span class="toc-n">${i + 1}</span><span class="toc-t"><small>${sc.tag || ''}</small>${(sc.title || '').replace(/<[^>]+>/g, '')}</span>${state.tab === 'masechet' && ex(`${state.ref}:${i}`) ? '<span class="toc-ex" title="יש הסבר מאויר">🖼️</span>' : ''}<span class="toc-c">${(sc.beats || []).length ? (sc.beats.length + ' שלבים') : (sc.quiz ? 'חזרה' : '')}</span></button></li>`).join('')}</ol></div>`;
+    <details class="toc-pf"><summary>נוחות ונגישות <small>גודל אותיות · ניגודיות · מרווח · תנועה</small></summary>${prefsHTML()}</details>
+    ${state.tab === 'masechet' ? `<a class="toc-words" href="words.html?ref=${state.ref}"><b>לימוד מילים ומבחן</b><small>כל המילים של ${AMUD_NAME[state.ref] || 'הדף'} — כרטיסיות ומבחן</small></a>` : ''}
+    ${state.tab === 'masechet' ? histHTML() : ''}${state.tab === 'masechet' ? starsHTML() : ''}<div class="toc-sec">הקטעים בדף${state.tab === 'masechet' ? readSum() : ''}</div>
+    <ol class="toc-list">${scenes.map((sc, i) => `<li><button type="button" data-i="${i}" class="${i === state.sceneIdx ? 'on' : ''}"><span class="toc-n">${i + 1}</span><span class="toc-t"><small>${sc.tag || ''}</small>${(sc.title || '').replace(/<[^>]+>/g, '')}</span>${state.tab === 'masechet' && ex(`${state.ref}:${i}`) ? '<span class="toc-ex" title="יש הסבר מאויר">איור</span>' : ''}<span class="toc-c">${i === state.sceneIdx ? '<em class="toc-here">אתה כאן</em>' : state.tab === 'masechet' && isRead(state.ref, i) ? '<em class="toc-done">✓ נלמד</em>' : (sc.beats || []).length ? (sc.beats.length + ' שלבים') : (sc.quiz ? 'חזרה' : '')}</span></button></li>`).join('')}</ol></div>`;
   ov.querySelector('.toc-x').onclick = closeToc;
   prefBind(ov, () => setTimeout(() => { try { showLoc(); } catch (e) {} }, 60));
   ov.querySelectorAll('[data-star]').forEach(b => b.onclick = () => goStar(b.dataset.star));
+  ov.querySelectorAll('[data-hist]').forEach(b => b.onclick = () => goPlace(lsJ('gemara:hist', [])[+b.dataset.hist]));
   ov.querySelectorAll('[data-i]').forEach(b => b.onclick = () => { closeToc(); state.sceneIdx = +b.dataset.i; state.beat = 0; renderScenes(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
   ov.classList.add('on');
   const cur = ov.querySelector('.toc-list .on'); if (cur) cur.scrollIntoView({ block: 'center' });
@@ -8832,7 +8925,9 @@ window.addEventListener('hashchange', readHash);
   let first = hm && amudim[hm[1]] ? hm[1] : null;
   if (!first) { try { const p = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); if (p && amudim[p.ref]) first = p.ref; } catch (e) {} }
   first = first || state.ref;
-  const go = () => { restorePlace(); if (!isLoaded(state.ref)) state.ref = first; readHash(); renderAll(); prefetchNear(state.ref); };
+  const go = () => { restorePlace(); if (!isLoaded(state.ref)) state.ref = first; readHash(); renderAll(); prefetchNear(state.ref);
+    if (!location.hash) { try { const p = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); if (p && p.bi > 0 && p.ref === state.ref && p.sceneIdx === state.sceneIdx && p.tab !== 'tutorial') setTimeout(() => goKey(`${p.ref}:${p.sceneIdx}:${p.bi}`), 500); } catch (e) {} }
+  };
   if (isLoaded(first)) go();
   else { pageLoading(); loadPage(first).then(ok => { if (ok) go(); else { state.ref = first; pageFail(first); } }); }
 })();
