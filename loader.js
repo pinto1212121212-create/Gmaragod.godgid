@@ -56,6 +56,8 @@ document.addEventListener('click', e => {
   if (tab && !tab.classList.contains('on')) tab.click();
   setTimeout(() => { const it = [...document.querySelectorAll('.rsi')].find(x => x.dataset.rs === id && x.offsetParent); if (it) { it.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); it.classList.remove('flash'); void it.offsetWidth; it.classList.add('flash'); } }, 80);
 }, true);
+// כתובת צילום עם גרסה (MAS.iv) — כשמחליפים צילום, הטלפון מוריד את החדש ולא מציג את השמור
+const imgUrl = (ref, part) => `taanit-img/${ref}-${part}.jpg${typeof MAS !== 'undefined' && MAS.iv && MAS.iv[ref] ? '?i=' + MAS.iv[ref] : ''}`;
 const masHas = ref => typeof MAS !== 'undefined' && MAS.refs.includes(ref);
 
 // נקרא מתוך data/<מסכת>/<ref>.js

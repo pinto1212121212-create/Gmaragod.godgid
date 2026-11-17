@@ -2001,8 +2001,8 @@
 </div>
 
 <script src="data/common.js?v=2c7990a2"></script>
-<script src="data/taanit/index.js?v=981c3f44"></script>
-<script src="loader.js?v=1e1517e4"></script>
+<script src="data/taanit/index.js?v=03b5e01d"></script>
+<script src="loader.js?v=aa4d0943"></script>
 <script src="explain.js?v=221640a8"></script>
 <script>
 // =======================================================
@@ -2069,7 +2069,7 @@ function pageLoading() {
 function prefetchNear(ref) {
   const i = allRefs.indexOf(ref), near = [allRefs[i + 1], allRefs[i - 1]].filter(r => r && isBuilt(r) && !isLoaded(r));
   // וגם הצילום של הקטע הראשון בדף השכן, כדי שהמעבר בחצים יציג את הדף מיד
-  const imgs = [allRefs[i + 1], allRefs[i - 1]].filter(r => r && isBuilt(r)).map(r => `taanit-img/${r}-${(MAS.marks[r] || [0])[0] || 0}.jpg`);
+  const imgs = [allRefs[i + 1], allRefs[i - 1]].filter(r => r && isBuilt(r)).map(r => imgUrl(r, (MAS.marks[r] || [0])[0] || 0));
   const run = () => { near.forEach(r => loadPage(r)); imgs.forEach(u => { const im = new Image(); im.decoding = 'async'; im.src = u; }); };
   (window.requestIdleCallback || (f => setTimeout(f, 1200)))(run);
 }
@@ -2131,7 +2131,7 @@ const VZ = {
 // =======================================================
 /* DAF_SRC: נטען לפי דף (loader.js) */
 function attachSrc(ref) {
-  amudim[ref].photo = `taanit-img/${ref}-full.jpg`;
+  amudim[ref].photo = imgUrl(ref, 'full');
   for (const i in DAF_SRC[ref] || {}) {
     const sc = amudim[ref].scenes[+i];
     if (sc) sc.src = { ref, i: +i, box: DAF_SRC[ref][i] };
@@ -2147,7 +2147,7 @@ function srcBlock(src) {
     <figure class="daf-src">
       <figcaption>מקור בדף · ${AMUD_NAME[src.ref]} <span>(לחיצה: הדף המלא עם סימון)</span></figcaption>
       <div class="src-wrap${srcZoom(src) > 1.05 ? ' wide' : ''}"><div class="src-inner" style="width:${srcZoom(src) * 100}%">
-        <img loading="lazy" decoding="async" src="taanit-img/${src.ref}-${src.i}.jpg" alt="שורות הגמרא מתוך ${AMUD_NAME[src.ref]}"
+        <img loading="lazy" decoding="async" src="${imgUrl(src.ref, src.i)}" alt="שורות הגמרא מתוך ${AMUD_NAME[src.ref]}"
              role="button" tabindex="0" aria-label="פתח את הדף המלא עם הסימון"
              onload="showLoc()" onclick="openPhoto('${src.ref}', [${src.box.join(',')}])" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
       </div></div>
@@ -2190,7 +2190,7 @@ function openPhoto(ref, box) {
     PO.cur = Math.max(0, PO.list.findIndex(x => x.bi >= want));
   } else marks = box ? rect(box, 'po-mark') : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
   ov.innerHTML = `<div class="po-bar">${PO.list.length ? poDafBtn(-1) : ''}<span>${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span>${PO.list.length ? poDafBtn(1) : ''}<button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg> חזרה לעץ' : '✕'}</button></div>
-    <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap" style="${pageCrop(ref).wrap}"><div class="po-full" style="${pageCrop(ref).inner}"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}" width="900" height="1600" decoding="async">${marks}</div></div><div class="po-load" aria-live="polite">טוען את הדף…</div></div>
+    <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap" style="${pageCrop(ref).wrap}"><div class="po-full" style="${pageCrop(ref).inner}"><img src="${imgUrl(ref, 'full')}" alt="${AMUD_NAME[ref]}" width="900" height="1600" decoding="async">${marks}</div></div><div class="po-load" aria-live="polite">טוען את הדף…</div></div>
     ${PO.list.length ? `<div class="po-call" id="poCall"></div><div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button></div>`
       : '<div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>'}`;
   ov.classList.add('open');
@@ -2350,8 +2350,8 @@ function poImgWatch(wrap) {
   if (!img.complete) wrap.classList.add('loading');
   setTimeout(() => { if (img.isConnected && !(img.complete && img.naturalWidth)) fail(); }, 10000);   // נתקע ברשת חלשה: מנסים שוב
   function fail() {
-    if (tries++ < 3) { wrap.classList.add('loading'); setTimeout(() => { img.src = img.getAttribute('src').split('?')[0] + '?r=' + Date.now(); }, 700 * tries); }
-    else { wrap.classList.remove('loading'); wrap.classList.add('failed'); const l = box.querySelector('.po-load'); if (l) { l.innerHTML = 'הדף לא נטען. <button type="button">נסה שוב</button>'; l.querySelector('button').onclick = e => { e.stopPropagation(); tries = 0; wrap.classList.add('loading'); l.textContent = 'טוען את הדף…'; img.src = img.getAttribute('src').split('?')[0] + '?r=' + Date.now(); }; } }
+    if (tries++ < 3) { wrap.classList.add('loading'); setTimeout(() => { img.src = img.getAttribute('src').split('&r=')[0] + (img.getAttribute('src').includes('?') ? '&' : '?') + 'r=' + Date.now(); }, 700 * tries); }
+    else { wrap.classList.remove('loading'); wrap.classList.add('failed'); const l = box.querySelector('.po-load'); if (l) { l.innerHTML = 'הדף לא נטען. <button type="button">נסה שוב</button>'; l.querySelector('button').onclick = e => { e.stopPropagation(); tries = 0; wrap.classList.add('loading'); l.textContent = 'טוען את הדף…'; img.src = img.getAttribute('src').split('&r=')[0] + (img.getAttribute('src').includes('?') ? '&' : '?') + 'r=' + Date.now(); }; } }
   }
   img.addEventListener('load', ok); img.addEventListener('error', fail);
   if (img.complete) img.naturalWidth ? ok() : fail();
