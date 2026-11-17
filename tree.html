@@ -314,7 +314,8 @@
   @media (min-width: 1100px) { .sh-text { font-size: calc(22px * var(--fz, 1)); } }
   .sh-pane, .sh-ctx p { font-size: calc(14.5px * var(--fz, 1)); }
   #where.loading::after { content: '⏳ טוען את הדף…'; display: block; text-align: center; font-weight: 800; color: var(--gold, #c8a85a); padding: 4px 0; }
-  .rsi { padding: 10px 12px; border-radius: 14px; background: #17140f; border: 1px solid rgba(200,149,104,.35); border-right: 3px solid #c89568; margin-bottom: 8px; }
+  .rs-none { font-size: 13px; opacity: .7; margin: 2px 0 8px; }
+.rsi { padding: 10px 12px; border-radius: 14px; background: #17140f; border: 1px solid rgba(200,149,104,.35); border-right: 3px solid #c89568; margin-bottom: 8px; }
   .rsi.flash { box-shadow: 0 0 0 2px rgba(200,168,90,.8); }
   .rsi-dh { display: inline-block; font-family: 'Frank Ruhl Libre', serif; font-weight: 700; font-size: 15px; color: #111; background: #c89568; border-radius: 6px; padding: 1px 8px; margin-bottom: 6px; }
   .rsi-t { font-family: 'Frank Ruhl Libre', serif; font-size: 16px; line-height: 1.75; color: #f0ead9; }
@@ -387,7 +388,7 @@
 <!-- 📦 הנתונים נטענים לפי דף: המפה של המסכת + מילון, ואז loader.js טוען את data/<מסכת>/<ref>.js כשנכנסים לדף -->
 <script src="data/common.js?v=2c7990a2"></script>
 <script src="data/taanit/index.js?v=5087a7b8"></script>
-<script src="loader.js?v=9993114f"></script>
+<script src="loader.js?v=1e1517e4"></script>
 <script src="explain.js?v=221640a8"></script>
 <script>
 const ROLE = { m: ['●', 'משנה / מקור'], q: ['●', 'שאלה'], x: ['●', 'דחייה'], a: ['●', 'תירוץ'], c: ['●', 'מסקנה'], n: ['●', 'מעשה / ראיה'], k: ['●', 'הסבר'] };
@@ -718,7 +719,7 @@ function toolbar(n, kids) {
         `<button class="kid" data-i="${i}" style="--kc:${COL[k.r]}"><b>${ROLE[k.r][0]} ${relLabel(k) || ROLE[k.r][1]}</b> ${k.w}: ${short(k.t, 34)}</button>`).join('')}</div>` : ''}`],
     ['cx', 'ההקשר', cx ? `<div class="sh-ctxp">${cx}</div>` : ''],
     ['gm', 'בגמרא', (h => typeof rashiMark === 'function' ? rashiMark(h, ks) : h)(gm.map(t => `<div class="g-punct">${t.replace(/״([^״]+)״/g, '<q>״$1״</q>')}</div>`).join(''))],
-    ['rs', 'רש״י', typeof rashiHTML === 'function' ? rashiHTML(ks) : ''],
+    ['rs', 'רש״י', typeof rashiTabHTML === 'function' ? rashiTabHTML(ks) : ''],
     ['ps', 'הפסוק', typeof psukHTML === 'function' ? psukHTML(ks) : ''],
     ['wbw', 'מילה במילה', ww.map(wbwBlock).join('')],
     ['tm', 'מונחים', terms.length ? `<div class="sh-terms">${terms.map(([t, d]) => `<div><b>${t}</b><span>${d}</span></div>`).join('')}</div>` : ''],
