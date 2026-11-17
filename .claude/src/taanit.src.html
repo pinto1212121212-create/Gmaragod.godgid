@@ -4962,7 +4962,20 @@ function openPhoto(ref, box) {
   poImgWatch(wrap);
   poLockZoom(true); poPinch(wrap, document.getElementById('poScroll'));
   if (PO.list.length) {
-    wrap.addEventListener('click', e => { const h = e.target.closest('.po-hl'); if (h) { e.stopPropagation(); poSelect(+h.dataset.k); } });
+    wrap.addEventListener('pointerdown', e => { PO.down = [e.clientX, e.clientY]; });
+    wrap.addEventListener('click', e => {
+      const h = e.target.closest('.po-hl'); if (h) { e.stopPropagation(); poSelect(+h.dataset.k); return; }
+      // הקשה על כל מקום אחר בדף: עוברים לקטע (ולשלב) שבמקום הזה — בלי לצאת מהדף המלא
+      if (PO.pinched || (PO.down && Math.hypot(e.clientX - PO.down[0], e.clientY - PO.down[1]) > 10)) return;
+      const im = wrap.querySelector('img'), r = im.getBoundingClientRect(); if (!r.width) return;
+      const t = poHit(ref, (e.clientX - r.left) / r.width * 100, (e.clientY - r.top) / r.height * 100);
+      if (!t) return;
+      if (t.i === state.sceneIdx) { const k = PO.list.findIndex(x => x.bi === t.bi); if (k >= 0) poSelect(k); return; }
+      const back = PO.back, sc2 = amudim[state.ref].scenes[t.i];
+      state.sceneIdx = t.i; state.beat = 0; renderScenes(); focusBeat = t.bi;
+      PO.back = back; openPhoto(sc2.src.ref, sc2.src.box);
+      try { history.replaceState(null, '', `#${state.ref}-${t.i}`); } catch (er) {}
+    });
     document.getElementById('poPrev').onclick = () => poStep(-1);
     document.getElementById('poNext').onclick = () => poStep(1);
     document.getElementById('poDots').onclick = e => { const d = e.target.closest('i'); if (d) poSelect(+d.dataset.k); };
@@ -4973,6 +4986,26 @@ function openPhoto(ref, box) {
     wrap.addEventListener('click', () => { if (PO.pinched) return; poZoomToggle(wrap); const m = wrap.querySelector('.po-mark'); if (m) m.scrollIntoView({ block: 'center', inline: 'center' }); });
     const m = ov.querySelector('.po-mark'); if (m) setTimeout(() => m.scrollIntoView({ block: 'center', inline: 'center' }), 60);
   }
+}
+// איזה קטע ושלב נמצאים בנקודה (px, py ב־% של הצילום המלא)? קודם שלב שמסומן בדיוק שם; אחרת — הקטע שהנקודה בתוכו, והשלב הקרוב אליה
+function poHit(ref, px, py) {
+  const scs = (amudim[state.ref] && amudim[state.ref].scenes) || []; let best = null;
+  scs.forEach((sc, i) => {
+    if (!sc.src || sc.src.ref !== ref || !sc.src.box || !sc.beats) return; const box = sc.src.box;
+    const inBox = px >= box[0] && px <= box[0] + box[2] && py >= box[1] && py <= box[1] + box[3];
+    sc.beats.forEach((bt, bi) => {
+      const loc = beatLoc(ref, i, bi); if (!loc) return;
+      const span = BEAT_SPAN[ref] && BEAT_SPAN[ref][i] && BEAT_SPAN[ref][i][bi];
+      hlRects(`${ref}-${sc.src.i}`, loc, span).forEach(q => {
+        const l = box[0] + (1 - q.right - q.width) * box[2], t = box[1] + q.top * box[3], w = q.width * box[2], h = q.height * box[3];
+        const dx = Math.max(l - px, 0, px - (l + w)), dy = Math.max(t - py, 0, py - (t + h)), d = Math.hypot(dx, dy * 2);
+        // שלב בקטע הנוכחי מועדף מעט (שורת החפיפה בין קטעים)
+        const score = d + (i === state.sceneIdx ? 0 : 0.01) + (inBox ? 0 : 3);
+        if (d < 12 && (!best || score < best.score)) best = { i, bi, score };
+      });
+    });
+  });
+  return best;
 }
 // הקטע הבא/הקודם שיש לו שלבים מסומנים — גם בדף הבא/הקודם. מחזיר {ref, i} או null
 function poHasMarks(ref, i) {
