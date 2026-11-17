@@ -645,7 +645,7 @@ function sheet(n) {
     <div style="text-align:center;font-size:12px;color:var(--dim);margin-top:8px">קטע ״${SN[n.s] || n.s + 1}״</div>`;
   sh.classList.add('open');
   sheetSize(shPref, true);
-  sh.querySelectorAll('.sh-tab').forEach(t => t.onclick = () => { shTab = t.dataset.t; try { localStorage.setItem('gemara:shtab', shTab); } catch (e) {}
+  sh.querySelectorAll('.sh-tab').forEach(t => t.onclick = () => { shTab = t.dataset.t; try { localStorage.setItem('gemara:shtab', shTab); localStorage.setItem('gemara:tool', S2T[shTab] || shTab); } catch (e) {}
     sh.querySelectorAll('.sh-tab').forEach(x => x.classList.toggle('on', x === t)); sh.querySelectorAll('.sh-pane').forEach(x => x.classList.toggle('on', x.dataset.t === shTab));
     shImgFocus(); });
   gripInit(sh);
@@ -670,7 +670,9 @@ function ctxOf(n) {
   return `<details class="sh-ctx"${open ? ' open' : ''} ontoggle="try{localStorage.setItem('gemara:ctxT',this.open?'1':'0')}catch(e){}"><summary>ההקשר המלא · על מה מדברים כאן</summary>${body}</details>`;
 }
 // ===== סרגל הכלים בחלונית =====
-let shTab = 'tk'; try { shTab = localStorage.getItem('gemara:shtab') || 'tk'; } catch (e) {}
+// 🧰 הלשונית משותפת לכל האתר (gemara:tool): מה שבחרת בדף הלימוד נפתח גם כאן
+const T2S = { ctx: 'cx', ww: 'wbw', kt: 'tm', gm: 'gm', tk: 'tk' }, S2T = { cx: 'ctx', wbw: 'ww', tm: 'kt', gm: 'gm', tk: 'tk' };
+let shTab = 'tk'; try { const g = localStorage.getItem('gemara:tool'); shTab = (g && T2S[g]) || localStorage.getItem('gemara:shtab') || 'tk'; } catch (e) {}
 function cxKeys(n) {
   const e = typeof TREE_CX !== 'undefined' && TREE_CX[st.ref] && TREE_CX[st.ref][n.seq - 1];
   return typeof e === 'string' ? [e] : Array.isArray(e) ? e : (e && e.k) || [];

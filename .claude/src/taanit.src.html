@@ -1702,6 +1702,11 @@
   /* 🧰 סרגל כלי עזר */
   .dock { max-width: 720px; margin: 0 auto 10px; }
   .dock[hidden] { display: none; }
+  .po-tools { margin-top: 12px; }
+  .po-tabs { margin-bottom: 10px; }
+  .po-pane { display: none; }
+  .po-pane.on { display: block; animation: btp .2s ease-out; }
+  .po-pane .st-ol { margin-top: 0 !important; }
   .dock-tabs { display: flex; gap: 5px; padding: 2px 0; direction: rtl; }
   .dock-tabs::-webkit-scrollbar { display: none; }
   .dock-tab { flex: 1 1 0; min-width: 0; min-height: 38px; font: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e8e3d8; background: #141414; border: 1px solid rgba(245,241,232,0.14); border-radius: 11px; padding: 0 4px; cursor: pointer; }
@@ -4994,6 +4999,22 @@ function secTreeHTML(ref, si, curBi) {
 
 
 // הצילום של הדף המלא: מצב ״טוען״, וניסיון חוזר אם נכשל (רשת חלשה בטלפון)
+// 🧰 בדף המלא: אותו סרגל כלי עזר (עץ הקטע · ההקשר · בגמרא · מילה במילה · מי · מונח). הבחירה משותפת לכל האתר (gemara:tool).
+function poToolsHTML(ref, si, bi) {
+  const st = secTreeHTML(ref, si, bi).replace(/^<details[^>]*><summary>.*?<\/summary>/s, '').replace(/<\/details>\s*$/, '');
+  const tabs = [['tree', 'עץ הקטע', st], ...beatTabs(ref, si, bi)].filter(t => t[2]);
+  if (!tabs.length) return '';
+  const on = tabs.some(t => t[0] === dockTab) ? dockTab : (tabs.some(t => t[0] === 'tree') ? 'tree' : tabs[0][0]);
+  return `<div class="po-tools"><div class="dock-tabs po-tabs" role="tablist">${tabs.map(([id, lb]) => `<button type="button" role="tab" class="dock-tab po-tab${id === on ? ' on' : ''}${id === 'ww' || id === 'tree' ? ' w2' : ''}" data-pt="${id}" aria-selected="${id === on}">${lb}</button>`).join('')}</div>
+    ${tabs.map(([id, , body]) => `<div class="po-pane dock-body${id === on ? ' on' : ''}" data-pt="${id}" role="tabpanel">${body}</div>`).join('')}</div>`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.po-tab'); if (!b) return;
+  e.stopPropagation(); dockTab = b.dataset.pt; toolSave();
+  const box = b.closest('.po-tools');
+  box.querySelectorAll('.po-tab').forEach(t => { const o = t === b; t.classList.toggle('on', o); t.setAttribute('aria-selected', o); });
+  box.querySelectorAll('.po-pane').forEach(p => p.classList.toggle('on', p.dataset.pt === dockTab));
+}, true);
 function poImgWatch(wrap) {
   const img = wrap.querySelector('img'); let tries = 0;
   const box = document.getElementById('photoOverlay'); wrap = box;   // המצב (טוען / נכשל) על החלון, כדי שההודעה תמיד תיראה
@@ -5028,7 +5049,7 @@ function poSelect(k, instant) {
   const call = document.getElementById('poCall');
   call.className = 'po-call hl-' + x.role;
   call.innerHTML = `<div class="pc-head"><span class="pc-no">${k + 1}</span><span class="pc-role">${ROLE[x.role][0]} ${ROLE[x.role][1]}</span><span class="pc-who">${x.who}</span></div>
-    <div class="pc-txt">${x.tk || x.txt}</div>${secTreeHTML(PO.ref, state.sceneIdx, x.bi)}${ctxHTML(`${PO.ref}:${state.sceneIdx}:${x.bi}`)}`;
+    <div class="pc-txt">${x.tk || x.txt}</div>${poToolsHTML(PO.ref, state.sceneIdx, x.bi)}`;
   call.querySelectorAll('.st-n[data-bi]').forEach(b => b.onclick = e => { e.stopPropagation(); const j = PO.list.findIndex(y => y.bi === +b.dataset.bi); if (j >= 0) poSelect(j); });
   call.scrollTop = 0;
   call.animate([{ opacity: 0.3 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
@@ -7665,7 +7686,8 @@ function beatMore(ref, si, bi, kt) {
 }
 // 🧰 סרגל כלי עזר (המשתמש: ״כלי עזר כמו סרגל שכל הזמן נפתח״): לשוניות קבועות מעל הניווט התחתון.
 // התוכן תמיד של השלב שקוראים עכשיו (activeBeatIdx), ומתחלף לבד בגלילה. הלשונית שנבחרה נזכרת (gemara:dock).
-let dockTab = ''; try { dockTab = localStorage.getItem('gemara:dock') || ''; } catch (e) {}
+let dockTab = ''; try { dockTab = localStorage.getItem('gemara:tool') ?? localStorage.getItem('gemara:dock') ?? ''; } catch (e) {}
+function toolSave() { try { localStorage.setItem('gemara:tool', dockTab); } catch (e) {} }
 let dockKey = '';
 let dockBig = false; try { dockBig = localStorage.getItem('gemara:dockbig') === '1'; } catch (e) {}
 function beatTabs(ref, si, bi) {
@@ -7701,14 +7723,14 @@ function dockUpdate(force) {
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('.dock-tab');
-  if (b && !b.disabled) { dockTab = b.classList.contains('on') ? '' : b.dataset.dk; try { localStorage.setItem('gemara:dock', dockTab); } catch (er) {} dockUpdate(true); const p = document.getElementById('dockPane'); if (p) p.scrollTop = 0; return; }
+  if (b && !b.disabled) { dockTab = b.classList.contains('on') ? '' : b.dataset.dk; toolSave(); dockUpdate(true); const p = document.getElementById('dockPane'); if (p) p.scrollTop = 0; return; }
   if (e.target.closest('.dock-big') || e.target.closest('.dock-grip')) { dockBig = !dockBig; try { localStorage.setItem('gemara:dockbig', dockBig ? '1' : '0'); } catch (er) {} dockUpdate(true); return; }
-  if (e.target.closest('.dock-x')) { dockTab = ''; try { localStorage.setItem('gemara:dock', ''); } catch (er) {} dockUpdate(true); }
+  if (e.target.closest('.dock-x')) { dockTab = ''; toolSave(); dockUpdate(true); }
 });
 (() => { let y0 = null;
   document.addEventListener('touchstart', e => { const h = e.target.closest('.dock-h, .dock-grip'); y0 = h ? e.touches[0].clientY : null; }, { passive: true });
   document.addEventListener('touchend', e => { if (y0 == null) return; const dy = e.changedTouches[0].clientY - y0; y0 = null;
-    if (dy > 50) { if (dockBig) { dockBig = false; } else { dockTab = ''; try { localStorage.setItem('gemara:dock', ''); } catch (er) {} } try { localStorage.setItem('gemara:dockbig', dockBig ? '1' : '0'); } catch (er) {} dockUpdate(true); }
+    if (dy > 50) { if (dockBig) { dockBig = false; } else { dockTab = ''; toolSave(); } try { localStorage.setItem('gemara:dockbig', dockBig ? '1' : '0'); } catch (er) {} dockUpdate(true); }
     else if (dy < -50 && !dockBig) { dockBig = true; try { localStorage.setItem('gemara:dockbig', '1'); } catch (er) {} dockUpdate(true); } }, { passive: true });
 })();
 function btTabClick(b) {
