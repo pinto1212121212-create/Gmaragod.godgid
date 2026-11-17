@@ -620,6 +620,7 @@ function centerOn(n, k) {
   flyTo(sw + (w - sw) / 2 - n.x * k2, top + Math.max(40, bot - top) * 0.45 - n.y * k2, k2);
 }
 function fit(anim) {
+  if (!root) return;   // העץ עוד לא נבנה (resize בזמן טעינה)
   const { w, h } = stageBox(), all = [root, ...flat];
   const minX = Math.min(...all.map(n => n.x)) - NW / 2 - 20, maxX = Math.max(...all.map(n => n.x)) + NW / 2 + 20;
   const minY = root.y - 60, maxY = Math.max(...all.map(n => n.y)) + NH / 2 + 80;
@@ -1102,7 +1103,7 @@ function tabsDraw(ref) {   // הלשוניות מהמפה של המסכת — ב
   const on = $('tabs').querySelector('.tab.on'); if (on) requestAnimationFrame(() => on.scrollIntoView({ inline: 'center', block: 'nearest' }));
 }
 $('tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) load(b.dataset.r); });
-window.addEventListener('resize', () => { if (st.sel) centerOn(st.sel); else fit(false); });
+window.addEventListener('resize', () => { if (!root) return; if (st.sel) centerOn(st.sel); else fit(false); });
 window.addEventListener('hashchange', () => { const m = location.hash.slice(1).match(HASH_RE); if (m && masHas(m[1])) { st.nAsk = m[3] ? +m[3] : null; st.pAsk = m[4] || null; load(m[1], m[2] != null ? +m[2] : null); } });
 load(st.ref, st.sec);
 setTimeout(hideHint, 4500);

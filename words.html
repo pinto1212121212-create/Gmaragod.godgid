@@ -24,7 +24,7 @@
 <script>if ('serviceWorker' in navigator && location.protocol === 'https:') window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));</script>
 
 <script>
-// 🔄 גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
+// גרסה חדשה באתר? הדפדפן שומר עותק ישן עד 10 דקות. משווים את העותק השמור לגרסה בשרת, ואם שונה — טוענים מחדש (פעם אחת)
 (async () => { try {
   const u = location.pathname, k = 'gemara:rl:' + u;
   const [a, b] = await Promise.all([fetch(u, { cache: 'force-cache' }), fetch(u, { method: 'HEAD', cache: 'no-store' })]);
@@ -139,38 +139,38 @@
 <body>
 <div class="app">
   <header>
-    <a class="ib" href="index.html" aria-label="דף הבית">🏠</a>
-    <h1>🔤 לימוד מילים<small>כל המילים מהדפים שלמדנו בתענית</small></h1>
-    <a class="ib" href="taanit.html" aria-label="חזרה ללימוד הדף">📖</a>
+    <a class="ib" href="index.html" aria-label="דף הבית"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-6h4v6"/></svg></a>
+    <h1>לימוד מילים<small>כל המילים מהדפים שלמדנו בתענית</small></h1>
+    <a class="ib" href="taanit.html" aria-label="חזרה ללימוד הדף"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5"/><path d="M12 6.5C14 5 17 4.5 20.5 5v13c-3.5-.5-6.5 0-8.5 1.5"/><path d="M12 6.5v13"/></svg></a>
   </header>
 
   <div class="prog" aria-live="polite">
-    <div class="pg k"><b id="nK">0</b><span>✅ יודע</span></div>
-    <div class="pg l"><b id="nL">0</b><span>📈 בלמידה</span></div>
-    <div class="pg n"><b id="nN">0</b><span>🆕 חדשות</span></div>
+    <div class="pg k"><b id="nK">0</b><span>יודע</span></div>
+    <div class="pg l"><b id="nL">0</b><span>בלמידה</span></div>
+    <div class="pg n"><b id="nN">0</b><span>חדשות</span></div>
   </div>
   <div class="bar" aria-hidden="true"><i class="k" id="bK"></i><i class="l" id="bL"></i></div>
 
   <div class="tabs" role="tablist">
-    <button class="tab" role="tab" data-t="fc">🃏 כרטיסיות</button>
-    <button class="tab" role="tab" data-t="qz">✍️ מבחן</button>
-    <button class="tab" role="tab" data-t="ls">📋 כל המילים</button>
+    <button class="tab" role="tab" data-t="fc">כרטיסיות</button>
+    <button class="tab" role="tab" data-t="qz">מבחן</button>
+    <button class="tab" role="tab" data-t="ls">כל המילים</button>
   </div>
 
-  <div class="fl">📄 מאיזה דף</div>
+  <div class="fl">מאיזה דף</div>
   <div class="filt" id="fRef"></div>
-  <div class="fl">🔠 מה ללמוד</div>
+  <div class="fl">מה ללמוד</div>
   <div class="filt" id="fType"></div>
 
   <section class="pane" id="p-fc" role="tabpanel">
-    <div class="fc-meta"><span id="fcInfo"></span><button class="ch" id="fcShuffle" type="button">🔀 ערבב</button></div>
+    <div class="fc-meta"><span id="fcInfo"></span><button class="ch" id="fcShuffle" type="button">ערבב</button></div>
     <div id="fcBox"></div>
   </section>
 
   <section class="pane" id="p-qz" role="tabpanel"><div id="qzBox"></div></section>
 
   <section class="pane" id="p-ls" role="tabpanel">
-    <input class="search" id="q" type="search" placeholder="🔍 חיפוש מילה או פירוש..." aria-label="חיפוש">
+    <input class="search" id="q" type="search" placeholder="חיפוש מילה או פירוש..." aria-label="חיפוש">
     <div class="cnt" id="lsCnt"></div>
     <div class="list" id="lsBox"></div>
     <button class="reset" id="reset" type="button">איפוס ההתקדמות</button>
@@ -182,7 +182,7 @@
 <script src="data/taanit/words.js?v=46fc9530"></script>
 <script src="loader.js?v=1e1517e4"></script>
 <script>
-// ===== 🔤 לימוד מילים — כל המילים והביטויים מ״מילה במילה״, המילון והמונחים (מחושב מראש ב־data/<מסכת>/words.js) =====
+// ===== לימוד מילים — כל המילים והביטויים מ״מילה במילה״, המילון והמונחים (מחושב מראש ב־data/<מסכת>/words.js) =====
 // התקדמות: localStorage 'gemara:words' = { מילה: {b: תיבה 0..5, d: מתי לחזור (ms), r: נכון, w: טעות} } — שיטת לייטנר
 const $ = id => document.getElementById(id);
 const AMN = { '2a': 'ב׳ ע״א', '2b': 'ב׳ ע״ב', '3a': 'ג׳ ע״א', '3b': 'ג׳ ע״ב', '4a': 'ד׳ ע״א', '4b': 'ד׳ ע״ב', '5a': 'ה׳ ע״א', '5b': 'ה׳ ע״ב', '6a': 'ו׳ ע״א', '6b': 'ו׳ ע״ב', '7a': 'ז׳ ע״א', '7b': 'ז׳ ע״ב', '8a': 'ח׳ ע״א', '8b': 'ח׳ ע״ב', '9a': 'ט׳ ע״א', '9b': 'ט׳ ע״ב' };
@@ -208,7 +208,7 @@ function mark(x, ok) {
 // --- מסננים ---
 let fRef = 'all', fType = 'w'; try { const s = JSON.parse(localStorage.getItem('gemara:wfilt') || '{}'); if (s.r) fRef = s.r; if (s.t) fType = s.t; } catch (e) {}
 { const r = new URLSearchParams(location.search).get('ref'); if (r && AMN[r]) fRef = r; }   // מדף הלימוד: taanit → words.html?ref=4b
-const TYPES = [['w', '🔤 מילים'], ['ph', '💬 ביטויים'], ['term', '🔑 מונחי גמרא'], ['all', 'הכל']];
+const TYPES = [['w', 'מילים'], ['ph', 'ביטויים'], ['term', 'מונחי גמרא'], ['all', 'הכל']];
 function pool() { return ALL.filter(x => (fRef === 'all' || x.refs.includes(fRef)) && (fType === 'all' || x.type === fType)); }
 function chips() {
   const cnt = r => ALL.filter(x => (r === 'all' || x.refs.includes(r)) && (fType === 'all' || x.type === fType)).length;
@@ -234,12 +234,12 @@ function example(x) {
   let t = esc(clean(TX.PUNCT[k]) ? TX.PUNCT[k].replace(/<[^>]+>/g, '') : '');
   const re = new RegExp('(' + x.w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '[\\s\\u0591-\\u05C7״"׳,.:;!?—-]*') + ')');
   t = t.replace(re, '<mark>$1</mark>');
-  return `<div class="ex"><small>📜 בגמרא · ${AMN[k.split(':')[0]]}</small>${t}</div>`;
+  return `<div class="ex"><small>בגמרא · ${AMN[k.split(':')[0]]}</small>${t}</div>`;
 }
 const lvl = x => `<span class="lvl" aria-label="רמה ${box(x)} מתוך 5">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= box(x) ? 'on' : ''}"></i>`).join('')}</span>`;
 const TYN = { w: 'מילה', ph: 'ביטוי', term: 'מונח' };
 
-// --- 🃏 כרטיסיות ---
+// --- כרטיסיות ---
 let deck = [], di = 0, sess = { ok: 0, no: 0 };
 function buildDeck(shuffle) {
   const now = Date.now(), pl = pool();
@@ -256,8 +256,8 @@ function fc() {
   if (!pool().length) { box_.innerHTML = '<div class="empty">אין מילים במסנן הזה</div>'; $('fcInfo').textContent = ''; return; }
   if (di >= deck.length) {
     $('fcInfo').textContent = '';
-    box_.innerHTML = `<div class="done"><div class="big">🎉</div><h2>סיימת סבב!</h2><p>ידעת ${sess.ok} · לחזרה ${sess.no}</p>
-      <button class="btn pri" type="button" id="fcMore">🃏 עוד סבב</button><br><br><button class="btn sec" type="button" id="fcQuiz">✍️ למבחן על המילים</button></div>`;
+    box_.innerHTML = `<div class="done"><div class="big vip-eyebrow">סבב הושלם</div><h2>סיימת סבב!</h2><p>ידעת ${sess.ok} · לחזרה ${sess.no}</p>
+      <button class="btn pri" type="button" id="fcMore">עוד סבב</button><br><br><button class="btn sec" type="button" id="fcQuiz">למבחן על המילים</button></div>`;
     $('fcMore').onclick = () => { buildDeck(); fc(); }; $('fcQuiz').onclick = () => tab('qz');
     return;
   }
@@ -265,11 +265,11 @@ function fc() {
   $('fcInfo').textContent = `כרטיס ${di + 1} מתוך ${deck.length}`;
   box_.innerHTML = `<div class="card" id="card" role="button" tabindex="0" aria-label="הקשה להפוך את הכרטיס">
     <div class="card-in">
-      <div class="face front">${lvl(x)}<span class="ty">${TYN[x.type]}</span><div class="aw${x.type !== 'w' ? ' ph' : ''}">${esc(x.w)}</div><div class="hint">👆 הקשה להפוך · מה הפירוש?</div>
+      <div class="face front">${lvl(x)}<span class="ty">${TYN[x.type]}</span><div class="aw${x.type !== 'w' ? ' ph' : ''}">${esc(x.w)}</div><div class="hint">הקשה להפוך · מה הפירוש?</div>
         ${canSpeak ? '<button type="button" class="speak-btn say" id="sayW" aria-label="השמע את המילה">🔊</button>' : ''}</div>
       <div class="face back">${lvl(x)}<div class="bw">${esc(x.w)}</div><div class="mean">${esc(x.m)}</div>${example(x)}<div class="where">${where(x)}</div></div>
     </div></div>
-    <div class="acts"><button class="btn no" type="button" id="fcNo">❌ לא ידעתי</button><button class="btn ok" type="button" id="fcOk">✅ ידעתי</button></div>`;
+    <div class="acts"><button class="btn no" type="button" id="fcNo">✗ לא ידעתי</button><button class="btn ok" type="button" id="fcOk">✓ ידעתי</button></div>`;
   const card = $('card'); card.onclick = e => { if (e.target.closest('a,button')) return; card.classList.toggle('flip'); };
   card.onkeydown = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); card.classList.toggle('flip'); } };
   const sw = $('sayW'); if (sw) sw.onclick = e => { e.stopPropagation(); speak(x.w, sw); };
@@ -278,17 +278,17 @@ function fc() {
 }
 $('fcShuffle').onclick = () => { buildDeck(true); fc(); };
 
-// --- ✍️ מבחן ---
+// --- מבחן ---
 let QZ = null, qDir = 'a2h', qLen = 10;
 try { const s = JSON.parse(localStorage.getItem('gemara:wquiz') || '{}'); if (s.d) qDir = s.d; if (s.n) qLen = s.n; } catch (e) {}
 function qzSetup() {
   const n = pool().length;
   $('qzBox').innerHTML = `<div class="qset">
-    <h3>✍️ מבחן על ${n} מילים</h3>
+    <h3>מבחן על ${n} מילים</h3>
     <div class="fl">כיוון</div><div class="row">
       <button class="ch${qDir === 'a2h' ? ' on' : ''}" data-d="a2h" type="button">ארמית ← עברית</button>
       <button class="ch${qDir === 'h2a' ? ' on' : ''}" data-d="h2a" type="button">עברית ← ארמית</button>
-      <button class="ch${qDir === 'mix' ? ' on' : ''}" data-d="mix" type="button">🔀 מעורב</button></div>
+      <button class="ch${qDir === 'mix' ? ' on' : ''}" data-d="mix" type="button">מעורב</button></div>
     <div class="fl">כמה שאלות</div><div class="row">${[10, 20, 30].map(k => `<button class="ch${qLen === k ? ' on' : ''}" data-n="${k}" type="button">${k}</button>`).join('')}</div>
     <button class="btn pri" type="button" id="qzGo" ${n < 4 ? 'disabled' : ''}>▶ התחל מבחן</button>
     ${n < 4 ? '<p class="cnt">צריך לפחות 4 מילים במסנן</p>' : '<p class="cnt">המבחן מתחיל מהמילים שקשות לך יותר.</p>'}</div>`;
@@ -311,7 +311,7 @@ function qzQ() {
   const src = others.length >= 3 ? others : pl.filter(y => y !== x && clean(val(y)) !== clean(val(x)));
   const opts = [x]; while (opts.length < 4 && opts.length <= src.length) { const y = src[Math.floor(Math.random() * src.length)]; if (!opts.includes(y) && !opts.some(o => clean(val(o)) === clean(val(y)))) opts.push(y); }
   opts.sort(() => Math.random() - .5);
-  $('qzBox').innerHTML = `<div class="qhead"><span>שאלה ${z.i + 1} מתוך ${z.items.length}</span><span>✅ ${z.ok}</span></div>
+  $('qzBox').innerHTML = `<div class="qhead"><span>שאלה ${z.i + 1} מתוך ${z.items.length}</span><span>✓ ${z.ok}</span></div>
     <div class="qbar"><i style="width:${z.i / z.items.length * 100}%"></i></div>
     <div class="qq">${dir === 'a2h' ? `<small>מה פירוש</small><div class="aw">${esc(x.w)}</div>` : `<small>איך אומרים בגמרא</small><div class="mq">${esc(x.m)}</div>`}</div>
     <div class="opts">${opts.map((o, j) => `<button type="button" class="opt${dir === 'h2a' ? ' daf' : ''}" data-j="${j}"><span class="k">${'אבגד'[j]}</span>${esc(val(o))}</button>`).join('')}</div>
@@ -322,7 +322,7 @@ function qzQ() {
     if (!ok) { b.classList.add('wrong'); z.wrong.push(x); } else z.ok++;
     mark(x, ok);
     $('fb').className = 'fb ' + (ok ? 'ok' : 'no');
-    $('fb').innerHTML = ok ? '✅ נכון!' : `❌ <b>${esc(x.w)}</b> = ${esc(x.m)} · <span style="font-weight:500">${x.refs.map(r => AMN[r]).join(', ')}</span>`;
+    $('fb').innerHTML = ok ? '✓ נכון' : `<b>${esc(x.w)}</b> = ${esc(x.m)} · <span style="font-weight:500">${x.refs.map(r => AMN[r]).join(', ')}</span>`;
     const nx = $('qNext'); nx.hidden = false; nx.focus();
     nx.onclick = () => { z.i++; qzQ(); };
     if (ok) setTimeout(() => { if (QZ === z && z.items[z.i] === x) { z.i++; qzQ(); } }, 900);
@@ -330,22 +330,22 @@ function qzQ() {
 }
 function qzEnd() {
   const z = QZ, p = Math.round(z.ok / z.items.length * 100);
-  const msg = p === 100 ? 'מושלם! 🏆' : p >= 80 ? 'יפה מאוד! 👏' : p >= 50 ? 'בדרך הנכונה 💪' : 'עוד קצת חזרה 📚';
+  const msg = p === 100 ? 'מושלם!' : p >= 80 ? 'יפה מאוד!' : p >= 50 ? 'בדרך הנכונה' : 'עוד קצת חזרה';
   $('qzBox').innerHTML = `<div class="score"><div class="ring" style="--p:${p}"><span>${p}%</span></div><h2 style="color:var(--gold-b)">${msg}</h2>
     <p class="cnt">${z.ok} נכונות מתוך ${z.items.length}</p>
     ${z.wrong.length ? `<div class="mist">${z.wrong.map(x => `<div><b>${esc(x.w)}</b> = ${esc(x.m)}</div>`).join('')}</div>
-      <button class="btn pri" type="button" id="qRe">🔁 שוב רק על הטעויות</button><br><br>` : ''}
-    <button class="btn sec" type="button" id="qNew">✍️ מבחן חדש</button></div>`;
+      <button class="btn pri" type="button" id="qRe">שוב רק על הטעויות</button><br><br>` : ''}
+    <button class="btn sec" type="button" id="qNew">מבחן חדש</button></div>`;
   const re = $('qRe'); if (re) re.onclick = () => qzStart([...new Set(z.wrong)].sort(() => Math.random() - .5));
   $('qNew').onclick = qzSetup;
 }
 
-// --- 📋 רשימה ---
+// --- רשימה ---
 function ls() {
   const q = clean($('q').value), pl = pool().filter(x => !q || clean(x.w).includes(q) || clean(x.m).includes(q))
     .sort((a, b) => a.id.localeCompare(b.id, 'he'));
   $('lsCnt').textContent = `${pl.length} ${fType === 'term' ? 'מונחים' : fType === 'ph' ? 'ביטויים' : 'מילים'}`;
-  const SN = { k: '✅ יודע', l: '📈 לומד', n: '🆕 חדשה' };
+  const SN = { k: 'יודע', l: 'לומד', n: 'חדשה' };
   $('lsBox').innerHTML = pl.length ? pl.slice(0, 400).map(x => `<button type="button" class="li" data-id="${esc(x.id)}"><span class="w">${esc(x.w)}</span><span class="m">${esc(x.m)}</span><span class="st ${stat(x)}">${SN[stat(x)]}</span></button>`).join('') : '<div class="empty">לא נמצא</div>';
 }
 $('q').oninput = ls;

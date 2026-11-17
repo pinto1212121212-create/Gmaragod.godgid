@@ -1917,7 +1917,7 @@
 <div class="modal trans" id="transModal">
   <div class="modal-handle"></div>
   <div class="modal-header">
-    <div class="modal-title">📖 תרגום הדף</div>
+    <div class="modal-title">תרגום הדף</div>
     <button class="modal-close" data-close="trans" aria-label="סגור">✕</button>
   </div>
   <div class="modal-content" id="transContent"></div>
@@ -1944,7 +1944,7 @@
 <div class="modal term" id="termModal">
   <div class="modal-handle"></div>
   <div class="modal-header">
-    <div class="modal-title">📖 מילה במילון</div>
+    <div class="modal-title">מילה במילון</div>
     <button class="modal-close" data-close="term" aria-label="סגור">✕</button>
   </div>
   <div class="modal-content" id="termContent"></div>
@@ -4951,7 +4951,7 @@ function openPhoto(ref, box) {
   } else marks = box ? rect(box, 'po-mark') : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
   const oldImg = ov.querySelector('#poWrap img');
   const keepImg = oldImg && oldImg.complete && oldImg.naturalWidth && oldImg.getAttribute('src').split('?')[0] === `taanit-img/${ref}-full.jpg` ? oldImg : null;
-  ov.innerHTML = `<div class="po-bar"><span>${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '🌳 חזרה לעץ' : '✕'}</button></div>
+  ov.innerHTML = `<div class="po-bar"><span>${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg> חזרה לעץ' : '✕'}</button></div>
     <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap" style="${pageCrop(ref).wrap}"><div class="po-full" style="${pageCrop(ref).inner}"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}" width="900" height="1600" decoding="async">${marks}</div></div><div class="po-load" aria-live="polite">⏳ טוען את הדף…</div></div>
     ${PO.list.length ? `<div class="po-call" id="poCall"></div><div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button></div>`
       : '<div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>'}`;
@@ -6659,10 +6659,10 @@ const PAIRS = {
 function pairHTML(sc) {
   const P = PAIRS[sc.pair]; if (!P) return '';
   const card = (k, tag) => { const m = MISHNA[k]; return `<div class="mp-card">
-      <div class="mp-head"><span class="mp-where">📍 ${m.where}${m.who ? ` · ${m.who}` : ''}</span>${tag ? `<span class="mp-tag">${tag}</span>` : ''}</div>
+      <div class="mp-head"><span class="mp-where">${m.where}${m.who ? ` · ${m.who}` : ''}</span>${tag ? `<span class="mp-tag">${tag}</span>` : ''}</div>
       <div class="mp-text">${m.text}</div><div class="mp-sum">⬅ ${m.sum}</div></div>`; };
   const t = sc.pairTags || [];
-  return `<details class="mpair"${sc.pairOpen ? ' open' : ''}><summary>📜 ${P.title || 'שתי המשניות זו מול זו'}</summary>
+  return `<details class="mpair"${sc.pairOpen ? ' open' : ''}><summary>${P.title || 'שתי המשניות זו מול זו'}</summary>
     <div class="mp-row">${card(P.a, t[0])}<div class="mp-vs">${P.sym || '⚡'}</div>${card(P.b, t[1])}</div>
     <div class="mp-why">${P.why}</div></details>`;
 }
@@ -7497,7 +7497,7 @@ function miniTree(el, key) {
   box.dataset.key = key;
   const anc = []; for (let a = node.parent; a; a = a.parent) anc.unshift(a);
   const shown = anc.slice(-2);
-  let h = `<a class="mt-tree" href="tree.html#${ref}-${state.sceneIdx}" onclick="event.stopPropagation()" aria-label="העץ המלא">🌳</a>`;
+  let h = `<a class="mt-tree" href="tree.html#${ref}-${state.sceneIdx}" onclick="event.stopPropagation()" aria-label="העץ המלא"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg></a>`;
   if (anc.length > shown.length) h += '<span class="mt-dots">…</span><b class="mt-sep">›</b>';
   h += shown.map(a => mtChip(ref, a, 'anc') + '<b class="mt-sep">›</b>').join('');
   const sibs = node.parent ? node.parent.kids : [node];
@@ -8407,7 +8407,7 @@ function beatsHTML(sc, si) {
       ${sc.viz || ''}
       ${sc.bottom ? `<div class="bottom-line"><span>השורה התחתונה</span>${sc.bottom}</div>` : ''}
       ${sc.quiz ? quiz(sc.quiz) : ''}
-      ${(window.TREE_SECS && TREE_SECS[state.ref] && TREE_SECS[state.ref].includes(si)) ? `<a class="tree-sec" href="tree.html#${state.ref}-${si}">🌳 עץ הקטע: איך השאלות והתירוצים מסתעפים</a>` : ''}
+      ${(window.TREE_SECS && TREE_SECS[state.ref] && TREE_SECS[state.ref].includes(si)) ? `<a class="tree-sec" href="tree.html#${state.ref}-${si}"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg> עץ הקטע: איך השאלות והתירוצים מסתעפים</a>` : ''}
       <button class="next-sec" onclick="changeScene(1)">לקטע הבא ◀</button>
     </div>`;
 }
