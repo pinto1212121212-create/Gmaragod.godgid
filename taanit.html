@@ -1729,6 +1729,7 @@
   mark.rs-dh { background: none; color: inherit; border-bottom: 2px dotted var(--rashi, #c89568); padding-bottom: 1px; cursor: pointer; }
   mark.rs-dh::after { content: 'רש״י'; font-family: 'Heebo', sans-serif; font-size: 9.5px; font-weight: 700; color: var(--rashi, #c89568); vertical-align: super; margin-right: 2px; }
   .bt-rs { font: inherit; font-size: 11.5px; font-weight: 700; color: var(--rashi, #c89568); background: transparent; border: 1px solid rgba(200,149,104,.55); border-radius: 999px; padding: 1px 9px; min-height: 26px; cursor: pointer; }
+  .rs-none { font-size: 13px; color: var(--parchment-dim); margin: 2px 0 8px; }
   .rs-modal-h { font-size: 13px; color: var(--parchment-dim); margin-bottom: 12px; }
   .rs-grp { margin-bottom: 14px; }
   .rs-go { font: inherit; font-size: 12.5px; font-weight: 700; color: var(--gold); background: none; border: 0; border-bottom: 1px solid rgba(200,168,90,.4); padding: 4px 0; margin-bottom: 6px; cursor: pointer; }
@@ -1974,7 +1975,7 @@
 
 <script src="data/common.js?v=2c7990a2"></script>
 <script src="data/taanit/index.js?v=5087a7b8"></script>
-<script src="loader.js?v=9993114f"></script>
+<script src="loader.js?v=1e1517e4"></script>
 <script src="explain.js?v=221640a8"></script>
 <script>
 // =======================================================
@@ -2792,7 +2793,7 @@ function beatMore(ref, si, bi, kt) {
   const tabs = [
     ['ctx', 'ההקשר', c || f ? `<div class="ctx">${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</div>` : ''],
     ['gm', 'בגמרא', rashiMark(punctHTML(key), key)],
-    ['rs', 'רש״י', rashiHTML(key)],
+    ['rs', 'רש״י', rashiTabHTML(key)],
     ['ps', 'הפסוק', psukHTML(key)],
     ['ww', 'מילה במילה', ww ? ww + `<a class="ww-go" href="words.html?ref=${ref}">לתרגל את המילים של הדף ←</a>` : ''],
     ['pp', /class="bp vs"/.test(pp) ? 'מי ומה' : 'מי', pp],
@@ -2817,7 +2818,7 @@ function beatTabs(ref, si, bi) {
   return [
     ['ctx', 'ההקשר', c || f ? `<div class="ctx">${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</div>` : ''],
     ['gm', 'בגמרא', rashiMark(punctHTML(key), key)],
-    ['rs', 'רש״י', rashiHTML(key)],
+    ['rs', 'רש״י', rashiTabHTML(key)],
     ['ps', 'הפסוק', psukHTML(key)],
     ['ww', 'מילה במילה', ww ? ww + `<a class="ww-go" href="words.html?ref=${ref}">לתרגל את המילים של הדף ←</a>` : ''],
     ['pp', /class="bp vs"/.test(pp) ? 'מי ומה' : 'מי', pp],

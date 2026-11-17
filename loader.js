@@ -23,6 +23,18 @@ function rashiHTML(keys) {
   for (const k of [].concat(keys)) (RASHI_AT[k] || []).forEach(([dh, r, p], i) => out.push(`<div class="rsi" data-rs="${k}#${i}"><div class="rsi-dh">${dh}</div><div class="rsi-t">${r}</div>${p ? `<div class="rsi-p"><b>בפשטות:</b> ${p}</div>` : ''}</div>`));
   return out.join('');
 }
+// לשונית רש״י — תמיד קיימת: רש״י של השלב; אם אין — רש״י על שאר הקטע; ואם גם לא — רש״י המסוכם של הדף
+function rashiTabHTML(keys) {
+  keys = [].concat(keys).filter(Boolean);
+  const own = rashiHTML(keys); if (own) return own;
+  const k0 = keys[0]; if (!k0) return '';
+  const [ref, si] = k0.split(':'), pre = ref + ':' + si + ':';
+  const sc = Object.keys(RASHI_AT).filter(k => k.startsWith(pre)).sort((a, b) => +a.split(':')[2] - +b.split(':')[2]);
+  if (sc.length) return '<div class="rs-none">על השלב הזה רש״י לא מפרש. רש״י על הקטע:</div>' + sc.map(k => rashiHTML(k)).join('');
+  const am = typeof amudim !== 'undefined' && amudim[ref] && amudim[ref].rashi;
+  if (am && am.length) return '<div class="rs-none">רש״י על הדף (בקיצור):</div>' + am.map(e => `<div class="rsi"><div class="rsi-dh">${e.dh}</div><div class="rsi-t">${e.content}</div></div>`).join('');
+  return '<div class="rs-none">אין כאן פירוש רש״י.</div>';
+}
 // בטקסט הגמרא: מסמנים את ״דיבור המתחיל״ של רש״י בקו זהב (הקשה — פותחת את רש״י)
 function rashiMark(html, keys) {
   const NK = '[\\u0591-\\u05C7]*', SEP = '(?:[\\s,.:;?!״"׳\'—\\-–()\\[\\]]|<[^>]+>)+';
