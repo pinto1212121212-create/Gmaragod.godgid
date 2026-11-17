@@ -1731,7 +1731,9 @@
   .bt-rs { font: inherit; font-size: 11.5px; font-weight: 700; color: var(--rashi, #c89568); background: transparent; border: 1px solid rgba(200,149,104,.55); border-radius: 999px; padding: 1px 9px; min-height: 26px; cursor: pointer; }
   .rs-none { font-size: 13px; color: var(--parchment-dim); margin: 2px 0 8px; }
   .rs-modal-h { font-size: 13px; color: var(--parchment-dim); margin-bottom: 12px; }
-  .rs-grp { margin-bottom: 14px; }
+  .rs-grp { margin-bottom: 18px; }
+  .rs-gm { font-family: 'Frank Ruhl Libre', serif; font-size: calc(15.5px * var(--fz, 1)); line-height: 1.8; color: #f5f1e8; background: #151515; border-radius: 12px; padding: 8px 12px; margin: 4px 0 8px; border: 1px solid rgba(245,241,232,.08); }
+  .rs-gm q { quotes: none; }
   .rs-go { font: inherit; font-size: 12.5px; font-weight: 700; color: var(--gold); background: none; border: 0; border-bottom: 1px solid rgba(200,168,90,.4); padding: 4px 0; margin-bottom: 6px; cursor: pointer; }
   .po-tools { margin-top: 12px; }
   .po-tabs { margin-bottom: 10px; }
@@ -1974,7 +1976,7 @@
 </div>
 
 <script src="data/common.js?v=2c7990a2"></script>
-<script src="data/taanit/index.js?v=5106a076"></script>
+<script src="data/taanit/index.js?v=4b4d0700"></script>
 <script src="loader.js?v=1e1517e4"></script>
 <script src="explain.js?v=221640a8"></script>
 <script>
@@ -3752,7 +3754,7 @@ function openModal(type) {
   const ra = type === 'rashi' && Object.keys(RASHI_AT).filter(k => k.startsWith(state.ref + ':')).sort((a, b) => { const [, a1, a2] = a.split(':').map(Number), [, b1, b2] = b.split(':').map(Number); return a1 - b1 || a2 - b2; });
   if (ra && ra.length) {
     content.innerHTML = '<div class="rs-modal-h">רש״י מסודר לפי השלבים בגמרא. הקשה על ״לשלב״ — קופצת לגמרא, והפירוש נפתח בסרגל.</div>' + ra.map(k => { const [, s, b] = k.split(':'); const sc = amud.scenes[+s], bt = sc && sc.beats && sc.beats[+b];
-      return `<div class="rs-grp"><button type="button" class="rs-go" data-k="${k}">לשלב ← קטע ${+s + 1}${bt ? ' · ' + bt[1].replace(/<[^>]+>/g, '') : ''}</button>${rashiHTML(k)}</div>`; }).join('');
+      return `<div class="rs-grp"><button type="button" class="rs-go" data-k="${k}">לשלב ← קטע ${+s + 1}${bt ? ' · ' + bt[1].replace(/<[^>]+>/g, '') : ''}</button>${PUNCT[k] ? `<div class="rs-gm">${rashiMark(PUNCT[k].replace(/״([^״]+)״/g, '<q>״$1״</q>'), k)}</div>` : ''}${rashiHTML(k)}</div>`; }).join('');
     content.querySelectorAll('.rs-go').forEach(g => g.onclick = () => { closeModal(); dockTab = 'rs'; toolSave(); dockKey = ''; goStar(g.dataset.k); });
     document.getElementById('modalOverlay').classList.add('open'); modal.classList.add('open'); return;
   }
