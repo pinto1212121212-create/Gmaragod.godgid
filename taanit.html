@@ -1771,9 +1771,9 @@
 
   <header>
     <div class="topbar">
-      <a class="tb-btn" href="index.html" title="דף הבית" aria-label="דף הבית">🏠</a>
+      <a class="tb-btn" href="index.html" title="דף הבית" aria-label="דף הבית"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-6h4v6"/></svg></a>
       <div class="masechet-name"><small>מסכת</small>תענית</div>
-      <button class="tb-btn" id="helpBtn" title="איך משתמשים" aria-label="עזרה">❓</button>
+      <button class="tb-btn" id="helpBtn" title="איך משתמשים" aria-label="עזרה"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.4"/><path d="M12 16.8v.2"/></svg></button>
     </div>
     <div class="daf-nav masechet-only">
       <button class="nav-arrow" id="prevDafBtn" title="דף קודם">‹</button>
@@ -1785,24 +1785,24 @@
     </div>
     <div class="tabs">
       <button class="tab active" data-tab="masechet">📚 לימוד הדף</button>
-      <button class="tab" data-tab="tutorial">🎓 איך לקרוא גמרא</button>
+      <button class="tab" data-tab="tutorial">איך לקרוא גמרא</button>
     </div>
   </header>
 
   <div class="action-bar masechet-only">
     <button class="action-btn trans" id="transBtn">
-      <span>📖 הדף</span>
+      <span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5"/><path d="M12 6.5C14 5 17 4.5 20.5 5v13c-3.5-.5-6.5 0-8.5 1.5"/><path d="M12 6.5v13"/></svg> הדף</span>
     </button>
     <button class="action-btn rashi" id="rashiBtn">
-      <span>📜 רש״י</span>
+      <span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h10a2 2 0 0 1 2 2V18a2.5 2.5 0 0 1-2.5 2.5H7"/><path d="M7 3.5a2 2 0 0 0-2 2v12.5"/><path d="M9.5 8h6M9.5 11.5h6M9.5 15h4"/></svg> רש״י</span>
       <span class="count" id="rashiCount">0</span>
     </button>
     <button class="action-btn tos" id="tosBtn">
-      <span>📚 תוספות</span>
+      <span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5h4v15H4zM8 6.5h4v13H8z"/><path d="m13 6.2 3.8-1 3.7 13.8-3.8 1z"/></svg> תוספות</span>
       <span class="count" id="tosCount">0</span>
     </button>
     <a class="action-btn treeb" id="treeBtn" href="tree.html" onclick="this.href='tree.html#'+state.ref+'-'+state.sceneIdx">
-      <span>🌳 עץ</span>
+      <span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg> עץ</span>
     </a>
   </div>
 
@@ -1813,9 +1813,9 @@
 
 <nav class="nav">
   <div class="nav-inner">
-    <button class="nav-btn" id="prevSceneBtn" title="הקטע הקודם">▶</button>
-    <div class="nav-mid"><button type="button" class="toc-btn" id="tocBtn" onclick="openToc()" aria-label="כל הקטעים בדף">📑 <span id="tocLbl"></span></button><div class="progress" id="progress"></div></div>
-    <button class="nav-btn" id="nextSceneBtn" title="הקטע הבא">◀</button>
+    <button class="nav-btn" id="prevSceneBtn" title="הקטע הקודם" aria-label="הקטע הקודם"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button>
+    <div class="nav-mid"><button type="button" class="toc-btn" id="tocBtn" onclick="openToc()" aria-label="כל הקטעים בדף"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg> <span id="tocLbl"></span></button><div class="progress" id="progress"></div></div>
+    <button class="nav-btn" id="nextSceneBtn" title="הקטע הבא" aria-label="הקטע הבא"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6"/></svg></button>
   </div>
 </nav>
 
@@ -1834,7 +1834,7 @@
 <div class="modal rashi" id="rashiModal">
   <div class="modal-handle"></div>
   <div class="modal-header">
-    <div class="modal-title">📜 רש״י על הדף</div>
+    <div class="modal-title">רש״י על הדף</div>
     <button class="modal-close" data-close="rashi" aria-label="סגור">✕</button>
   </div>
   <div class="modal-content" id="rashiContent"></div>
@@ -1843,7 +1843,7 @@
 <div class="modal tos" id="tosModal">
   <div class="modal-handle"></div>
   <div class="modal-header">
-    <div class="modal-title">📚 תוספות על הדף</div>
+    <div class="modal-title">תוספות על הדף</div>
     <button class="modal-close" data-close="tos" aria-label="סגור">✕</button>
   </div>
   <div class="modal-content" id="tosContent"></div>
@@ -1888,7 +1888,7 @@
 <script src="data/common.js?v=1bb0ea65"></script>
 <script src="data/taanit/index.js?v=434e53ba"></script>
 <script src="loader.js?v=c847b339"></script>
-<script src="explain.js?v=621d9d7f"></script>
+<script src="explain.js?v=221640a8"></script>
 <script>
 // =======================================================
 // PEREK DATA — מסכת תענית
@@ -2030,7 +2030,7 @@ function srcZoom(src) { if (matchMedia('(min-width: 1100px)').matches) return 1;
 function srcBlock(src) {
   return `
     <figure class="daf-src">
-      <figcaption>📷 מקור בדף · ${AMUD_NAME[src.ref]} <span>(לחיצה: הדף המלא עם סימון)</span></figcaption>
+      <figcaption>מקור בדף · ${AMUD_NAME[src.ref]} <span>(לחיצה: הדף המלא עם סימון)</span></figcaption>
       <div class="src-wrap${srcZoom(src) > 1.05 ? ' wide' : ''}"><div class="src-inner" style="width:${srcZoom(src) * 100}%">
         <img loading="lazy" decoding="async" src="taanit-img/${src.ref}-${src.i}.jpg" alt="שורות הגמרא מתוך ${AMUD_NAME[src.ref]}"
              role="button" tabindex="0" aria-label="פתח את הדף המלא עם הסימון"
@@ -2076,9 +2076,9 @@ function openPhoto(ref, box) {
   } else marks = box ? rect(box, 'po-mark') : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
   const oldImg = ov.querySelector('#poWrap img');
   const keepImg = oldImg && oldImg.complete && oldImg.naturalWidth && oldImg.getAttribute('src').split('?')[0] === `taanit-img/${ref}-full.jpg` ? oldImg : null;
-  ov.innerHTML = `<div class="po-bar"><span>📷 ${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '🌳 חזרה לעץ' : '✕'}</button></div>
+  ov.innerHTML = `<div class="po-bar"><span>${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '🌳 חזרה לעץ' : '✕'}</button></div>
     <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap" style="${pageCrop(ref).wrap}"><div class="po-full" style="${pageCrop(ref).inner}"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}" width="900" height="1600" decoding="async">${marks}</div></div><div class="po-load" aria-live="polite">⏳ טוען את הדף…</div></div>
-    ${PO.list.length ? `<div class="po-call" id="poCall"></div><div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה">🔍</button></div>`
+    ${PO.list.length ? `<div class="po-call" id="poCall"></div><div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button></div>`
       : '<div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>'}`;
   ov.classList.add('open');
   state.modal = 'photo';
@@ -2159,8 +2159,8 @@ function secTreeHTML(ref, si, curBi) {
     const sub = (x, d) => { h += row(x, '', d); x.kids.filter(k => set.has(k)).forEach(k => sub(k, d + 1)); };
     sub(t, base);
   }
-  return `<details class="st"${stOpen ? ' open' : ''} ontoggle="stOpen=this.open;try{localStorage.setItem('gemara:potree',this.open?'1':'0')}catch(e){}"><summary>🌳 עץ הקטע <small>— איך השלבים מתחברים</small></summary><ol class="st-ol">${h}</ol>
-    <a class="st-full" href="tree.html#${ref}-${si}">פתח בעץ המלא ◀</a></details>`;
+  return `<details class="st"${stOpen ? ' open' : ''} ontoggle="stOpen=this.open;try{localStorage.setItem('gemara:potree',this.open?'1':'0')}catch(e){}"><summary>עץ הקטע <small>· איך השלבים מתחברים</small></summary><ol class="st-ol">${h}</ol>
+    <a class="st-full" href="tree.html#${ref}-${si}">לעץ המלא ←</a></details>`;
 }
 
 
@@ -2278,8 +2278,8 @@ function wbwHTML(key) {
 // מהלך הגמרא — תפקיד כל שלב, חצים ומילות מפתח
 // =======================================================
 const ROLE = {
-  q: ['❓', 'שאלה'], x: ['⚡', 'דחייה'], a: ['✅', 'תשובה'],
-  s: ['📜', 'קביעה'], n: ['📖', 'מקור'], k: ['💡', 'הסבר'], c: ['📌', 'מסקנה']
+  q: ['<i class="rdot"></i>', 'שאלה'], x: ['<i class="rdot"></i>', 'דחייה'], a: ['<i class="rdot"></i>', 'תשובה'],
+  s: ['<i class="rdot"></i>', 'קביעה'], n: ['<i class="rdot"></i>', 'מקור'], k: ['<i class="rdot"></i>', 'הסבר'], c: ['<i class="rdot"></i>', 'מסקנה']
 };
 function beatRole(ref, si, bi) {
   const b = amudim[ref].scenes[si].beats[bi];
@@ -2367,7 +2367,7 @@ let ctxOpen = true; try { ctxOpen = localStorage.getItem('gemara:ctx2') !== '0';
 function setCtx(open) { ctxOpen = open; try { localStorage.setItem('gemara:ctx2', open ? '1' : '0'); } catch (e) {} }
 // ״המהלך״: לכל שלב — השרשרת מהשאלה הראשית ועד כאן (מתוך עץ הסוגיה: TREE + TREE_CX ב־tree-data.js),
 // כולל התירוצים הקודמים לאותה שאלה ומה נאמר עליהם. כך בכל תירוץ רואים את כל המהלך.
-const FLOW_IC = { m: '📜', q: '❓', x: '⚡', a: '✅', c: '📌', n: '📖', k: '💡' };
+const FLOW_IC = { m: '<i class="rdot"></i>', q: '<i class="rdot"></i>', x: '<i class="rdot"></i>', a: '<i class="rdot"></i>', c: '<i class="rdot"></i>', n: '<i class="rdot"></i>', k: '<i class="rdot"></i>' };
 const FLOW_RN = { a: ['תירוץ', ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי']], q: ['קושיה', ['ראשונה', 'שנייה', 'שלישית', 'רביעית']], x: ['דחייה', ['ראשונה', 'שנייה', 'שלישית']] };
 const NODE_OF = {};
 function nodeOfKey(key) {
@@ -2481,7 +2481,7 @@ function pplBeatHTML(ref, si, bi) {
 }
 function takhlesHTML(key) {
   const t = TAKHLES[key];
-  return t ? `<div class="takhles"><span>🎯 בתכלס</span>${t}${ctxHTML(key)}</div>` : '';
+  return t ? `<div class="takhles"><span>בתכלס</span>${t}${ctxHTML(key)}</div>` : '';
 }
 
 // =======================================================
@@ -2678,18 +2678,18 @@ function pinBeat(ev, i) { ev.stopPropagation(); focusBeat = i; showLoc(); }
 // ===== כרטיס רגוע: רק העיקר גלוי (מי · מה · בתכלס), והשאר בלשוניות קטנות שנפתחות אחת־אחת =====
 // הלשונית שנבחרה נזכרת לכל הכרטיסים (gemara:btab). '' = הכל סגור.
 let bTab = ''; try { bTab = localStorage.getItem('gemara:btab') || ''; } catch (e) {}
-function tkOnly(key) { const t = TAKHLES[key]; return t ? `<div class="takhles"><span>🎯 בתכלס</span>${t}</div>` : ''; }
+function tkOnly(key) { const t = TAKHLES[key]; return t ? `<div class="takhles"><span>בתכלס</span>${t}</div>` : ''; }
 function beatMore(ref, si, bi, kt) {
   const key = `${ref}:${si}:${bi}`;
   const c = typeof CONTEXT !== 'undefined' && CONTEXT[key], f = flowHTML(key);
   const ww = wbwHTML(key).replace(/^<details[^>]*><summary>.*?<\/summary>/, '').replace(/<\/details>$/, '');
   const pp = pplBeatHTML(ref, si, bi);
   const tabs = [
-    ['ctx', '🧭 ההקשר', c || f ? `<div class="ctx">${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</div>` : ''],
-    ['gm', '📜 בגמרא', punctHTML(key)],
-    ['ww', '🔤 מילה במילה', ww ? ww + `<a class="ww-go" href="words.html?ref=${ref}">🃏 לתרגל את המילים של הדף ◀</a>` : ''],
-    ['pp', /class="bp vs"/.test(pp) ? '⚡ מי ומה' : KIP.young + ' מי', pp],
-    ['kt', '🔑 מונח', kt ? `<div class="bt-key">🔑 <b>${kt[0]}</b> = ${kt[1]}</div>` : ''],
+    ['ctx', 'ההקשר', c || f ? `<div class="ctx">${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</div>` : ''],
+    ['gm', 'בגמרא', punctHTML(key)],
+    ['ww', 'מילה במילה', ww ? ww + `<a class="ww-go" href="words.html?ref=${ref}">לתרגל את המילים של הדף ←</a>` : ''],
+    ['pp', /class="bp vs"/.test(pp) ? 'מי ומה' : 'מי', pp],
+    ['kt', 'מונח', kt ? `<div class="bt-key"><b>${kt[0]}</b> = ${kt[1]}</div>` : ''],
   ].filter(t => t[2]);
   if (!tabs.length) return '';
   const on = tabs.some(t => t[0] === bTab) ? bTab : '';
@@ -3280,7 +3280,7 @@ function beatsHTML(sc, si) {
     ${pairHTML(sc)}
     ${b.length ? `<div class="beats" onclick="onBeatsClick(event)">${b.map((x, i) => {
       const r = beatRole(state.ref, si, i), kt = keyTerm(state.ref, si, i);
-      const link = i ? `<div class="blink" data-i="${i}"><span class="bl-arrow">⬇</span><span class="bl-txt">${linkText(beatRole(state.ref, si, i - 1), r)}</span></div>` : '';
+      const link = i ? `<div class="blink" data-i="${i}"><span class="bl-arrow">↓</span><span class="bl-txt">${linkText(beatRole(state.ref, si, i - 1), r)}</span></div>` : '';
       return link + `<div class="beat bt-${x[0]} role-${r}" data-i="${i}"><span class="bt-role">${ROLE[r][0]} ${ROLE[r][1]}</span><span class="bt-who">${x[1]}</span><span class="bt-txt">${x[2]}</span>${tkOnly(`${state.ref}:${si}:${i}`)}${state.tab === 'masechet' ? starBtn(`${state.ref}:${si}:${i}`) : ''}${canSpeak ? `<button type="button" class="speak-btn bt-say" aria-label="הקראה בקול" aria-pressed="false" title="הקראה בקול" onclick="sayBeat(event, ${si}, ${i})">🔊</button>` : ''}${beatMore(state.ref, si, i, kt)}</div>`; }).join('')}</div>
     <div class="step-ctl"><button class="step-next" onclick="stepBeat(1)">המשך ▼ <span class="step-n"></span></button>
       <button class="step-all" onclick="revealAll()">הצג הכל</button></div>` : ''}
@@ -3428,8 +3428,8 @@ function goStar(k) {
 }
 function starsHTML() {
   const a = stars().filter(k => { const [r, s, b] = k.split(':'); if (!isLoaded(r)) return false; const sc = amudim[r] && amudim[r].scenes && amudim[r].scenes[+s]; return sc && sc.beats && sc.beats[+b]; });
-  if (!a.length) return `<div class="toc-st0">⭐ אין עדיין שמורים. לוחצים על ☆ בכרטיס כדי לשמור שלב לחזרה.</div>`;
-  return `<div class="toc-sec">⭐ השמורים שלי (${a.length})</div><div class="toc-stars">${a.map(k => { const [r, s, b] = k.split(':'); const x = amudim[r].scenes[+s].beats[+b];
+  if (!a.length) return `<div class="toc-st0">אין עדיין שמורים. לוחצים על ☆ בכרטיס כדי לשמור שלב לחזרה.</div>`;
+  return `<div class="toc-sec">השמורים שלי (${a.length})</div><div class="toc-stars">${a.map(k => { const [r, s, b] = k.split(':'); const x = amudim[r].scenes[+s].beats[+b];
     return `<button type="button" data-star="${k}"><small>${AMUD_NAME[r] || r} · קטע ${+s + 1} · ${x[1].replace(/<[^>]+>/g, '')}</small>${x[2].replace(/<[^>]+>/g, '').slice(0, 90)}</button>`; }).join('')}</div>`;
 }
 
@@ -3453,10 +3453,10 @@ function openToc() {
   const scenes = state.tab === 'masechet' ? amudim[state.ref].scenes : tutorialScenes;
   const ex = k => typeof EXPLAIN !== 'undefined' && EXPLAIN[k];
   ov.innerHTML = `<div class="toc-box" role="dialog" aria-modal="true" aria-label="כל הקטעים">
-    <div class="toc-h"><b>📑 ${state.tab === 'masechet' ? AMUD_NAME[state.ref] || '' : 'איך לקרוא גמרא'} · כל הקטעים</b><button type="button" class="toc-x" aria-label="סגור">✕</button></div>
+    <div class="toc-h"><b>${state.tab === 'masechet' ? AMUD_NAME[state.ref] || '' : 'איך לקרוא גמרא'} · כל הקטעים</b><button type="button" class="toc-x" aria-label="סגור">✕</button></div>
     <details class="toc-pf"><summary>⚙️ נוחות ונגישות <small>גודל אותיות · ניגודיות · מרווח · תנועה</small></summary>${prefsHTML()}</details>
     ${state.tab === 'masechet' ? `<a class="toc-words" href="words.html?ref=${state.ref}">🔤 <b>לימוד מילים ומבחן</b><small>כל המילים של ${AMUD_NAME[state.ref] || 'הדף'} — כרטיסיות ומבחן</small></a>` : ''}
-    ${state.tab === 'masechet' ? starsHTML() : ''}<div class="toc-sec">📑 הקטעים בדף</div>
+    ${state.tab === 'masechet' ? starsHTML() : ''}<div class="toc-sec">הקטעים בדף</div>
     <ol class="toc-list">${scenes.map((sc, i) => `<li><button type="button" data-i="${i}" class="${i === state.sceneIdx ? 'on' : ''}"><span class="toc-n">${i + 1}</span><span class="toc-t"><small>${sc.tag || ''}</small>${(sc.title || '').replace(/<[^>]+>/g, '')}</span>${state.tab === 'masechet' && ex(`${state.ref}:${i}`) ? '<span class="toc-ex" title="יש הסבר מאויר">🖼️</span>' : ''}<span class="toc-c">${(sc.beats || []).length ? (sc.beats.length + ' שלבים') : (sc.quiz ? 'חזרה' : '')}</span></button></li>`).join('')}</ol></div>`;
   ov.querySelector('.toc-x').onclick = closeToc;
   prefBind(ov, () => setTimeout(() => { try { showLoc(); } catch (e) {} }, 60));

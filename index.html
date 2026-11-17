@@ -39,8 +39,9 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
   body { min-height: 100vh; background: radial-gradient(ellipse 90% 50% at 50% 38%, rgba(200,168,90,0.10), transparent 70%), #0a0a0a; }
   .app { max-width: 640px; margin: 0 auto; padding-block: 26px 50px;
     padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-  header { text-align: center; margin: 14px 0 26px; }
-  .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500; color: var(--gold); padding: 9px 20px; border-radius: 999px; border: 1px solid rgba(200,168,90,0.45); margin-bottom: 26px; }
+  header { text-align: center; margin: 34px 0 30px; }
+  header .vip-eyebrow { margin-bottom: 22px; }
+  .eyebrow-old { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500; color: var(--gold); padding: 9px 20px; border-radius: 999px; border: 1px solid rgba(200,168,90,0.45); margin-bottom: 26px; }
   .eyebrow i { font-style: normal; font-size: 12px; opacity: .9; }
   h1 { font-family: 'Frank Ruhl Libre', serif; font-size: clamp(40px, 12vw, 60px); font-weight: 900; color: var(--parchment); line-height: 1.12; letter-spacing: -.01em; text-wrap: balance; }
   h1 em { font-style: normal; color: var(--gold); display: block; }
@@ -77,7 +78,7 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
   .how { margin-top: 26px; }
   .steps { display: grid; gap: 8px; }
   .step { display: flex; gap: 12px; align-items: flex-start; background: #121212; border: 1px solid rgba(245,241,232,0.08); border-radius: 18px; padding: 14px 16px; }
-  .step i { font-style: normal; font-size: 22px; line-height: 1.2; }
+  .step i { font-style: normal; font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 700; line-height: 1.2; color: var(--t-gold); min-width: 30px; }
   .step p { font-size: 14px; line-height: 1.6; color: var(--soft); }
   .step b { color: var(--parchment); }
   a:focus-visible { outline: 2px solid var(--gold-b); outline-offset: 2px; }
@@ -97,7 +98,10 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
   .q-it { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 14px 16px; border-radius: 20px; background: #121212; border: 1px solid rgba(245,241,232,0.12); color: var(--t-text); text-decoration: none; font: inherit; font-size: 20px; text-align: right; cursor: pointer; box-shadow: var(--t-shadow-sm); transition: transform .15s, border-color .15s; }
   .q-it[hidden] { display: none; }
   .q-it:hover { border-color: var(--t-gold); transform: translateY(-1px); }
-  .q-it b { font-size: 15px; color: var(--t-text); }
+  .q-it b { font-size: 15px; font-weight: 600; color: var(--t-text); }
+  .q-ic { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: #f3ece0; color: #9a7a35; margin-bottom: 8px; }
+  .q-ic .ico { width: 22px; height: 22px; stroke-width: 1.5; }
+  .sec-h { text-align: center; margin: 40px 0 16px !important; font-size: 13px !important; }
   .q-it small { font-size: 12px; color: var(--t-text-dim); }
   .ios-tip { margin: -6px 0 16px; padding: 10px 12px; border-radius: var(--t-r-sm); background: rgba(95,178,255,.1); border: 1px solid rgba(95,178,255,.35); font-size: 13.5px; color: var(--t-text-soft); }
 </style>
@@ -116,64 +120,58 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
 <body class="home">
 <div class="app">
   <header>
-    <svg class="vip-crest" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="vg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a6d2f"/><stop offset=".3" stop-color="#e9d18a"/><stop offset=".55" stop-color="#c8a85a"/><stop offset=".78" stop-color="#f6e7b0"/><stop offset="1" stop-color="#9a7a35"/></linearGradient></defs>
-<circle cx="60" cy="60" r="56" fill="#0d0c0a" stroke="url(#vg)" stroke-width="2.5"/><circle cx="60" cy="60" r="49" fill="none" stroke="url(#vg)" stroke-width="1" stroke-dasharray="2 4" opacity=".8"/>
-<g fill="url(#vg)"><path d="M60 40c-9-6-20-7-28-5v42c8-2 19-1 28 5z" opacity=".95"/><path d="M60 40c9-6 20-7 28-5v42c-8-2-19-1-28 5z"/><rect x="58.6" y="40" width="2.8" height="42" fill="#0d0c0a"/>
-<path d="M60 22l2.2 4.8 5.2.6-3.9 3.5 1.1 5.1-4.6-2.7-4.6 2.7 1.1-5.1-3.9-3.5 5.2-.6z"/><circle cx="34" cy="94" r="1.6"/><circle cx="60" cy="98" r="1.8"/><circle cx="86" cy="94" r="1.6"/></g></svg>
-    <div class="eyebrow"><i>✦</i> בית המדרש · גמרא בעיון <i>✦</i></div>
-    <h1>הגמרא שלי <em>שלב אחר שלב</em></h1>
+    <div class="vip-eyebrow">בית המדרש · גמרא בעיון</div>
+    <h1>הגמרא שלי <em>דף אחר דף</em></h1>
     <div class="tag">כל מילה מוסברת, והדף עצמו מול העיניים.</div>
-    <div class="vip-rule">✦</div>
-    <div class="chips"><span>צילום הדף</span><span>מילה במילה</span><span>עץ הסוגיה</span><span>רש״י ותוספות</span></div>
   </header>
 
   <a class="continue" id="continue" href="taanit.html" hidden>
-    <small>▶ המשך מאיפה שעצרת</small>
+    <small>המשך מאיפה שעצרת</small>
     <b id="contTitle"></b>
     <span id="contSub"></span>
   </a>
 
   <div class="quick" id="quick">
-    <a class="q-it" id="qStars" href="taanit.html#stars" hidden>⭐ <b>השמורים שלי</b><small id="qStarsN"></small></a>
-    <a class="q-it" href="tree.html">🌳 <b>עץ הסוגיה</b><small>כל הדף כמפה</small></a>
-    <a class="q-it" href="words.html">🔤 <b>לימוד מילים</b><small id="qWords">כרטיסיות ומבחן על כל המילים</small></a>
-    <button type="button" class="q-it" id="qPrefs" aria-expanded="false">⚙️ <b>נוחות ונגישות</b><small>גודל אותיות, ניגודיות, מרווח</small></button>
-    <button type="button" class="q-it" id="qInstall" hidden>📲 <b>התקן כאפליקציה</b><small>אייקון במסך הבית, עובד גם בלי אינטרנט</small></button>
+    <a class="q-it" id="qStars" href="taanit.html#stars" hidden><span class="q-ic"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/></svg></span><b>השמורים שלי</b><small id="qStarsN"></small></a>
+    <a class="q-it" href="tree.html"><span class="q-ic"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg></span><b>עץ הסוגיה</b><small>כל הדף כמפה</small></a>
+    <a class="q-it" href="words.html"><span class="q-ic"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M9 6v12"/><path d="M14 18l3.5-9 3.5 9M15.3 15h4.4"/></svg></span><b>לימוד מילים</b><small id="qWords">כרטיסיות ומבחן על כל המילים</small></a>
+    <button type="button" class="q-it" id="qPrefs" aria-expanded="false"><span class="q-ic"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span><b>נוחות ונגישות</b><small>גודל אותיות, ניגודיות, מרווח</small></button>
+    <button type="button" class="q-it" id="qInstall" hidden><span class="q-ic"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg></span><b>התקן כאפליקציה</b><small>אייקון במסך הבית, עובד גם בלי אינטרנט</small></button>
   </div>
   <div id="prefsBox" hidden></div>
-  <div class="ios-tip" id="iosTip" hidden>📲 להתקנה באייפון: לוחצים על <b>שיתוף</b> ⬆️ ואז <b>״הוסף למסך הבית״</b>.</div>
+  <div class="ios-tip" id="iosTip" hidden>להתקנה באייפון: לוחצים על <b>שיתוף</b> ואז <b>״הוסף למסך הבית״</b>.</div>
 
-  <h2 class="vip-h">המסכתות</h2>
+  <h2 class="vip-eyebrow sec-h">המסכתות</h2>
 
   <div class="mgrid">
   <div class="m-card">
-    <div class="m-head"><div class="m-name">תענית</div><div class="m-range">ב׳ ע״א — ט׳ ע״א</div></div>
+    <div class="m-head"><div class="m-name">תענית</div><div class="m-range">ב׳ ע״א עד ט׳ ע״א</div></div>
     <p class="m-desc">כל סוגיה מפורקת לשלבים: שאלה, תירוץ, דחייה ומסקנה. כל שלב מסומן על צילום הדף, עם תרגום מילה במילה.</p>
-    <div class="m-feat"><span>📷 צילום הדף</span><span>🔤 מילה במילה</span><span>🎯 בתכלס</span><span>📜 משניות זו מול זו</span><span>🌳 עץ הסוגיה</span></div>
+    <div class="m-feat"><span>צילום הדף</span><span>מילה במילה</span><span>בתכלס</span><span>מקורות זה מול זה</span><span>עץ הסוגיה</span></div>
     <div class="m-acts">
-      <a class="btn pri" href="taanit.html" onclick="go('taanit')">📖 ללמוד</a>
-      <a class="btn sec" href="tree.html">🌳 עץ הסוגיה</a>
+      <a class="btn pri" href="taanit.html" onclick="go('taanit')">ללמוד</a>
+      <a class="btn sec" href="tree.html">עץ הסוגיה</a>
     </div>
     <div class="amudim" id="taanitAmudim"></div>
   </div>
 
   <div class="m-card muted">
-    <div class="m-head"><div class="m-name">זבחים</div><div class="m-range">מ״ב — מ״ד</div></div>
+    <div class="m-head"><div class="m-name">זבחים</div><div class="m-range">מ״ב עד מ״ד</div></div>
     <p class="m-desc">הסבר מונפש, רש״י ותוספות לדפים מ״ב–מ״ג, ותרגום למ״ב–מ״ד. (עדיין במבנה הישן, בלי צילומי הדף.)</p>
     <div class="m-acts">
-      <a class="btn pri" href="zevachim.html" onclick="go('zevachim')">📖 ללמוד</a>
-      <a class="btn sec" href="zevachim.html#tutorial">🎓 איך לקרוא גמרא</a>
+      <a class="btn pri" href="zevachim.html" onclick="go('zevachim')">ללמוד</a>
+      <a class="btn sec" href="zevachim.html#tutorial">איך לקרוא גמרא</a>
     </div>
   </div>
   </div>
 
   <section class="how">
-    <h2 class="vip-h">איך לומדים כאן</h2>
+    <h2 class="vip-eyebrow sec-h">איך לומדים כאן</h2>
     <div class="steps">
-      <div class="step"><i>◀ ▶</i><p><b>החצים למטה</b> עוברים בין קטעי הדף.</p></div>
-      <div class="step"><i>👆</i><p><b>גוללים ולומדים:</b> כל שלבי הקטע פתוחים, והשורות של השלב שאתה קורא מסומנות לבד על צילום הגמרא.</p></div>
-      <div class="step"><i>🎨</i><p><b>הצבע מספר מה השלב:</b> אדום = שאלה, ירוק = תירוץ, זהב = מסקנה, כחול = מקור.</p></div>
-      <div class="step"><i>🌳</i><p><b>עץ הסוגיה</b> מראה את כל הדף כאילן יוחסין: איך כל שאלה מסתעפת לתירוצים.</p></div>
+      <div class="step"><i>01</i><p><b>החצים למטה</b> עוברים בין קטעי הדף.</p></div>
+      <div class="step"><i>02</i><p><b>גוללים ולומדים:</b> כל שלבי הקטע פתוחים, והשורות של השלב שאתה קורא מסומנות לבד על צילום הגמרא.</p></div>
+      <div class="step"><i>03</i><p><b>הצבע מספר מה השלב:</b> אדום = שאלה, ירוק = תירוץ, זהב = מסקנה, כחול = מקור.</p></div>
+      <div class="step"><i>04</i><p><b>עץ הסוגיה</b> מראה את כל הדף כאילן יוחסין: איך כל שאלה מסתעפת לתירוצים.</p></div>
     </div>
   </section>
 </div>
@@ -192,11 +190,11 @@ if (place && place.ref) {
   const c = document.getElementById('continue');
   c.href = last === 'zevachim' ? 'zevachim.html' : ('taanit.html' + (/^\d+[ab]$/.test(place.ref) && place.tab !== 'tutorial' ? `#${place.ref}-${(place.sceneIdx | 0)}` : ''));
   document.getElementById('contTitle').textContent = `מסכת ${NAME[last] || ''} · דף ${refName(place.ref)}`;
-  document.getElementById('contSub').textContent = place.tab === 'tutorial' ? 'איך לקרוא גמרא' : `קטע ${(place.sceneIdx | 0) + 1} — ממשיכים בדיוק מאותה נקודה`;
+  document.getElementById('contSub').textContent = place.tab === 'tutorial' ? 'איך לקרוא גמרא' : `קטע ${(place.sceneIdx | 0) + 1} · ממשיכים בדיוק מאותה נקודה`;
   c.hidden = false;
 }
 // 🔤 מילים: כמה כבר יודעים
-try { const wp = JSON.parse(localStorage.getItem('gemara:words') || '{}'); const k = Object.values(wp).filter(v => v && v.b >= 3).length; if (Object.keys(wp).length) document.getElementById('qWords').textContent = `✅ ${k} מילים שאתה כבר יודע`; } catch (e) {}
+try { const wp = JSON.parse(localStorage.getItem('gemara:words') || '{}'); const k = Object.values(wp).filter(v => v && v.b >= 3).length; if (Object.keys(wp).length) document.getElementById('qWords').textContent = `${k} מילים שאתה כבר יודע`; } catch (e) {}
 // ⭐ שמורים
 try { const st = JSON.parse(localStorage.getItem('gemara:stars') || '[]'); if (Array.isArray(st) && st.length) { document.getElementById('qStars').hidden = false; document.getElementById('qStarsN').textContent = `${st.length} שלבים לחזרה`; } } catch (e) {}
 // 📲 התקנה כאפליקציה
