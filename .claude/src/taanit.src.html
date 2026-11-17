@@ -1852,7 +1852,8 @@
   @keyframes poPulse { 50% { opacity: .6; } }
   .po-load button { min-height: 40px; padding: 0 16px; border-radius: 12px; border: 0; background: var(--gold); color: var(--ink); font: inherit; font-weight: 900; cursor: pointer; }
   .po-wrap { overflow: hidden; border-radius: 6px; }
-  .po-full { position: absolute; }
+  .po-full { position: absolute; isolation: isolate; }   /* הסימונים (multiply) מתערבבים רק עם הצילום — פחות עבודה לטלפון, בלי ״משטחים לבנים״ */
+  .po-wrap { transform: translateZ(0); }
   .po-full img { border-radius: 0 !important; }
 </style>
 <script>
@@ -4967,16 +4968,13 @@ function openPhoto(ref, box) {
     const want = focusBeat != null ? focusBeat : Math.min(state.beat, sc.beats.length - 1);
     PO.cur = Math.max(0, PO.list.findIndex(x => x.bi >= want));
   } else marks = box ? rect(box, 'po-mark') : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
-  const oldImg = ov.querySelector('#poWrap img');
-  const keepImg = oldImg && oldImg.complete && oldImg.naturalWidth && oldImg.getAttribute('src').split('?')[0] === `taanit-img/${ref}-full.jpg` ? oldImg : null;
   ov.innerHTML = `<div class="po-bar"><span>${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg> חזרה לעץ' : '✕'}</button></div>
-    <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap" style="${pageCrop(ref).wrap}"><div class="po-full" style="${pageCrop(ref).inner}"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}" width="900" height="1600" decoding="async">${marks}</div></div><div class="po-load" aria-live="polite">⏳ טוען את הדף…</div></div>
+    <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap" style="${pageCrop(ref).wrap}"><div class="po-full" style="${pageCrop(ref).inner}"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}" width="900" height="1600" decoding="async">${marks}</div></div><div class="po-load" aria-live="polite">טוען את הדף…</div></div>
     ${PO.list.length ? `<div class="po-call" id="poCall"></div><div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button></div>`
       : '<div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>'}`;
   ov.classList.add('open');
   state.modal = 'photo';
   const wrap = document.getElementById('poWrap');
-  if (keepImg) wrap.querySelector('img').replaceWith(keepImg);
   poImgWatch(wrap);
   poLockZoom(true); poPinch(wrap, document.getElementById('poScroll'));
   if (PO.list.length) {
@@ -5110,12 +5108,14 @@ document.addEventListener('click', e => {
 function poImgWatch(wrap) {
   const img = wrap.querySelector('img'); let tries = 0;
   const box = document.getElementById('photoOverlay'); wrap = box;   // המצב (טוען / נכשל) על החלון, כדי שההודעה תמיד תיראה
-  const ok = () => { wrap.classList.remove('loading', 'failed'); };
+  // נטען = יש פיקסלים וגם הפענוח הצליח (בטלפון קרה שהתמונה ״נטענה״ אבל הוצגה לבנה)
+  const ok = () => { if (!img.naturalWidth) return fail(); (img.decode ? img.decode() : Promise.resolve()).then(() => wrap.classList.remove('loading', 'failed'), () => fail()); };
   if (!img.complete) wrap.classList.add('loading');
-  const fail = () => {
+  setTimeout(() => { if (img.isConnected && !(img.complete && img.naturalWidth)) fail(); }, 10000);   // נתקע ברשת חלשה: מנסים שוב
+  function fail() {
     if (tries++ < 3) { wrap.classList.add('loading'); setTimeout(() => { img.src = img.getAttribute('src').split('?')[0] + '?r=' + Date.now(); }, 700 * tries); }
-    else { wrap.classList.remove('loading'); wrap.classList.add('failed'); const l = box.querySelector('.po-load'); if (l) { l.innerHTML = '⚠️ הדף לא נטען. <button type="button">נסה שוב</button>'; l.querySelector('button').onclick = e => { e.stopPropagation(); tries = 0; wrap.classList.add('loading'); l.textContent = '⏳ טוען את הדף…'; img.src = img.getAttribute('src').split('?')[0] + '?r=' + Date.now(); }; } }
-  };
+    else { wrap.classList.remove('loading'); wrap.classList.add('failed'); const l = box.querySelector('.po-load'); if (l) { l.innerHTML = 'הדף לא נטען. <button type="button">נסה שוב</button>'; l.querySelector('button').onclick = e => { e.stopPropagation(); tries = 0; wrap.classList.add('loading'); l.textContent = 'טוען את הדף…'; img.src = img.getAttribute('src').split('?')[0] + '?r=' + Date.now(); }; } }
+  }
   img.addEventListener('load', ok); img.addEventListener('error', fail);
   if (img.complete) img.naturalWidth ? ok() : fail();
 }
