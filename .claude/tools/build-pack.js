@@ -53,6 +53,7 @@ const T = runFile('tree-data.js', ['TREE', 'SECTION_NAMES', 'SUGYA_TOPIC', 'TREE
 const { PEOPLE } = runFile('people-data.js', ['PEOPLE']);
 const { CONTEXT } = runFile('context-data.js', ['CONTEXT']);
 const EX = runFile('explain-data.js', ['EXPLAIN', 'EXPLAIN_TITLE']);
+const PS = runFile('psuk-data.js', ['PSUK', 'PSUK_OF']);
 const WBW = linesOf('WBW'), PUNCT = linesOf('PUNCT'), TAKHLES = linesOf('TAKHLES');
 const DAF_LINES = constOf('DAF_LINES'), BEAT_SPAN = constOf('BEAT_SPAN'), BEAT_LOC = constOf('BEAT_LOC'), DAF_SRC = constOf('DAF_SRC');
 const AMUD_NAME = constOf('AMUD_NAME'), PAGE_BOX = constOf('PAGE_BOX');
@@ -70,8 +71,9 @@ for (const ref of refs) {
     tree: T.TREE[ref] || null, sections: T.SECTION_NAMES[ref] || [], topic: T.SUGYA_TOPIC[ref] || [], cx: T.TREE_CX[ref] || [],
     people: PEOPLE[ref] || [], context: pick(CONTEXT, ref), wbw: pick(WBW, ref), punct: pick(PUNCT, ref), takhles: pick(TAKHLES, ref),
     lines: pick(DAF_LINES, ref), span: BEAT_SPAN[ref] || {}, loc: BEAT_LOC[ref] || {}, src: DAF_SRC[ref] || {},
-    explain: pick(EX.EXPLAIN, ref),
+    explain: pick(EX.EXPLAIN, ref), psukOf: pick(PS.PSUK_OF, ref),
   };
+  pack.psuk = {}; for (const v of Object.values(pack.psukOf)) for (const [, k] of v) pack.psuk[k] = PS.PSUK[k];
   pack.explainTitle = {}; for (const v of Object.values(pack.explain)) for (const x of [].concat(v)) pack.explainTitle[x] = EX.EXPLAIN_TITLE[x];
   const body = `// ✳️ נוצר אוטומטית (.claude/tools/build.py) — לא לערוך ביד. כל הנתונים של ${AMUD_NAME[ref] || ref} (${MAS_NAME}).\nPAGE_IN(${JSON.stringify(ref)}, ${JSON.stringify(pack)});\n`;
   fs.writeFileSync(path.join(DD, ref + '.js'), body);
