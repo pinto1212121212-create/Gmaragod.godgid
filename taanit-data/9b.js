@@ -122,7 +122,7 @@ amudim['9b'].scenes = [
       ['q', 'הגמרא', '<b>מאי פורחות?</b>'],
       ['a', 'רב פפא', '<b>עיבא קלישא תותי עיבא סמיכתא</b>']
     ],
-    viz: kv('מה זה חזיזים?', kn('🙂', 'לכל צדיק<br><small>חזיז משלו</small>') + kn('☁️', 'פורחות<br><small>סימן למטר</small>', 'gold', 'animation:kPulse 2.5s infinite') + kn('🌥️', 'עיבא קלישא<br><small>תחת ענן סמיך</small>')),
+    viz: kv('מה זה חזיזים?', kn(KIP.man, 'לכל צדיק<br><small>חזיז משלו</small>') + kn('☁️', 'פורחות<br><small>סימן למטר</small>', 'gold', 'animation:kPulse 2.5s infinite') + kn('🌥️', 'עיבא קלישא<br><small>תחת ענן סמיך</small>')),
     bottom: '״חזיזים״: לכל צדיק ה׳ עושה ענן משלו. ״חזיזים״ הם ״פורחות״ — סימן למטר: ענן דק מתחת לענן עבה.' },
 
   { tag: 'נהילא', title: '״נהילא» — <span class="accent">מהולתא וחריא דעיזי</span>',
