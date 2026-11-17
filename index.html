@@ -25,7 +25,9 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="הגמרא שלי">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<script>if ('serviceWorker' in navigator && location.protocol === 'https:') window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator && location.protocol === 'https:') { const had = !!navigator.serviceWorker.controller; window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => r.update()).catch(() => {}));
+  // גרסה חדשה של האתר נכנסה לפעולה: טוענים מחדש פעם אחת, כדי שיראו אותה מיד
+  navigator.serviceWorker.addEventListener('controllerchange', () => { try { if (had && !sessionStorage.getItem('gemara:swrl')) { sessionStorage.setItem('gemara:swrl', '1'); location.reload(); } } catch (e) {} }); }</script>
 <style>
   /* פריסה: טור אחד — ״המשך״ קודם כל, אחר כך המסכתות, ובסוף הסבר קצר */
   :root {
