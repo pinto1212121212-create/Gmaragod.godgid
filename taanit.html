@@ -1736,6 +1736,18 @@
   .rs-gm q { quotes: none; }
   .rs-go { font: inherit; font-size: 12.5px; font-weight: 700; color: var(--gold); background: none; border: 0; border-bottom: 1px solid rgba(200,168,90,.4); padding: 4px 0; margin-bottom: 6px; cursor: pointer; }
   /* הדף המלא: שורת הלשוניות מודבקת תמיד לתחתית חלון ההסבר (מעל הניווט), והתוכן נגלל מעליה */
+  /* 🧭 פס דפים קבוע: כשהכותרת יוצאת מהמסך, למעלה נשאר פס דק עם ‹ דף › (המשתמש: ״תמיד בחירה לעבור דפים מהר למעלה״) */
+  .minibar { position: fixed; top: 0; left: 0; right: 0; z-index: 60; height: 46px; padding: env(safe-area-inset-top, 0px) 12px 0; display: flex; align-items: center; gap: 8px;
+    background: rgba(10,10,10,.96); border-bottom: 1px solid rgba(200,168,90,.25); transform: translateY(-110%); transition: transform .2s; }
+  body.mini .minibar { transform: none; }
+  body.tutorial-mode .minibar, body.modal-open .minibar { display: none; }
+  .mb-b { flex: 0 0 auto; width: 38px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid rgba(200,168,90,.45); background: transparent; color: var(--t-gold, #c8a85a); font: inherit; font-size: 20px; font-weight: 700; text-decoration: none; cursor: pointer; }
+  .mb-b .ico { width: 18px; height: 18px; }
+  .mb-b:disabled { opacity: .3; }
+  .mb-t { flex: 1; min-width: 0; background: none; border: 0; color: #f5f1e8; font: inherit; font-size: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .mb-t b { color: var(--t-gold, #c8a85a); }
+  body.mini .daf-src { top: calc(46px + env(safe-area-inset-top, 0px)); }
+  @media (min-width: 1100px) { body.mini .scene.active > .daf-src { top: 60px; } .minibar { padding-inline: max(12px, calc(50vw - 560px)); } }
   .po-tools { margin-top: 12px; display: flex; flex-direction: column; }
   .po-tools .po-pane { order: 1; }
   .po-tabs { order: 2; position: sticky; bottom: -10px; z-index: 4; margin: 8px -14px -10px; padding: 8px 14px 10px; background: #111; border-top: 1px solid rgba(245,241,232,.10); }
@@ -1896,6 +1908,12 @@
     </a>
   </div>
 
+  <nav class="minibar masechet-only" id="minibar" aria-label="מעבר בין דפים">
+    <a class="mb-b" href="index.html" aria-label="דף הבית"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-6h4v6"/></svg></a>
+    <button type="button" class="mb-b mb-arr" id="mbPrev" aria-label="דף קודם">‹</button>
+    <button type="button" class="mb-t" id="mbTitle" aria-label="לראש הדף">—</button>
+    <button type="button" class="mb-b mb-arr" id="mbNext" aria-label="דף הבא">›</button>
+  </nav>
   <div class="stage" id="stage"></div>
 
   <div class="scene-counter" id="counter"></div>
@@ -4083,5 +4101,20 @@ window.addEventListener('hashchange', readHash);
 })();
 </script>
 
+<script>
+// 🧭 פס הדפים הקבוע: מופיע כשהכותרת (עם ‹ › של הדף) יוצאת מהמסך
+(() => {
+  const hdr = document.querySelector('header'), mb = document.getElementById('minibar'); if (!hdr || !mb) return;
+  const sync = () => { const t = document.getElementById('dafTitle'), p = document.getElementById('prevDafBtn'), n = document.getElementById('nextDafBtn');
+    document.getElementById('mbTitle').innerHTML = '<b>תענית</b> · ' + (t ? t.textContent : '').replace(/</g, '&lt;');
+    document.getElementById('mbPrev').disabled = !!(p && p.disabled); document.getElementById('mbNext').disabled = !!(n && n.disabled); };
+  new IntersectionObserver(([e]) => { document.body.classList.toggle('mini', !e.isIntersecting); sync(); }, { threshold: 0 }).observe(hdr);
+  new MutationObserver(sync).observe(document.getElementById('dafTitle'), { childList: true, characterData: true, subtree: true });
+  document.getElementById('mbPrev').onclick = () => document.getElementById('prevDafBtn').click();
+  document.getElementById('mbNext').onclick = () => document.getElementById('nextDafBtn').click();
+  document.getElementById('mbTitle').onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
+  sync();
+})();
+</script>
 </body>
 </html>
