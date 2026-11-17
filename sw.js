@@ -2,7 +2,7 @@
 // קוד ונתונים (html/js/css): קודם מהרשת (תמיד הגרסה החדשה), ואם אין רשת — מהשמור.
 // תמונות (צילומי דף, איורים, אייקונים): קודם מהשמור, כי הן כמעט לא משתנות; מתעדכנות ברקע.
 // שינוי גדול במבנה, או שינוי של תמונה קיימת (חיתוך מחדש, שינוי מספור קטעים)? מעלים את VERSION — אחרת הטלפון יציג את התמונה הישנה מהשמור.
-const VERSION = 'v39';
+const VERSION = 'v40';
 const CORE = ['./', 'index.html', 'taanit.html', 'tree.html', 'words.html', 'theme.css', 'vip.css', 'prefs.js', 'loader.js', 'explain.js',
   'data/common.js', 'data/taanit/index.js', 'data/taanit/words.js', 'manifest.webmanifest', 'icons/icon-192.png'];
 // רשימת הדפים הבנויים — מהמפה של המסכת (MAS), כך שאין צורך לעדכן כאן כשמוסיפים דף
@@ -31,7 +31,8 @@ self.addEventListener('fetch', e => {
     }));
     return;
   }
-  e.respondWith(fetch(r).then(res => {
+  // קוד ונתונים: תמיד בודקים מול השרת (cache: 'no-cache'), כדי שגרסה חדשה תגיע מיד ולא אחרי 10 דקות של מטמון הדפדפן
+  e.respondWith(fetch(u.href, { cache: 'no-cache', credentials: 'same-origin' }).then(res => {
     if (res.ok) { const cp = res.clone(); caches.open('core-' + VERSION).then(c => c.put(r, cp)); }
     return res;
   }).catch(() => caches.match(r, { ignoreSearch: true }).then(m => m || caches.match('index.html'))));
