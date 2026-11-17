@@ -66,7 +66,7 @@ const refs = Object.keys(BEAT_LOC).sort((a, b) => parseInt(a) - parseInt(b) || a
 const DD = path.join(ROOT, 'data', MAS); fs.mkdirSync(DD, { recursive: true });
 const pick = (O, ref) => Object.fromEntries(Object.entries(O).filter(([k]) => k.split(/[:-]/)[0] === ref));
 const hash = s => crypto.createHash('md5').update(s).digest('hex').slice(0, 8);
-const man = { id: MAS, name: MAS_NAME, refs, names: {}, titles: {}, sums: {}, scenes: {}, marks: {}, box: {}, v: {} };
+const man = { id: MAS, name: MAS_NAME, refs, names: {}, titles: {}, sums: {}, scenes: {}, marks: {}, box: {}, v: {}, iv: {} };
 for (const ref of refs) {
   const pack = {
     tree: T.TREE[ref] || null, sections: T.SECTION_NAMES[ref] || [], topic: T.SUGYA_TOPIC[ref] || [], cx: T.TREE_CX[ref] || [],
@@ -78,7 +78,10 @@ for (const ref of refs) {
   pack.explainTitle = {}; for (const v of Object.values(pack.explain)) for (const x of [].concat(v)) pack.explainTitle[x] = EX.EXPLAIN_TITLE[x];
   const body = `// ✳️ נוצר אוטומטית (.claude/tools/build.py) — לא לערוך ביד. כל הנתונים של ${AMUD_NAME[ref] || ref} (${MAS_NAME}).\nPAGE_IN(${JSON.stringify(ref)}, ${JSON.stringify(pack)});\n`;
   fs.writeFileSync(path.join(DD, ref + '.js'), body);
-  man.v[ref] = hash(body); man.names[ref] = AMUD_NAME[ref] || ref; man.box[ref] = PAGE_BOX[ref] || null;
+  man.v[ref] = hash(body);
+  { // גרסת הצילומים של הדף (מלא + חיתוכים): משתנה כשמחליפים צילום, כדי שהטלפון לא יציג תמונה ישנה מהשמור
+    const ID = path.join(ROOT, 'taanit-img'); const fsx = fs.readdirSync(ID).filter(f => f.startsWith(ref + '-') && f.endsWith('.jpg')).sort();
+    man.iv[ref] = hash(fsx.map(f => f + fs.statSync(path.join(ID, f)).size + crypto.createHash('md5').update(fs.readFileSync(path.join(ID, f))).digest('hex')).join('|')); } man.names[ref] = AMUD_NAME[ref] || ref; man.box[ref] = PAGE_BOX[ref] || null;
   if (pack.tree) { man.titles[ref] = pack.tree.title; man.sums[ref] = pack.tree.sum || ''; }
   man.scenes[ref] = Math.max(pack.sections.length, ...Object.keys(pack.loc).map(k => +k + 1), 0);
   man.marks[ref] = Object.keys(pack.src).map(Number).filter(i => (pack.loc[i] || []).some(x => x)).sort((a, b) => a - b);
