@@ -1702,14 +1702,37 @@
   /* 🧰 סרגל כלי עזר */
   .dock { max-width: 720px; margin: 0 auto 10px; }
   .dock[hidden] { display: none; }
-  .dock-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; direction: rtl; }
+  .dock-tabs { display: flex; gap: 5px; padding: 2px 0; direction: rtl; }
   .dock-tabs::-webkit-scrollbar { display: none; }
-  .dock-tab { flex: 1 0 auto; min-height: 40px; font: inherit; font-size: 14px; font-weight: 700; color: #f5f1e8; background: #141414; border: 1px solid rgba(245,241,232,0.14); border-radius: 12px; padding: 0 12px; cursor: pointer; }
+  .dock-tab { flex: 1 1 0; min-width: 0; min-height: 38px; font: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e8e3d8; background: #141414; border: 1px solid rgba(245,241,232,0.14); border-radius: 11px; padding: 0 4px; cursor: pointer; }
+  .dock-tab.w2 { flex-grow: 1.5; }
   .dock-tab.on { background: var(--gold); color: #111; border-color: var(--gold); }
   .dock-tab:disabled { opacity: .35; cursor: default; }
-  .dock-pane { max-height: min(38vh, 340px); overflow-y: auto; overscroll-behavior: contain; margin-bottom: 8px; padding: 12px 14px 14px; border-radius: 18px; background: #111; border: 1px solid rgba(200,168,90,0.32); box-shadow: 0 -10px 30px rgba(0,0,0,.55); animation: btp .2s ease-out; font-size: calc(15px * var(--fz, 1)); line-height: 1.7; }
+  .dock-pane { position: relative; transition: max-height .25s ease; max-height: min(30vh, 290px); overflow-y: auto; overscroll-behavior: contain; margin-bottom: 8px; padding: 12px 14px 14px; border-radius: 18px; background: #111; border: 1px solid rgba(200,168,90,0.32); box-shadow: 0 -10px 30px rgba(0,0,0,.55); animation: btp .2s ease-out; font-size: calc(15px * var(--fz, 1)); line-height: 1.7; }
   .dock-pane[hidden] { display: none; }
-  .dock-h { position: sticky; top: -12px; z-index: 1; display: flex; align-items: center; gap: 8px; margin: -12px -14px 8px; padding: 10px 14px 8px; background: #111; border-bottom: 1px solid rgba(245,241,232,0.08); font-size: 13.5px; }
+  .dock.big .dock-pane { max-height: min(64vh, 620px); }
+  .dock-grip { width: 42px; height: 4px; border-radius: 2px; background: rgba(245,241,232,.25); margin: -6px auto 6px; cursor: pointer; }
+  .dock-q { font-size: 14px; line-height: 1.55; color: #cfc9bd; margin: -2px 0 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .dock-q b { color: #f5f1e8; }
+  .dock-big { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(245,241,232,0.16); background: transparent; color: #f5f1e8; font-size: 18px; line-height: 1; cursor: pointer; }
+  /* בתוך הסרגל: מילה במילה צפוף יותר, בלי מסגרת */
+  .dock-body .wbw { margin: 0; padding: 0; border: 0 !important; background: none !important; gap: 4px 6px; }
+  .dock-body .ww { padding: 2px 6px; }
+  .dock-body .ww b { font-size: 15px; }
+  .dock-body .ww i { font-size: 11px; }
+  .dock-body .wg { padding: 3px 4px 4px; }
+  .dock-body .wg-mean { font-size: 11px; }
+  /* כשהחלונית פתוחה: הניווט התחתון קטן יותר, כדי שיישאר מקום לקריאה */
+  body.dock-open .progress { display: none; }
+  body.dock-open .nav-btn { width: 40px !important; height: 40px !important; }
+  body.dock-open .nav { padding-bottom: 10px !important; }
+  /* מחשב: הסרגל יושב מתחת לטור ההסבר (השמאלי), לא על הצילום */
+  @media (min-width: 1100px) {
+    .dock { max-width: none; width: calc((min(100vw, 1360px) - 100px) / 2.05); margin-left: calc(max(0px, (100vw - 1360px) / 2) + 10px); margin-right: auto; }
+    .dock-pane { max-height: min(42vh, 420px); }
+    .dock.big .dock-pane { max-height: 70vh; }
+  }
+  .dock-h { position: sticky; top: -12px; touch-action: none; z-index: 1; display: flex; align-items: center; gap: 8px; margin: -12px -14px 8px; padding: 10px 14px 8px; background: #111; border-bottom: 1px solid rgba(245,241,232,0.08); font-size: 13.5px; }
   .dock-h b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #f5f1e8; }
   .dock-no { min-width: 24px; height: 24px; line-height: 22px; text-align: center; border-radius: 50%; font-size: 12px; font-weight: 700; border: 1px solid currentColor; }
   .dock-role { font-weight: 700; }
@@ -1720,7 +1743,7 @@
   .dock-body .g-punct, .dock-body .wbw, .dock-body .bppl { margin-top: 0; }
   .nav { background: linear-gradient(180deg, transparent, var(--ink) 22%) !important; padding-top: 14px !important; }
   .app { padding-bottom: 170px !important; }
-  body.dock-open .app { padding-bottom: calc(min(38vh, 340px) + 190px) !important; }
+  body.dock-open .app { padding-bottom: calc(min(30vh, 290px) + 160px) !important; }
   .bt-tabs { display: flex; flex-wrap: wrap; gap: 5px; }
   .bt-tabs::-webkit-scrollbar { display: none; }
   .bt-tab { flex: 0 0 auto; min-height: 32px; font: inherit; font-size: 12.5px; font-weight: 700; color: var(--parchment-dim); background: rgba(236,233,226,0.05); border: 1px solid rgba(236,233,226,0.12); border-radius: 16px; padding: 4px 11px; cursor: pointer; white-space: nowrap; }
@@ -2724,6 +2747,7 @@ function beatMore(ref, si, bi, kt) {
 // התוכן תמיד של השלב שקוראים עכשיו (activeBeatIdx), ומתחלף לבד בגלילה. הלשונית שנבחרה נזכרת (gemara:dock).
 let dockTab = ''; try { dockTab = localStorage.getItem('gemara:dock') || ''; } catch (e) {}
 let dockKey = '';
+let dockBig = false; try { dockBig = localStorage.getItem('gemara:dockbig') === '1'; } catch (e) {}
 function beatTabs(ref, si, bi) {
   const key = `${ref}:${si}:${bi}`;
   const c = typeof CONTEXT !== 'undefined' && CONTEXT[key], f = flowHTML(key);
@@ -2748,17 +2772,25 @@ function dockUpdate(force) {
   const tabs = beatTabs(state.ref, state.sceneIdx, bi), on = tabs.some(t => t[0] === dockTab && t[2]) ? dockTab : '';
   const R = beatRole(state.ref, state.sceneIdx, bi), who = (sc.beats[bi] || [])[1] || '';
   document.getElementById('dockTabs').innerHTML = tabs.map(([id, lb, body]) =>
-    `<button type="button" role="tab" class="dock-tab${id === on ? ' on' : ''}" data-dk="${id}" aria-selected="${id === on}"${body ? '' : ' disabled'}>${lb}</button>`).join('');
+    `<button type="button" role="tab" class="dock-tab${id === on ? ' on' : ''}${id === 'ww' ? ' w2' : ''}" data-dk="${id}" aria-selected="${id === on}"${body ? '' : ' disabled'}>${lb}</button>`).join('');
   const pane = document.getElementById('dockPane'), t = tabs.find(x => x[0] === on);
   pane.hidden = !t;
   document.body.classList.toggle('dock-open', !!t);
-  if (t) pane.innerHTML = `<div class="dock-h role-${R}"><span class="dock-no">${bi + 1}</span><span class="dock-role">${ROLE[R][1]}</span><b>${who}</b><button type="button" class="dock-x" aria-label="סגור">✕</button></div><div class="dock-body">${t[2]}</div>`;
+  if (t) pane.innerHTML = `<div class="dock-grip" aria-hidden="true"></div><div class="dock-h role-${R}"><span class="dock-no">${bi + 1}</span><span class="dock-role">${ROLE[R][1]}</span><b>${who}</b><button type="button" class="dock-big" aria-label="${dockBig ? 'הקטן' : 'הגדל'}">${dockBig ? '⌄' : '⌃'}</button><button type="button" class="dock-x" aria-label="סגור">✕</button></div><div class="dock-q">${(sc.beats[bi] || [])[2] || ''}</div><div class="dock-body">${t[2]}</div>`;
+  dock.classList.toggle('big', dockBig);
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('.dock-tab');
   if (b && !b.disabled) { dockTab = b.classList.contains('on') ? '' : b.dataset.dk; try { localStorage.setItem('gemara:dock', dockTab); } catch (er) {} dockUpdate(true); const p = document.getElementById('dockPane'); if (p) p.scrollTop = 0; return; }
+  if (e.target.closest('.dock-big') || e.target.closest('.dock-grip')) { dockBig = !dockBig; try { localStorage.setItem('gemara:dockbig', dockBig ? '1' : '0'); } catch (er) {} dockUpdate(true); return; }
   if (e.target.closest('.dock-x')) { dockTab = ''; try { localStorage.setItem('gemara:dock', ''); } catch (er) {} dockUpdate(true); }
 });
+(() => { let y0 = null;
+  document.addEventListener('touchstart', e => { const h = e.target.closest('.dock-h, .dock-grip'); y0 = h ? e.touches[0].clientY : null; }, { passive: true });
+  document.addEventListener('touchend', e => { if (y0 == null) return; const dy = e.changedTouches[0].clientY - y0; y0 = null;
+    if (dy > 50) { if (dockBig) { dockBig = false; } else { dockTab = ''; try { localStorage.setItem('gemara:dock', ''); } catch (er) {} } try { localStorage.setItem('gemara:dockbig', dockBig ? '1' : '0'); } catch (er) {} dockUpdate(true); }
+    else if (dy < -50 && !dockBig) { dockBig = true; try { localStorage.setItem('gemara:dockbig', '1'); } catch (er) {} dockUpdate(true); } }, { passive: true });
+})();
 function btTabClick(b) {
   const id = b.dataset.bt, was = b.classList.contains('on');
   bTab = was ? '' : id; try { localStorage.setItem('gemara:btab', bTab); } catch (e) {}
