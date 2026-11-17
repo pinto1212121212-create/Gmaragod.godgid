@@ -7824,7 +7824,7 @@ function beatTabs(ref, si, bi) {
 }
 // 📖 ״מצב דף מלא״ (המשתמש: ״שהדף עם המירקור יהיה כמו דף הבית... כאופציה בסרגל הכלים כמו האילן״):
 // בוחרים ״הדף המלא״ בסרגל — והלימוד נפתח תמיד בדף המלא עם הסימונים. ✕ / ״תצוגה רגילה״ מחזירים לתצוגה הרגילה.
-let poMode = false; try { poMode = localStorage.getItem('gemara:pomode') === '1'; } catch (e) {}
+let poMode = true; try { poMode = localStorage.getItem('gemara:pomode') !== '0'; } catch (e) {}   // ברירת מחדל: דף מלא (המשתמש: ״שזה יהיה ברירת המחדל מההתחלה״)
 function setPoMode(on) { poMode = on; try { localStorage.setItem('gemara:pomode', on ? '1' : '0'); } catch (e) {} }
 function poModeOpen() {
   const sc = amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
