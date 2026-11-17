@@ -314,6 +314,13 @@
   @media (min-width: 1100px) { .sh-text { font-size: calc(22px * var(--fz, 1)); } }
   .sh-pane, .sh-ctx p { font-size: calc(14.5px * var(--fz, 1)); }
   #where.loading::after { content: '⏳ טוען את הדף…'; display: block; text-align: center; font-weight: 800; color: var(--gold, #c8a85a); padding: 4px 0; }
+  .rsi { padding: 10px 12px; border-radius: 14px; background: #17140f; border: 1px solid rgba(200,149,104,.35); border-right: 3px solid #c89568; margin-bottom: 8px; }
+  .rsi.flash { box-shadow: 0 0 0 2px rgba(200,168,90,.8); }
+  .rsi-dh { display: inline-block; font-family: 'Frank Ruhl Libre', serif; font-weight: 700; font-size: 15px; color: #111; background: #c89568; border-radius: 6px; padding: 1px 8px; margin-bottom: 6px; }
+  .rsi-t { font-family: 'Frank Ruhl Libre', serif; font-size: 16px; line-height: 1.75; color: #f0ead9; }
+  .rsi-p { margin-top: 6px; font-size: 14px; line-height: 1.65; color: var(--dim); }
+  .rsi-p b { color: var(--gold); }
+  mark.rs-dh { background: none; color: inherit; border-bottom: 2px dotted #c89568; cursor: pointer; }
   .psk { padding: 10px 12px; border-radius: 14px; background: #161512; border: 1px solid rgba(200,168,90,.3); margin-bottom: 8px; }
   .psk-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 4px; }
   .psk-h b { color: var(--gold); font-size: 14.5px; }
@@ -379,8 +386,8 @@
 
 <!-- 📦 הנתונים נטענים לפי דף: המפה של המסכת + מילון, ואז loader.js טוען את data/<מסכת>/<ref>.js כשנכנסים לדף -->
 <script src="data/common.js?v=2c7990a2"></script>
-<script src="data/taanit/index.js?v=c7c4d6e9"></script>
-<script src="loader.js?v=0f3a4e20"></script>
+<script src="data/taanit/index.js?v=5087a7b8"></script>
+<script src="loader.js?v=9993114f"></script>
 <script src="explain.js?v=221640a8"></script>
 <script>
 const ROLE = { m: ['●', 'משנה / מקור'], q: ['●', 'שאלה'], x: ['●', 'דחייה'], a: ['●', 'תירוץ'], c: ['●', 'מסקנה'], n: ['●', 'מעשה / ראיה'], k: ['●', 'הסבר'] };
@@ -676,7 +683,7 @@ function ctxOf(n) {
 }
 // ===== סרגל הכלים בחלונית =====
 // 🧰 הלשונית משותפת לכל האתר (gemara:tool): מה שבחרת בדף הלימוד נפתח גם כאן
-const T2S = { ctx: 'cx', ww: 'wbw', kt: 'tm', gm: 'gm', tk: 'tk', ps: 'ps' }, S2T = { cx: 'ctx', wbw: 'ww', tm: 'kt', gm: 'gm', tk: 'tk', ps: 'ps' };
+const T2S = { ctx: 'cx', ww: 'wbw', kt: 'tm', gm: 'gm', tk: 'tk', ps: 'ps', rs: 'rs' }, S2T = { cx: 'ctx', wbw: 'ww', tm: 'kt', gm: 'gm', tk: 'tk', ps: 'ps', rs: 'rs' };
 let shTab = 'tk'; try { const g = localStorage.getItem('gemara:tool'); shTab = (g && T2S[g]) || localStorage.getItem('gemara:shtab') || 'tk'; } catch (e) {}
 function cxKeys(n) {
   const e = typeof TREE_CX !== 'undefined' && TREE_CX[st.ref] && TREE_CX[st.ref][n.seq - 1];
@@ -710,7 +717,8 @@ function toolbar(n, kids) {
       ${kids.length ? `<div class="sh-kids"><div class="kh">⬇ מה עונים על זה (${kids.length})</div>${kids.map((k, i) =>
         `<button class="kid" data-i="${i}" style="--kc:${COL[k.r]}"><b>${ROLE[k.r][0]} ${relLabel(k) || ROLE[k.r][1]}</b> ${k.w}: ${short(k.t, 34)}</button>`).join('')}</div>` : ''}`],
     ['cx', 'ההקשר', cx ? `<div class="sh-ctxp">${cx}</div>` : ''],
-    ['gm', 'בגמרא', gm.map(t => `<div class="g-punct">${t.replace(/״([^״]+)״/g, '<q>״$1״</q>')}</div>`).join('')],
+    ['gm', 'בגמרא', (h => typeof rashiMark === 'function' ? rashiMark(h, ks) : h)(gm.map(t => `<div class="g-punct">${t.replace(/״([^״]+)״/g, '<q>״$1״</q>')}</div>`).join(''))],
+    ['rs', 'רש״י', typeof rashiHTML === 'function' ? rashiHTML(ks) : ''],
     ['ps', 'הפסוק', typeof psukHTML === 'function' ? psukHTML(ks) : ''],
     ['wbw', 'מילה במילה', ww.map(wbwBlock).join('')],
     ['tm', 'מונחים', terms.length ? `<div class="sh-terms">${terms.map(([t, d]) => `<div><b>${t}</b><span>${d}</span></div>`).join('')}</div>` : ''],

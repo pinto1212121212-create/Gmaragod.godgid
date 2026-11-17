@@ -1718,6 +1718,20 @@
   /* 🧰 סרגל כלי עזר */
   .dock { max-width: 720px; margin: 0 auto 10px; }
   .dock[hidden] { display: none; }
+  /* 📜 רש״י צמוד */
+  .rsi { padding: 10px 12px; border-radius: 14px; background: #17140f; border: 1px solid rgba(200,149,104,.35); border-right: 3px solid var(--rashi, #c89568); margin-bottom: 8px; transition: box-shadow .3s; }
+  .rsi.flash { animation: rsFlash 1.2s ease-out; }
+  @keyframes rsFlash { 0% { box-shadow: 0 0 0 3px rgba(200,168,90,.8); } 100% { box-shadow: 0 0 0 0 rgba(200,168,90,0); } }
+  .rsi-dh { display: inline-block; font-family: 'Frank Ruhl Libre', serif; font-weight: 700; font-size: 15px; color: #111; background: var(--rashi, #c89568); border-radius: 6px; padding: 1px 8px; margin-bottom: 6px; }
+  .rsi-t { font-family: 'Frank Ruhl Libre', serif; font-size: calc(16px * var(--fz, 1)); line-height: 1.75; color: #f0ead9; }
+  .rsi-p { margin-top: 6px; font-size: calc(14px * var(--fz, 1)); line-height: 1.65; color: var(--parchment-dim); }
+  .rsi-p b { color: var(--gold); font-weight: 700; }
+  mark.rs-dh { background: none; color: inherit; border-bottom: 2px dotted var(--rashi, #c89568); padding-bottom: 1px; cursor: pointer; }
+  mark.rs-dh::after { content: 'רש״י'; font-family: 'Heebo', sans-serif; font-size: 9.5px; font-weight: 700; color: var(--rashi, #c89568); vertical-align: super; margin-right: 2px; }
+  .bt-rs { font: inherit; font-size: 11.5px; font-weight: 700; color: var(--rashi, #c89568); background: transparent; border: 1px solid rgba(200,149,104,.55); border-radius: 999px; padding: 1px 9px; min-height: 26px; cursor: pointer; }
+  .rs-modal-h { font-size: 13px; color: var(--parchment-dim); margin-bottom: 12px; }
+  .rs-grp { margin-bottom: 14px; }
+  .rs-go { font: inherit; font-size: 12.5px; font-weight: 700; color: var(--gold); background: none; border: 0; border-bottom: 1px solid rgba(200,168,90,.4); padding: 4px 0; margin-bottom: 6px; cursor: pointer; }
   .po-tools { margin-top: 12px; }
   .po-tabs { margin-bottom: 10px; }
   .po-pane { display: none; }
@@ -6516,7 +6530,7 @@ const PUNCT = {
 function punctHTML(key) {
   const t = PUNCT[key];
   if (!t) return '';
-  return `<div class="g-punct"><span class="gp-lbl">📜 בגמרא</span>${t.replace(/״([^״]+)״/g, '<q>״$1״</q>')}</div>`;
+  return `<div class="g-punct"><span class="gp-lbl">בגמרא</span>${t.replace(/״([^״]+)״/g, '<q>״$1״</q>')}</div>`;
 }
 
 
@@ -7697,7 +7711,8 @@ function beatMore(ref, si, bi, kt) {
   const pp = pplBeatHTML(ref, si, bi);
   const tabs = [
     ['ctx', 'ההקשר', c || f ? `<div class="ctx">${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</div>` : ''],
-    ['gm', 'בגמרא', punctHTML(key)],
+    ['gm', 'בגמרא', rashiMark(punctHTML(key), key)],
+    ['rs', 'רש״י', rashiHTML(key)],
     ['ps', 'הפסוק', psukHTML(key)],
     ['ww', 'מילה במילה', ww ? ww + `<a class="ww-go" href="words.html?ref=${ref}">לתרגל את המילים של הדף ←</a>` : ''],
     ['pp', /class="bp vs"/.test(pp) ? 'מי ומה' : 'מי', pp],
@@ -7721,7 +7736,8 @@ function beatTabs(ref, si, bi) {
   const pp = pplBeatHTML(ref, si, bi), kt = keyTerm(ref, si, bi);
   return [
     ['ctx', 'ההקשר', c || f ? `<div class="ctx">${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</div>` : ''],
-    ['gm', 'בגמרא', punctHTML(key)],
+    ['gm', 'בגמרא', rashiMark(punctHTML(key), key)],
+    ['rs', 'רש״י', rashiHTML(key)],
     ['ps', 'הפסוק', psukHTML(key)],
     ['ww', 'מילה במילה', ww ? ww + `<a class="ww-go" href="words.html?ref=${ref}">לתרגל את המילים של הדף ←</a>` : ''],
     ['pp', /class="bp vs"/.test(pp) ? 'מי ומה' : 'מי', pp],
@@ -7772,6 +7788,7 @@ function btTabClick(b) {
 }
 
 function onBeatsClick(ev) {
+  { const rb = ev.target.closest('.bt-rs'); if (rb) { ev.stopPropagation(); focusBeat = +rb.dataset.rsk; dockTab = 'rs'; toolSave(); dockKey = ''; showLoc(); return; } }
   { const bt = ev.target.closest('.bt-tab'); if (bt) { ev.stopPropagation(); btTabClick(bt); return; } }
   if (ev.target.closest('.bt-pane')) return;   // בתוך לשונית פתוחה: לא מחליפים שלב
   if (ev.target.closest('.bppl')) return;   // קישור לכרטיס האמורא בעץ
@@ -8326,7 +8343,7 @@ function renderHeader() {
 
 function renderActionBar() {
   const amud = amudim[state.ref];
-  document.getElementById('rashiCount').textContent = amud.rashi.length;
+  { const n = Object.keys(RASHI_AT).filter(k => k.startsWith(state.ref + ':')).reduce((t, k) => t + RASHI_AT[k].length, 0); document.getElementById('rashiCount').textContent = n || amud.rashi.length; }
   document.getElementById('tosCount').textContent = amud.tosafot.length;
   document.getElementById('rashiBtn').classList.toggle('disabled', amud.rashi.length === 0);
   document.getElementById('tosBtn').classList.toggle('disabled', amud.tosafot.length === 0);
@@ -8344,7 +8361,7 @@ function beatsHTML(sc, si) {
     ${b.length ? `<div class="beats" onclick="onBeatsClick(event)">${b.map((x, i) => {
       const r = beatRole(state.ref, si, i), kt = keyTerm(state.ref, si, i);
       const link = i ? `<div class="blink" data-i="${i}"><span class="bl-arrow">↓</span><span class="bl-txt">${linkText(beatRole(state.ref, si, i - 1), r)}</span></div>` : '';
-      return link + `<div class="beat bt-${x[0]} role-${r}" data-i="${i}"><span class="bt-role">${ROLE[r][0]} ${ROLE[r][1]}</span><span class="bt-who">${x[1]}</span><span class="bt-txt">${x[2]}</span>${tkOnly(`${state.ref}:${si}:${i}`)}${state.tab === 'masechet' ? starBtn(`${state.ref}:${si}:${i}`) : ''}${canSpeak ? `<button type="button" class="speak-btn bt-say" aria-label="הקראה בקול" aria-pressed="false" title="הקראה בקול" onclick="sayBeat(event, ${si}, ${i})">🔊</button>` : ''}${''}</div>`; }).join('')}</div>
+      return link + `<div class="beat bt-${x[0]} role-${r}" data-i="${i}"><span class="bt-role">${ROLE[r][0]} ${ROLE[r][1]}</span><span class="bt-who">${x[1]}</span>${(RASHI_AT[`${state.ref}:${si}:${i}`] || []).length ? `<button type="button" class="bt-rs" data-rsk="${i}" aria-label="רש״י על השלב">רש״י${RASHI_AT[`${state.ref}:${si}:${i}`].length > 1 ? ' · ' + RASHI_AT[`${state.ref}:${si}:${i}`].length : ''}</button>` : ''}<span class="bt-txt">${x[2]}</span>${tkOnly(`${state.ref}:${si}:${i}`)}${state.tab === 'masechet' ? starBtn(`${state.ref}:${si}:${i}`) : ''}${canSpeak ? `<button type="button" class="speak-btn bt-say" aria-label="הקראה בקול" aria-pressed="false" title="הקראה בקול" onclick="sayBeat(event, ${si}, ${i})">🔊</button>` : ''}${''}</div>`; }).join('')}</div>
     <div class="step-ctl"><button class="step-next" onclick="stepBeat(1)">המשך ▼ <span class="step-n"></span></button>
       <button class="step-all" onclick="revealAll()">הצג הכל</button></div>` : ''}
     <div class="after">
@@ -8651,6 +8668,13 @@ function openModal(type) {
   const content = document.getElementById(type === 'rashi' ? 'rashiContent' : 'tosContent');
 
   content.innerHTML = '';
+  const ra = type === 'rashi' && Object.keys(RASHI_AT).filter(k => k.startsWith(state.ref + ':')).sort((a, b) => { const [, a1, a2] = a.split(':').map(Number), [, b1, b2] = b.split(':').map(Number); return a1 - b1 || a2 - b2; });
+  if (ra && ra.length) {
+    content.innerHTML = '<div class="rs-modal-h">רש״י מסודר לפי השלבים בגמרא. הקשה על ״לשלב״ — קופצת לגמרא, והפירוש נפתח בסרגל.</div>' + ra.map(k => { const [, s, b] = k.split(':'); const sc = amud.scenes[+s], bt = sc && sc.beats && sc.beats[+b];
+      return `<div class="rs-grp"><button type="button" class="rs-go" data-k="${k}">לשלב ← קטע ${+s + 1}${bt ? ' · ' + bt[1].replace(/<[^>]+>/g, '') : ''}</button>${rashiHTML(k)}</div>`; }).join('');
+    content.querySelectorAll('.rs-go').forEach(g => g.onclick = () => { closeModal(); dockTab = 'rs'; toolSave(); dockKey = ''; goStar(g.dataset.k); });
+    document.getElementById('modalOverlay').classList.add('open'); modal.classList.add('open'); return;
+  }
   entries.forEach(e => {
     const div = document.createElement('div');
     div.className = 'meforesh-entry';
