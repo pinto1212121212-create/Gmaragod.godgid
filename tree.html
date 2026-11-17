@@ -330,9 +330,9 @@
 <body>
 <div class="top">
   <div class="row1">
-    <a class="ib" href="index.html" aria-label="דף הבית">🏠</a>
-    <div class="ttl"><small>מסכת תענית</small><b><i class="vip-ico">🌳</i> עץ הסוגיה</b></div>
-    <a class="ib" id="backLink" href="taanit.html" aria-label="חזרה להסבר">📖</a>
+    <a class="ib" href="index.html" aria-label="דף הבית"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-6h4v6"/></svg></a>
+    <div class="ttl"><small>מסכת תענית</small><b>עץ הסוגיה</b></div>
+    <a class="ib" id="backLink" href="taanit.html" aria-label="חזרה להסבר"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5"/><path d="M12 6.5C14 5 17 4.5 20.5 5v13c-3.5-.5-6.5 0-8.5 1.5"/><path d="M12 6.5v13"/></svg></a>
   </div>
   <div class="tabs" id="tabs"></div>
 </div>
@@ -350,9 +350,9 @@
   <div class="hud">
     <button class="ib" id="zIn" aria-label="הגדל">+</button>
     <button class="ib" id="zOut" aria-label="הקטן">−</button>
-    <button class="ib" id="zFit" aria-label="כל העץ">⤢</button>
-    <button class="ib" id="lgBtn" aria-label="מקרא">🎨</button>
-    <button class="ib" id="pfBtn" aria-label="נוחות ונגישות" aria-expanded="false">⚙️</button>
+    <button class="ib" id="zFit" aria-label="כל העץ"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    <button class="ib" id="lgBtn" aria-label="מקרא"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 21a2.5 2.5 0 0 1 0-5h2a3 3 0 0 0 3-3"/></svg></button>
+    <button class="ib" id="pfBtn" aria-label="נוחות ונגישות" aria-expanded="false"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
   </div>
   <div class="pf-pop" id="pfPop" hidden role="dialog" aria-label="נוחות ונגישות"></div>
   <div class="legend hide" id="legend">
@@ -376,9 +376,9 @@
 <script src="data/common.js?v=1bb0ea65"></script>
 <script src="data/taanit/index.js?v=434e53ba"></script>
 <script src="loader.js?v=c847b339"></script>
-<script src="explain.js?v=621d9d7f"></script>
+<script src="explain.js?v=221640a8"></script>
 <script>
-const ROLE = { m: ['📜', 'משנה / מקור'], q: ['❓', 'שאלה'], x: ['⚡', 'דחייה'], a: ['✅', 'תירוץ'], c: ['📌', 'מסקנה'], n: ['📖', 'סיפור / ראיה'], k: ['💡', 'הסבר'] };
+const ROLE = { m: ['●', 'משנה / מקור'], q: ['●', 'שאלה'], x: ['●', 'דחייה'], a: ['●', 'תירוץ'], c: ['●', 'מסקנה'], n: ['●', 'מעשה / ראיה'], k: ['●', 'הסבר'] };
 const COL = { m: '#5fb2ff', q: '#ff5d72', x: '#ff5d72', a: '#6fd35c', c: '#ffc94d', n: '#c8a85a', k: '#b296ff' };
 const ORD = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'], ORDF = ['ראשונה', 'שנייה', 'שלישית', 'רביעית', 'חמישית', 'שישית'];
 const RN = { a: ['תירוץ', 0], q: ['קושיה', 1], x: ['דחייה', 1], c: ['מסקנה', 1], n: ['ראיה', 1], m: ['מקור', 0], k: ['הסבר', 0] };
@@ -514,7 +514,7 @@ function draw() {
     const ex = typeof explainNames === 'function' ? explainNames(st.ref, top) : [];
     if (ex.length) { const g = el('g', { class: 'ex-map', transform: `translate(${top.x + NW / 2 + 52} ${top.y})` }, N);
       el('rect', { x: -42, y: -17, width: 84, height: 34, rx: 17 }, g);
-      const tx = el('text', { x: 0, y: 5 }, g); tx.textContent = ex.length > 1 ? `🖼️ איור ×${ex.length}` : '🖼️ איור';
+      const tx = el('text', { x: 0, y: 5 }, g); tx.textContent = ex.length > 1 ? `איור ×${ex.length}` : 'איור';
       g.addEventListener('click', e => { e.stopPropagation(); ex.length > 1 ? exPick(ex) : openExplain(ex[0]); });
       g.addEventListener('pointerdown', e => e.stopPropagation()); } });
   // שורש: הדף עצמו
@@ -563,14 +563,14 @@ function where(n) {
                  : 'מקישים על צומת כדי לראות איפה הוא בדיון';
   box.innerHTML = `<a class="wh-th" href="${BASE}taanit.html#${st.ref}-${s}" aria-label="המקום בדף">
       <img src="taanit-img/${st.ref}-full.jpg" alt="">${src ? `<i style="left:${src[0]}%;top:${src[1]}%;width:${src[2]}%;height:${src[3]}%"></i>` : ''}</a>
-    <div class="wh-tx"><div class="wh-l1">📍 <b>${TREE[st.ref].title}</b> · סוגיה ${i + 1} מתוך ${root.k.length}${SN[s] ? ` · קטע: ${SN[s]}` : ''}</div>
+    <div class="wh-tx"><div class="wh-l1"><b>${TREE[st.ref].title}</b> · סוגיה ${i + 1} מתוך ${root.k.length}${SN[s] ? ` · קטע: ${SN[s]}` : ''}</div>
       <div class="wh-l2">${tp}</div><div class="wh-l3">${path}</div>${exChips(top)}</div>`;
   pplBar(i);
 }
 // 🖼️ ההסברים המאוירים של הסוגיה שעל המסך: כפתורים בפס ״איפה אנחנו״
 function exChips(top) {
   const ex = typeof explainNames === 'function' ? explainNames(st.ref, top) : [];
-  return ex.length ? `<div class="wh-ex">${ex.map(x => `<button type="button" onclick="openExplain('${x}')">🖼️ ${EXPLAIN_TITLE[x] || 'הסבר מאויר'}</button>`).join('')}</div>` : '';
+  return ex.length ? `<div class="wh-ex">${ex.map(x => `<button type="button" onclick="openExplain('${x}')">${EXPLAIN_TITLE[x] || 'הסבר מאויר'}</button>`).join('')}</div>` : '';
 }
 function exPick(ex) {   // כמה איורים לסוגיה: תפריט בחירה
   let m = document.getElementById('exPick');
@@ -641,7 +641,7 @@ function sheet(n) {
     <div class="sh-text">${linkNames(n.t)}</div>
     ${toolbar(n, kids)}
     <div class="sh-nav"><button class="sk" id="shPrev" aria-label="השלב הקודם"${n.seq === 1 ? ' disabled' : ''}>▶ הקודם</button><button class="play" id="shPlay">${story ? '❚❚ עצור' : '▶ סיפור'}</button><button class="sk" id="shNext" aria-label="השלב הבא"${n.seq === flat.length ? ' disabled' : ''}>הבא ◀</button></div>
-    <div class="sh-acts"><a class="pri" href="${BASE}taanit.html#${st.ref}-${n.s}">↩ להסבר המלא</a><button class="sec" id="shUp">${n.parent && n.parent.r !== 'root' ? '⬆ לשלב שמעל' : '⤢ כל העץ'}</button></div>
+    <div class="sh-acts"><a class="pri" href="${BASE}taanit.html#${st.ref}-${n.s}">↩ להסבר המלא</a><button class="sec" id="shUp">${n.parent && n.parent.r !== 'root' ? '↑ לשלב שמעל' : 'כל העץ'}</button></div>
     <div style="text-align:center;font-size:12px;color:var(--dim);margin-top:8px">קטע ״${SN[n.s] || n.s + 1}״</div>`;
   sh.classList.add('open');
   sheetSize(shPref, true);
@@ -667,7 +667,7 @@ function ctxOf(n) {
   const body = parts.filter(Boolean).map(t => `<p>${t}</p>`).join('');
   if (!body) return '';
   let open = true; try { open = localStorage.getItem('gemara:ctxT') !== '0'; } catch (er) {}
-  return `<details class="sh-ctx"${open ? ' open' : ''} ontoggle="try{localStorage.setItem('gemara:ctxT',this.open?'1':'0')}catch(e){}"><summary>🧭 ההקשר המלא — על מה מדברים כאן</summary>${body}</details>`;
+  return `<details class="sh-ctx"${open ? ' open' : ''} ontoggle="try{localStorage.setItem('gemara:ctxT',this.open?'1':'0')}catch(e){}"><summary>ההקשר המלא · על מה מדברים כאן</summary>${body}</details>`;
 }
 // ===== סרגל הכלים בחלונית =====
 let shTab = 'tk'; try { shTab = localStorage.getItem('gemara:shtab') || 'tk'; } catch (e) {}
@@ -699,19 +699,19 @@ function toolbar(n, kids) {
   const terms = (T.KEY_TERMS || []).filter(([t]) => hay.includes(t));
   const cx = ctxBody(n);
   const panes = [
-    ['tk', '🎯 בתכלס', `<div class="sh-exp"><b>🎯 בתכלס:</b> ${linkNames(n.e)}</div>${tks.length && !tks.includes(n.e) ? `<div class="sh-tk2">${tks.join('<br>')}</div>` : ''}
+    ['tk', 'בתכלס', `<div class="sh-exp"><b>בתכלס:</b> ${linkNames(n.e)}</div>${tks.length && !tks.includes(n.e) ? `<div class="sh-tk2">${tks.join('<br>')}</div>` : ''}
       ${kids.length ? `<div class="sh-kids"><div class="kh">⬇ מה עונים על זה (${kids.length})</div>${kids.map((k, i) =>
         `<button class="kid" data-i="${i}" style="--kc:${COL[k.r]}"><b>${ROLE[k.r][0]} ${relLabel(k) || ROLE[k.r][1]}</b> ${k.w}: ${short(k.t, 34)}</button>`).join('')}</div>` : ''}`],
-    ['cx', '🧭 ההקשר', cx ? `<div class="sh-ctxp">${cx}</div>` : ''],
-    ['gm', '📜 בגמרא', gm.map(t => `<div class="g-punct">${t.replace(/״([^״]+)״/g, '<q>״$1״</q>')}</div>`).join('')],
-    ['wbw', '🔤 מילה במילה', ww.map(wbwBlock).join('')],
-    ['tm', '💡 מונחים', terms.length ? `<div class="sh-terms">${terms.map(([t, d]) => `<div><b>${t}</b><span>${d}</span></div>`).join('')}</div>` : ''],
+    ['cx', 'ההקשר', cx ? `<div class="sh-ctxp">${cx}</div>` : ''],
+    ['gm', 'בגמרא', gm.map(t => `<div class="g-punct">${t.replace(/״([^״]+)״/g, '<q>״$1״</q>')}</div>`).join('')],
+    ['wbw', 'מילה במילה', ww.map(wbwBlock).join('')],
+    ['tm', 'מונחים', terms.length ? `<div class="sh-terms">${terms.map(([t, d]) => `<div><b>${t}</b><span>${d}</span></div>`).join('')}</div>` : ''],
   ];
   let cur = panes.find(p => p[0] === shTab && p[2]) ? shTab : 'tk';
   // הצילום עם המילים המודגשות — תמיד גלוי וצמוד למעלה, מעל הלשוניות (גם במילה במילה)
   const bk = ks.map(k => k.split(':')).find(([r, s]) => r === st.ref && +s === n.s);
   const dafHref = `${BASE}taanit.html#${st.ref}-${n.s}${bk ? '-' + bk[2] : ''}-daf-n${n.seq}`;   // n = הצומת, כדי לחזור אליו
-  const img = `<a class="sh-img sh-daf" href="${dafHref}" aria-label="הדף המלא עם הסימון"><div class="sh-dafbar"><span class="sh-dafhint">📖 לדף המלא</span></div><div class="sh-imgw"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onload="shImgFocus()" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></a>`;
+  const img = `<a class="sh-img sh-daf" href="${dafHref}" aria-label="הדף המלא עם הסימון"><div class="sh-dafbar"><span class="sh-dafhint">לדף המלא ←</span></div><div class="sh-imgw"><img src="taanit-img/${st.ref}-${n.s}.jpg" alt="לשון הגמרא בדף" onload="shImgFocus()" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></a>`;
   return `<div class="sh-pin">${img}<div class="sh-tabs" role="tablist">${panes.map(([id, lb, body]) => `<button class="sh-tab${id === cur ? ' on' : ''}" data-t="${id}"${body ? '' : ' disabled'}>${lb}</button>`).join('')}</div></div>
     ${typeof explainTree === 'function' ? explainTree(st.ref, n) : ''}
     ${panes.map(([id, , body]) => `<div class="sh-pane${id === cur ? ' on' : ''}" data-t="${id}">${body || '<div class="sh-none">אין לשלב הזה</div>'}</div>`).join('')}`;
@@ -855,7 +855,7 @@ $('zIn').onclick = () => zoomBy(1.35); $('zOut').onclick = () => zoomBy(1 / 1.35
 $('lgBtn').onclick = () => $('legend').classList.toggle('hide');
 // ⚙️ נוחות ונגישות (prefs.js)
 $('pfBtn').onclick = () => { const p = $('pfPop'), open = p.hidden;
-  if (open) { p.innerHTML = `<div class="pf-h"><b>⚙️ נוחות ונגישות</b><button type="button" class="pf-x" aria-label="סגור">✕</button></div>${prefsHTML()}`; prefBind(p); p.querySelector('.pf-x').onclick = () => $('pfBtn').click(); }
+  if (open) { p.innerHTML = `<div class="pf-h"><b>נוחות ונגישות</b><button type="button" class="pf-x" aria-label="סגור">✕</button></div>${prefsHTML()}`; prefBind(p); p.querySelector('.pf-x').onclick = () => $('pfBtn').click(); }
   p.hidden = !open; $('pfBtn').setAttribute('aria-expanded', open); if (open) p.querySelector('.pf-x').focus(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('pfPop').hidden) $('pfBtn').click(); });
 // 🔊 הקראת הצומת הפתוח: מי, מה, ובתכלס
@@ -910,7 +910,7 @@ function pplBar(i) {
     .filter(x => isFinite(x.first)).sort((a, b) => (b.talks - a.talks) || (a.first - b.first)).map(x => x.p);
   const key = st.ref + i + '|' + (st.person ? st.person.id : '') + list.map(p => p.id).join();
   if (key === pplLast) return; pplLast = key;
-  bar.innerHTML = list.length ? `<span class="lb">${KIP.two} מי כאן:</span>` + list.map(p => {
+  bar.innerHTML = list.length ? `<span class="lb">מי כאן:</span>` + list.map(p => {
     const self = p.vs.some(v => v.self);
     return `<button class="pc${st.person === p ? ' on' : ''}" data-p="${p.id}" style="--pc:${p.c}" aria-pressed="${st.person === p}"><span class="av">${p.ab}</span>${p.n}${self ? '<span class="bolt" title="סותר את עצמו?">⚡</span>' : ''}${st.person === p ? '<span class="x">✕</span>' : ''}</button>`;
   }).join('') : '';
@@ -994,7 +994,7 @@ function personSheet(p) {
   sh.style.setProperty('--rc', p.c); sh.style.setProperty('--pc', p.c);
   const says = p.says.map((s, i) => { const e = extRef(s[0]), n = nodeOf(s[0]);
     return `<button class="say" ${e ? `data-ref="${e[0]}" data-seq="${e[1]}"` : `data-go="${n ? n.seq : ''}"`}><span class="nm">${i + 1}</span><span>${s[1]}${s[2] ? `<small>${s[2]}</small>` : ''}</span><span class="go">${e ? '↗ ' + (MAS.titles[e[0]] || e[0]) : n ? '#' + n.seq : ''}</span></button>`; }).join('');
-  const ST = { ok: '✅ מיושב', fell: '❌ התירוץ נפל', info: 'ℹ️ אין באמת סתירה', open: '❓ נשאר בלי תשובה' };
+  const ST = { ok: 'מיושב', fell: 'התירוץ נפל', info: 'אין באמת סתירה', open: 'נשאר בלי תשובה' };
   const vss = p.vs.map(v => {
     const on = (v.on || []).map(o => `<span class="nm">${o}</span>`).join(v.self ? ' מול ' : ' ');
     return `<div class="vsc"><div class="hd">⚡ ${v.self ? 'סותר את עצמו?' : 'קושיה עליו'} ${on} ${v.by ? `· <span style="color:var(--soft)">${v.by}</span>` : ''}</div>
@@ -1004,10 +1004,10 @@ function personSheet(p) {
       <div class="jm">${jumpBtn(v.k, '❓ לקושיה')}${arr(v.fix).map(x => jumpBtn(x, '✅ לתשובה')).join('')}</div></div>`; }).join('');
   sh.innerHTML = `<div class="sh-grip" id="shGrip" aria-label="גרירה: הגדלה / הקטנה"><div class="grab"></div></div>
     <div class="sh-head"><span class="av" style="--pc:${p.c}">${p.ab}</span><span class="sh-who">${p.n}</span><span class="sh-no">${p.kind || ''}</span><button class="sh-sz" id="shSz"></button><button class="sh-x" id="shX" aria-label="סגור">✕</button></div>
-    <div class="p-holds"><div class="h">🧠 מה הוא סובר</div><div class="t">${linkNames(p.holds, p)}</div></div>
-    ${says ? `<div class="p-sec"><div class="kh">🗣 מה הוא אומר בסוגיה (${p.says.length})</div>${says}</div>` : ''}
-    ${vss ? `<div class="p-sec"><div class="kh">⚡ מה מקשים עליו (${p.vs.length})</div>${vss}</div>` : ''}
-    ${p.end ? `<div class="p-end">🏁 <b>בשורה התחתונה:</b> ${linkNames(p.end, p)}</div>` : ''}
+    <div class="p-holds"><div class="h">מה הוא סובר</div><div class="t">${linkNames(p.holds, p)}</div></div>
+    ${says ? `<div class="p-sec"><div class="kh">מה הוא אומר בסוגיה (${p.says.length})</div>${says}</div>` : ''}
+    ${vss ? `<div class="p-sec"><div class="kh">מה מקשים עליו (${p.vs.length})</div>${vss}</div>` : ''}
+    ${p.end ? `<div class="p-end"><b>בשורה התחתונה:</b> ${linkNames(p.end, p)}</div>` : ''}
     <div class="p-hint">בעץ: הצמתים שלו מודגשים, הקו בצבע שלו עובר בין מה שאמר, ו־⚡ מראה איזו קושיה פוגעת באיזה משפט</div>`;
   sh.classList.add('open', 'pcard'); $('stage').classList.add('has-sheet');
   sheetSize(shPref, true); gripInit(sh);
