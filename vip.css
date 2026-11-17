@@ -89,3 +89,5 @@ html.p-hc .m-card, html.p-hc .q-it { border-color: var(--t-gold) !important; }
 .flow li > i { color: var(--t-gold); }
 .flow li > i .rdot { width: 6px; height: 6px; }
 .bl-arrow { color: var(--t-gold); font-weight: 400; }
+
+.hp > i { font-style: normal; font-family: 'Frank Ruhl Libre', serif; font-weight: 700; color: var(--t-gold); }
