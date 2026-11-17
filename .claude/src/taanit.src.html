@@ -1819,6 +1819,7 @@
   .po-bar span { flex: 1; text-align: center; }
   .po-daf-arr { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; border: 1px solid rgba(200,168,90,.55); background: transparent; color: var(--t-gold, #c8a85a); font: inherit; font-size: 22px; font-weight: 800; line-height: 1; cursor: pointer; }
   .po-daf-arr:disabled { opacity: .25; }
+  .dock-tab.dock-mode, .dock-tab.po-mode-off { border-color: rgba(200,168,90,.6) !important; color: var(--t-gold, #c8a85a) !important; }
   .po-bar span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* 🌳 עץ הקטע בדף המלא */
@@ -5115,7 +5116,7 @@ function poToolsHTML(ref, si, bi) {
   const tabs = [['tree', 'עץ הקטע', st], ...beatTabs(ref, si, bi)].filter(t => t[2]);
   if (!tabs.length) return '';
   const on = tabs.some(t => t[0] === dockTab) ? dockTab : (tabs.some(t => t[0] === 'tree') ? 'tree' : tabs[0][0]);
-  return `<div class="po-tools"><div class="dock-tabs po-tabs" role="tablist">${tabs.map(([id, lb]) => `<button type="button" role="tab" class="dock-tab po-tab${id === on ? ' on' : ''}${id === 'ww' || id === 'tree' ? ' w2' : ''}" data-pt="${id}" aria-selected="${id === on}">${lb}</button>`).join('')}</div>
+  return `<div class="po-tools"><div class="dock-tabs po-tabs" role="tablist"><button type="button" class="dock-tab po-mode-off" aria-label="חזרה לתצוגה הרגילה">תצוגה רגילה</button>${tabs.map(([id, lb]) => `<button type="button" role="tab" class="dock-tab po-tab${id === on ? ' on' : ''}${id === 'ww' || id === 'tree' ? ' w2' : ''}" data-pt="${id}" aria-selected="${id === on}">${lb}</button>`).join('')}</div>
     ${tabs.map(([id, , body]) => `<div class="po-pane dock-body${id === on ? ' on' : ''}" data-pt="${id}" role="tabpanel">${body}</div>`).join('')}</div>`;
 }
 document.addEventListener('click', e => {
@@ -5206,6 +5207,7 @@ function poLockZoom(on) {
   m.content = on ? 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover' : m.dataset.orig;
 }
 function closePhoto() {
+  if (poMode) setPoMode(false);   // יוצאים מ״מצב דף מלא״
   if (PO.back) { const b = PO.back; PO.back = null; location.href = b; return; }   // חזרה לעץ
   poLockZoom(false);
   document.getElementById('photoOverlay').classList.remove('open', 'loading', 'failed');
@@ -7820,17 +7822,27 @@ function beatTabs(ref, si, bi) {
     ['kt', 'מונח', kt ? `<div class="bt-key"><b>${kt[0]}</b> = ${kt[1]}</div>` : ''],
   ];
 }
+// 📖 ״מצב דף מלא״ (המשתמש: ״שהדף עם המירקור יהיה כמו דף הבית... כאופציה בסרגל הכלים כמו האילן״):
+// בוחרים ״הדף המלא״ בסרגל — והלימוד נפתח תמיד בדף המלא עם הסימונים. ✕ / ״תצוגה רגילה״ מחזירים לתצוגה הרגילה.
+let poMode = false; try { poMode = localStorage.getItem('gemara:pomode') === '1'; } catch (e) {}
+function setPoMode(on) { poMode = on; try { localStorage.setItem('gemara:pomode', on ? '1' : '0'); } catch (e) {} }
+function poModeOpen() {
+  const sc = amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
+  if (!poMode || state.modal || !sc || !sc.src || !poHasMarks(state.ref, state.sceneIdx)) return false;
+  focusBeat = activeBeatIdx(sc); openPhoto(sc.src.ref, sc.src.box); return true;
+}
 function dockUpdate(force) {
   const dock = document.getElementById('dock'); if (!dock) return;
   const sc = state.tab === 'masechet' && amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
   if (!sc || !sc.beats || !sc.beats.length || state.modal) { dock.hidden = true; document.body.classList.remove('dock-open'); return; }
   const bi = activeBeatIdx(sc), key = `${state.ref}:${state.sceneIdx}:${bi}`;
   dock.hidden = false;
+  if (poMode) setTimeout(poModeOpen, 0);
   if (key === dockKey && !force) return;
   dockKey = key;
   const tabs = beatTabs(state.ref, state.sceneIdx, bi), on = tabs.some(t => t[0] === dockTab && t[2]) ? dockTab : '';
   const R = beatRole(state.ref, state.sceneIdx, bi), who = (sc.beats[bi] || [])[1] || '';
-  document.getElementById('dockTabs').innerHTML = tabs.map(([id, lb, body]) =>
+  document.getElementById('dockTabs').innerHTML = (sc.src && poHasMarks(state.ref, state.sceneIdx) ? '<button type="button" class="dock-tab dock-mode" aria-label="מצב דף מלא: הלימוד בדף המלא עם הסימונים">הדף המלא</button>' : '') + tabs.map(([id, lb, body]) =>
     `<button type="button" role="tab" class="dock-tab${id === on ? ' on' : ''}${id === 'ww' ? ' w2' : ''}" data-dk="${id}" aria-selected="${id === on}"${body ? '' : ' disabled'}>${lb}</button>`).join('');
   const pane = document.getElementById('dockPane'), t = tabs.find(x => x[0] === on);
   pane.hidden = !t;
@@ -7840,6 +7852,8 @@ function dockUpdate(force) {
   dock.classList.toggle('big', dockBig);
 }
 document.addEventListener('click', e => {
+  if (e.target.closest('.dock-mode')) { setPoMode(true); poModeOpen(); return; }
+  if (e.target.closest('.po-mode-off')) { e.stopPropagation(); closePhoto(); return; }
   const b = e.target.closest('.dock-tab');
   if (b && !b.disabled) { dockTab = b.classList.contains('on') ? '' : b.dataset.dk; toolSave(); dockUpdate(true); const p = document.getElementById('dockPane'); if (p) p.scrollTop = 0; return; }
   if (e.target.closest('.dock-big') || e.target.closest('.dock-grip')) { dockBig = !dockBig; try { localStorage.setItem('gemara:dockbig', dockBig ? '1' : '0'); } catch (er) {} dockUpdate(true); return; }
