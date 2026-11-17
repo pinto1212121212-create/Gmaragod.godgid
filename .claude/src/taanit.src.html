@@ -1723,10 +1723,15 @@
   .po-pane { display: none; }
   .po-pane.on { display: block; animation: btp .2s ease-out; }
   .po-pane .st-ol { margin-top: 0 !important; }
-  .dock-tabs { display: flex; gap: 5px; padding: 2px 0; direction: rtl; }
+  .dock-tabs { display: flex; gap: 5px; padding: 2px 0; direction: rtl; overflow-x: auto; scrollbar-width: none; }
   .dock-tabs::-webkit-scrollbar { display: none; }
-  .dock-tab { flex: 1 1 0; min-width: 0; min-height: 38px; font: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e8e3d8; background: #141414; border: 1px solid rgba(245,241,232,0.14); border-radius: 11px; padding: 0 4px; cursor: pointer; }
-  .dock-tab.w2 { flex-grow: 1.5; }
+  .psk { padding: 10px 12px; border-radius: 14px; background: #161512; border: 1px solid rgba(200,168,90,.3); margin-bottom: 8px; }
+  .psk-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 4px; }
+  .psk-h b { color: var(--gold); font-size: 14.5px; }
+  .psk-h span { font-size: 12.5px; color: var(--parchment-dim); }
+  .psk p { font-size: calc(15px * var(--fz, 1)); line-height: 1.75; color: #ece7dc; margin: 0; }
+  .dock-tabs::-webkit-scrollbar { display: none; }
+  .dock-tab { flex: 1 0 auto; min-height: 38px; font: inherit; font-size: 13.5px; font-weight: 700; white-space: nowrap; color: #e8e3d8; background: #141414; border: 1px solid rgba(245,241,232,0.14); border-radius: 11px; padding: 0 12px; cursor: pointer; }
   .dock-tab.on { background: var(--gold); color: #111; border-color: var(--gold); }
   .dock-tab:disabled { opacity: .35; cursor: default; }
   .dock-pane { position: relative; transition: max-height .25s ease; max-height: min(30vh, 290px); overflow-y: auto; overscroll-behavior: contain; margin-bottom: 8px; padding: 12px 14px 14px; border-radius: 18px; background: #111; border: 1px solid rgba(200,168,90,0.32); box-shadow: 0 -10px 30px rgba(0,0,0,.55); animation: btp .2s ease-out; font-size: calc(15px * var(--fz, 1)); line-height: 1.7; }
@@ -7693,6 +7698,7 @@ function beatMore(ref, si, bi, kt) {
   const tabs = [
     ['ctx', 'ההקשר', c || f ? `<div class="ctx">${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</div>` : ''],
     ['gm', 'בגמרא', punctHTML(key)],
+    ['ps', 'הפסוק', psukHTML(key)],
     ['ww', 'מילה במילה', ww ? ww + `<a class="ww-go" href="words.html?ref=${ref}">לתרגל את המילים של הדף ←</a>` : ''],
     ['pp', /class="bp vs"/.test(pp) ? 'מי ומה' : 'מי', pp],
     ['kt', 'מונח', kt ? `<div class="bt-key"><b>${kt[0]}</b> = ${kt[1]}</div>` : ''],
@@ -7716,6 +7722,7 @@ function beatTabs(ref, si, bi) {
   return [
     ['ctx', 'ההקשר', c || f ? `<div class="ctx">${f}${c ? `<div class="ctx-t">${c}</div>` : ''}</div>` : ''],
     ['gm', 'בגמרא', punctHTML(key)],
+    ['ps', 'הפסוק', psukHTML(key)],
     ['ww', 'מילה במילה', ww ? ww + `<a class="ww-go" href="words.html?ref=${ref}">לתרגל את המילים של הדף ←</a>` : ''],
     ['pp', /class="bp vs"/.test(pp) ? 'מי ומה' : 'מי', pp],
     ['kt', 'מונח', kt ? `<div class="bt-key"><b>${kt[0]}</b> = ${kt[1]}</div>` : ''],
@@ -7736,6 +7743,7 @@ function dockUpdate(force) {
   const pane = document.getElementById('dockPane'), t = tabs.find(x => x[0] === on);
   pane.hidden = !t;
   document.body.classList.toggle('dock-open', !!t);
+  { const ot = document.querySelector('#dockTabs .dock-tab.on'); if (ot) ot.scrollIntoView({ block: 'nearest', inline: 'center' }); }
   if (t) pane.innerHTML = `<div class="dock-grip" aria-hidden="true"></div><div class="dock-h role-${R}"><span class="dock-no">${bi + 1}</span><span class="dock-role">${ROLE[R][1]}</span><b>${who}</b><button type="button" class="dock-big" aria-label="${dockBig ? 'הקטן' : 'הגדל'}">${dockBig ? '⌄' : '⌃'}</button><button type="button" class="dock-x" aria-label="סגור">✕</button></div><div class="dock-q">${(sc.beats[bi] || [])[2] || ''}</div><div class="dock-body">${t[2]}</div>`;
   dock.classList.toggle('big', dockBig);
 }
