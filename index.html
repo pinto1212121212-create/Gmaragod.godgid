@@ -103,6 +103,15 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
   .q-ic .ico { width: 22px; height: 22px; stroke-width: 1.5; }
   .sec-h { text-align: center; margin: 40px 0 16px !important; font-size: 13px !important; }
   .q-it small { font-size: 12px; color: var(--t-text-dim); }
+  .recent { margin: -8px 0 20px; }
+  .recent[hidden] { display: none; }
+  .rc-h { font-size: 12px; letter-spacing: .3em; color: var(--t-gold); margin: 0 4px 8px; }
+  .rc-list { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+  .rc-list a { flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border-radius: 14px; background: #121212; border: 1px solid rgba(245,241,232,.12); color: #f5f1e8; text-decoration: none; font-size: 14px; }
+  .rc-list small { font-size: 11.5px; color: var(--t-text-dim); }
+  .amudim a { position: relative; overflow: hidden; }
+  .amudim a::after { content: ''; position: absolute; right: 0; bottom: 0; height: 3px; width: var(--p, 0%); background: var(--t-gold); }
+  .amudim a.done { border-color: rgba(200,168,90,.6) !important; color: var(--t-gold-b) !important; }
   .ios-tip { margin: -6px 0 16px; padding: 10px 12px; border-radius: var(--t-r-sm); background: rgba(95,178,255,.1); border: 1px solid rgba(95,178,255,.35); font-size: 13.5px; color: var(--t-text-soft); }
 </style>
 <script>
@@ -130,6 +139,8 @@ if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + locatio
     <b id="contTitle"></b>
     <span id="contSub"></span>
   </a>
+
+  <div class="recent" id="recent" hidden><div class="rc-h">לאחרונה</div><div class="rc-list" id="recentList"></div></div>
 
   <div class="quick" id="quick">
     <a class="q-it" id="qStars" href="taanit.html#stars" hidden><span class="q-ic"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/></svg></span><b>השמורים שלי</b><small id="qStarsN"></small></a>
@@ -188,9 +199,9 @@ let last = null; try { last = localStorage.getItem('gemara:last'); } catch (e) {
 const place = last && read('gemara:' + last);
 if (place && place.ref) {
   const c = document.getElementById('continue');
-  c.href = last === 'zevachim' ? 'zevachim.html' : ('taanit.html' + (/^\d+[ab]$/.test(place.ref) && place.tab !== 'tutorial' ? `#${place.ref}-${(place.sceneIdx | 0)}` : ''));
+  c.href = last === 'zevachim' ? 'zevachim.html' : ('taanit.html' + (/^\d+[ab]$/.test(place.ref) && place.tab !== 'tutorial' ? `#${place.ref}-${(place.sceneIdx | 0)}${place.bi > 0 ? '-' + (place.bi | 0) : ''}` : ''));
   document.getElementById('contTitle').textContent = `מסכת ${NAME[last] || ''} · דף ${refName(place.ref)}`;
-  document.getElementById('contSub').textContent = place.tab === 'tutorial' ? 'איך לקרוא גמרא' : `קטע ${(place.sceneIdx | 0) + 1} · ממשיכים בדיוק מאותה נקודה`;
+  document.getElementById('contSub').textContent = place.tab === 'tutorial' ? 'איך לקרוא גמרא' : `קטע ${(place.sceneIdx | 0) + 1}${place.bi > 0 ? ` · שלב ${(place.bi | 0) + 1}` : ''} · ממשיכים בדיוק מאותה נקודה`;
   c.hidden = false;
 }
 // 🔤 מילים: כמה כבר יודעים
@@ -206,8 +217,18 @@ if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) document.getEl
 document.getElementById('qPrefs').onclick = () => { const b = document.getElementById('prefsBox'), open = b.hidden;
   if (open) { b.innerHTML = prefsHTML(); prefBind(b); } b.hidden = !open; document.getElementById('qPrefs').setAttribute('aria-expanded', open); };
 const tp = read('gemara:taanit');
-document.getElementById('taanitAmudim').innerHTML = Object.entries(AM).map(([r, n]) =>
-  `<a href="taanit.html#${r}" onclick="go('taanit')" class="${tp && tp.ref === r ? 'here' : ''}">${n}</a>`).join('');
+// 🔖 כמה נלמד בכל דף (gemara:read) — פס דק מתחת לכל דף
+const RD = read('gemara:read') || {};
+const pct = r => { const e = RD[r]; return e && e.n ? Math.min(100, Math.round(100 * (e.s || []).length / e.n)) : 0; };
+document.getElementById('taanitAmudim').innerHTML = Object.entries(AM).map(([r, n]) => { const p = pct(r);
+  return `<a href="taanit.html#${r}" onclick="go('taanit')" class="${tp && tp.ref === r ? 'here' : ''}${p >= 100 ? ' done' : ''}" style="--p:${p}%"${p ? ` title="נלמדו ${p}%"` : ''}>${n}${p >= 100 ? ' ✓' : ''}</a>`; }).join('');
+// 🔖 לאחרונה: 3 מקומות אחרונים (חוץ מ״המשך״)
+{ const H = (read('gemara:hist') || []).filter(p => p && /^\d+[ab]$/.test(p.r) && AM[p.r]);
+  const cur = tp && tp.ref, cs = tp && (tp.sceneIdx | 0);
+  const L = H.filter(p => !(p.r === cur && p.s === cs)).slice(0, 3);
+  if (L.length) { const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'עכשיו' : m < 60 ? `לפני ${m} דק׳` : m < 1440 ? `לפני ${Math.round(m / 60)} שע׳` : `לפני ${Math.round(m / 1440)} ימים`; };
+    document.getElementById('recentList').innerHTML = L.map(p => `<a href="taanit.html#${p.r}-${p.s}${p.b ? '-' + p.b : ''}" onclick="go('taanit')"><b>${AM[p.r]} · קטע ${p.s + 1}</b><small>${ago(p.t)}</small></a>`).join('');
+    document.getElementById('recent').hidden = false; } }
 </script>
 </body>
 </html>
