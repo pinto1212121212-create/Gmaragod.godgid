@@ -1815,6 +1815,10 @@
 
   /* הדף המלא: מעבר לקטע הבא בלי לצאת */
   .po-b.po-more { width: auto; flex: 0 0 auto; padding: 0 14px; font-size: 14px; white-space: nowrap; background: var(--gold-bright); box-shadow: 0 0 0 3px rgba(220,192,120,.25); }
+  .po-bar { gap: 8px; }
+  .po-bar span { flex: 1; text-align: center; }
+  .po-daf-arr { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; border: 1px solid rgba(200,168,90,.55); background: transparent; color: var(--t-gold, #c8a85a); font: inherit; font-size: 22px; font-weight: 800; line-height: 1; cursor: pointer; }
+  .po-daf-arr:disabled { opacity: .25; }
   .po-bar span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* 🌳 עץ הקטע בדף המלא */
@@ -2185,7 +2189,7 @@ function openPhoto(ref, box) {
     const want = focusBeat != null ? focusBeat : Math.min(state.beat, sc.beats.length - 1);
     PO.cur = Math.max(0, PO.list.findIndex(x => x.bi >= want));
   } else marks = box ? rect(box, 'po-mark') : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
-  ov.innerHTML = `<div class="po-bar"><span>${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span><button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg> חזרה לעץ' : '✕'}</button></div>
+  ov.innerHTML = `<div class="po-bar">${PO.list.length ? poDafBtn(-1) : ''}<span>${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span>${PO.list.length ? poDafBtn(1) : ''}<button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg> חזרה לעץ' : '✕'}</button></div>
     <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap" style="${pageCrop(ref).wrap}"><div class="po-full" style="${pageCrop(ref).inner}"><img src="taanit-img/${ref}-full.jpg" alt="${AMUD_NAME[ref]}" width="900" height="1600" decoding="async">${marks}</div></div><div class="po-load" aria-live="polite">טוען את הדף…</div></div>
     ${PO.list.length ? `<div class="po-call" id="poCall"></div><div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button></div>`
       : '<div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>'}`;
@@ -2219,6 +2223,22 @@ function openPhoto(ref, box) {
     wrap.addEventListener('click', () => { if (PO.pinched) return; poZoomToggle(wrap); const m = wrap.querySelector('.po-mark'); if (m) m.scrollIntoView({ block: 'center', inline: 'center' }); });
     const m = ov.querySelector('.po-mark'); if (m) setTimeout(() => m.scrollIntoView({ block: 'center', inline: 'center' }), 60);
   }
+}
+// ‹ › בפס העליון של הדף המלא: מעבר מהיר לדף הקודם/הבא (לקטע הראשון שיש בו סימון), בלי לצאת
+function poDafRef(d) { const refs = MAS.refs.filter(r => MAS.titles[r]); const i = refs.indexOf(state.ref) + d; return i >= 0 && i < refs.length ? refs[i] : null; }
+function poDafBtn(d) { const r = poDafRef(d);
+  return `<button type="button" class="po-daf-arr" ${r ? `onclick="poDaf(${d})" aria-label="${d < 0 ? 'לדף הקודם' : 'לדף הבא'}: ${AMUD_NAME[r]}" title="${AMUD_NAME[r]}"` : 'disabled aria-hidden="true"'}>${d < 0 ? '‹' : '›'}</button>`; }
+function poDaf(d) {
+  const ref = poDafRef(d); if (!ref) return;
+  if (!isLoaded(ref)) { loadPage(ref).then(ok => { if (ok) poDaf(d); }); return; }
+  const n = scenesCount(ref); let i = 0; while (i < n && !poHasMarks(ref, i)) i++;
+  if (i >= n) return;
+  const back = PO.back;
+  goToRef(ref);
+  const sc = amudim[ref].scenes[i];
+  state.sceneIdx = i; state.beat = 0; renderScenes(); focusBeat = 0;
+  PO.back = back; openPhoto(sc.src.ref, sc.src.box);
+  try { history.replaceState(null, '', `#${ref}-${i}`); } catch (e) {}
 }
 // איזה קטע ושלב נמצאים בנקודה (px, py ב־% של הצילום המלא)? קודם שלב שמסומן בדיוק שם; אחרת — הקטע שהנקודה בתוכו, והשלב הקרוב אליה
 function poHit(ref, px, py) {
