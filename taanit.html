@@ -2001,7 +2001,7 @@
 </div>
 
 <script src="data/common.js?v=2c7990a2"></script>
-<script src="data/taanit/index.js?v=4b4d0700"></script>
+<script src="data/taanit/index.js?v=981c3f44"></script>
 <script src="loader.js?v=1e1517e4"></script>
 <script src="explain.js?v=221640a8"></script>
 <script>
@@ -2160,7 +2160,7 @@ function srcBlock(src) {
 
 // ✂️ הדף בלבד: חיתוך תצוגה של הצילום המלא, בלי השולחן והעמוד השכן. [x0, y0, x1, y1] בפיקסלים של הצילום (900×1600).
 // הסימונים נשארים באחוזים של הצילום המלא, כי השכבה הפנימית (po-full) היא הצילום כולו, מוזז ומוגדל.
-const PAGE_BOX = { '2a': [10, 315, 785, 1485], '2b': [0, 335, 900, 1560], '3a': [90, 335, 825, 1450], '3b': [45, 295, 895, 1440],
+const PAGE_BOX = { '2a': [0, 0, 900, 1258], '2b': [0, 335, 900, 1560], '3a': [90, 335, 825, 1450], '3b': [45, 295, 895, 1440],
   '4a': [78, 195, 842, 1410], '4b': [0, 118, 892, 1400], '5a': [0, 208, 880, 1472], '5b': [0, 138, 900, 1342], '6a': [0, 140, 900, 1382], '6b': [0, 0, 900, 1267], '7a': [0, 0, 900, 1225], '7b': [0, 0, 900, 1133], '8a': [0, 40, 900, 1342], '8b': [0, 30, 900, 1242], '9a': [0, 0, 900, 1192], '9b': [0, 0, 900, 1075] };
 function pageCrop(ref) {
   const [x0, y0, x1, y1] = PAGE_BOX[ref] || [0, 0, 900, 1600], w = x1 - x0, h = y1 - y0;
@@ -2384,7 +2384,7 @@ function poSelect(k, instant) {
   call.animate([{ opacity: 0.3 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
   // מצלמה: מביאים את המילים של השלב למרכז החלק הנראה של הצילום (אחרי שהבועה תפסה את מקומה)
   const W = wrap.clientWidth, H = wrap.clientHeight, C = pageCrop(PO.ref);
-  const px = l => (l / 100 * 900 - C.x0) / C.w * W, py = t => (t / 100 * 1600 - C.y0) / C.h * H;   // מאחוזים בצילום המלא לפיקסלים בתוך הדף החתוך
+  const px = l => (l / 100 * 900 - C.x0) / C.w * W, FH = (im => im && im.naturalWidth ? im.naturalHeight * 900 / im.naturalWidth : 1600)(wrap.querySelector('img')), py = t => (t / 100 * FH - C.y0) / C.h * H;   // גובה הצילום האמיתי (בדפים מ־PDF הוא לא 1600)   // מאחוזים בצילום המלא לפיקסלים בתוך הדף החתוך
   const top = Math.min(...x.rr.map(r => r.t)), bot = Math.max(...x.rr.map(r => r.t + r.h));
   const left = Math.min(...x.rr.map(r => r.l)), right = Math.max(...x.rr.map(r => r.l + r.w));
   const vw = sc.clientWidth, cx = (px(left) + px(right)) / 2;
