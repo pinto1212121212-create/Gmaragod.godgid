@@ -2433,6 +2433,7 @@ function poSelect(k, instant) {
   if (!PO.list.length) return;
   PO.cur = k = Math.max(0, Math.min(PO.list.length - 1, k));
   const x = PO.list[k], wrap = document.getElementById('poWrap'), sc = document.getElementById('poScroll');
+  if (x.bi != null) { focusBeat = x.bi; try { trackPlace(); } catch (e) {} }   // לזכור את השלב גם בדף המלא
   wrap.querySelectorAll('.po-hl').forEach(h => h.classList.toggle('on', +h.dataset.k === k));
   wrap.classList.add('has-sel');
   document.querySelectorAll('#poDots i').forEach((d, j) => d.classList.toggle('on', j === k));
@@ -2558,6 +2559,8 @@ function edOrder(ref) {
 }
 function openEdition(ref) {
   ref = ref || state.ref; if (!EDITION.has(ref) || !isLoaded(ref)) return;
+  { const po = document.getElementById('photoOverlay');   // מעבר מהצילום (דף אחר) למהדורה: לא להשאיר את הצילום פתוח מתחת
+    if (po.classList.contains('open')) { po.classList.remove('open', 'loading', 'failed'); if (state.modal === 'photo') state.modal = null; } }
   const ov = document.getElementById('edOverlay'), keys = edOrder(ref), amud = ref.endsWith('a');
   ED.ref = ref; ED.list = keys.map(k => { const [, si, bi] = k.split(':').map(Number); return { k, si, bi, role: beatRole(ref, si, bi) }; });
   const sc = amudim[ref].scenes[state.sceneIdx], want = focusBeat != null ? focusBeat : activeBeatIdx(sc);
@@ -2581,7 +2584,7 @@ function openEdition(ref) {
     </article></div>
     <div class="po-call" id="edCall"></div>
     <div class="po-nav"><button class="po-b" id="edPrev" aria-label="השלב הקודם">▶</button><div class="ed-count" id="edCount"></div><button class="po-b" id="edNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="edZoom" aria-label="הגדלה"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button></div>`;
-  ov.classList.add('open'); state.modal = 'edition'; document.body.classList.add('ed-open');
+  ov.classList.add('open'); state.modal = 'edition'; document.body.classList.add('ed-on');
   ov.querySelector('.ed-page').addEventListener('click', e => {
     if (e.target.closest('.rs-dh') || Date.now() - (ED.pinched || 0) < 400) return;
     const b = e.target.closest('[data-j]'); if (b) edSelect(+b.dataset.j);
@@ -2651,7 +2654,7 @@ function edSelect(j, instant) {
   ov.querySelectorAll('[data-j]').forEach(el => el.classList.toggle('on', +el.dataset.j === j));
   ov.querySelector('.ed-page').classList.add('has-sel');
   if (state.sceneIdx !== x.si) { state.sceneIdx = x.si; renderScenes(); }
-  focusBeat = x.bi;
+  focusBeat = x.bi; try { trackPlace(); } catch (e) {}
   const sc = amudim[ED.ref].scenes[x.si], bt = sc.beats[x.bi] || [], call = document.getElementById('edCall');
   call.className = 'po-call hl-' + x.role;
   call.innerHTML = `<div class="pc-head"><span class="pc-no">${x.bi + 1}</span><span class="pc-role">${ROLE[x.role][0]} ${ROLE[x.role][1]}</span><span class="pc-who">${bt[1] || ''}</span><small class="ed-sc">קטע ${x.si + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}</small></div>
@@ -2690,7 +2693,7 @@ function edPinch() {
     pg.style.transform = ''; ED.pinched = Date.now(); edZoomTo(k, m.mx, m.my); });
   const z = document.getElementById('edZoom'); if (z) z.onclick = () => edZoomTo((ED.k || 1) >= 2.5 ? 1 : (ED.k || 1) + 1);
 }
-function edHide() { poLockZoom(false); const ov = document.getElementById('edOverlay'); ov.classList.remove('open'); ov.innerHTML = ''; document.body.classList.remove('ed-open'); if (state.modal === 'edition') state.modal = null; }
+function edHide() { poLockZoom(false); const ov = document.getElementById('edOverlay'); ov.classList.remove('open'); ov.innerHTML = ''; document.body.classList.remove('ed-on'); if (state.modal === 'edition') state.modal = null; }
 function closeEdition() { edHide(); if (poMode) setPoMode(false); showLoc(); }
 function edToPhoto() { edPref = false; try { localStorage.setItem('gemara:ed', '0'); } catch (e) {} const sc = amudim[state.ref].scenes[state.sceneIdx]; edHide(); if (sc && sc.src) openPhoto(sc.src.ref, sc.src.box); }
 function edFromPhoto() { edPref = true; try { localStorage.setItem('gemara:ed', '1'); } catch (e) {}
@@ -3190,7 +3193,11 @@ function setPoMode(on) { poMode = on; try { localStorage.setItem('gemara:pomode2
 function poModeOpen() {
   const sc = amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
   if (!poMode || state.modal || !sc || !sc.src || !poHasMarks(state.ref, state.sceneIdx)) return false;
-  focusBeat = activeBeatIdx(sc);
+  if (focusBeat == null) {   // עוד לא נבחר שלב (state.beat = כל השלבים): מתחילים בשלב הראשון, או בשלב שעצרו בו
+    let b = 0; try { const p = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+      if (p && p.ref === state.ref && p.sceneIdx === state.sceneIdx && p.bi > 0 && p.bi < sc.beats.length) b = p.bi; } catch (e) {}
+    focusBeat = b;
+  }
   if (EDITION.has(state.ref)) { openEdition(); return true; }
   openPhoto(sc.src.ref, sc.src.box); return true;
 }
@@ -3890,7 +3897,7 @@ function trackPlace() {   // showLoc נקרא הרבה: בודקים פעם בש
   trackT = setTimeout(() => { trackT = 0; if (posKey() === k0) trackNow(); else trackPlace(); }, 1000);
 }
 function trackNow() {
-  if (state.tab !== 'masechet' || state.modal) return;
+  if (state.tab !== 'masechet' || (state.modal && state.modal !== 'photo' && state.modal !== 'edition')) return;
   const sc = amudim[state.ref] && amudim[state.ref].scenes && amudim[state.ref].scenes[state.sceneIdx];
   if (!sc || !sc.beats || !sc.beats.length) return;
   const pos = { r: state.ref, s: state.sceneIdx, b: activeBeatIdx(sc), t: Date.now() };
@@ -3936,7 +3943,8 @@ function backPill() {
 function savePlace() {
   try {
     localStorage.setItem('gemara:last', 'taanit');
-    localStorage.setItem(SAVE_KEY, JSON.stringify({ ref: state.ref, sceneIdx: state.sceneIdx, beat: state.beat, tab: state.tab }));
+    let bi; try { const o = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); if (o && o.ref === state.ref && o.sceneIdx === state.sceneIdx) bi = o.bi; } catch (e) {}   // לא למחוק את השלב שעצרו בו
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ ref: state.ref, sceneIdx: state.sceneIdx, beat: state.beat, tab: state.tab, bi }));
   } catch (e) {}
 }
 function restorePlace() {
