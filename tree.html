@@ -317,6 +317,7 @@
   .sh-pane, .sh-ctx p { font-size: calc(14.5px * var(--fz, 1)); }
   #where.loading::after { content: '⏳ טוען את הדף…'; display: block; text-align: center; font-weight: 800; color: var(--gold, #c8a85a); padding: 4px 0; }
   .rs-none { font-size: 13px; opacity: .7; margin: 2px 0 8px; }
+.sh-edtx { font-family: 'Frank Ruhl Libre', serif; font-size: 18px; line-height: 1.7; color: #1b160e; background: #f7f2e6; padding: 10px 12px; border-radius: 10px; }
 .rsi { padding: 10px 12px; border-radius: 14px; background: #17140f; border: 1px solid rgba(200,149,104,.35); border-right: 3px solid #c89568; margin-bottom: 8px; }
   .rsi.flash { box-shadow: 0 0 0 2px rgba(200,168,90,.8); }
   .rsi-dh { display: inline-block; font-family: 'Frank Ruhl Libre', serif; font-weight: 700; font-size: 15px; color: #111; background: #c89568; border-radius: 6px; padding: 1px 8px; margin-bottom: 6px; }
@@ -389,8 +390,8 @@
 
 <!-- 📦 הנתונים נטענים לפי דף: המפה של המסכת + מילון, ואז loader.js טוען את data/<מסכת>/<ref>.js כשנכנסים לדף -->
 <script src="data/common.js?v=2c7990a2"></script>
-<script src="data/taanit/index.js?v=03b5e01d"></script>
-<script src="loader.js?v=d7e6b290"></script>
+<script src="data/taanit/index.js?v=5b781c7a"></script>
+<script src="loader.js?v=01e4644c"></script>
 <script src="explain.js?v=221640a8"></script>
 <script>
 const ROLE = { m: ['●', 'משנה / מקור'], q: ['●', 'שאלה'], x: ['●', 'דחייה'], a: ['●', 'תירוץ'], c: ['●', 'מסקנה'], n: ['●', 'מעשה / ראיה'], k: ['●', 'הסבר'] };
@@ -577,7 +578,7 @@ function where(n) {
   const path = n ? chain.map(m => `<span class="${m === n ? 'cur' : ''}">${ROLE[m.r][0]} ${m.w}</span>`).join(' ← ')
                  : 'מקישים על צומת כדי לראות איפה הוא בדיון';
   box.innerHTML = `<a class="wh-th" href="${BASE}taanit.html#${st.ref}-${s}" aria-label="המקום בדף">
-      <img src="${imgUrl(st.ref, 'full')}" alt="">${src ? `<i style="left:${src[0]}%;top:${src[1]}%;width:${src[2]}%;height:${src[3]}%"></i>` : ''}</a>
+      ${EDITION.has(st.ref) ? '' : `<img src="${imgUrl(st.ref, 'full')}" alt="">`}${src && !EDITION.has(st.ref) ? `<i style="left:${src[0]}%;top:${src[1]}%;width:${src[2]}%;height:${src[3]}%"></i>` : ''}</a>
     <div class="wh-tx"><div class="wh-l1"><b>${TREE[st.ref].title}</b> · סוגיה ${i + 1} מתוך ${root.k.length}${SN[s] ? ` · קטע: ${SN[s]}` : ''}</div>
       <div class="wh-l2">${tp}</div><div class="wh-l3">${path}</div>${exChips(top)}</div>`;
   pplBar(i);
@@ -731,7 +732,7 @@ function toolbar(n, kids) {
   // הצילום עם המילים המודגשות — תמיד גלוי וצמוד למעלה, מעל הלשוניות (גם במילה במילה)
   const bk = ks.map(k => k.split(':')).find(([r, s]) => r === st.ref && +s === n.s);
   const dafHref = `${BASE}taanit.html#${st.ref}-${n.s}${bk ? '-' + bk[2] : ''}-daf-n${n.seq}`;   // n = הצומת, כדי לחזור אליו
-  const img = `<a class="sh-img sh-daf" href="${dafHref}" aria-label="הדף המלא עם הסימון"><div class="sh-dafbar"><span class="sh-dafhint">לדף המלא ←</span></div><div class="sh-imgw"><img src="${imgUrl(st.ref, n.s)}" alt="לשון הגמרא בדף" onload="shImgFocus()" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></a>`;
+  const img = EDITION.has(st.ref) ? `<a class="sh-img sh-daf sh-ed" href="${dafHref}" aria-label="הדף המלא"><div class="sh-dafbar"><span class="sh-dafhint">לדף המלא ←</span></div><div class="sh-edtx">${ks.filter(k => k.startsWith(st.ref + ':')).map(k => edTxt(PUNCT[k] || '')).join(' ')}</div></a>` : `<a class="sh-img sh-daf" href="${dafHref}" aria-label="הדף המלא עם הסימון"><div class="sh-dafbar"><span class="sh-dafhint">לדף המלא ←</span></div><div class="sh-imgw"><img src="${imgUrl(st.ref, n.s)}" alt="לשון הגמרא בדף" onload="shImgFocus()" onerror="this.closest('.sh-img').remove()">${marksHTML(st.ref, n)}</div></a>`;
   return `<div class="sh-pin">${img}<div class="sh-tabs" role="tablist">${panes.map(([id, lb, body]) => `<button class="sh-tab${id === cur ? ' on' : ''}" data-t="${id}"${body ? '' : ' disabled'}>${lb}</button>`).join('')}</div></div>
     ${typeof explainTree === 'function' ? explainTree(st.ref, n) : ''}
     ${panes.map(([id, , body]) => `<div class="sh-pane${id === cur ? ' on' : ''}" data-t="${id}">${body || '<div class="sh-none">אין לשלב הזה</div>'}</div>`).join('')}`;

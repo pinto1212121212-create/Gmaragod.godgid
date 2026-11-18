@@ -34,7 +34,7 @@ const srv = http.createServer((q, r) => {
       for (let bi = 0; bi < nb; bi++) {
         if (!await p.evaluate(([r, si, bi]) => !!beatLoc(r, si, bi), [r, si, bi])) continue;
         await p.evaluate(bi => { focusBeat = bi; showLoc(); }, bi); await p.waitForTimeout(60);
-        (await p.evaluate(() => document.querySelectorAll('.src-hl').length)) ? ok++ : miss.push(`${r}:${si}:${bi}`);
+        (await p.evaluate(() => document.querySelectorAll('.src-hl, .es-b.on').length)) ? ok++ : miss.push(`${r}:${si}:${bi}`);
       }
     }
   }

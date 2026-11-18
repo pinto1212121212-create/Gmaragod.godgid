@@ -59,6 +59,9 @@ document.addEventListener('click', e => {
 }, true);
 // כתובת צילום עם גרסה (MAS.iv) — כשמחליפים צילום, הטלפון מוריד את החדש ולא מציג את השמור
 const imgUrl = (ref, part) => `taanit-img/${ref}-${part}.jpg${typeof MAS !== 'undefined' && MAS.iv && MAS.iv[ref] ? '?i=' + MAS.iv[ref] : ''}`;
+// 📜 דפים במהדורה שלנו: אין בהם צילום של שום הוצאה — רק טקסט מעומד אצלנו (המשתמש: ״כל דף שאתה מתקן — תוריד את הדף של ווגשל לגמרי״)
+const EDITION = new Set(['2a']);
+const edTxt = t => (t || '').replace(/[\u0591-\u05C7]/g, '').replace(/\s*\([^()]*,[^()]*\)/g, '').replace(/\s*\((ממשיך|ההמשך)[^)]*\)/g, '');
 const masHas = ref => typeof MAS !== 'undefined' && MAS.refs.includes(ref);
 
 // נקרא מתוך data/<מסכת>/<ref>.js

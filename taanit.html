@@ -1867,6 +1867,10 @@
   .ed-l-open { justify-content: center; }
   .ed-w { padding: 0 .04em; }
   .ed-vil .ed-col { font-size: calc(var(--gfs, 14px) * .66); }
+  .ed-src .es-txt { font-family: 'Frank Ruhl Libre', serif; font-size: calc(18px * var(--fz, 1)); line-height: 1.75; color: #1b160e; background: #f7f2e6; padding: 10px 12px; max-height: 34vh; overflow-y: auto; text-align: justify; cursor: pointer; }
+  .es-b { border-radius: 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .es-b.on { background: rgba(var(--c), .4); }
+  .es-b.r-q { --c: 232,86,106; } .es-b.r-x { --c: 230,140,60; } .es-b.r-a { --c: 108,195,90; } .es-b.r-c { --c: 242,193,78; } .es-b.r-s, .es-b.r-n { --c: 94,168,224; } .es-b.r-k { --c: 169,141,224; }
   .ed-count { flex: 1; text-align: center; color: #a09a8c; font-size: 13px; direction: ltr; }
   .ed-sc { margin-inline-start: auto; color: #a09a8c; font-size: 12px; font-weight: 500; }
   #edOverlay .po-call { max-height: 38vh; }
@@ -2056,8 +2060,8 @@
 </div>
 
 <script src="data/common.js?v=2c7990a2"></script>
-<script src="data/taanit/index.js?v=03b5e01d"></script>
-<script src="loader.js?v=d7e6b290"></script>
+<script src="data/taanit/index.js?v=5b781c7a"></script>
+<script src="loader.js?v=01e4644c"></script>
 <script src="explain.js?v=221640a8"></script>
 <script>
 // =======================================================
@@ -2124,7 +2128,7 @@ function pageLoading() {
 function prefetchNear(ref) {
   const i = allRefs.indexOf(ref), near = [allRefs[i + 1], allRefs[i - 1]].filter(r => r && isBuilt(r) && !isLoaded(r));
   // וגם הצילום של הקטע הראשון בדף השכן, כדי שהמעבר בחצים יציג את הדף מיד
-  const imgs = [allRefs[i + 1], allRefs[i - 1]].filter(r => r && isBuilt(r)).map(r => imgUrl(r, (MAS.marks[r] || [0])[0] || 0));
+  const imgs = [allRefs[i + 1], allRefs[i - 1]].filter(r => r && isBuilt(r) && !EDITION.has(r)).map(r => imgUrl(r, (MAS.marks[r] || [0])[0] || 0));
   const run = () => { near.forEach(r => loadPage(r)); imgs.forEach(u => { const im = new Image(); im.decoding = 'async'; im.src = u; }); };
   (window.requestIdleCallback || (f => setTimeout(f, 1200)))(run);
 }
@@ -2198,6 +2202,16 @@ const AMUD_NAME = { '2a': 'ב׳ ע״א', '2b': 'ב׳ ע״ב', '3a': 'ג׳ ע״א
 function srcZoom(src) { if (matchMedia('(min-width: 1100px)').matches) return 1;   // מחשב: הטור רחב מספיק, בלי גלילה לצדדים
   return Math.max(1, Math.min(1.9, src.box[2] / 27)); }
 function srcBlock(src) {
+  if (EDITION.has(src.ref)) {   // מהדורה שלנו: במקום צילום — לשון הגמרא של הקטע, כל שלב בנפרד
+    const si = amudim[src.ref].scenes.findIndex(s => s.src === src), sc = amudim[src.ref].scenes[si];
+    const txt = (sc.beats || []).map((b, bi) => PUNCT[`${src.ref}:${si}:${bi}`] ? `<span class="es-b" data-bi="${bi}">${edTxt(PUNCT[`${src.ref}:${si}:${bi}`])}</span>` : '').join(' ');
+    return `
+    <figure class="daf-src ed-src">
+      <figcaption>${AMUD_NAME[src.ref]} · המהדורה שלנו <span>(לחיצה: הדף המלא)</span></figcaption>
+      <div class="es-txt" role="button" tabindex="0" onclick="openEdition()" onkeydown="if(event.key==='Enter'){openEdition()}">${txt}</div>
+      <div class="mtree" aria-label="מיני־עץ: איפה אנחנו בסוגיה"></div>
+    </figure>`;
+  }
   return `
     <figure class="daf-src">
       <figcaption>מקור בדף · ${AMUD_NAME[src.ref]} <span>(לחיצה: הדף המלא עם סימון)</span></figcaption>
@@ -2223,6 +2237,7 @@ function pageCrop(ref) {
 }
 const PO = { ref: null, box: null, list: [], cur: 0 };
 function openPhoto(ref, box) {
+  if (EDITION.has(ref)) { openEdition(ref); return; }   // אין צילום בדפים של המהדורה שלנו
   const ov = document.getElementById('photoOverlay');
   const rect = (b, cls, label) => `<div class="${cls}" style="left:${b[0]}%;top:${b[1]}%;width:${b[2]}%;height:${b[3]}%">${label || ''}</div>`;
   PO.ref = ref; PO.box = box; PO.list = [];
@@ -2293,7 +2308,7 @@ function poDaf(d) {
   const sc = amudim[ref].scenes[i];
   state.sceneIdx = i; state.beat = 0; renderScenes(); focusBeat = 0;
   if (state.modal === 'edition') edHide();
-  if (EDITION.has(ref) && edPref && poMode) { openEdition(ref); return; }
+  if (EDITION.has(ref)) { openEdition(ref); return; }
   PO.back = back; openPhoto(sc.src.ref, sc.src.box);
   try { history.replaceState(null, '', `#${ref}-${i}`); } catch (e) {}
 }
@@ -2483,7 +2498,7 @@ function poLockZoom(on) {
 // ===== 📜 המהדורה שלנו: דף גמרא מעומד אצלנו — טקסט, לא צילום (המשתמש: ״מהדורה משלנו״, בגלל זכויות יוצרים) =====
 // הגמרא באמצע (מ־PUNCT, כל שלב = span לחיץ בצבע התפקיד), רש״י בצד הפנימי (ע״א מימין, ע״ב משמאל) ותוספות בצד החיצוני.
 // הטקסט שייך לכולם; העימוד, הגופן והעיצוב — שלנו. אין כאן שום דבר מעימוד של הוצאה.
-const EDITION = new Set(['2a']);
+// EDITION מוגדר ב־loader.js
 // שבירת השורות כמו בדף וילנא (הטקסט והשורות של ש״ס וילנא שייכים לכולם). ‖ = כאן מתחיל השלב הבא (לפי סדר PUNCT בדף).
 // narrow: השורות שבין רש״י לתוספות; wide: השורות הרחבות (אחרי שרש״י נגמר).
 const ED_LINES = {
@@ -2552,7 +2567,7 @@ function openEdition(ref) {
   const rs = ED.list.flatMap((x, j) => (RASHI_AT[x.k] || []).map(([dh, r]) => `<span class="ed-c" data-j="${j}"><b>${dh}.</b> ${r.replace(/[֑-ׇ]/g, '')} </span>`)).join('');
   const ts = (amudim[ref].tosafot || []).map(e => `<span class="ed-c"><b>${e.dh}.</b> ${e.content.replace(/<[^>]+>/g, '').replace(/\s*\((קריאה|הדיבור)[^)]*\)/g, '')} </span>`).join('');
   const side = (cls, body) => `<div class="ed-col ${cls}">${body}</div>`;
-  ov.innerHTML = `<div class="po-bar ed-bar">${poDafBtn(-1)}<span>${AMUD_NAME[ref]} · המהדורה שלנו</span>${poDafBtn(1)}<button type="button" class="ed-sw" onclick="edToPhoto()" aria-label="צילום הדף">צילום</button><button class="modal-close" onclick="closeEdition()" aria-label="סגור">✕</button></div>
+  ov.innerHTML = `<div class="po-bar ed-bar">${poDafBtn(-1)}<span>${AMUD_NAME[ref]} · המהדורה שלנו</span>${poDafBtn(1)}<button class="modal-close" onclick="closeEdition()" aria-label="סגור">✕</button></div>
     <div class="ed-scroll" id="edScroll"><article class="ed-page" lang="he">
       <header class="ed-head"><span>${(amudim[ref].perek || 'מאימתי')}</span><span>פרק ראשון</span><span>תענית</span><b>${AMUD_NAME[ref].replace(/ ע״א$/, '.').replace(/ ע״ב$/, ':').replace(/׳/, '')}</b></header>
       ${ED_LINES[ref] ? edLinesHTML(ref, rs, ts, amud) : `<div class="ed-flow${amud ? '' : ' ed-amud-b'}">
@@ -2942,6 +2957,14 @@ function showLoc() {
   if (state.beat >= sc.beats.length && focusBeat == null) return;   // סוף הקטע: בלי חץ
   const bi = activeBeatIdx(sc);
   miniTree(el, `${state.ref}:${state.sceneIdx}:${bi}`);
+  const es = el.querySelector('.es-txt');
+  if (es) {   // מהדורה שלנו: מדגישים את השלב בטקסט
+    el.querySelectorAll('.beat.focus').forEach(b => b.classList.remove('focus'));
+    const bt = el.querySelector(`.beat[data-i="${bi}"]`); if (bt) bt.classList.add('focus');
+    es.querySelectorAll('.es-b').forEach(x => { x.className = 'es-b' + (+x.dataset.bi === bi ? ' on r-' + beatRole(state.ref, state.sceneIdx, bi) : ''); });
+    const on = es.querySelector('.es-b.on'); if (on) { const r = on.offsetTop - es.offsetTop; if (r < es.scrollTop || r + on.offsetHeight > es.scrollTop + es.clientHeight) es.scrollTop = r - 8; }
+    return;
+  }
   const loc = beatLoc(state.ref, state.sceneIdx, bi);
   const beat = el.querySelector(`.beat[data-i="${bi}"]`);
   const wrap = el.querySelector('.src-wrap');
@@ -3128,7 +3151,7 @@ function poModeOpen() {
   const sc = amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
   if (!poMode || state.modal || !sc || !sc.src || !poHasMarks(state.ref, state.sceneIdx)) return false;
   focusBeat = activeBeatIdx(sc);
-  if (EDITION.has(state.ref) && edPref) { openEdition(); return true; }
+  if (EDITION.has(state.ref)) { openEdition(); return true; }
   openPhoto(sc.src.ref, sc.src.box); return true;
 }
 function dockUpdate(force) {
