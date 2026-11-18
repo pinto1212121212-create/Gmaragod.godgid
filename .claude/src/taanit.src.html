@@ -1825,6 +1825,7 @@
   .ed-overlay { position: fixed; inset: 0; z-index: 80; background: #0a0a0a; display: none; flex-direction: column; }
   .ed-overlay.open { display: flex; }
   .ed-sw { flex: 0 0 auto; height: 36px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(200,168,90,.55); background: transparent; color: var(--t-gold, #c8a85a); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .ed-scroll { direction: ltr; touch-action: pan-x pan-y; } .ed-scroll > .ed-page { direction: rtl; }
   .ed-scroll { flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; padding: 10px 8px 16px; }
   .ed-page { max-width: 760px; margin: 0 auto; background: #f7f2e6; color: #1b160e; border-radius: 6px; padding: 12px 10px 10px; box-shadow: 0 0 0 1px rgba(0,0,0,.4); font-size: calc(var(--edz, 1) * 1px); }
   .ed-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-family: 'Frank Ruhl Libre', serif; font-weight: 700; font-size: 15em; border-bottom: 1.5px solid #1b160e; padding: 0 2px 4px; margin-bottom: 8px; }
@@ -5362,12 +5363,14 @@ function openEdition(ref) {
       <footer class="ed-foot">צורת הדף — מהדורת האתר · רש״י בצד הפנימי, תוספות בחיצוני · לחיצה על משפט בגמרא — ההסבר שלו למטה</footer>
     </article></div>
     <div class="po-call" id="edCall"></div>
-    <div class="po-nav"><button class="po-b" id="edPrev" aria-label="השלב הקודם">▶</button><div class="ed-count" id="edCount"></div><button class="po-b" id="edNext" aria-label="השלב הבא">◀</button></div>`;
+    <div class="po-nav"><button class="po-b" id="edPrev" aria-label="השלב הקודם">▶</button><div class="ed-count" id="edCount"></div><button class="po-b" id="edNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="edZoom" aria-label="הגדלה"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button></div>`;
   ov.classList.add('open'); state.modal = 'edition'; document.body.classList.add('ed-open');
   ov.querySelector('.ed-page').addEventListener('click', e => {
-    if (e.target.closest('.rs-dh')) return;
+    if (e.target.closest('.rs-dh') || Date.now() - (ED.pinched || 0) < 400) return;
     const b = e.target.closest('[data-j]'); if (b) edSelect(+b.dataset.j);
   });
+  poLockZoom(true); edPinch();
+  if (ED.k > 1) { const pg = ov.querySelector('.ed-page'); pg.style.width = (edBase() * ED.k) + 'px'; pg.style.maxWidth = 'none'; }
   if (ED_LINES[ref]) { edFit(); if (document.fonts) { document.fonts.ready.then(edFit); document.fonts.addEventListener('loadingdone', edRefit); } clearTimeout(ED.rt); window.removeEventListener('resize', edRefit); window.addEventListener('resize', edRefit); }
   document.getElementById('edPrev').onclick = () => edSelect(ED.cur - 1);
   document.getElementById('edNext').onclick = () => edSelect(ED.cur + 1);
@@ -5444,7 +5447,33 @@ function edSelect(j, instant) {
     if (r.top < b.top + 8 || r.bottom > b.bottom - 8) sc2.scrollBy({ top: r.top - b.top - b.height * 0.3, behavior: instant ? 'auto' : 'smooth' }); }
   try { history.replaceState(null, '', `#${ED.ref}-${x.si}-${x.bi}`); } catch (e) {}
 }
-function edHide() { const ov = document.getElementById('edOverlay'); ov.classList.remove('open'); ov.innerHTML = ''; document.body.classList.remove('ed-open'); if (state.modal === 'edition') state.modal = null; }
+// 🔍 הגדלה במהדורה שלנו: צביטה בשתי אצבעות (או 🔍) מגדילה רק את הדף. הדף נבנה מחדש ברוחב החדש — האותיות חדות, השורות נשארות כמו בדף
+const edBase = () => Math.min(760, document.getElementById('edScroll').clientWidth - 16);
+function edZoomTo(k, fx, fy) {
+  const sc = document.getElementById('edScroll'), pg = sc && sc.querySelector('.ed-page'); if (!pg) return;
+  const r0 = pg.getBoundingClientRect(), sr = sc.getBoundingClientRect();
+  fx = fx == null ? sr.left + sr.width / 2 : fx; fy = fy == null ? sr.top + sr.height / 2 : fy;
+  const px = (fx - r0.left) / r0.width, py = (fy - r0.top) / r0.height;   // הנקודה שבין האצבעות נשארת במקומה
+  ED.k = k = Math.max(1, Math.min(4, k));
+  pg.style.transform = ''; pg.style.width = k > 1.01 ? (edBase() * k) + 'px' : ''; pg.style.maxWidth = k > 1.01 ? 'none' : '';
+  if (ED_LINES[ED.ref]) edFit();
+  const r1 = pg.getBoundingClientRect();
+  sc.scrollLeft += (r1.left + px * r1.width) - fx; sc.scrollTop += (r1.top + py * r1.height) - fy;
+}
+function edPinch() {
+  const sc = document.getElementById('edScroll'), pg = sc.querySelector('.ed-page'); let g = null;
+  const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  sc.addEventListener('touchstart', e => { if (e.touches.length !== 2) return;
+    const r = pg.getBoundingClientRect();
+    g = { d: dist(e.touches), k: ED.k || 1, mx: (e.touches[0].clientX + e.touches[1].clientX) / 2, my: (e.touches[0].clientY + e.touches[1].clientY) / 2, r };
+    pg.style.transformOrigin = `${g.mx - r.left}px ${g.my - r.top}px`; }, { passive: true });
+  sc.addEventListener('touchmove', e => { if (!g || e.touches.length !== 2) return; e.preventDefault();
+    const k = Math.max(1, Math.min(4, g.k * dist(e.touches) / g.d)); g.s = k / g.k; pg.style.transform = `scale(${g.s})`; }, { passive: false });
+  sc.addEventListener('touchend', e => { if (!g || e.touches.length >= 2) return; const s = g.s || 1, k = g.k * s, m = g; g = null;
+    pg.style.transform = ''; ED.pinched = Date.now(); edZoomTo(k, m.mx, m.my); });
+  const z = document.getElementById('edZoom'); if (z) z.onclick = () => edZoomTo((ED.k || 1) >= 2.5 ? 1 : (ED.k || 1) + 1);
+}
+function edHide() { poLockZoom(false); const ov = document.getElementById('edOverlay'); ov.classList.remove('open'); ov.innerHTML = ''; document.body.classList.remove('ed-open'); if (state.modal === 'edition') state.modal = null; }
 function closeEdition() { edHide(); if (poMode) setPoMode(false); showLoc(); }
 function edToPhoto() { edPref = false; try { localStorage.setItem('gemara:ed', '0'); } catch (e) {} const sc = amudim[state.ref].scenes[state.sceneIdx]; edHide(); if (sc && sc.src) openPhoto(sc.src.ref, sc.src.box); }
 function edFromPhoto() { edPref = true; try { localStorage.setItem('gemara:ed', '1'); } catch (e) {}
