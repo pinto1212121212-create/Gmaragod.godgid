@@ -3533,11 +3533,13 @@ function edFit() {
   // רש״י ותוספות: הגופן נבחר כך שהטור יתמלא בדיוק עד המקום שבו הגמרא מתרחבת (רש״י) / עד סוף הגמרא (תוספות) — כמו בדף.
   // רק אם גם בגופן הקטן ביותר לא נכנס — השאר יורד מתחת לגמרא
   const gfs = parseFloat(v.style.getPropertyValue('--gfs')) || 14;
-  const TOP = 4;   // שורות של פירוש מעל הגמרא
+  // כמו בדף: הפירוש מקיף את הגמרא מכל הצדדים — TOP שורות מעליה, לאורכה בצדדים, ו־BOT שורות מתחתיה (המסגרת התחתונה של הדף)
+  const TOP = 4, BOT = 5;
   const fitCol = (srcId, t, a, b, h) => {
-    const run = m => { [t, a, b].forEach(e => e.style.fontSize = m + 'px'); fill(srcId, [[t, m * 1.42 * TOP + 1], [a, h], [b, 1e9]]); return !b.textContent.trim(); };
-    let lo = gfs * .5, hi = gfs * .9, best = lo;
-    for (let it = 0; it < 9; it++) { const m = (lo + hi) / 2; if (run(m)) { best = m; lo = m; } else hi = m; }
+    const run = m => { [t, a, b].forEach(e => e.style.fontSize = m + 'px'); fill(srcId, [[t, m * 1.42 * TOP + 1], [a, h], [b, 1e9]]); return b.textContent.trim() ? b.scrollHeight : 0; };
+    // הגופן הגדול ביותר שבו מה שיורד למטה לא עולה על BOT שורות — כך יש פירוש גם מתחת לגמרא, אבל לא עמוד שלם
+    let lo = gfs * .45, hi = gfs * .9, best = lo;
+    for (let it = 0; it < 10; it++) { const m = (lo + hi) / 2; if (run(m) <= m * 1.42 * BOT + 2) { best = m; lo = m; } else hi = m; }
     run(best);
   };
   const $ = id => document.getElementById(id);
