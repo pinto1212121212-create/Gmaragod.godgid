@@ -1865,17 +1865,20 @@
   /* שורות קבועות כמו וילנא */
   .ed-page { overflow: hidden; }
   .ed-vil > * { min-width: 0; }
-  .ed-vil { display: grid; grid-template-columns: minmax(0,23fr) minmax(0,54fr) minmax(0,23fr); grid-template-rows: auto auto auto; column-gap: 2%; align-items: start; }
-  .ed-vil .ed-rashi { grid-column: 1; grid-row: 1; float: none; width: auto; margin: 0; }
-  .ed-vil .ed-narrow { grid-column: 2; grid-row: 1; }
-  .ed-vil .ed-tos1 { grid-column: 3; grid-row: 1 / span 2; float: none; width: auto; margin: 0; }
-  .ed-vil .ed-wide { grid-column: 1 / span 2; grid-row: 2; }
-  .ed-vil .ed-full { grid-column: 1 / span 3; grid-row: 3; }
+  /* צורת וילנא: הגמרא עטופה — רש״י ותוספות גם מעליה (ed-top), בצדדים, ומתחתיה (ed-bot) */
+  .ed-vil { display: grid; grid-template-columns: minmax(0,23fr) minmax(0,27fr) minmax(0,27fr) minmax(0,23fr); grid-template-rows: auto auto auto auto auto; column-gap: 2%; align-items: start; }
+  .ed-vil .ed-col.ed-top { grid-row: 1; float: none; width: auto; margin: 0 0 3px; }
+  .ed-vil .ed-rashi.ed-top { grid-column: 1 / span 2; } .ed-vil .ed-tos.ed-top { grid-column: 3 / span 2; }
+  .ed-vil .ed-rashi { grid-column: 1; grid-row: 2; float: none; width: auto; margin: 0; }
+  .ed-vil .ed-narrow { grid-column: 2 / span 2; grid-row: 2; }
+  .ed-vil .ed-tos1 { grid-column: 4; grid-row: 2 / span 2; float: none; width: auto; margin: 0; }
+  .ed-vil .ed-wide { grid-column: 1 / span 3; grid-row: 3; }
+  .ed-vil .ed-full { grid-column: 1 / span 4; grid-row: 4; }
   /* ed-mid-t: תוספות נגמר ראשון (כמו ב:) — הגמרא מתרחבת לצד של תוספות, ורש״י ממשיך לידה */
-  .ed-vil.ed-mid-t .ed-rashi:not(.ed-bot) { grid-row: 1 / span 2; } .ed-vil.ed-mid-t .ed-tos1 { grid-row: 1; } .ed-vil.ed-mid-t .ed-wide { grid-column: 2 / span 2; }
-  .ed-vil .ed-bot { grid-row: 4; float: none; width: auto; margin: 4px 0 0; }
-  .ed-vil .ed-rashi.ed-bot { grid-column: 1 / span 2; column-count: 2; column-gap: 4%; }
-  .ed-vil .ed-tos.ed-bot { grid-column: 3; }
+  .ed-vil.ed-mid-t .ed-rashi:not(.ed-bot):not(.ed-top) { grid-row: 2 / span 2; } .ed-vil.ed-mid-t .ed-tos1 { grid-row: 2; } .ed-vil.ed-mid-t .ed-wide { grid-column: 2 / span 3; }
+  .ed-vil .ed-bot { grid-row: 5; float: none; width: auto; margin: 4px 0 0; }
+  .ed-vil .ed-rashi.ed-bot { grid-column: 1 / span 2; }
+  .ed-vil .ed-tos.ed-bot { grid-column: 3 / span 2; }
   .ed-vil.ed-amud-b { direction: ltr; } .ed-vil.ed-amud-b > * { direction: rtl; }
   .ed-gem { font-family: 'Frank Ruhl Libre', serif; font-weight: 700; color: #0c0a07; font-size: var(--gfs, 14px); line-height: calc(var(--gfs, 14px) * 1.4); -webkit-font-smoothing: antialiased; }
   .ed-gem .ed-l { column-gap: .22em; }
@@ -6264,6 +6267,7 @@ function edLinesHTML(ref, rs, ts, amud) {
   const wide = L.wide.map((t, i) => line(t, lastIn === 'wide' && i === L.wide.length - 1 ? 'ed-l-last' : '')).join('');
   const fullH = full.map((t, i) => line(t, i === full.length - 1 ? 'ed-l-last' : '')).join('');
   return `<div class="ed-vil${amud ? '' : ' ed-amud-b'}${L.side === 'tos' ? ' ed-mid-t' : ''}">
+    <div class="ed-col ed-rashi ed-top" id="edR0"></div><div class="ed-col ed-tos ed-top" id="edT0"></div>
     <div class="ed-col ed-rashi" id="edR1"></div><div class="ed-gem ed-narrow">${narrow}</div><div class="ed-col ed-tos ed-tos1" id="edT1"></div>
     <div class="ed-gem ed-wide">${wide}</div>${fullH ? `<div class="ed-gem ed-full">${fullH}</div>` : ''}
     <div class="ed-col ed-rashi ed-bot" id="edR2"></div><div class="ed-col ed-tos ed-bot" id="edT2"></div>
@@ -6291,31 +6295,37 @@ function edFit() {
     const S = Math.max(1, Math.min(1.28, (l.clientWidth - gap) / W)); if (S <= 1.01) return;
     ws.forEach(w => { const m = w.offsetWidth * (S - 1) / 2; w.style.transform = `scaleX(${S.toFixed(3)})`; w.style.margin = `0 ${m.toFixed(1)}px`; });
   });
-  const fill = (srcId, a, b, h) => {
-    a.innerHTML = ''; b.innerHTML = '';
-    const items = [...document.getElementById(srcId).content.children].map(n => n.cloneNode(true));
-    let i = 0;
-    for (; i < items.length; i++) { a.appendChild(items[i]); if (a.scrollHeight > h) break; }
-    if (i < items.length) {   // הפירוש האחרון נחתך באמצע: מילים עד שנגמר המקום, והשאר למטה
+  // מילוי לפי הסדר: למעלה (מעל הגמרא) ← בצד ← למטה. כל תיבה עד הגובה שלה; פירוש שנחתך — ממשיך בתיבה הבאה
+  const fill = (srcId, boxes) => {
+    boxes.forEach(([el]) => el.innerHTML = '');
+    let items = [...document.getElementById(srcId).content.children].map(n => n.cloneNode(true));
+    for (let bi = 0; bi < boxes.length; bi++) {
+      const [a, h] = boxes[bi], last = bi === boxes.length - 1; let i = 0;
+      if (last) { items.forEach(it => a.appendChild(it)); break; }
+      for (; i < items.length; i++) { a.appendChild(items[i]); if (a.scrollHeight > h) break; }
+      if (i >= items.length) { items = []; continue; }
       const it = items[i], words = it.innerHTML.split(/(\s+)/); it.innerHTML = '';
       let k = 0; for (; k < words.length; k++) { it.innerHTML += words[k]; if (a.scrollHeight > h) break; }
       const rest = words.slice(k).join(''); it.innerHTML = words.slice(0, k).join('');
       if (!it.textContent.trim()) a.removeChild(it);
-      if (rest.trim()) { const r2 = it.cloneNode(false); r2.innerHTML = rest; b.appendChild(r2); }
-      for (i++; i < items.length; i++) b.appendChild(items[i]);
+      const next = items.slice(i + 1);
+      if (rest.trim()) { const r2 = it.cloneNode(false); r2.innerHTML = rest; next.unshift(r2); }
+      items = next;
     }
   };
   // רש״י ותוספות: הגופן נבחר כך שהטור יתמלא בדיוק עד המקום שבו הגמרא מתרחבת (רש״י) / עד סוף הגמרא (תוספות) — כמו בדף.
   // רק אם גם בגופן הקטן ביותר לא נכנס — השאר יורד מתחת לגמרא
   const gfs = parseFloat(v.style.getPropertyValue('--gfs')) || 14;
-  const fitCol = (srcId, a, b, h) => {
+  const TOP = 4;   // שורות של פירוש מעל הגמרא
+  const fitCol = (srcId, t, a, b, h) => {
+    const run = m => { [t, a, b].forEach(e => e.style.fontSize = m + 'px'); fill(srcId, [[t, m * 1.42 * TOP + 1], [a, h], [b, 1e9]]); return !b.textContent.trim(); };
     let lo = gfs * .5, hi = gfs * .9, best = lo;
-    for (let it = 0; it < 9; it++) { const m = (lo + hi) / 2; a.style.fontSize = m + 'px'; a.innerHTML = document.getElementById(srcId).innerHTML;
-      if (a.scrollHeight <= h) { best = m; lo = m; } else hi = m; }
-    a.style.fontSize = best + 'px'; b.style.fontSize = best + 'px'; fill(srcId, a, b, h);
+    for (let it = 0; it < 9; it++) { const m = (lo + hi) / 2; if (run(m)) { best = m; lo = m; } else hi = m; }
+    run(best);
   };
-  fitCol('edRsSrc', document.getElementById('edR1'), document.getElementById('edR2'), nar.offsetHeight + (midT ? wid.offsetHeight : 0));
-  fitCol('edTsSrc', document.getElementById('edT1'), document.getElementById('edT2'), nar.offsetHeight + (midT ? 0 : wid.offsetHeight));
+  const $ = id => document.getElementById(id);
+  fitCol('edRsSrc', $('edR0'), $('edR1'), $('edR2'), nar.offsetHeight + (midT ? wid.offsetHeight : 0));
+  fitCol('edTsSrc', $('edT0'), $('edT1'), $('edT2'), nar.offsetHeight + (midT ? 0 : wid.offsetHeight));
   if (ED.cur != null) v.querySelectorAll('.ed-c[data-j]').forEach(el => el.classList.toggle('on', +el.dataset.j === ED.cur));
   edMarks();
 }
