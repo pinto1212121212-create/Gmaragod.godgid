@@ -1825,7 +1825,8 @@
   .ed-overlay { position: fixed; inset: 0; z-index: 80; background: #0a0a0a; display: none; flex-direction: column; }
   .ed-overlay.open { display: flex; }
   .ed-sw { flex: 0 0 auto; height: 36px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(200,168,90,.55); background: transparent; color: var(--t-gold, #c8a85a); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-  .ed-scroll { direction: ltr; touch-action: pan-x pan-y; } .ed-scroll > .ed-page { direction: rtl; }
+  .ed-scroll { direction: ltr; touch-action: pan-x pan-y; } .ed-fix .ed-page { direction: rtl; }
+  .ed-fix { position: relative; margin: 8px auto; } .ed-fix > .ed-page { font-size: 1.75px; position: absolute; top: 0; left: 0; width: 760px; max-width: none; margin: 0; transform-origin: 0 0; padding: 42px 40px 30px !important; }
   .ed-scroll { flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; padding: 10px 8px 16px; }
   .ed-page { max-width: 760px; margin: 0 auto; background: #ffffff; color: #111; border-radius: 6px; padding: 12px 10px 10px; box-shadow: 0 0 0 1px rgba(0,0,0,.4); font-size: calc(var(--edz, 1) * 1px); }
   .ed-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-family: 'Frank Ruhl Libre', serif; font-weight: 700; font-size: 15em; border-bottom: 1.5px solid #1b160e; padding: 0 2px 4px; margin-bottom: 8px; }
@@ -3464,7 +3465,7 @@ function openEdition(ref) {
   const ts = ED_LINES[ref] && ED_LINES[ref].tos ? ED_LINES[ref].tos.map(([k, dh, t]) => `<span class="ed-c" data-j="${Math.max(0, ED.list.findIndex(x => x.k === k))}"><b>${big(dh)}.</b> ${t} </span>`).join('') : (amudim[ref].tosafot || []).map(e => `<span class="ed-c"><b>${big(e.dh)}.</b> ${e.content.replace(/<[^>]+>/g, '').replace(/\s*\((קריאה|הדיבור)[^)]*\)/g, '')} </span>`).join('');
   const side = (cls, body) => `<div class="ed-col ${cls}">${body}</div>`;
   ov.innerHTML = `<div class="po-bar ed-bar">${poDafBtn(-1)}<span>${AMUD_NAME[ref]} · המהדורה שלנו</span>${poDafBtn(1)}<button class="modal-close" onclick="closeEdition()" aria-label="סגור">✕</button></div>
-    <div class="ed-scroll" id="edScroll"><article class="ed-page" lang="he">
+    <div class="ed-scroll" id="edScroll"><div class="ed-fix" id="edFix"><article class="ed-page" lang="he">
       ${(() => { const num = `<b>${AMUD_NAME[ref].replace(/ ע״א$/, '.').replace(/ ע״ב$/, ':').replace(/׳/, '')}</b>`, t = `<span>${(amudim[ref].perek || 'מאימתי')}</span><span>פרק ראשון</span><span>תענית</span>`;
         return `<header class="ed-head">${amud ? t + num : num + t}</header>`; })()}
       ${ED_LINES[ref] ? edLinesHTML(ref, rs, ts, amud) : `<div class="ed-flow${amud ? '' : ' ed-amud-b'}">
@@ -3472,7 +3473,7 @@ function openEdition(ref) {
         <div class="ed-gemara">${gm}</div>
       </div>`}
       <footer class="ed-foot">מהדורת האתר</footer>
-    </article></div>
+    </article></div></div>
     <div class="po-call" id="edCall"></div>
     <div class="po-nav"><button class="po-b" id="edPrev" aria-label="השלב הקודם">▶</button><div class="ed-count" id="edCount"></div><button class="po-b" id="edNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="edZoom" aria-label="הגדלה"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button></div>`;
   ov.classList.add('open'); state.modal = 'edition'; document.body.classList.add('ed-on');
@@ -3481,8 +3482,7 @@ function openEdition(ref) {
     const b = e.target.closest('[data-j]'); if (b) edSelect(+b.dataset.j);
   });
   poLockZoom(true); edPinch();
-  if (ED.k > 1) { const pg = ov.querySelector('.ed-page'); pg.style.width = (edBase() * ED.k) + 'px'; pg.style.maxWidth = 'none'; }
-  if (ED_LINES[ref]) { edFit(); if (document.fonts) { document.fonts.ready.then(edFit); document.fonts.addEventListener('loadingdone', edRefit); } clearTimeout(ED.rt); window.removeEventListener('resize', edRefit); window.addEventListener('resize', edRefit); }
+  if (ED_LINES[ref]) { edFit(); if (document.fonts) { document.fonts.ready.then(edFit); document.fonts.addEventListener('loadingdone', edRefit); } clearTimeout(ED.rt); window.removeEventListener('resize', edScale); window.addEventListener('resize', edScale); }
   document.getElementById('edPrev').onclick = () => edSelect(ED.cur - 1);
   document.getElementById('edNext').onclick = () => edSelect(ED.cur + 1);
   edSelect(ED.cur, true);
@@ -3564,12 +3564,13 @@ function edFit() {
     return bst; };
   const C = [['edRsSrc', $('edR0'), $('edR1'), $('edR2'), nar.offsetHeight + (midT ? wid.offsetHeight : 0)],
              ['edTsSrc', $('edT0'), $('edT1'), $('edT2'), nar.offsetHeight + (midT ? 0 : wid.offsetHeight)]];
+  C.forEach(c => c[1].style.minHeight = '');   // אחרת הגובה מהפעם הקודמת ״ממלא״ את התיבה העליונה ונשארת ריקה
   const f0 = C.map(c => best(...c)), mean = (f0[0] + f0[1]) / 2;
   const fc = f0.map(x => Math.max(mean * .86, Math.min(mean * 1.14, x)));
   const topH = Math.max(...fc) * 1.42 * TOP + 1;
   C.forEach((c, k) => { run(...c, fc[k], topH); c[1].style.minHeight = (topH - 2) + 'px'; });
   if (ED.cur != null) v.querySelectorAll('.ed-c[data-j]').forEach(el => el.classList.toggle('on', +el.dataset.j === ED.cur));
-  edMarks();
+  edScale(); edMarks();
 }
 // מרקר מחובר: במקום תיבה לכל מילה — פס אחד לכל שורה, מהמילה הראשונה עד האחרונה של השלב, והשורות נוגעות זו בזו
 function edMarks() {
@@ -3617,20 +3618,26 @@ function edSelect(j, instant) {
   try { history.replaceState(null, '', `#${ED.ref}-${x.si}-${x.bi}`); } catch (e) {}
 }
 // 🔍 הגדלה במהדורה שלנו: צביטה בשתי אצבעות (או 🔍) מגדילה רק את הדף. הדף נבנה מחדש ברוחב החדש — האותיות חדות, השורות נשארות כמו בדף
-const edBase = () => Math.min(760, document.getElementById('edScroll').clientWidth - 16);
+// תבנית קבועה: הדף נבנה תמיד ברוחב אחד (ED_W) — אותן שורות, אותם טורים, באותו מקום בכל מכשיר — ומוקטן/מוגדל כמו תמונה.
+// סיבוב/שורת הכתובת בטלפון לא בונים אותו מחדש (רק משנים קנה מידה), ולכן שום דבר לא ״קופץ״
+const ED_W = 760;
+function edScale() {
+  const sc = document.getElementById('edScroll'), fx = document.getElementById('edFix'), pg = fx && fx.firstElementChild; if (!pg) return;
+  const s = Math.min(1, (sc.clientWidth - 16) / ED_W) * (ED.k || 1); ED.s = s;
+  pg.style.transform = `scale(${s})`; fx.style.width = (ED_W * s) + 'px'; fx.style.height = (pg.offsetHeight * s) + 'px';
+}
 function edZoomTo(k, fx, fy) {
-  const sc = document.getElementById('edScroll'), pg = sc && sc.querySelector('.ed-page'); if (!pg) return;
+  const sc = document.getElementById('edScroll'), pg = document.getElementById('edFix'); if (!pg) return;
   const r0 = pg.getBoundingClientRect(), sr = sc.getBoundingClientRect();
   fx = fx == null ? sr.left + sr.width / 2 : fx; fy = fy == null ? sr.top + sr.height / 2 : fy;
   const px = (fx - r0.left) / r0.width, py = (fy - r0.top) / r0.height;   // הנקודה שבין האצבעות נשארת במקומה
   ED.k = k = Math.max(1, Math.min(4, k));
-  pg.style.transform = ''; pg.style.width = k > 1.01 ? (edBase() * k) + 'px' : ''; pg.style.maxWidth = k > 1.01 ? 'none' : '';
-  if (ED_LINES[ED.ref]) edFit();
+  pg.style.transform = ''; edScale();
   const r1 = pg.getBoundingClientRect();
   sc.scrollLeft += (r1.left + px * r1.width) - fx; sc.scrollTop += (r1.top + py * r1.height) - fy;
 }
 function edPinch() {
-  const sc = document.getElementById('edScroll'), pg = sc.querySelector('.ed-page'); let g = null;
+  const sc = document.getElementById('edScroll'), pg = document.getElementById('edFix'); let g = null;
   const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
   sc.addEventListener('touchstart', e => { if (e.touches.length !== 2) return;
     const r = pg.getBoundingClientRect();
