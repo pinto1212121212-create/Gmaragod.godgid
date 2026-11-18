@@ -3439,7 +3439,7 @@ const ED_LINES = {
 let edPref = true; try { edPref = localStorage.getItem('gemara:ed') !== '0'; } catch (e) {}
 const ED = { ref: null, list: [], cur: 0, k: 1 };
 // גודל הדף: בטלפון נפתח מוגדל (האותיות קריאות), והדף עוקב אחרי השלב; הגודל שבוחרים בצביטה/🔍 נזכר
-try { const v = parseFloat(localStorage.getItem('gemara:edk')); ED.k = v >= 1 && v <= 4 ? v : (1); } catch (e) { ED.k = 1; }
+ED.k = 1;   // תבנית קבועה: הדף תמיד נפתח בגודל מלא (רוחב המסך), בלי הגדלה שמורה
 const edClean = t => t.replace(/[֑-ׇ]/g, '')                          // בלי ניקוד, כמו בדף גמרא
   .replace(/\s*\([^()]*,[^()]*\)/g, '')                                          // מראי מקומות לפסוקים — לא בתוך הגמרא
   .replace(/\s*\((ממשיך|ההמשך)[^)]*\)/g, '').replace(/^גמרא\.\s*/, '<b class="ed-gm">גמ׳</b> ').replace(/^מתני׳\s*/, '<b class="ed-gm">מתני׳</b> ');
@@ -3607,10 +3607,12 @@ function edSelect(j, instant) {
   const els = [...ov.querySelectorAll(`.ed-gemara [data-j="${j}"], .ed-gem [data-j="${j}"]`)], sc2 = document.getElementById('edScroll');
   if (els.length) { const rs = els.map(e => e.getBoundingClientRect()), b = sc2.getBoundingClientRect();
     const top = Math.min(...rs.map(r => r.top)), bot = Math.max(...rs.map(r => r.bottom)), first = rs[0];
+    // תבנית קבועה: הדף לא ״קופץ״. זזים רק אם השלב יצא לגמרי מהחלק הגלוי, ורק עד שהוא נכנס
+    const vb = Math.min(b.bottom, (document.getElementById('edCall') || sc2).getBoundingClientRect().top || b.bottom);
     let dy = 0, dx = 0;
-    if (top < b.top + 8 || bot > b.bottom - 8) dy = (bot - top < b.height * 0.8) ? top - b.top - b.height * 0.3 : top - b.top - 12;
-    const L = Math.min(...rs.map(r => r.left)), R = Math.max(...rs.map(r => r.right));   // כל רוחב השלב; אם לא נכנס — מיישרים לתחילת השורות (ימין)
-    if (R > b.right - 6 || L < b.left + 6) dx = (R - L <= b.width - 24) ? (L + R) / 2 - (b.left + b.right) / 2 : R - b.right + 12;
+    if (bot < b.top + 4) dy = top - b.top - 10; else if (top > vb - 4) dy = Math.min(bot, top + (vb - b.top) * .5) - vb + 10;
+    if (ED.k > 1.01) { const L = Math.min(...rs.map(r => r.left)), R = Math.max(...rs.map(r => r.right));
+      if (R < b.left + 6 || L > b.right - 6) dx = R - b.right + 12; }
     if (dx || dy) sc2.scrollBy({ top: dy, left: dx, behavior: instant ? 'auto' : 'smooth' }); }
   try { history.replaceState(null, '', `#${ED.ref}-${x.si}-${x.bi}`); } catch (e) {}
 }
@@ -3621,7 +3623,7 @@ function edZoomTo(k, fx, fy) {
   const r0 = pg.getBoundingClientRect(), sr = sc.getBoundingClientRect();
   fx = fx == null ? sr.left + sr.width / 2 : fx; fy = fy == null ? sr.top + sr.height / 2 : fy;
   const px = (fx - r0.left) / r0.width, py = (fy - r0.top) / r0.height;   // הנקודה שבין האצבעות נשארת במקומה
-  ED.k = k = Math.max(1, Math.min(4, k)); try { localStorage.setItem('gemara:edk', k.toFixed(2)); } catch (e) {}
+  ED.k = k = Math.max(1, Math.min(4, k));
   pg.style.transform = ''; pg.style.width = k > 1.01 ? (edBase() * k) + 'px' : ''; pg.style.maxWidth = k > 1.01 ? 'none' : '';
   if (ED_LINES[ED.ref]) edFit();
   const r1 = pg.getBoundingClientRect();
