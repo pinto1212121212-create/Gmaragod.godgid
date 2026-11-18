@@ -1849,7 +1849,9 @@
   .ed-foot { margin-top: 10px; border-top: 1px solid rgba(0,0,0,.35); padding-top: 4px; font-family: 'Heebo', sans-serif; font-size: 10em; color: #5d5240; text-align: center; }
 
   /* שורות קבועות כמו וילנא */
-  .ed-vil { display: grid; grid-template-columns: 27fr 46fr 27fr; grid-template-rows: auto auto auto; column-gap: 2.4%; align-items: start; }
+  .ed-page { overflow: hidden; }
+  .ed-vil > * { min-width: 0; }
+  .ed-vil { display: grid; grid-template-columns: minmax(0,23fr) minmax(0,54fr) minmax(0,23fr); grid-template-rows: auto auto auto; column-gap: 2%; align-items: start; }
   .ed-vil .ed-rashi { grid-column: 1; grid-row: 1; float: none; width: auto; margin: 0; }
   .ed-vil .ed-narrow { grid-column: 2; grid-row: 1; }
   .ed-vil .ed-tos1 { grid-column: 3; grid-row: 1 / span 2; float: none; width: auto; margin: 0; }
@@ -5349,7 +5351,7 @@ function openEdition(ref) {
     if (e.target.closest('.rs-dh')) return;
     const b = e.target.closest('[data-j]'); if (b) edSelect(+b.dataset.j);
   });
-  if (ED_LINES[ref]) { edFit(); clearTimeout(ED.rt); window.removeEventListener('resize', edRefit); window.addEventListener('resize', edRefit); }
+  if (ED_LINES[ref]) { edFit(); if (document.fonts) { document.fonts.ready.then(edFit); document.fonts.addEventListener('loadingdone', edRefit); } clearTimeout(ED.rt); window.removeEventListener('resize', edRefit); window.addEventListener('resize', edRefit); }
   document.getElementById('edPrev').onclick = () => edSelect(ED.cur - 1);
   document.getElementById('edNext').onclick = () => edSelect(ED.cur + 1);
   edSelect(ED.cur, true);
@@ -5375,7 +5377,7 @@ function edFit() {
   const nar = v.querySelector('.ed-narrow'), wid = v.querySelector('.ed-wide');
   const need = (box) => { let m = 0; box.querySelectorAll('.ed-l:not(.ed-l-open):not(.ed-l-last)').forEach(l => { l.classList.add('meas'); m = Math.max(m, l.scrollWidth / box.clientWidth); l.classList.remove('meas'); }); return m; };
   v.style.setProperty('--gfs', '20px');
-  const f = Math.min(20 / need(nar), 20 / need(wid)) * 0.985;
+  const f = Math.min(20 / need(nar), 20 / need(wid)) * 0.97;   // נמדד בגופן שנטען בפועל (edFit רץ שוב כשהגופנים נטענים)
   v.style.setProperty('--gfs', f.toFixed(2) + 'px');
   const fill = (srcId, a, b, h) => {
     a.innerHTML = ''; b.innerHTML = '';
