@@ -1846,6 +1846,10 @@
   .ed-b { cursor: pointer; border-radius: 3px; transition: background .2s; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   .ed-page.has-sel .ed-b { background: none; }
   .ed-b.on { background: rgba(var(--c), .42) !important; box-shadow: 0 0 0 1.5px rgba(var(--c), .9); }
+  .ed-vil { position: relative; } .ed-vil .ed-gem { position: relative; z-index: 1; }
+  .ed-vil .ed-gem .ed-b.on { background: none !important; box-shadow: none; }   /* בשורות — המרקר המחובר (.ed-mk) במקום תיבה לכל מילה */
+  .ed-mk { position: absolute; z-index: 0; pointer-events: none; background: rgba(var(--c), .38); border-radius: 3px; }
+  .ed-mk.r-q { --c: 232,86,106; } .ed-mk.r-x { --c: 230,140,60; } .ed-mk.r-a { --c: 108,195,90; } .ed-mk.r-c { --c: 242,193,78; } .ed-mk.r-s, .ed-mk.r-n { --c: 94,168,224; } .ed-mk.r-k { --c: 169,141,224; }
   .ed-b.r-q { --c: 232,86,106; } .ed-b.r-x { --c: 230,140,60; } .ed-b.r-a { --c: 108,195,90; } .ed-b.r-c { --c: 242,193,78; } .ed-b.r-s, .ed-b.r-n { --c: 94,168,224; } .ed-b.r-k { --c: 169,141,224; }
   .ed-gemara mark.rs-dh { background: none; color: inherit; border-bottom: 0; }
   .ed-gemara mark.rs-dh::after { display: none; }
@@ -5397,7 +5401,9 @@ const ED_LINES = {
 };
 
 let edPref = true; try { edPref = localStorage.getItem('gemara:ed') !== '0'; } catch (e) {}
-const ED = { ref: null, list: [], cur: 0 };
+const ED = { ref: null, list: [], cur: 0, k: 1 };
+// גודל הדף: בטלפון נפתח מוגדל (האותיות קריאות), והדף עוקב אחרי השלב; הגודל שבוחרים בצביטה/🔍 נזכר
+try { const v = parseFloat(localStorage.getItem('gemara:edk')); ED.k = v >= 1 && v <= 4 ? v : (innerWidth < 700 ? 1.7 : 1); } catch (e) { ED.k = innerWidth < 700 ? 1.7 : 1; }
 const edClean = t => t.replace(/[֑-ׇ]/g, '')                          // בלי ניקוד, כמו בדף גמרא
   .replace(/\s*\([^()]*,[^()]*\)/g, '')                                          // מראי מקומות לפסוקים — לא בתוך הגמרא
   .replace(/\s*\((ממשיך|ההמשך)[^)]*\)/g, '').replace(/^גמרא\.\s*/, '<b class="ed-gm">גמ׳</b> ').replace(/^מתני׳\s*/, '<b class="ed-gm">מתני׳</b> ');
@@ -5497,6 +5503,22 @@ function edFit() {
   fitCol('edRsSrc', document.getElementById('edR1'), document.getElementById('edR2'), nar.offsetHeight + (midT ? wid.offsetHeight : 0));
   fitCol('edTsSrc', document.getElementById('edT1'), document.getElementById('edT2'), nar.offsetHeight + (midT ? 0 : wid.offsetHeight));
   if (ED.cur != null) v.querySelectorAll('.ed-c[data-j]').forEach(el => el.classList.toggle('on', +el.dataset.j === ED.cur));
+  edMarks();
+}
+// מרקר מחובר: במקום תיבה לכל מילה — פס אחד לכל שורה, מהמילה הראשונה עד האחרונה של השלב, והשורות נוגעות זו בזו
+function edMarks() {
+  const v = document.querySelector('#edOverlay .ed-vil'); if (!v) return;
+  v.querySelectorAll('.ed-mk').forEach(m => m.remove());
+  const vr = v.getBoundingClientRect(), z = vr.width / (v.offsetWidth || vr.width);   // בזמן צביטה יש scale
+  v.querySelectorAll('.ed-l').forEach(l => {
+    const on = l.querySelectorAll('.ed-b.on'); if (!on.length) return;
+    let L = 1e9, R = -1e9; on.forEach(w => { const r = w.getBoundingClientRect(); L = Math.min(L, r.left); R = Math.max(R, r.right); });
+    const lr = l.getBoundingClientRect(), m = document.createElement('i');
+    m.className = 'ed-mk r-' + (ED.list[ED.cur] || {}).role;
+    const pad = 2;
+    m.style.cssText = `left:${(L - vr.left) / z - pad}px;top:${(lr.top - vr.top) / z}px;width:${(R - L) / z + pad * 2}px;height:${lr.height / z}px`;
+    v.appendChild(m);
+  });
 }
 function edRefit() { clearTimeout(ED.rt); ED.rt = setTimeout(() => { if (document.getElementById('edOverlay').classList.contains('open')) edFit(); }, 150); }
 function edSelect(j, instant) {
@@ -5514,9 +5536,16 @@ function edSelect(j, instant) {
   call.querySelectorAll('.st-n[data-bi]').forEach(b => b.onclick = e => { e.stopPropagation(); const i = ED.list.findIndex(y => y.si === x.si && y.bi === +b.dataset.bi); if (i >= 0) edSelect(i); });
   call.scrollTop = 0;
   document.getElementById('edCount').textContent = `${j + 1} / ${ED.list.length}`;
-  const el = ov.querySelector(`.ed-gemara [data-j="${j}"]`), sc2 = document.getElementById('edScroll');
-  if (el) { const r = el.getBoundingClientRect(), b = sc2.getBoundingClientRect();
-    if (r.top < b.top + 8 || r.bottom > b.bottom - 8) sc2.scrollBy({ top: r.top - b.top - b.height * 0.3, behavior: instant ? 'auto' : 'smooth' }); }
+  edMarks();
+  // הדף עוקב אחרי השלב: גם למעלה/למטה וגם לצדדים (כשהדף מוגדל)
+  const els = [...ov.querySelectorAll(`.ed-gemara [data-j="${j}"], .ed-gem [data-j="${j}"]`)], sc2 = document.getElementById('edScroll');
+  if (els.length) { const rs = els.map(e => e.getBoundingClientRect()), b = sc2.getBoundingClientRect();
+    const top = Math.min(...rs.map(r => r.top)), bot = Math.max(...rs.map(r => r.bottom)), first = rs[0];
+    let dy = 0, dx = 0;
+    if (top < b.top + 8 || bot > b.bottom - 8) dy = (bot - top < b.height * 0.8) ? top - b.top - b.height * 0.3 : top - b.top - 12;
+    const L = Math.min(...rs.map(r => r.left)), R = Math.max(...rs.map(r => r.right));   // כל רוחב השלב; אם לא נכנס — מיישרים לתחילת השורות (ימין)
+    if (R > b.right - 6 || L < b.left + 6) dx = (R - L <= b.width - 24) ? (L + R) / 2 - (b.left + b.right) / 2 : R - b.right + 12;
+    if (dx || dy) sc2.scrollBy({ top: dy, left: dx, behavior: instant ? 'auto' : 'smooth' }); }
   try { history.replaceState(null, '', `#${ED.ref}-${x.si}-${x.bi}`); } catch (e) {}
 }
 // 🔍 הגדלה במהדורה שלנו: צביטה בשתי אצבעות (או 🔍) מגדילה רק את הדף. הדף נבנה מחדש ברוחב החדש — האותיות חדות, השורות נשארות כמו בדף
@@ -5526,7 +5555,7 @@ function edZoomTo(k, fx, fy) {
   const r0 = pg.getBoundingClientRect(), sr = sc.getBoundingClientRect();
   fx = fx == null ? sr.left + sr.width / 2 : fx; fy = fy == null ? sr.top + sr.height / 2 : fy;
   const px = (fx - r0.left) / r0.width, py = (fy - r0.top) / r0.height;   // הנקודה שבין האצבעות נשארת במקומה
-  ED.k = k = Math.max(1, Math.min(4, k));
+  ED.k = k = Math.max(1, Math.min(4, k)); try { localStorage.setItem('gemara:edk', k.toFixed(2)); } catch (e) {}
   pg.style.transform = ''; pg.style.width = k > 1.01 ? (edBase() * k) + 'px' : ''; pg.style.maxWidth = k > 1.01 ? 'none' : '';
   if (ED_LINES[ED.ref]) edFit();
   const r1 = pg.getBoundingClientRect();
