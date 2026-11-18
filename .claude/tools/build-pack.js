@@ -80,7 +80,7 @@ for (const ref of refs) {
   fs.writeFileSync(path.join(DD, ref + '.js'), body);
   man.v[ref] = hash(body);
   { // גרסת הצילומים של הדף (מלא + חיתוכים): משתנה כשמחליפים צילום, כדי שהטלפון לא יציג תמונה ישנה מהשמור
-    const ID = path.join(ROOT, 'taanit-img'); const fsx = fs.readdirSync(ID).filter(f => f.startsWith(ref + '-') && f.endsWith('.jpg')).sort();
+    const ID = path.join(ROOT, 'taanit-img'); const fsx = (fs.existsSync(ID) ? fs.readdirSync(ID) : []).filter(f => f.startsWith(ref + '-') && f.endsWith('.jpg')).sort();
     man.iv[ref] = hash(fsx.map(f => f + fs.statSync(path.join(ID, f)).size + crypto.createHash('md5').update(fs.readFileSync(path.join(ID, f))).digest('hex')).join('|')); } man.names[ref] = AMUD_NAME[ref] || ref; man.box[ref] = PAGE_BOX[ref] || null;
   if (pack.tree) { man.titles[ref] = pack.tree.title; man.sums[ref] = pack.tree.sum || ''; }
   man.scenes[ref] = Math.max(pack.sections.length, ...Object.keys(pack.loc).map(k => +k + 1), 0);
