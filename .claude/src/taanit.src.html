@@ -1877,12 +1877,13 @@
   .ed-vil .ed-rashi.ed-bot { grid-column: 1 / span 2; column-count: 2; column-gap: 4%; }
   .ed-vil .ed-tos.ed-bot { grid-column: 3; }
   .ed-vil.ed-amud-b { direction: ltr; } .ed-vil.ed-amud-b > * { direction: rtl; }
-  .ed-gem { font-family: 'Frank Ruhl Libre', serif; font-weight: 500; font-size: var(--gfs, 14px); line-height: 1.5; }
+  .ed-gem { font-family: 'Frank Ruhl Libre', serif; font-weight: 700; color: #0c0a07; font-size: var(--gfs, 14px); line-height: calc(var(--gfs, 14px) * 1.4); -webkit-font-smoothing: antialiased; }
+  .ed-gem .ed-l { column-gap: .22em; }
   .ed-l { display: flex; justify-content: space-between; column-gap: .3em; white-space: nowrap; }
   .ed-l.meas { display: inline-flex; justify-content: flex-start; }
   .ed-l-last { justify-content: flex-start; }
   .ed-l-open { justify-content: center; }
-  .ed-w { padding: 0 .04em; }
+  .ed-w { padding: 0 .04em; display: inline-block; }
   .ed-vil .ed-col { font-size: calc(var(--gfs, 14px) * .66); }
   .ed-src .es-txt { font-family: 'Frank Ruhl Libre', serif; font-size: calc(18px * var(--fz, 1)); line-height: 1.75; color: #1b160e; background: #f7f2e6; padding: 10px 12px; max-height: 34vh; overflow-y: auto; text-align: justify; cursor: pointer; }
   .es-b { border-radius: 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
@@ -5502,10 +5503,24 @@ function edLinesHTML(ref, rs, ts, amud) {
 function edFit() {
   const v = document.querySelector('#edOverlay .ed-vil'); if (!v) return;
   const nar = v.querySelector('.ed-narrow'), wid = v.querySelector('.ed-wide'), ful = v.querySelector('.ed-full'), midT = v.classList.contains('ed-mid-t');
-  const need = (box) => { let m = 0; box.querySelectorAll('.ed-l:not(.ed-l-open):not(.ed-l-last)').forEach(l => { l.classList.add('meas'); m = Math.max(m, l.scrollWidth / box.clientWidth); l.classList.remove('meas'); }); return m; };
+  // אותיות צפופות כמו בדף: הגודל נקבע לפי רוב השורות (80%), ורק שורה ארוכה במיוחד מוקטנת מעט לבד — כך אין רווחים גדולים בין המילים
+  const lines = box => [...box.querySelectorAll('.ed-l:not(.ed-l-open):not(.ed-l-last)')];
+  v.querySelectorAll('.ed-l').forEach(l => l.style.fontSize = '');
+  const need = (box) => { const r = lines(box).map(l => { l.classList.add('meas'); const x = l.scrollWidth / box.clientWidth; l.classList.remove('meas'); return x; }).sort((a, b) => a - b);
+    return r.length ? r[Math.min(r.length - 1, Math.floor(r.length * 0.8))] : 1; };
   v.style.setProperty('--gfs', '20px');
-  const f = Math.min(20 / need(nar), 20 / need(wid), ful ? 20 / need(ful) : 99) * 0.97;   // נמדד בגופן שנטען בפועל (edFit רץ שוב כשהגופנים נטענים)
+  const f = Math.min(20 / need(nar), 20 / need(wid), ful ? 20 / need(ful) : 99) * 0.985;   // נמדד בגופן שנטען בפועל (edFit רץ שוב כשהגופנים נטענים)
   v.style.setProperty('--gfs', f.toFixed(2) + 'px');
+  [nar, wid, ful].filter(Boolean).forEach(box => lines(box).forEach(l => { l.classList.add('meas'); const x = l.scrollWidth / box.clientWidth; l.classList.remove('meas');
+    if (x > 1) l.style.fontSize = (f / x * 0.99).toFixed(2) + 'px'; }));
+  // אותיות רחבות כמו בדפוס: בכל שורה המילים נמתחות לרוחב (עד ×1.28) במקום רווחים גדולים ביניהן
+  v.querySelectorAll('.ed-gem .ed-l').forEach(l => {
+    const ws = [...l.querySelectorAll('.ed-w')]; ws.forEach(w => { w.style.transform = ''; w.style.margin = ''; });
+    if (l.classList.contains('ed-l-open') || l.classList.contains('ed-l-last') || ws.length < 2) return;
+    const fs = parseFloat(getComputedStyle(l).fontSize), W = ws.reduce((a, w) => a + w.offsetWidth, 0), gap = fs * 0.3 * (ws.length - 1);
+    const S = Math.max(1, Math.min(1.28, (l.clientWidth - gap) / W)); if (S <= 1.01) return;
+    ws.forEach(w => { const m = w.offsetWidth * (S - 1) / 2; w.style.transform = `scaleX(${S.toFixed(3)})`; w.style.margin = `0 ${m.toFixed(1)}px`; });
+  });
   const fill = (srcId, a, b, h) => {
     a.innerHTML = ''; b.innerHTML = '';
     const items = [...document.getElementById(srcId).content.children].map(n => n.cloneNode(true));
