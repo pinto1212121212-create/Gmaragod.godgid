@@ -1847,6 +1847,24 @@
   .ed-gemara mark.rs-dh { background: none; color: inherit; border-bottom: 0; }
   .ed-gemara mark.rs-dh::after { display: none; }
   .ed-foot { margin-top: 10px; border-top: 1px solid rgba(0,0,0,.35); padding-top: 4px; font-family: 'Heebo', sans-serif; font-size: 10em; color: #5d5240; text-align: center; }
+
+  /* שורות קבועות כמו וילנא */
+  .ed-vil { display: grid; grid-template-columns: 27fr 46fr 27fr; grid-template-rows: auto auto auto; column-gap: 2.4%; align-items: start; }
+  .ed-vil .ed-rashi { grid-column: 1; grid-row: 1; float: none; width: auto; margin: 0; }
+  .ed-vil .ed-narrow { grid-column: 2; grid-row: 1; }
+  .ed-vil .ed-tos1 { grid-column: 3; grid-row: 1 / span 2; float: none; width: auto; margin: 0; }
+  .ed-vil .ed-wide { grid-column: 1 / span 2; grid-row: 2; }
+  .ed-vil .ed-bot { grid-row: 3; float: none; width: auto; margin: 4px 0 0; }
+  .ed-vil .ed-rashi.ed-bot { grid-column: 1 / span 2; column-count: 2; column-gap: 4%; }
+  .ed-vil .ed-tos.ed-bot { grid-column: 3; }
+  .ed-vil.ed-amud-b { direction: ltr; } .ed-vil.ed-amud-b > * { direction: rtl; }
+  .ed-gem { font-family: 'Frank Ruhl Libre', serif; font-weight: 500; font-size: var(--gfs, 14px); line-height: 1.5; }
+  .ed-l { display: flex; justify-content: space-between; column-gap: .3em; white-space: nowrap; }
+  .ed-l.meas { display: inline-flex; justify-content: flex-start; }
+  .ed-l-last { justify-content: flex-start; }
+  .ed-l-open { justify-content: center; }
+  .ed-w { padding: 0 .04em; }
+  .ed-vil .ed-col { font-size: calc(var(--gfs, 14px) * .66); }
   .ed-count { flex: 1; text-align: center; color: #a09a8c; font-size: 13px; direction: ltr; }
   .ed-sc { margin-inline-start: auto; color: #a09a8c; font-size: 12px; font-weight: 500; }
   #edOverlay .po-call { max-height: 38vh; }
@@ -2464,6 +2482,52 @@ function poLockZoom(on) {
 // הגמרא באמצע (מ־PUNCT, כל שלב = span לחיץ בצבע התפקיד), רש״י בצד הפנימי (ע״א מימין, ע״ב משמאל) ותוספות בצד החיצוני.
 // הטקסט שייך לכולם; העימוד, הגופן והעיצוב — שלנו. אין כאן שום דבר מעימוד של הוצאה.
 const EDITION = new Set(['2a']);
+// שבירת השורות כמו בדף וילנא (הטקסט והשורות של ש״ס וילנא שייכים לכולם). ‖ = כאן מתחיל השלב הבא (לפי סדר PUNCT בדף).
+// narrow: השורות שבין רש״י לתוספות; wide: השורות הרחבות (אחרי שרש״י נגמר).
+const ED_LINES = {
+  '2a': { open: 'מאימתי', narrow: [
+    'מזכירין גבורות גשמים ‖ רבי אליעזר אומר',
+    'מיום טוב הראשון של חג ‖ ר׳ יהושע אומר',
+    'מיום טוב האחרון של חג ‖ אמר לו ר׳ יהושע',
+    'הואיל ואין הגשמים אלא סימן קללה בחג',
+    'למה הוא מזכיר ‖ אמר לו ר׳ אליעזר אף אני',
+    'לא אמרתי לשאול אלא להזכיר משיב הרוח',
+    'ומוריד הגשם בעונתו ‖ אמר לו א״כ לעולם',
+    'יהא מזכיר ‖ אין שואלין את הגשמים אלא',
+    'סמוך לגשמים ‖ ר׳ יהודה אומר העובר לפני',
+    'התיבה ביו״ט האחרון של חג האחרון מזכיר',
+    'הראשון אינו מזכיר ‖ ביו״ט ראשון של פסח',
+    'הראשון מזכיר האחרון אינו מזכיר: ‖ גמ׳',
+    'תנא היכא קאי דקתני מאימתי ‖ תנא התם',
+    'קאי דקתני מזכירין גבורות גשמים בתחיית',
+    'המתים ושואלין בברכת השנים והבדלה',
+    'בחונן הדעת וקתני מאימתי מזכירין גבורות',
+    'גשמים ‖ וליתני התם מ״ש דשבקיה עד הכא',
+    '‖ אלא תנא מראש השנה סליק דתנן ובחג',
+    'נידונין על המים ואיידי דתנא ובחג נידונין',
+    'על המים תנא מאימתי מזכירין גבורות',
+    'גשמים ‖ וליתני מאימתי מזכירין על הגשמים',
+    'מאי גבורות גשמים ‖ א״ר יוחנן מפני שיורדין',
+    'בגבורה ‖ שנאמר עושה גדולות עד אין',
+    'חקר ונפלאות עד אין מספר וכתיב הנותן',
+    'מטר על פני ארץ ושולח מים על פני חוצות',
+    '‖ מאי משמע ‖ אמר רבה בר שילא אתיא חקר',
+    'חקר מברייתו של עולם ‖ כתיב הכא עושה',
+    'גדולות עד אין חקר וכתיב התם הלא ידעת',
+    'אם לא שמעת אלהי עולם ה׳ בורא קצות',
+    'הארץ לא ייעף ולא ייגע אין חקר לתבונתו',
+    'וכתיב מכין הרים בכחו נאזר בגבורה ‖ ומנא',
+    'לן דבתפלה ‖ דתניא לאהבה את ה׳ אלהיכם',
+    'ולעבדו בכל לבבכם איזו היא עבודה שהיא'],
+  wide: [
+    'בלב הוי אומר זו תפלה ‖ וכתיב בתריה ונתתי מטר ארצכם בעתו יורה',
+    'ומלקוש ‖ אמר ר׳ יוחנן ג׳ מפתחות בידו של הקב״ה שלא נמסרו ביד שליח',
+    'ואלו הן מפתח של גשמים ומפתח של חיה ומפתח של תחיית המתים',
+    '‖ מפתח של גשמים דכתיב יפתח ה׳ לך את אוצרו הטוב את השמים לתת',
+    'מטר ארצך בעתו ‖ מפתח של חיה מנין דכתיב ויזכור אלהים את רחל וישמע',
+    'אליה'] },
+};
+
 let edPref = true; try { edPref = localStorage.getItem('gemara:ed') !== '0'; } catch (e) {}
 const ED = { ref: null, list: [], cur: 0 };
 const edClean = t => t.replace(/[֑-ׇ]/g, '')                          // בלי ניקוד, כמו בדף גמרא
@@ -2489,10 +2553,10 @@ function openEdition(ref) {
   ov.innerHTML = `<div class="po-bar ed-bar">${poDafBtn(-1)}<span>${AMUD_NAME[ref]} · המהדורה שלנו</span>${poDafBtn(1)}<button type="button" class="ed-sw" onclick="edToPhoto()" aria-label="צילום הדף">צילום</button><button class="modal-close" onclick="closeEdition()" aria-label="סגור">✕</button></div>
     <div class="ed-scroll" id="edScroll"><article class="ed-page" lang="he">
       <header class="ed-head"><span>${(amudim[ref].perek || 'מאימתי')}</span><span>פרק ראשון</span><span>תענית</span><b>${AMUD_NAME[ref].replace(/ ע״א$/, '.').replace(/ ע״ב$/, ':').replace(/׳/, '')}</b></header>
-      <div class="ed-flow${amud ? '' : ' ed-amud-b'}">
+      ${ED_LINES[ref] ? edLinesHTML(ref, rs, ts, amud) : `<div class="ed-flow${amud ? '' : ' ed-amud-b'}">
         ${side('ed-rashi', rs)}${side('ed-tos', ts)}
         <div class="ed-gemara">${gm}</div>
-      </div>
+      </div>`}
       <footer class="ed-foot">צורת הדף — מהדורת האתר · רש״י בצד הפנימי, תוספות בחיצוני (תוספות בקיצור) · לחיצה על משפט בגמרא — ההסבר שלו למטה</footer>
     </article></div>
     <div class="po-call" id="edCall"></div>
@@ -2502,10 +2566,53 @@ function openEdition(ref) {
     if (e.target.closest('.rs-dh')) return;
     const b = e.target.closest('[data-j]'); if (b) edSelect(+b.dataset.j);
   });
+  if (ED_LINES[ref]) { edFit(); clearTimeout(ED.rt); window.removeEventListener('resize', edRefit); window.addEventListener('resize', edRefit); }
   document.getElementById('edPrev').onclick = () => edSelect(ED.cur - 1);
   document.getElementById('edNext').onclick = () => edSelect(ED.cur + 1);
   edSelect(ED.cur, true);
 }
+
+// צורת הדף בשורות קבועות (כמו וילנא): כל שורה = בדיוק המילים של השורה בדף. רש״י ותוספות ממלאים את הצדדים, וממשיכים מתחת לגמרא
+function edLinesHTML(ref, rs, ts, amud) {
+  const L = ED_LINES[ref]; let j = 0;
+  const line = (t, cls) => { const w = t.split(/\s+/).filter(Boolean); let h = '';
+    for (const x of w) { if (x === '‖') { j++; continue; } h += `<span class="ed-w ed-b r-${(ED.list[j] || {}).role || 'k'}" data-j="${j}">${x}</span>`; }
+    return `<div class="ed-l${cls ? ' ' + cls : ''}">${h}</div>`; };
+  const narrow = `<div class="ed-l ed-l-open"><span class="ed-open ed-b r-${ED.list[0].role}" data-j="0">${L.open}</span></div>` + L.narrow.map(t => line(t)).join('');
+  const wide = L.wide.map((t, i) => line(t, i === L.wide.length - 1 ? 'ed-l-last' : '')).join('');
+  return `<div class="ed-vil${amud ? '' : ' ed-amud-b'}">
+    <div class="ed-col ed-rashi" id="edR1"></div><div class="ed-gem ed-narrow">${narrow}</div><div class="ed-col ed-tos ed-tos1" id="edT1"></div>
+    <div class="ed-gem ed-wide">${wide}</div>
+    <div class="ed-col ed-rashi ed-bot" id="edR2"></div><div class="ed-col ed-tos ed-bot" id="edT2"></div>
+  </div><template id="edRsSrc">${rs}</template><template id="edTsSrc">${ts}</template>`;
+}
+// גודל אותיות: השורה הארוכה ביותר נכנסת בדיוק ברוחב הטור; ואז רש״י ממלא את גובה הטור הצר, תוספות את הצר+הרחב, והשאר יורד למטה
+function edFit() {
+  const v = document.querySelector('#edOverlay .ed-vil'); if (!v) return;
+  const nar = v.querySelector('.ed-narrow'), wid = v.querySelector('.ed-wide');
+  const need = (box) => { let m = 0; box.querySelectorAll('.ed-l:not(.ed-l-open):not(.ed-l-last)').forEach(l => { l.classList.add('meas'); m = Math.max(m, l.scrollWidth / box.clientWidth); l.classList.remove('meas'); }); return m; };
+  v.style.setProperty('--gfs', '20px');
+  const f = Math.min(20 / need(nar), 20 / need(wid)) * 0.985;
+  v.style.setProperty('--gfs', f.toFixed(2) + 'px');
+  const fill = (srcId, a, b, h) => {
+    a.innerHTML = ''; b.innerHTML = '';
+    const items = [...document.getElementById(srcId).content.children].map(n => n.cloneNode(true));
+    let i = 0;
+    for (; i < items.length; i++) { a.appendChild(items[i]); if (a.scrollHeight > h) break; }
+    if (i < items.length) {   // הפירוש האחרון נחתך באמצע: מילים עד שנגמר המקום, והשאר למטה
+      const it = items[i], words = it.innerHTML.split(/(\s+)/); it.innerHTML = '';
+      let k = 0; for (; k < words.length; k++) { it.innerHTML += words[k]; if (a.scrollHeight > h) break; }
+      const rest = words.slice(k).join(''); it.innerHTML = words.slice(0, k).join('');
+      if (!it.textContent.trim()) a.removeChild(it);
+      if (rest.trim()) { const r2 = it.cloneNode(false); r2.innerHTML = rest; b.appendChild(r2); }
+      for (i++; i < items.length; i++) b.appendChild(items[i]);
+    }
+  };
+  fill('edRsSrc', document.getElementById('edR1'), document.getElementById('edR2'), nar.offsetHeight);
+  fill('edTsSrc', document.getElementById('edT1'), document.getElementById('edT2'), nar.offsetHeight + wid.offsetHeight);
+  if (ED.cur != null) v.querySelectorAll('.ed-c[data-j]').forEach(el => el.classList.toggle('on', +el.dataset.j === ED.cur));
+}
+function edRefit() { clearTimeout(ED.rt); ED.rt = setTimeout(() => { if (document.getElementById('edOverlay').classList.contains('open')) edFit(); }, 150); }
 function edSelect(j, instant) {
   if (!ED.list.length) return;
   if (j >= ED.list.length) { poDaf(1); return; } if (j < 0) { poDaf(-1); return; }
