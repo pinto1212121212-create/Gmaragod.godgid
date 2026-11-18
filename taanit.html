@@ -1829,21 +1829,22 @@
   .ed-page { max-width: 760px; margin: 0 auto; background: #f7f2e6; color: #1b160e; border-radius: 6px; padding: 12px 10px 10px; box-shadow: 0 0 0 1px rgba(0,0,0,.4); font-size: calc(var(--edz, 1) * 1px); }
   .ed-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-family: 'Frank Ruhl Libre', serif; font-weight: 700; font-size: 15em; border-bottom: 1.5px solid #1b160e; padding: 0 2px 4px; margin-bottom: 8px; }
   .ed-head b { font-size: 1.25em; }
-  .ed-grid { display: grid; grid-template-columns: 1fr 1.75fr 1fr; gap: 8px; align-items: start; }
-  .ed-grid.ed-b-side { direction: ltr; } .ed-grid.ed-b-side > * { direction: rtl; }
-  .ed-gemara { font-family: 'Frank Ruhl Libre', serif; font-weight: 500; font-size: 15.5em; line-height: 1.62; text-align: justify; text-align-last: right; hyphens: none; }
-  .ed-col { font-family: 'Noto Rashi Hebrew', 'Frank Ruhl Libre', serif; font-size: 10.5em; line-height: 1.5; text-align: justify; color: #2b2418; }
-  .ed-ct { font-family: 'Frank Ruhl Libre', serif; font-weight: 900; font-size: 1.15em; text-align: center; border-bottom: 1px solid #1b160e; margin-bottom: 4px; }
-  .ed-ct small { font-weight: 400; font-size: .8em; }
-  .ed-c b { font-family: 'Frank Ruhl Libre', serif; font-weight: 900; }
-  .ed-c.on { background: rgba(200,149,104,.35); border-radius: 3px; }
-  .ed-open { display: inline-block; font-weight: 900; font-size: 1.9em; line-height: 1.1; padding: 2px 10px; margin: 0 0 4px 6px; border: 2px double #1b160e; border-radius: 4px; }
+  /* צורת הדף כמו בש״ס וילנא: רש״י ותוספות צפים בצדדים, והגמרא באמצע — וכשהם נגמרים הגמרא מתרחבת לכל רוחב הדף */
+  .ed-flow { display: flow-root; }
+  .ed-col { width: 27%; font-family: 'Noto Rashi Hebrew', 'Frank Ruhl Libre', serif; font-size: 9.6em; line-height: 1.42; text-align: justify; color: #1b160e; }
+  .ed-rashi { float: right; margin-left: 2.2%; }
+  .ed-tos { float: left; margin-right: 2.2%; }
+  .ed-amud-b .ed-rashi { float: left; margin: 0 2.2% 0 0; } .ed-amud-b .ed-tos { float: right; margin: 0 0 0 2.2%; }
+  .ed-gemara { font-family: 'Frank Ruhl Libre', serif; font-weight: 500; font-size: 14.2em; line-height: 1.5; text-align: justify; text-align-last: auto; }
+  .ed-c b { font-family: 'Frank Ruhl Libre', serif; font-weight: 900; font-size: 1.08em; }
+  .ed-c.on { background: rgba(200,149,104,.32); border-radius: 2px; }
+  .ed-open { display: block; width: fit-content; margin: 2px auto 6px; font-weight: 900; font-size: 2.1em; line-height: 1.1; padding: 6px 16px; border: 3px double #1b160e; outline: 1px solid #1b160e; outline-offset: 3px; }
   .ed-gm { font-weight: 900; }
   .ed-b { cursor: pointer; border-radius: 3px; transition: background .2s; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-  .ed-page.has-sel .ed-b { background: rgba(var(--c), .12); }
+  .ed-page.has-sel .ed-b { background: none; }
   .ed-b.on { background: rgba(var(--c), .42) !important; box-shadow: 0 0 0 1.5px rgba(var(--c), .9); }
   .ed-b.r-q { --c: 232,86,106; } .ed-b.r-x { --c: 230,140,60; } .ed-b.r-a { --c: 108,195,90; } .ed-b.r-c { --c: 242,193,78; } .ed-b.r-s, .ed-b.r-n { --c: 94,168,224; } .ed-b.r-k { --c: 169,141,224; }
-  .ed-gemara mark.rs-dh { background: none; color: inherit; border-bottom: 1.5px dotted #8a6235; }
+  .ed-gemara mark.rs-dh { background: none; color: inherit; border-bottom: 0; }
   .ed-gemara mark.rs-dh::after { display: none; }
   .ed-foot { margin-top: 10px; border-top: 1px solid rgba(0,0,0,.35); padding-top: 4px; font-family: 'Heebo', sans-serif; font-size: 10em; color: #5d5240; text-align: center; }
   .ed-count { flex: 1; text-align: center; color: #a09a8c; font-size: 13px; direction: ltr; }
@@ -2484,16 +2485,15 @@ function openEdition(ref) {
     return `<span class="ed-b r-${x.role}" data-j="${j}">${rashiMark(t, x.k)}</span>`; }).join(' ');
   const rs = ED.list.flatMap((x, j) => (RASHI_AT[x.k] || []).map(([dh, r]) => `<span class="ed-c" data-j="${j}"><b>${dh}.</b> ${r.replace(/[֑-ׇ]/g, '')} </span>`)).join('');
   const ts = (amudim[ref].tosafot || []).map(e => `<span class="ed-c"><b>${e.dh}.</b> ${e.content.replace(/<[^>]+>/g, '').replace(/\s*\((קריאה|הדיבור)[^)]*\)/g, '')} </span>`).join('');
-  const side = (cls, title, body) => `<div class="ed-col ${cls}"><div class="ed-ct">${title}</div><div class="ed-ctx">${body}</div></div>`;
+  const side = (cls, body) => `<div class="ed-col ${cls}">${body}</div>`;
   ov.innerHTML = `<div class="po-bar ed-bar">${poDafBtn(-1)}<span>${AMUD_NAME[ref]} · המהדורה שלנו</span>${poDafBtn(1)}<button type="button" class="ed-sw" onclick="edToPhoto()" aria-label="צילום הדף">צילום</button><button class="modal-close" onclick="closeEdition()" aria-label="סגור">✕</button></div>
     <div class="ed-scroll" id="edScroll"><article class="ed-page" lang="he">
       <header class="ed-head"><span>${(amudim[ref].perek || 'מאימתי')}</span><span>פרק ראשון</span><span>תענית</span><b>${AMUD_NAME[ref].replace(/ ע״א$/, '.').replace(/ ע״ב$/, ':').replace(/׳/, '')}</b></header>
-      <div class="ed-grid${amud ? '' : ' ed-b-side'}">
-        ${side('ed-rashi', 'רש״י', rs)}
+      <div class="ed-flow${amud ? '' : ' ed-amud-b'}">
+        ${side('ed-rashi', rs)}${side('ed-tos', ts)}
         <div class="ed-gemara">${gm}</div>
-        ${side('ed-tos', 'תוספות <small>(בקיצור)</small>', ts)}
       </div>
-      <footer class="ed-foot">מהדורת הלימוד של האתר · הגמרא ורש״י מעומדים מחדש · לחיצה על משפט בגמרא — ההסבר שלו למטה</footer>
+      <footer class="ed-foot">צורת הדף — מהדורת האתר · רש״י בצד הפנימי, תוספות בחיצוני (תוספות בקיצור) · לחיצה על משפט בגמרא — ההסבר שלו למטה</footer>
     </article></div>
     <div class="po-call" id="edCall"></div>
     <div class="po-nav"><button class="po-b" id="edPrev" aria-label="השלב הקודם">▶</button><div class="ed-count" id="edCount"></div><button class="po-b" id="edNext" aria-label="השלב הבא">◀</button></div>`;
