@@ -1837,7 +1837,9 @@
   .ed-tos { float: left; margin-right: 2.2%; }
   .ed-amud-b .ed-rashi { float: left; margin: 0 2.2% 0 0; } .ed-amud-b .ed-tos { float: right; margin: 0 0 0 2.2%; }
   .ed-gemara { font-family: 'Frank Ruhl Libre', serif; font-weight: 500; font-size: 14.2em; line-height: 1.5; text-align: justify; text-align-last: auto; }
-  .ed-c b { font-family: 'Frank Ruhl Libre', serif; font-weight: 900; font-size: 1.08em; }
+  /* דיבור המתחיל כמו בדף: באותיות מרובעות ומודגשות; בתוספות המילה הראשונה גדולה, בגובה שתי שורות */
+  .ed-c b { font-family: 'Frank Ruhl Libre', serif; font-weight: 900; font-size: 1.14em; letter-spacing: -.01em; }
+  .ed-c b > i { font-style: normal; float: right; font-size: 2.15em; line-height: .92; margin: .06em 0 0 .22em; }
   .ed-c.on { background: rgba(200,149,104,.32); border-radius: 2px; }
   .ed-open { display: block; width: fit-content; margin: 2px auto 6px; font-weight: 900; font-size: 2.1em; line-height: 1.1; padding: 6px 16px; border: 3px double #1b160e; outline: 1px solid #1b160e; outline-offset: 3px; }
   .ed-gm { font-weight: 900; }
@@ -5416,7 +5418,8 @@ function openEdition(ref) {
     if (first) { first = false; t = t.replace(/^(\S+)\s*/, '<span class="ed-open">$1</span> '); }
     return `<span class="ed-b r-${x.role}" data-j="${j}">${rashiMark(t, x.k)}</span>`; }).join(' ');
   const rs = ED.list.flatMap((x, j) => (RASHI_AT[x.k] || []).map(([dh, r]) => `<span class="ed-c" data-j="${j}"><b>${dh}.</b> ${r.replace(/[֑-ׇ]/g, '')} </span>`)).join('');
-  const ts = ED_LINES[ref] && ED_LINES[ref].tos ? ED_LINES[ref].tos.map(([k, dh, t]) => `<span class="ed-c" data-j="${Math.max(0, ED.list.findIndex(x => x.k === k))}"><b>${dh}.</b> ${t} </span>`).join('') : (amudim[ref].tosafot || []).map(e => `<span class="ed-c"><b>${e.dh}.</b> ${e.content.replace(/<[^>]+>/g, '').replace(/\s*\((קריאה|הדיבור)[^)]*\)/g, '')} </span>`).join('');
+  const big = dh => { const m = String(dh).match(/^(\S+)\s*([\s\S]*)$/); return m ? `<i>${m[1]}</i>${m[2] ? ' ' + m[2] : ''}` : dh; };   // תוספות: מילה ראשונה גדולה
+  const ts = ED_LINES[ref] && ED_LINES[ref].tos ? ED_LINES[ref].tos.map(([k, dh, t]) => `<span class="ed-c" data-j="${Math.max(0, ED.list.findIndex(x => x.k === k))}"><b>${big(dh)}.</b> ${t} </span>`).join('') : (amudim[ref].tosafot || []).map(e => `<span class="ed-c"><b>${big(e.dh)}.</b> ${e.content.replace(/<[^>]+>/g, '').replace(/\s*\((קריאה|הדיבור)[^)]*\)/g, '')} </span>`).join('');
   const side = (cls, body) => `<div class="ed-col ${cls}">${body}</div>`;
   ov.innerHTML = `<div class="po-bar ed-bar">${poDafBtn(-1)}<span>${AMUD_NAME[ref]} · המהדורה שלנו</span>${poDafBtn(1)}<button class="modal-close" onclick="closeEdition()" aria-label="סגור">✕</button></div>
     <div class="ed-scroll" id="edScroll"><article class="ed-page" lang="he">
