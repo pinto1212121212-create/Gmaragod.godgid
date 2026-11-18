@@ -13,7 +13,7 @@
 <title>תענית — אנימציה לכל המסכת</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;900&family=Noto+Rashi+Hebrew:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="theme.css">
 <script src="prefs.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -1821,6 +1821,36 @@
   .po-bar span { flex: 1; text-align: center; }
   .po-daf-arr { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; border: 1px solid rgba(200,168,90,.55); background: transparent; color: var(--t-gold, #c8a85a); font: inherit; font-size: 22px; font-weight: 800; line-height: 1; cursor: pointer; }
   .po-daf-arr:disabled { opacity: .25; }
+  /* ===== 📜 המהדורה שלנו ===== */
+  .ed-overlay { position: fixed; inset: 0; z-index: 80; background: #0a0a0a; display: none; flex-direction: column; }
+  .ed-overlay.open { display: flex; }
+  .ed-sw { flex: 0 0 auto; height: 36px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(200,168,90,.55); background: transparent; color: var(--t-gold, #c8a85a); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .ed-scroll { flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; padding: 10px 8px 16px; }
+  .ed-page { max-width: 760px; margin: 0 auto; background: #f7f2e6; color: #1b160e; border-radius: 6px; padding: 12px 10px 10px; box-shadow: 0 0 0 1px rgba(0,0,0,.4); font-size: calc(var(--edz, 1) * 1px); }
+  .ed-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-family: 'Frank Ruhl Libre', serif; font-weight: 700; font-size: 15em; border-bottom: 1.5px solid #1b160e; padding: 0 2px 4px; margin-bottom: 8px; }
+  .ed-head b { font-size: 1.25em; }
+  .ed-grid { display: grid; grid-template-columns: 1fr 1.75fr 1fr; gap: 8px; align-items: start; }
+  .ed-grid.ed-b-side { direction: ltr; } .ed-grid.ed-b-side > * { direction: rtl; }
+  .ed-gemara { font-family: 'Frank Ruhl Libre', serif; font-weight: 500; font-size: 15.5em; line-height: 1.62; text-align: justify; text-align-last: right; hyphens: none; }
+  .ed-col { font-family: 'Noto Rashi Hebrew', 'Frank Ruhl Libre', serif; font-size: 10.5em; line-height: 1.5; text-align: justify; color: #2b2418; }
+  .ed-ct { font-family: 'Frank Ruhl Libre', serif; font-weight: 900; font-size: 1.15em; text-align: center; border-bottom: 1px solid #1b160e; margin-bottom: 4px; }
+  .ed-ct small { font-weight: 400; font-size: .8em; }
+  .ed-c b { font-family: 'Frank Ruhl Libre', serif; font-weight: 900; }
+  .ed-c.on { background: rgba(200,149,104,.35); border-radius: 3px; }
+  .ed-open { display: inline-block; font-weight: 900; font-size: 1.9em; line-height: 1.1; padding: 2px 10px; margin: 0 0 4px 6px; border: 2px double #1b160e; border-radius: 4px; }
+  .ed-gm { font-weight: 900; }
+  .ed-b { cursor: pointer; border-radius: 3px; transition: background .2s; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .ed-page.has-sel .ed-b { background: rgba(var(--c), .12); }
+  .ed-b.on { background: rgba(var(--c), .42) !important; box-shadow: 0 0 0 1.5px rgba(var(--c), .9); }
+  .ed-b.r-q { --c: 232,86,106; } .ed-b.r-x { --c: 230,140,60; } .ed-b.r-a { --c: 108,195,90; } .ed-b.r-c { --c: 242,193,78; } .ed-b.r-s, .ed-b.r-n { --c: 94,168,224; } .ed-b.r-k { --c: 169,141,224; }
+  .ed-gemara mark.rs-dh { background: none; color: inherit; border-bottom: 1.5px dotted #8a6235; }
+  .ed-gemara mark.rs-dh::after { display: none; }
+  .ed-foot { margin-top: 10px; border-top: 1px solid rgba(0,0,0,.35); padding-top: 4px; font-family: 'Heebo', sans-serif; font-size: 10em; color: #5d5240; text-align: center; }
+  .ed-count { flex: 1; text-align: center; color: #a09a8c; font-size: 13px; direction: ltr; }
+  .ed-sc { margin-inline-start: auto; color: #a09a8c; font-size: 12px; font-weight: 500; }
+  #edOverlay .po-call { max-height: 38vh; }
+  @media (min-width: 700px) { .ed-page { padding: 18px 18px 14px; } }
+
   .dock-tab.dock-mode, .dock-tab.po-mode-off { border-color: rgba(200,168,90,.6) !important; color: var(--t-gold, #c8a85a) !important; }
   .po-bar span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -1993,6 +2023,7 @@
 </div>
 <svg class="beat-arrow" id="beatArrow" aria-hidden="true"></svg>
 <div class="photo-overlay" id="photoOverlay"></div>
+<div class="ed-overlay" id="edOverlay" role="dialog" aria-label="המהדורה שלנו"></div>
 
 <!-- Daf picker -->
 <div class="picker-modal" id="pickerModal">
@@ -4975,7 +5006,7 @@ function openPhoto(ref, box) {
     const want = focusBeat != null ? focusBeat : Math.min(state.beat, sc.beats.length - 1);
     PO.cur = Math.max(0, PO.list.findIndex(x => x.bi >= want));
   } else marks = box ? rect(box, 'po-mark') : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
-  ov.innerHTML = `<div class="po-bar">${PO.list.length ? poDafBtn(-1) : ''}<span>${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span>${PO.list.length ? poDafBtn(1) : ''}<button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg> חזרה לעץ' : '✕'}</button></div>
+  ov.innerHTML = `<div class="po-bar">${PO.list.length ? poDafBtn(-1) : ''}<span>${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span>${PO.list.length ? poDafBtn(1) : ''}${EDITION.has(ref) ? '<button type="button" class="ed-sw" onclick="edFromPhoto()" aria-label="המהדורה שלנו">מהדורה שלנו</button>' : ''}<button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg> חזרה לעץ' : '✕'}</button></div>
     <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap" style="${pageCrop(ref).wrap}"><div class="po-full" style="${pageCrop(ref).inner}"><img src="${imgUrl(ref, 'full')}" alt="${AMUD_NAME[ref]}" width="900" height="1600" decoding="async">${marks}</div></div><div class="po-load" aria-live="polite">טוען את הדף…</div></div>
     ${PO.list.length ? `<div class="po-call" id="poCall"></div><div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button></div>`
       : '<div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>'}`;
@@ -5023,6 +5054,8 @@ function poDaf(d) {
   goToRef(ref);
   const sc = amudim[ref].scenes[i];
   state.sceneIdx = i; state.beat = 0; renderScenes(); focusBeat = 0;
+  if (state.modal === 'edition') edHide();
+  if (EDITION.has(ref) && edPref && poMode) { openEdition(ref); return; }
   PO.back = back; openPhoto(sc.src.ref, sc.src.box);
   try { history.replaceState(null, '', `#${ref}-${i}`); } catch (e) {}
 }
@@ -5208,6 +5241,80 @@ function poLockZoom(on) {
   if (!m.dataset.orig) m.dataset.orig = m.content;
   m.content = on ? 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover' : m.dataset.orig;
 }
+
+// ===== 📜 המהדורה שלנו: דף גמרא מעומד אצלנו — טקסט, לא צילום (המשתמש: ״מהדורה משלנו״, בגלל זכויות יוצרים) =====
+// הגמרא באמצע (מ־PUNCT, כל שלב = span לחיץ בצבע התפקיד), רש״י בצד הפנימי (ע״א מימין, ע״ב משמאל) ותוספות בצד החיצוני.
+// הטקסט שייך לכולם; העימוד, הגופן והעיצוב — שלנו. אין כאן שום דבר מעימוד של הוצאה.
+const EDITION = new Set(['2a']);
+let edPref = true; try { edPref = localStorage.getItem('gemara:ed') !== '0'; } catch (e) {}
+const ED = { ref: null, list: [], cur: 0 };
+const edClean = t => t.replace(/[֑-ׇ]/g, '')                          // בלי ניקוד, כמו בדף גמרא
+  .replace(/\s*\([^()]*,[^()]*\)/g, '')                                          // מראי מקומות לפסוקים — לא בתוך הגמרא
+  .replace(/\s*\((ממשיך|ההמשך)[^)]*\)/g, '').replace(/^גמרא\.\s*/, '<b class="ed-gm">גמ׳</b> ').replace(/^מתני׳\s*/, '<b class="ed-gm">מתני׳</b> ');
+function edOrder(ref) {
+  return Object.keys(PUNCT).filter(k => k.startsWith(ref + ':')).sort((a, b) => { const x = a.split(':').map(Number), y = b.split(':').map(Number); return x[1] - y[1] || x[2] - y[2]; });
+}
+function openEdition(ref) {
+  ref = ref || state.ref; if (!EDITION.has(ref) || !isLoaded(ref)) return;
+  const ov = document.getElementById('edOverlay'), keys = edOrder(ref), amud = ref.endsWith('a');
+  ED.ref = ref; ED.list = keys.map(k => { const [, si, bi] = k.split(':').map(Number); return { k, si, bi, role: beatRole(ref, si, bi) }; });
+  const sc = amudim[ref].scenes[state.sceneIdx], want = focusBeat != null ? focusBeat : activeBeatIdx(sc);
+  ED.cur = Math.max(0, ED.list.findIndex(x => x.si === state.sceneIdx && x.bi >= want));
+  // הגמרא: המילה הראשונה של הדף גדולה (בעיצוב שלנו), ואחריה כל השלבים ברצף
+  let first = true;
+  const gm = ED.list.map((x, j) => { let t = edClean(PUNCT[x.k]);
+    if (first) { first = false; t = t.replace(/^(\S+)\s*/, '<span class="ed-open">$1</span> '); }
+    return `<span class="ed-b r-${x.role}" data-j="${j}">${rashiMark(t, x.k)}</span>`; }).join(' ');
+  const rs = ED.list.flatMap((x, j) => (RASHI_AT[x.k] || []).map(([dh, r]) => `<span class="ed-c" data-j="${j}"><b>${dh}.</b> ${r.replace(/[֑-ׇ]/g, '')} </span>`)).join('');
+  const ts = (amudim[ref].tosafot || []).map(e => `<span class="ed-c"><b>${e.dh}.</b> ${e.content.replace(/<[^>]+>/g, '').replace(/\s*\((קריאה|הדיבור)[^)]*\)/g, '')} </span>`).join('');
+  const side = (cls, title, body) => `<div class="ed-col ${cls}"><div class="ed-ct">${title}</div><div class="ed-ctx">${body}</div></div>`;
+  ov.innerHTML = `<div class="po-bar ed-bar">${poDafBtn(-1)}<span>${AMUD_NAME[ref]} · המהדורה שלנו</span>${poDafBtn(1)}<button type="button" class="ed-sw" onclick="edToPhoto()" aria-label="צילום הדף">צילום</button><button class="modal-close" onclick="closeEdition()" aria-label="סגור">✕</button></div>
+    <div class="ed-scroll" id="edScroll"><article class="ed-page" lang="he">
+      <header class="ed-head"><span>${(amudim[ref].perek || 'מאימתי')}</span><span>פרק ראשון</span><span>תענית</span><b>${AMUD_NAME[ref].replace(/ ע״א$/, '.').replace(/ ע״ב$/, ':').replace(/׳/, '')}</b></header>
+      <div class="ed-grid${amud ? '' : ' ed-b-side'}">
+        ${side('ed-rashi', 'רש״י', rs)}
+        <div class="ed-gemara">${gm}</div>
+        ${side('ed-tos', 'תוספות <small>(בקיצור)</small>', ts)}
+      </div>
+      <footer class="ed-foot">מהדורת הלימוד של האתר · הגמרא ורש״י מעומדים מחדש · לחיצה על משפט בגמרא — ההסבר שלו למטה</footer>
+    </article></div>
+    <div class="po-call" id="edCall"></div>
+    <div class="po-nav"><button class="po-b" id="edPrev" aria-label="השלב הקודם">▶</button><div class="ed-count" id="edCount"></div><button class="po-b" id="edNext" aria-label="השלב הבא">◀</button></div>`;
+  ov.classList.add('open'); state.modal = 'edition'; document.body.classList.add('ed-open');
+  ov.querySelector('.ed-page').addEventListener('click', e => {
+    if (e.target.closest('.rs-dh')) return;
+    const b = e.target.closest('[data-j]'); if (b) edSelect(+b.dataset.j);
+  });
+  document.getElementById('edPrev').onclick = () => edSelect(ED.cur - 1);
+  document.getElementById('edNext').onclick = () => edSelect(ED.cur + 1);
+  edSelect(ED.cur, true);
+}
+function edSelect(j, instant) {
+  if (!ED.list.length) return;
+  if (j >= ED.list.length) { poDaf(1); return; } if (j < 0) { poDaf(-1); return; }
+  ED.cur = j; const x = ED.list[j], ov = document.getElementById('edOverlay');
+  ov.querySelectorAll('[data-j]').forEach(el => el.classList.toggle('on', +el.dataset.j === j));
+  ov.querySelector('.ed-page').classList.add('has-sel');
+  if (state.sceneIdx !== x.si) { state.sceneIdx = x.si; renderScenes(); }
+  focusBeat = x.bi;
+  const sc = amudim[ED.ref].scenes[x.si], bt = sc.beats[x.bi] || [], call = document.getElementById('edCall');
+  call.className = 'po-call hl-' + x.role;
+  call.innerHTML = `<div class="pc-head"><span class="pc-no">${x.bi + 1}</span><span class="pc-role">${ROLE[x.role][0]} ${ROLE[x.role][1]}</span><span class="pc-who">${bt[1] || ''}</span><small class="ed-sc">קטע ${x.si + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}</small></div>
+    <div class="pc-txt">${TAKHLES[x.k] || bt[2] || ''}</div>${poToolsHTML(ED.ref, x.si, x.bi)}`;
+  call.querySelectorAll('.st-n[data-bi]').forEach(b => b.onclick = e => { e.stopPropagation(); const i = ED.list.findIndex(y => y.si === x.si && y.bi === +b.dataset.bi); if (i >= 0) edSelect(i); });
+  call.scrollTop = 0;
+  document.getElementById('edCount').textContent = `${j + 1} / ${ED.list.length}`;
+  const el = ov.querySelector(`.ed-gemara [data-j="${j}"]`), sc2 = document.getElementById('edScroll');
+  if (el) { const r = el.getBoundingClientRect(), b = sc2.getBoundingClientRect();
+    if (r.top < b.top + 8 || r.bottom > b.bottom - 8) sc2.scrollBy({ top: r.top - b.top - b.height * 0.3, behavior: instant ? 'auto' : 'smooth' }); }
+  try { history.replaceState(null, '', `#${ED.ref}-${x.si}-${x.bi}`); } catch (e) {}
+}
+function edHide() { const ov = document.getElementById('edOverlay'); ov.classList.remove('open'); ov.innerHTML = ''; document.body.classList.remove('ed-open'); if (state.modal === 'edition') state.modal = null; }
+function closeEdition() { edHide(); if (poMode) setPoMode(false); showLoc(); }
+function edToPhoto() { edPref = false; try { localStorage.setItem('gemara:ed', '0'); } catch (e) {} const sc = amudim[state.ref].scenes[state.sceneIdx]; edHide(); if (sc && sc.src) openPhoto(sc.src.ref, sc.src.box); }
+function edFromPhoto() { edPref = true; try { localStorage.setItem('gemara:ed', '1'); } catch (e) {}
+  poLockZoom(false); document.getElementById('photoOverlay').classList.remove('open', 'loading', 'failed'); state.modal = null; openEdition(); }
+
 function closePhoto() {
   if (poMode) setPoMode(false);   // יוצאים מ״מצב דף מלא״
   if (PO.back) { const b = PO.back; PO.back = null; location.href = b; return; }   // חזרה לעץ
@@ -7831,7 +7938,9 @@ function setPoMode(on) { poMode = on; try { localStorage.setItem('gemara:pomode2
 function poModeOpen() {
   const sc = amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
   if (!poMode || state.modal || !sc || !sc.src || !poHasMarks(state.ref, state.sceneIdx)) return false;
-  focusBeat = activeBeatIdx(sc); openPhoto(sc.src.ref, sc.src.box); return true;
+  focusBeat = activeBeatIdx(sc);
+  if (EDITION.has(state.ref) && edPref) { openEdition(); return true; }
+  openPhoto(sc.src.ref, sc.src.box); return true;
 }
 function dockUpdate(force) {
   const dock = document.getElementById('dock'); if (!dock) return;

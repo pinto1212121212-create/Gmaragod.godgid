@@ -52,7 +52,8 @@ function rashiMark(html, keys) {
 document.addEventListener('click', e => {
   const m = e.target.closest && e.target.closest('.rs-dh'); if (!m) return;
   e.stopPropagation(); const id = m.dataset.rs;
-  const tab = m.closest('.po-tools') ? m.closest('.po-tools').querySelector('.po-tab[data-pt="rs"]') : document.querySelector('#dockTabs .dock-tab[data-dk="rs"]') || document.querySelector('.sh-tab[data-t="rs"]');
+  { const b = m.closest('.ed-page [data-j]'); if (b && typeof edSelect === 'function') edSelect(+b.dataset.j); }   // במהדורה שלנו: קודם בוחרים את השלב
+  const tab = m.closest('.ed-page') ? document.querySelector('#edCall .po-tab[data-pt="rs"]') : m.closest('.po-tools') ? m.closest('.po-tools').querySelector('.po-tab[data-pt="rs"]') : document.querySelector('#dockTabs .dock-tab[data-dk="rs"]') || document.querySelector('.sh-tab[data-t="rs"]');
   if (tab && !tab.classList.contains('on')) tab.click();
   setTimeout(() => { const it = [...document.querySelectorAll('.rsi')].find(x => x.dataset.rs === id && x.offsetParent); if (it) { it.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); it.classList.remove('flash'); void it.offsetWidth; it.classList.add('flash'); } }, 80);
 }, true);
