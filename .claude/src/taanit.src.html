@@ -1843,7 +1843,7 @@
   .ed-c.on { background: rgba(200,149,104,.32); border-radius: 2px; }
   .ed-open { display: block; width: fit-content; margin: 2px auto 6px; font-weight: 900; font-size: 2.1em; line-height: 1.1; padding: 6px 16px; border: 3px double #1b160e; outline: 1px solid #1b160e; outline-offset: 3px; }
   .ed-gm { font-weight: 900; }
-  .ed-l.ed-ml { position: relative; } .ed-l.ed-ml::before { content: ''; position: absolute; top: 0; bottom: 0; right: -.42em; width: 3px; background: #5ea8e0; border-radius: 2px; }
+  .ed-l.ed-ml { position: relative; } .ed-l.ed-ml::before { content: ''; position: absolute; top: -3px; bottom: -3px; right: -.42em; width: 3px; background: #5ea8e0; border-radius: 2px; }
   .ed-vil .ed-w.ed-gm { font-size: 1.32em; line-height: 1; letter-spacing: -.02em; }   /* מתני׳ / גמ׳ — גדולות ומודגשות כמו בדף */
   .po-mg { position: absolute; pointer-events: none; border: 2.5px solid #c8a85a; border-radius: 5px; box-shadow: 0 0 0 1px rgba(0,0,0,.35); }
   .po-mbar { position: absolute; pointer-events: none; width: .7%; min-width: 3px; background: #5ea8e0; border-radius: 3px; }
@@ -1911,7 +1911,12 @@
   .ed-c.on { background: rgba(200,168,90,.22); box-shadow: 0 0 0 1px rgba(200,168,90,.22); border-radius: 2px; }
   .ed-vil .ed-gem { color: #0b0b0b; }
   .ed-mk { border-radius: 2px; }
-  .ed-foot { margin-top: 16px; border-top: .6px solid #bbb; padding-top: 6px; font-family: 'Frank Ruhl Libre', serif; font-size: 10em; letter-spacing: .25em; color: #9a9a9a; }
+  /* המילה הפותחת: מסגרת כפולה דקה בלבד, בלי צבע מלא; כשהשלב נבחר — גוון עדין בלבד */
+  .ed-open { border: 1.6px solid #1a1a1a; outline: .6px solid #1a1a1a; outline-offset: 3px; border-radius: 1px; padding: 4px 20px 6px; background: #fff; letter-spacing: .02em; }
+  .ed-vil .ed-open.ed-b.on { background: rgba(var(--c), .16) !important; box-shadow: none !important; }
+  /* פירוש נבחר: גוון קל מאוד, שלא ״יכתים״ את הדף */
+  .ed-c.on { background: rgba(200,168,90,.13); box-shadow: none; }
+    .ed-foot { margin-top: 16px; border-top: .6px solid #bbb; padding-top: 6px; font-family: 'Frank Ruhl Libre', serif; font-size: 10em; letter-spacing: .25em; color: #9a9a9a; }
 
   .dock-tab.dock-mode, .dock-tab.po-mode-off { border-color: rgba(200,168,90,.6) !important; color: var(--t-gold, #c8a85a) !important; }
   .po-bar span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -6217,7 +6222,7 @@ const ED_LINES = {
 let edPref = true; try { edPref = localStorage.getItem('gemara:ed') !== '0'; } catch (e) {}
 const ED = { ref: null, list: [], cur: 0, k: 1 };
 // גודל הדף: בטלפון נפתח מוגדל (האותיות קריאות), והדף עוקב אחרי השלב; הגודל שבוחרים בצביטה/🔍 נזכר
-try { const v = parseFloat(localStorage.getItem('gemara:edk')); ED.k = v >= 1 && v <= 4 ? v : (innerWidth < 700 ? 1.3 : 1); } catch (e) { ED.k = innerWidth < 700 ? 1.3 : 1; }
+try { const v = parseFloat(localStorage.getItem('gemara:edk')); ED.k = v >= 1 && v <= 4 ? v : (1); } catch (e) { ED.k = 1; }
 const edClean = t => t.replace(/[֑-ׇ]/g, '')                          // בלי ניקוד, כמו בדף גמרא
   .replace(/\s*\([^()]*,[^()]*\)/g, '')                                          // מראי מקומות לפסוקים — לא בתוך הגמרא
   .replace(/\s*\((ממשיך|ההמשך)[^)]*\)/g, '').replace(/^גמרא\.\s*/, '<b class="ed-gm">גמ׳</b> ').replace(/^מתני׳\s*/, '<b class="ed-gm">מתני׳</b> ');
@@ -6354,7 +6359,7 @@ function edMarks() {
   const v = document.querySelector('#edOverlay .ed-vil'); if (!v) return;
   v.querySelectorAll('.ed-mk').forEach(m => m.remove());
   const vr = v.getBoundingClientRect(), z = vr.width / (v.offsetWidth || vr.width);   // בזמן צביטה יש scale
-  v.querySelectorAll('.ed-l').forEach(l => {
+  v.querySelectorAll('.ed-l:not(.ed-l-open)').forEach(l => {
     const on = l.querySelectorAll('.ed-b.on'); if (!on.length) return;
     let L = 1e9, R = -1e9; on.forEach(w => { const r = w.getBoundingClientRect(); L = Math.min(L, r.left); R = Math.max(R, r.right); });
     const lr = l.getBoundingClientRect(), m = document.createElement('i');
