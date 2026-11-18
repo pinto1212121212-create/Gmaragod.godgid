@@ -390,8 +390,8 @@
 
 <!-- 📦 הנתונים נטענים לפי דף: המפה של המסכת + מילון, ואז loader.js טוען את data/<מסכת>/<ref>.js כשנכנסים לדף -->
 <script src="data/common.js?v=2c7990a2"></script>
-<script src="data/taanit/index.js?v=5b781c7a"></script>
-<script src="loader.js?v=01e4644c"></script>
+<script src="data/taanit/index.js?v=ddac1509"></script>
+<script src="loader.js?v=25a30bc4"></script>
 <script src="explain.js?v=221640a8"></script>
 <script>
 const ROLE = { m: ['●', 'משנה / מקור'], q: ['●', 'שאלה'], x: ['●', 'דחייה'], a: ['●', 'תירוץ'], c: ['●', 'מסקנה'], n: ['●', 'מעשה / ראיה'], k: ['●', 'הסבר'] };
@@ -577,8 +577,8 @@ function where(n) {
   const chain = []; for (let m = n; m && m.r !== 'root'; m = m.parent) chain.unshift(m);
   const path = n ? chain.map(m => `<span class="${m === n ? 'cur' : ''}">${ROLE[m.r][0]} ${m.w}</span>`).join(' ← ')
                  : 'מקישים על צומת כדי לראות איפה הוא בדיון';
-  box.innerHTML = `<a class="wh-th" href="${BASE}taanit.html#${st.ref}-${s}" aria-label="המקום בדף">
-      ${EDITION.has(st.ref) ? '' : `<img src="${imgUrl(st.ref, 'full')}" alt="">`}${src && !EDITION.has(st.ref) ? `<i style="left:${src[0]}%;top:${src[1]}%;width:${src[2]}%;height:${src[3]}%"></i>` : ''}</a>
+  box.innerHTML = `${EDITION.has(st.ref) ? '' : `<a class="wh-th" href="${BASE}taanit.html#${st.ref}-${s}" aria-label="המקום בדף">
+      <img src="${imgUrl(st.ref, 'full')}" alt="">${src ? `<i style="left:${src[0]}%;top:${src[1]}%;width:${src[2]}%;height:${src[3]}%"></i>` : ''}</a>`}
     <div class="wh-tx"><div class="wh-l1"><b>${TREE[st.ref].title}</b> · סוגיה ${i + 1} מתוך ${root.k.length}${SN[s] ? ` · קטע: ${SN[s]}` : ''}</div>
       <div class="wh-l2">${tp}</div><div class="wh-l3">${path}</div>${exChips(top)}</div>`;
   pplBar(i);
