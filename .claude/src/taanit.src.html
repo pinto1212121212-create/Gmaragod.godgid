@@ -1843,6 +1843,13 @@
   .ed-c.on { background: rgba(200,149,104,.32); border-radius: 2px; }
   .ed-open { display: block; width: fit-content; margin: 2px auto 6px; font-weight: 900; font-size: 2.1em; line-height: 1.1; padding: 6px 16px; border: 3px double #1b160e; outline: 1px solid #1b160e; outline-offset: 3px; }
   .ed-gm { font-weight: 900; }
+  .ed-l.ed-ml { position: relative; } .ed-l.ed-ml::before { content: ''; position: absolute; top: 0; bottom: 0; right: -.42em; width: 3px; background: #5ea8e0; border-radius: 2px; }
+  .ed-vil .ed-w.ed-gm { font-size: 1.32em; line-height: 1; letter-spacing: -.02em; }   /* מתני׳ / גמ׳ — גדולות ומודגשות כמו בדף */
+  .po-mg { position: absolute; pointer-events: none; border: 2.5px solid #c8a85a; border-radius: 5px; box-shadow: 0 0 0 1px rgba(0,0,0,.35); }
+  .po-mbar { position: absolute; pointer-events: none; width: .7%; min-width: 3px; background: #5ea8e0; border-radius: 3px; }
+  .mg-chip { flex: none; font-size: 11.5px; font-weight: 800; padding: 2px 9px; border-radius: 99px; line-height: 1.5; }
+  .mg-chip.m { background: rgba(94,168,224,.18); color: #8cc4ee; border: 1px solid rgba(94,168,224,.55); }
+  .mg-chip.g { background: rgba(200,168,90,.16); color: #dcc078; border: 1px solid rgba(200,168,90,.55); }
   .ed-b { cursor: pointer; border-radius: 3px; transition: background .2s; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   .ed-page.has-sel .ed-b { background: none; }
   .ed-b.on { background: rgba(var(--c), .42) !important; box-shadow: 0 0 0 1.5px rgba(var(--c), .9); }
@@ -5029,6 +5036,17 @@ function pageCrop(ref) {
   return { x0, y0, w, h, wrap: `aspect-ratio:${w}/${h}`, inner: `width:${900 / w * 100}%;left:${-x0 / w * 100}%;top:${-y0 / h * 100}%` };
 }
 const PO = { ref: null, box: null, list: [], cur: 0 };
+// משנה או גמרא? שלב שמתחיל ב״מתני׳״ פותח משנה, ושלב שמתחיל ב״גמ׳״ (או ״גמרא.״) פותח גמרא. ב. נפתח במשנה (תחילת המסכת)
+const MG_START = new Set(['2a:0:0']);
+function mgStart(k) { const t = (PUNCT[k] || '').replace(/<[^>]+>/g, '').trim(); return /^מתני[׳']/.test(t) || MG_START.has(k) ? 'm' : /^(גמ[׳']|גמרא\.)/.test(t) ? 'g' : ''; }
+function mgOf(ref, si, bi) {   // 'm' = בתוך משנה; '' = גמרא
+  const n = scenesCount(ref); let st = '';
+  for (let i = 0; i < n; i++) { const sc = amudim[ref].scenes[i]; if (!sc || !sc.beats) continue;
+    for (let b = 0; b < sc.beats.length; b++) { const x = mgStart(`${ref}:${i}:${b}`); if (x) st = x; if (i === si && b === bi) return st === 'm' ? 'm' : ''; } }
+  return '';
+}
+const mgChip = (ref, si, bi) => { const s0 = mgStart(`${ref}:${si}:${bi}`);
+  return mgOf(ref, si, bi) === 'm' ? '<span class="mg-chip m">משנה</span>' : s0 === 'g' ? '<span class="mg-chip g">כאן מתחילה הגמרא</span>' : ''; };
 function openPhoto(ref, box) {
   if (EDITION.has(ref)) { openEdition(ref); return; }   // אין צילום בדפים של המהדורה שלנו
   const ov = document.getElementById('photoOverlay');
@@ -5041,13 +5059,22 @@ function openPhoto(ref, box) {
       const span = BEAT_SPAN[ref] && BEAT_SPAN[ref][state.sceneIdx] && BEAT_SPAN[ref][state.sceneIdx][bi];
       const rr = hlRects(`${ref}-${sc.src.i}`, loc, span).map(r => ({
         l: box[0] + (1 - r.right - r.width) * box[2], t: box[1] + r.top * box[3], w: r.width * box[2], h: r.height * box[3] }));
-      if (rr.length) PO.list.push({ bi, role: beatRole(ref, state.sceneIdx, bi), who: bt[1], txt: bt[2], tk: TAKHLES[`${ref}:${state.sceneIdx}:${bi}`] || '', rr });
+      const k0 = `${state.ref}:${state.sceneIdx}:${bi}`, ms = mgStart(k0);
+      const toPct = r => ({ l: box[0] + (1 - r.right - r.width) * box[2], t: box[1] + r.top * box[3], w: r.width * box[2], h: r.height * box[3] });
+      let w0 = ms && span && !MG_START.has(k0) ? hlRects(`${ref}-${sc.src.i}`, loc, [span[0], span[0]]).map(toPct) : [];
+      if (w0.length && w0[0].w < 2.4 && span[1] > span[0]) w0 = hlRects(`${ref}-${sc.src.i}`, loc, [span[0], span[0] + 1]).map(toPct);   // ״:״ נספר כמילה — לוקחים גם את ״גמ׳״ שאחריו
+      if (rr.length) PO.list.push({ bi, role: beatRole(ref, state.sceneIdx, bi), who: bt[1], txt: bt[2], tk: TAKHLES[k0] || '', rr, mg: mgOf(state.ref, state.sceneIdx, bi), w0 });
     });
   }
   let marks = '';
   if (PO.list.length) {
     marks = rect(box, 'po-sec') + PO.list.map((x, k) => x.rr.map((r, j) =>
       `<div class="po-hl hl-${x.role}" data-k="${k}" style="left:${r.l}%;top:${r.t}%;width:${r.w}%;height:${r.h}%"></div>`).join('')).join('')
+      // ״מתני׳״/״גמ׳״: מסגרת זהב סביב המילה, ופס כחול בשוליים לאורך שורות המשנה
+      + PO.list.map(x => x.w0.map(r => `<div class="po-mg" style="left:${r.l - .5}%;top:${r.t - .3}%;width:${r.w + 1}%;height:${r.h + .6}%"></div>`).join('')).join('')
+      + (() => { const m = PO.list.filter(x => x.mg === 'm').flatMap(x => x.rr); if (!m.length) return '';
+          const top = Math.min(...m.map(r => r.t)), bot = Math.max(...m.map(r => r.t + r.h)), right = Math.max(...m.map(r => r.l + r.w));
+          return `<div class="po-mbar" style="left:${right + .5}%;top:${top}%;height:${bot - top}%"></div>`; })()
       ;
     const want = focusBeat != null ? focusBeat : Math.min(state.beat, sc.beats.length - 1);
     PO.cur = Math.max(0, PO.list.findIndex(x => x.bi >= want));
@@ -5243,7 +5270,7 @@ function poSelect(k, instant) {
   // בועת ההסבר: בפס קבוע מתחת לצילום, כך שלא מסתירה ולא מכהה שום מילה בדף
   const call = document.getElementById('poCall');
   call.className = 'po-call hl-' + x.role;
-  call.innerHTML = `<div class="pc-head"><span class="pc-no">${k + 1}</span><span class="pc-role">${ROLE[x.role][0]} ${ROLE[x.role][1]}</span><span class="pc-who">${x.who}</span></div>
+  call.innerHTML = `<div class="pc-head"><span class="pc-no">${k + 1}</span><span class="pc-role">${ROLE[x.role][0]} ${ROLE[x.role][1]}</span><span class="pc-who">${x.who}</span>${mgChip(state.ref, state.sceneIdx, x.bi)}</div>
     <div class="pc-txt">${x.tk || x.txt}</div>${poToolsHTML(PO.ref, state.sceneIdx, x.bi)}`;
   call.querySelectorAll('.st-n[data-bi]').forEach(b => b.onclick = e => { e.stopPropagation(); const j = PO.list.findIndex(y => y.bi === +b.dataset.bi); if (j >= 0) poSelect(j); });
   call.scrollTop = 0;
@@ -5455,9 +5482,11 @@ function openEdition(ref) {
 // צורת הדף בשורות קבועות (כמו וילנא): כל שורה = בדיוק המילים של השורה בדף. רש״י ותוספות ממלאים את הצדדים, וממשיכים מתחת לגמרא
 function edLinesHTML(ref, rs, ts, amud) {
   const L = ED_LINES[ref]; let j = 0;
-  const line = (t, cls) => { const w = t.split(/\s+/).filter(Boolean); let h = '';
-    for (const x of w) { if (x === '‖') { j++; continue; } h += `<span class="ed-w ed-b r-${(ED.list[j] || {}).role || 'k'}" data-j="${j}">${x}</span>`; }
-    return `<div class="ed-l${cls ? ' ' + cls : ''}">${h}</div>`; };
+  const isM = ED.list.map(x => mgOf(ref, x.si, x.bi) === 'm');   // שורות של משנה — פס כחול בשוליים
+  const line = (t, cls) => { const w = t.split(/\s+/).filter(Boolean); let h = '', m = isM[j];
+    for (const x of w) { if (x === '‖') { j++; continue; } h += `<span class="ed-w ed-b r-${(ED.list[j] || {}).role || 'k'}${/^(מתני|גמ)[׳']:?$/.test(x) ? ' ed-gm' : ''}" data-j="${j}">${x}</span>`; }
+    m = m || isM[j];
+    return `<div class="ed-l${cls ? ' ' + cls : ''}${m ? ' ed-ml' : ''}">${h}</div>`; };
   // צורת הדף: narrow = הטור הצר; wide = הגמרא מתרחבת לצד אחד (side: 'rashi' כמו ב., 'tos' כמו ב:); full = כל הרוחב
   const narrow = (L.open ? `<div class="ed-l ed-l-open"><span class="ed-open ed-b r-${ED.list[0].role}" data-j="0">${L.open}</span></div>` : '') + L.narrow.map(t => line(t)).join('');
   const full = L.full || [], lastIn = full.length ? 'full' : 'wide';
@@ -5531,7 +5560,7 @@ function edSelect(j, instant) {
   focusBeat = x.bi; try { trackPlace(); } catch (e) {}
   const sc = amudim[ED.ref].scenes[x.si], bt = sc.beats[x.bi] || [], call = document.getElementById('edCall');
   call.className = 'po-call hl-' + x.role;
-  call.innerHTML = `<div class="pc-head"><span class="pc-no">${x.bi + 1}</span><span class="pc-role">${ROLE[x.role][0]} ${ROLE[x.role][1]}</span><span class="pc-who">${bt[1] || ''}</span><small class="ed-sc">קטע ${x.si + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}</small></div>
+  call.innerHTML = `<div class="pc-head"><span class="pc-no">${x.bi + 1}</span><span class="pc-role">${ROLE[x.role][0]} ${ROLE[x.role][1]}</span><span class="pc-who">${bt[1] || ''}</span>${mgChip(ED.ref, x.si, x.bi)}<small class="ed-sc">קטע ${x.si + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}</small></div>
     <div class="pc-txt">${TAKHLES[x.k] || bt[2] || ''}</div>${poToolsHTML(ED.ref, x.si, x.bi)}`;
   call.querySelectorAll('.st-n[data-bi]').forEach(b => b.onclick = e => { e.stopPropagation(); const i = ED.list.findIndex(y => y.si === x.si && y.bi === +b.dataset.bi); if (i >= 0) edSelect(i); });
   call.scrollTop = 0;
