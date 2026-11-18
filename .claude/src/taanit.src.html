@@ -1903,10 +1903,10 @@
   .ed-head { font-weight: 500; font-size: 13em; letter-spacing: .04em; color: #333; border-bottom: 0; padding: 0 0 7px; margin-bottom: 12px; position: relative; }
   .ed-head::after { content: ''; position: absolute; inset: auto 0 0 0; height: 3px; border-top: 1.2px solid #222; border-bottom: .6px solid #222; }
   .ed-head b { font-size: 1.55em; font-weight: 900; color: #111; letter-spacing: 0; }
-  .ed-vil { column-gap: 2.6%; }
+  .ed-vil { column-gap: 2%; }
   .ed-vil .ed-col { color: #2b2b2b; line-height: 1.45; hyphens: none; }
-  .ed-vil .ed-col.ed-top { margin-bottom: .55em; }
-  .ed-vil .ed-bot { margin-top: .6em; }
+  .ed-vil .ed-col.ed-top { margin-bottom: .25em; }
+  .ed-vil .ed-bot { margin-top: .3em; }
   .ed-c b { color: #111; }
   .ed-c.on { background: rgba(200,168,90,.22); box-shadow: 0 0 0 1px rgba(200,168,90,.22); border-radius: 2px; }
   .ed-vil .ed-gem { color: #0b0b0b; }
@@ -6334,16 +6334,18 @@ function edFit() {
   const gfs = parseFloat(v.style.getPropertyValue('--gfs')) || 14;
   // כמו בדף: הפירוש מקיף את הגמרא מכל הצדדים — TOP שורות מעליה, לאורכה בצדדים, ו־BOT שורות מתחתיה (המסגרת התחתונה של הדף)
   const TOP = 4, BOT = 5;
-  const fitCol = (srcId, t, a, b, h) => {
-    const run = m => { [t, a, b].forEach(e => e.style.fontSize = m + 'px'); fill(srcId, [[t, m * 1.42 * TOP + 1], [a, h], [b, 1e9]]); return b.textContent.trim() ? b.scrollHeight : 0; };
-    // הגופן הגדול ביותר שבו מה שיורד למטה לא עולה על BOT שורות — כך יש פירוש גם מתחת לגמרא, אבל לא עמוד שלם
-    let lo = gfs * .45, hi = gfs * .9, best = lo;
-    for (let it = 0; it < 10; it++) { const m = (lo + hi) / 2; if (run(m) <= m * 1.42 * BOT + 2) { best = m; lo = m; } else hi = m; }
-    run(best);
-  };
   const $ = id => document.getElementById(id);
-  fitCol('edRsSrc', $('edR0'), $('edR1'), $('edR2'), nar.offsetHeight + (midT ? wid.offsetHeight : 0));
-  fitCol('edTsSrc', $('edT0'), $('edT1'), $('edT2'), nar.offsetHeight + (midT ? 0 : wid.offsetHeight));
+  // רש״י ותוספות באותו גודל בערך (כמו בדף), מעל הגמרא שניהם באותו גובה בדיוק — כך הכל צמוד, בלי חורים לבנים
+  const run = (srcId, t, a, b, h, m, topH) => { [t, a, b].forEach(e => e.style.fontSize = m + 'px'); fill(srcId, [[t, topH], [a, h], [b, 1e9]]); return b.textContent.trim() ? b.scrollHeight : 0; };
+  const best = (srcId, t, a, b, h) => { let lo = gfs * .45, hi = gfs * .9, bst = lo;
+    for (let it = 0; it < 10; it++) { const m = (lo + hi) / 2; if (run(srcId, t, a, b, h, m, m * 1.42 * TOP + 1) <= m * 1.42 * BOT + 2) { bst = m; lo = m; } else hi = m; }
+    return bst; };
+  const C = [['edRsSrc', $('edR0'), $('edR1'), $('edR2'), nar.offsetHeight + (midT ? wid.offsetHeight : 0)],
+             ['edTsSrc', $('edT0'), $('edT1'), $('edT2'), nar.offsetHeight + (midT ? 0 : wid.offsetHeight)]];
+  const f0 = C.map(c => best(...c)), mean = (f0[0] + f0[1]) / 2;
+  const fc = f0.map(x => Math.max(mean * .86, Math.min(mean * 1.14, x)));
+  const topH = Math.max(...fc) * 1.42 * TOP + 1;
+  C.forEach((c, k) => { run(...c, fc[k], topH); c[1].style.minHeight = (topH - 2) + 'px'; });
   if (ED.cur != null) v.querySelectorAll('.ed-c[data-j]').forEach(el => el.classList.toggle('on', +el.dataset.j === ED.cur));
   edMarks();
 }
