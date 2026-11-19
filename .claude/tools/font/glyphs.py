@@ -26,13 +26,27 @@ def average(samples, S=8, keep=0.6):
     top = float(np.median([s['top'] for s in samples])); bot = float(np.median([s['bot'] for s in samples]))
     return m, W, H, top, bot
 
+# סגנון: ex = כמה להצר קווים אנכיים, dy = כמה לעבות קווים אופקיים (ניגודיות ״מודרנית״), בפיקסלים של S
+STYLE = {'ex': 0, 'dy': 0}
+def _morph(b):
+    ex, dy = STYLE.get('ex', 0), STYLE.get('dy', 0)
+    if ex:
+        o = b.copy()
+        for i in range(1, ex + 1): o &= np.roll(b, i, 1) & np.roll(b, -i, 1)
+        b = o
+    if dy:
+        o = b.copy()
+        for i in range(1, dy + 1): o |= np.roll(b, i, 0) | np.roll(b, -i, 0)
+        b = o
+    return b
+
 def shape(m, S=8, blur=0.28, thr=0.5):
     im = Image.fromarray(m.clip(0, 255).astype('uint8'))
     pad = S * 2
     big = Image.new('L', (im.width + 2 * pad, im.height + 2 * pad), 0); big.paste(im, (pad, pad))
     big = big.filter(ImageFilter.GaussianBlur(S * blur))
     a = np.array(big).astype(float)
-    return a > thr * a.max(), pad
+    return _morph(a > thr * a.max()), pad
 
 def trace(b):
     H, W = b.shape; E = {}
