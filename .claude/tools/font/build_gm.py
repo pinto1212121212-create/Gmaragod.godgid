@@ -6,9 +6,9 @@ from ttf import build
 
 samples = pickle.load(open(sys.argv[1], 'rb')); out = sys.argv[2]
 import glyphs as _G, os
-ST = os.environ.get('GM_STYLE', 'classic')      # classic / modern / open
+ST = os.environ.get('GM_STYLE', 'light')     # ברירת מחדל: ״מודרני קל״ (נבחר ע״י המשתמש)      # classic / modern / open
 import json
-PRESET = {'classic': {}, 'modern': {'ex': 5, 'dy': 3, 'wx': 1.05}, 'open': {'ex': 6, 'dy': 4, 'wx': 1.12, 'gap': 2.3}}
+PRESET = {'light': {'ero': 2, 'ex': 1, 'wx': 1.1, 'gap': 2.2}, 'classic': {}, 'modern': {'ex': 5, 'dy': 3, 'wx': 1.05}, 'open': {'ex': 6, 'dy': 4, 'wx': 1.12, 'gap': 2.3}}
 P = dict(PRESET.get(ST, {})); P.update(json.loads(os.environ.get('GM_PARAMS', '{}')))
 _G.STYLE.update(P)
 WX = P.get('wx', 1.0)
