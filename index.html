@@ -13,6 +13,11 @@
 <script>
 // קישורים ישנים (index.html#42b) היו של זבחים — מעבירים אותם לשם
 if (/^#\d+[ab]$/.test(location.hash)) location.replace('zevachim.html' + location.hash);
+// 📖 כניסה לאפליקציה (מסך הבית בטלפון) — ישר לדף המלא, במקום שעצרו בו (המשתמש: ״איך שאני נכנס לאפליקציה הדף המלא יופיע״)
+else if (/[?&]source=app\b/.test(location.search)) { let h = ''; try { const pl = JSON.parse(localStorage.getItem('gemara:taanit') || 'null');
+  if (pl && /^\d+[ab]$/.test(pl.ref) && pl.tab !== 'tutorial') h = '#' + pl.ref + '-' + (pl.sceneIdx | 0) + (pl.bi > 0 ? '-' + (pl.bi | 0) : ''); } catch (e) {}
+  try { localStorage.setItem('gemara:last', 'taanit'); } catch (e) {}
+  location.replace('taanit.html' + h); }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
