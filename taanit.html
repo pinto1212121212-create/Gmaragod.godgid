@@ -3874,7 +3874,7 @@ function edAutoFlow(v, ref, G) {
     for (const t of GT) { const w = t.wd * GF;
       if (cur.length && cw + g + w > x[1] - x[0]) { out.push({ y, x, toks: cur }); y += P; x = span(y); cur = []; cw = 0; }
       cw += (cur.length ? g : 0) + w; cur.push(t); }
-    if (cur.length) out.push({ y, x, toks: cur, last: true });
+    if (cur.length) out.push({ y, x, toks: cur, last: true, short: cw < (x[1] - x[0]) * .88 });
     return out; };
   const rightT = rsRight ? RS : TS, leftT = rsRight ? TS : RS, rightTos = !rsRight, leftTos = rsRight;
   // חיפוש גובה שורה לכל צד: הצד נגמר על גבול שורת גמרא, קרוב ל־19.7
@@ -3890,7 +3890,7 @@ function edAutoFlow(v, ref, G) {
   }
   const { a, b, gl, gEnd } = best;
   let html = '';
-  gl.forEach(l => { const m = l.toks.some(t => isM[t.j]), last = l.last && l.toks.length < 6;
+  gl.forEach(l => { const m = l.toks.some(t => isM[t.j]), last = l.last && (l.short || l.toks.length < 6);   // שורה אחרונה קצרה — לא נמתחת
     html += `<div class="ed-l ed-gl${m ? ' ed-ml' : ''}${last ? ' ed-l-endp' : ''}" style="left:${px(l.x[0] - G.X)};top:${px(l.y - G.Y)};width:${px(l.x[1] - l.x[0])};height:${px(P)};--lh:${px(P)}">${l.toks.map(t => `<span class="ed-w ed-b r-${(ED.list[t.j] || {}).role || 'k'}${t.gm ? ' ed-gm' : ''}" data-j="${t.j}">${t.w}</span>`).join('')}</div>`; });
   // הפירוש בפועל: מעל הגמרא, בצד עד גבול השורה, ומה שנשאר — מתחת לגמרא (חצי רוחב)
   let maxY = gEnd;
@@ -3918,7 +3918,8 @@ function edGeoFit() {
     const tot = o.W.reduce((a, b) => a + b, 0), gap = o.fs * (o.gem ? .26 : .22) * Math.max(0, o.ws.length - 1);
     const catchL = o.l.classList.contains('ed-l-catch') || o.l.classList.contains('ed-l-endp'), mid = o.l.classList.contains('ed-l-mid');
     let S = (o.cw - gap) / tot;
-    if (catchL || mid) S = Math.min(1, S); else S = Math.max(o.gem || !o.l.classList.contains('ed-fl') ? .6 : .85, Math.min(1.16, S));
+    if (!catchL && !mid && S > 1.45 && o.l.classList.contains('ed-fl')) { o.l.classList.add('ed-l-endp'); S = 1; }   // פירוש: שורה קצרה מדי — בלי רווחים ענקיים
+    if (catchL || mid || o.l.classList.contains('ed-l-endp')) S = Math.min(1, S); else S = Math.max(o.gem || !o.l.classList.contains('ed-fl') ? .6 : .85, Math.min(1.16, S));
     if (Math.abs(S - 1) < .01) return;
     o.ws.forEach((w, q) => { const m = o.W[q] * (S - 1) / 2; w.style.transform = `scaleX(${S.toFixed(3)})`; w.style.margin = `0 ${m.toFixed(2)}px`; });
   });
