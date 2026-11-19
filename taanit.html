@@ -1921,6 +1921,7 @@
   .ed-geo .ed-big { font-size: 1.85em; line-height: .8; align-self: flex-start; margin-top: -.02em; }
   .ed-geo .ed-gl .ed-gm { font-size: 1.25em; }
   .ed-geo .ed-l-mid { justify-content: center; column-gap: .25em; }
+  body.daf-busy .po-daf-arr { opacity: .45; pointer-events: none; } body.daf-busy #edFix { opacity: .55; transition: opacity .15s; }
   .ed-geo .ed-l-endp { justify-content: flex-start; column-gap: .3em; }
   .ed-geo .ed-fl .ed-big { font-size: 1.5em; line-height: 1; align-self: center; margin-top: 0; }
   .ed-geo .ed-l-catch { justify-content: flex-end; column-gap: .25em; }
@@ -2395,8 +2396,11 @@ function poDafRef(d) { const refs = MAS.refs.filter(r => MAS.titles[r]); const i
 function poDafBtn(d) { const r = poDafRef(d);
   return `<button type="button" class="po-daf-arr" ${r ? `onclick="poDaf(${d})" aria-label="${d < 0 ? 'לדף הקודם' : 'לדף הבא'}: ${AMUD_NAME[r]}" title="${AMUD_NAME[r]}"` : 'disabled aria-hidden="true"'}>${d < 0 ? '‹' : '›'}</button>`; }
 function poDaf(d) {
+  if (poDaf.busy || Date.now() - (poDaf.t || 0) < 350) return;   // לחיצה כפולה — לא מדלגת על דף
+  poDaf.t = Date.now();
   const ref = poDafRef(d); if (!ref) return;
-  if (!isLoaded(ref)) { loadPage(ref).then(ok => { if (ok) poDaf(d); }); return; }
+  if (!isLoaded(ref)) { poDaf.busy = true; document.body.classList.add('daf-busy');
+    loadPage(ref).then(ok => { poDaf.busy = false; document.body.classList.remove('daf-busy'); if (ok) poDaf(d); }, () => { poDaf.busy = false; document.body.classList.remove('daf-busy'); }); return; }
   const n = scenesCount(ref); let i = 0; while (i < n && !poHasMarks(ref, i)) i++;
   if (i >= n) return;
   const back = PO.back;
@@ -3806,9 +3810,10 @@ function edGeoFlow(v) {
 }
 // הגופנים חייבים להיות טעונים לפני המדידה — אם עוד לא, טוענים ומסדרים שוב
 function edFontsThenFit(v) {
-  if (!document.fonts || v.dataset.fw) return; v.dataset.fw = '1';
+  if (!document.fonts || v.dataset.fw || edFontsThenFit.ok) return; v.dataset.fw = '1';
+  if (document.fonts.status === 'loaded' && ['16px "Noto Rashi Hebrew"', '16px VilnaGM'].every(f => document.fonts.check(f, 'א'))) { edFontsThenFit.ok = true; return; }
   Promise.all(['16px "Noto Rashi Hebrew"', '16px VilnaGM', '700 16px "Frank Ruhl Libre"'].map(f => document.fonts.load(f, 'אבג').catch(() => {})))
-    .then(() => document.fonts.ready).then(() => { if (document.getElementById('edOverlay').classList.contains('open')) edFit(); });
+    .then(() => document.fonts.ready).then(() => { edAutoFlow.wc = null; if (document.getElementById('edOverlay').classList.contains('open')) edFit(); });
 }
 // 🧩 עטיפה כמו בדפוס: הפירוש קובע את צורת הדף. הגמרא צרה כל עוד יש רש״י ותוספות משני הצדדים; כשאחד נגמר — מתרחבת לצדו;
 // כששניהם נגמרו — על כל הרוחב. אם הגמרא נגמרת קודם — הפירוש ממשיך מתחתיה בשני חצאים. גובה שורת הפירוש בכל צד נבחר כך
@@ -3818,22 +3823,29 @@ function edAutoFlow(v, ref, G) {
   const L = ED_LINES[ref], k = ED_GW / G.W, px = q => (q * k).toFixed(2) + 'px', amudA = ref.endsWith('a');
   const X0 = 12, X1 = 803, NAR = [248, 568], SIDE_R = [595, 803], SIDE_L = [12, 220], TOP_R = [419, 803], TOP_L = [12, 396];
   const PT = 19.75, TOPY = G.Y + 6, TOPEND = TOPY + 4 * PT, GY = TOPEND + 6, P = 22.25, GF = P * 1.06;
-  const meas = document.createElement('div'); meas.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;left:0;top:0'; v.appendChild(meas);
-  const wOf = (cls, inner, w) => { meas.innerHTML = `<div class="${cls}" style="font-size:100px;display:inline-flex"><span class="ed-w${inner}">${w}</span></div>`; return meas.firstChild.firstChild.offsetWidth / 100; };
+  const meas = document.createElement('div'); meas.style.cssText = 'position:absolute;display:block;visibility:hidden;white-space:nowrap;left:0;top:0;width:max-content'; v.appendChild(meas);
+  const WC = (document.fonts && document.fonts.status !== 'loaded') ? new Map() : (edAutoFlow.wc || (edAutoFlow.wc = new Map()));   // רוחב מילה — נמדד פעם אחת לכל האתר
+  const need = [];
+  const wOf = (cls, inner, w) => { const key = cls + '|' + inner + '|' + w; if (WC.has(key)) return WC.get(key); need.push([key, cls, inner, w]); WC.set(key, null); return null; };
+  const measAll = () => { if (!need.length) return;
+    meas.innerHTML = need.map(([, cls, inner, w]) => `<div class="${cls}" style="font-size:100px;display:flex;position:static;width:max-content;height:auto"><span class="ed-w${inner}">${w}</span></div>`).join('');
+    const sp = [...meas.querySelectorAll('.ed-w')]; const ws = sp.map(x => x.offsetWidth / 100);
+    need.forEach(([key], q) => WC.set(key, ws[q])); need.length = 0; };
   // פירוש → מילים
   const toks = id => { const t = document.getElementById(id); if (!t) return []; const out = [];
     [...t.content.querySelectorAll('.ed-c')].forEach((c, ci) => { const j = c.dataset.j;
       const walk = (n, dh, big) => { if (n.nodeType === 3) { n.textContent.split(/\s+/).filter(Boolean).forEach(w => { w = w.replace(/^[״"“”„']+/, '').replace(/[״"“”]+(?=[.:,;]?$)/, ''); if (w && !/^[—–-]+$/.test(w)) out.push({ w, dh, big, j, item: ci }); }); return; }
         [...n.childNodes].forEach(m => walk(m, dh || n.tagName === 'B', big || n.tagName === 'I')); };
       [...c.childNodes].forEach(n => walk(n, false, false)); });
-    out.forEach(t => t.wd = wOf('ed-cl ed-fl', (t.dh ? ' ed-dh' : '') + (t.big ? ' ed-big' : ''), t.w)); return out; };
+    out.forEach(t => { const inner = (t.dh ? ' ed-dh' : '') + (t.big ? ' ed-big' : ''); t.wk = 'ed-cl ed-fl|' + inner + '|' + t.w; wOf('ed-cl ed-fl', inner, t.w); }); return out; };
   const RS = toks('edRsSrc'), TS = toks('edTsSrc');
   // גמרא → מילים (‖ = גבול שלב)
   const GT = []; { let j = 0, first = true;
     for (const t of [...(L.narrow || []), ...(L.wide || []), ...(L.full || [])]) for (const x of t.split(/\s+/).filter(Boolean)) {
       if (x === '‖') { j++; first = true; continue; }
       const gm = first && /^(מתני|גמ)[׳']:?$/.test(x); first = false;
-      GT.push({ w: x, j, gm, wd: wOf('ed-gl', gm ? ' ed-gm' : '', x) }); } }
+      wOf('ed-gl', gm ? ' ed-gm' : '', x); GT.push({ w: x, j, gm, wk: 'ed-gl|' + (gm ? ' ed-gm' : '') + '|' + x }); } }
+  measAll(); [...RS, ...TS, ...GT].forEach(t => t.wd = WC.get(t.wk) || 0);
   meas.remove();
   const isM = ED.list.map(x => mgOf(ref, x.si, x.bi) === 'm');
   // שבירת פירוש לשורות: segs = [{w, h, n}] (n = מקסימום שורות בקטע)
@@ -3894,18 +3906,18 @@ function edAutoFlow(v, ref, G) {
 function edGeoFit() {
   const v = document.querySelector('#edOverlay .ed-geo'); if (!v) return;
   edGeoFlow(v);
-  v.querySelectorAll('.ed-gl, .ed-cl').forEach(l => {
-    const H = parseFloat(l.style.height), gem = l.classList.contains('ed-gl');
-    l.style.fontSize = (H * (gem ? 1.06 : .74)).toFixed(2) + 'px';   // גמרא: גובה האות = 61% מהשורה, כמו בוילנא
-    const ws = [...l.querySelectorAll('.ed-w')]; ws.forEach(w => { w.style.transform = ''; w.style.margin = ''; });
-    if (!ws.length || l.classList.contains('ed-l-open')) return;
-    const fs = parseFloat(l.style.fontSize), W = ws.reduce((a, w) => a + w.offsetWidth, 0), gap = fs * (gem ? .26 : .22) * Math.max(0, ws.length - 1);
-    l.style.columnGap = (fs * (gem ? .26 : .22)).toFixed(2) + 'px';   // רווח בין מילים תמיד נשמר — גם כשהשורה מכווצת
-    const catchL = l.classList.contains('ed-l-catch') || l.classList.contains('ed-l-endp'), mid = l.classList.contains('ed-l-mid');
-    let S = (l.clientWidth - gap) / W;
-    if (catchL || mid) S = Math.min(1, S); else S = Math.max(gem || !l.classList.contains('ed-fl') ? .6 : .85, Math.min(1.16, S));   // מתיחה מתונה — אותיות לא ״מעוותות״, השאר ברווחים כמו בדפוס
+  // שלושה מעברים (כתיבה ← קריאה ← כתיבה) — בלי ״לחשב את הדף מחדש״ בכל שורה; פי 10 מהר יותר בטלפון
+  const ls = [...v.querySelectorAll('.ed-gl, .ed-cl')].map(l => ({ l, gem: l.classList.contains('ed-gl'), H: parseFloat(l.style.height), ws: [...l.querySelectorAll('.ed-w')] }));
+  ls.forEach(o => { o.fs = o.H * (o.gem ? 1.06 : .74); o.l.style.fontSize = o.fs.toFixed(2) + 'px'; o.l.style.columnGap = (o.fs * (o.gem ? .26 : .22)).toFixed(2) + 'px';
+    o.ws.forEach(w => { w.style.transform = ''; w.style.margin = ''; }); });
+  ls.forEach(o => { if (!o.ws.length || o.l.classList.contains('ed-l-open')) return; o.cw = o.l.clientWidth; o.W = o.ws.map(w => w.offsetWidth); });
+  ls.forEach(o => { if (!o.W) return;
+    const tot = o.W.reduce((a, b) => a + b, 0), gap = o.fs * (o.gem ? .26 : .22) * Math.max(0, o.ws.length - 1);
+    const catchL = o.l.classList.contains('ed-l-catch') || o.l.classList.contains('ed-l-endp'), mid = o.l.classList.contains('ed-l-mid');
+    let S = (o.cw - gap) / tot;
+    if (catchL || mid) S = Math.min(1, S); else S = Math.max(o.gem || !o.l.classList.contains('ed-fl') ? .6 : .85, Math.min(1.16, S));
     if (Math.abs(S - 1) < .01) return;
-    ws.forEach(w => { const m = w.offsetWidth * (S - 1) / 2; w.style.transform = `scaleX(${S.toFixed(3)})`; w.style.margin = `0 ${m.toFixed(2)}px`; });
+    o.ws.forEach((w, q) => { const m = o.W[q] * (S - 1) / 2; w.style.transform = `scaleX(${S.toFixed(3)})`; w.style.margin = `0 ${m.toFixed(2)}px`; });
   });
   edScale(); edMarks();
 }
@@ -3986,7 +3998,7 @@ function edMarks() {
     v.appendChild(m);
   });
 }
-function edRefit() { clearTimeout(ED.rt); ED.rt = setTimeout(() => { if (document.getElementById('edOverlay').classList.contains('open')) edFit(); }, 150); }
+function edRefit() { clearTimeout(ED.rt); ED.rt = setTimeout(() => { edAutoFlow.wc = null; if (document.getElementById('edOverlay').classList.contains('open')) edFit(); }, 150); }
 function edSelect(j, instant) {
   if (!ED.list.length) return;
   if (j >= ED.list.length) { poDaf(1); return; } if (j < 0) { poDaf(-1); return; }
