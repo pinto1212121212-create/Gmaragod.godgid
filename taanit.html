@@ -661,6 +661,10 @@
     flex-direction: column;
   }
   .picker-modal.open { transform: translateY(0); }
+  .picker-modal.po-pk { z-index: 95; }
+  .daf-btn:disabled { opacity: .35; }
+  .po-pick { cursor: pointer; border-radius: 10px; padding: 4px 6px; }
+  .po-pick i { font-style: normal; color: var(--gold); font-size: .8em; margin-inline-start: 4px; }
 
   .picker-header {
     padding: 14px 18px;
@@ -2361,7 +2365,7 @@ function openPhoto(ref, box) {
     const want = focusBeat != null ? focusBeat : Math.min(state.beat, sc.beats.length - 1);
     PO.cur = Math.max(0, PO.list.findIndex(x => x.bi >= want));
   } else marks = box ? rect(box, 'po-mark') : Object.entries(DAF_SRC[ref]).map(([i, b]) => rect(b, 'po-all', `<span>${+i + 1}</span>`)).join('');
-  ov.innerHTML = `<div class="po-bar">${PO.list.length ? poDafBtn(-1) : ''}<span>${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'}</span>${PO.list.length ? poDafBtn(1) : ''}${EDITION.has(ref) ? '<button type="button" class="ed-sw" onclick="edFromPhoto()" aria-label="המהדורה שלנו">מהדורה שלנו</button>' : ''}<button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg> חזרה לעץ' : '✕'}</button></div>
+  ov.innerHTML = `<div class="po-bar">${PO.list.length ? poDafBtn(-1) : ''}<span class="po-pick" role="button" tabindex="0" onclick="openPicker(true)" onkeydown="if(event.key==='Enter')openPicker(true)" aria-label="בחר דף">${AMUD_NAME[ref]}${PO.list.length ? ` · קטע ${state.sceneIdx + 1}: ${(sc.title || '').replace(/<[^>]+>/g, '')}` : box ? ' · המקום מסומן' : ' · כל קטע ממוספר לפי הסצנה שמסבירה אותו'} <i aria-hidden="true">▾</i></span>${PO.list.length ? poDafBtn(1) : ''}${EDITION.has(ref) ? '<button type="button" class="ed-sw" onclick="edFromPhoto()" aria-label="המהדורה שלנו">מהדורה שלנו</button>' : ''}<button class="modal-close${PO.back ? ' po-back' : ''}" onclick="closePhoto()" aria-label="${PO.back ? 'חזרה לעץ' : 'סגור'}">${PO.back ? '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M12 12H6v5M12 12h6v5"/></svg> חזרה לעץ' : '✕'}</button></div>
     <div class="po-scroll" id="poScroll"><div class="po-wrap zoom" id="poWrap" style="${pageCrop(ref).wrap}"><div class="po-full" style="${pageCrop(ref).inner}"><img src="${imgUrl(ref, 'full')}" alt="${AMUD_NAME[ref]}" width="900" height="1600" decoding="async">${marks}</div></div><div class="po-load" aria-live="polite">טוען את הדף…</div></div>
     ${PO.list.length ? `<div class="po-call" id="poCall"></div><div class="po-nav"><button class="po-b" id="poPrev" aria-label="השלב הקודם">▶</button><div class="po-dots" id="poDots">${PO.list.map((x, k) => `<i class="hl-${x.role}" data-k="${k}"></i>`).join('')}</div><button class="po-b" id="poNext" aria-label="השלב הבא">◀</button><button class="po-b po-z" id="poZoom" aria-label="הגדלה"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button></div>`
       : '<div class="po-hint">הקשה על התמונה: הגדלה / הקטנה</div>'}`;
@@ -2403,9 +2407,13 @@ function poDafBtn(d) { const r = poDafRef(d);
 function poDaf(d) {
   if (poDaf.busy || Date.now() - (poDaf.t || 0) < 350) return;   // לחיצה כפולה — לא מדלגת על דף
   poDaf.t = Date.now();
-  const ref = poDafRef(d); if (!ref) return;
+  const ref = poDafRef(d); if (ref) poGoRef(ref);
+}
+// מעבר לדף אחר בלי לצאת מהדף המלא (מהחצים ‹ › או מ״בחר דף״)
+function poGoRef(ref) {
+  if (poDaf.busy) return;
   if (!isLoaded(ref)) { poDaf.busy = true; document.body.classList.add('daf-busy');
-    loadPage(ref).then(ok => { poDaf.busy = false; document.body.classList.remove('daf-busy'); if (ok) poDaf(d); }, () => { poDaf.busy = false; document.body.classList.remove('daf-busy'); }); return; }
+    loadPage(ref).then(ok => { poDaf.busy = false; document.body.classList.remove('daf-busy'); if (ok) poGoRef(ref); }, () => { poDaf.busy = false; document.body.classList.remove('daf-busy'); }); return; }
   const n = scenesCount(ref); let i = 0; while (i < n && !poHasMarks(ref, i)) i++;
   if (i >= n) return;
   const back = PO.back;
@@ -3653,7 +3661,7 @@ function openEdition(ref) {
   const big = dh => { const m = String(dh).match(/^(\S+)\s*([\s\S]*)$/); return m ? `<i>${m[1]}</i>${m[2] ? ' ' + m[2] : ''}` : dh; };   // תוספות: מילה ראשונה גדולה
   const ts = ED_LINES[ref] && ED_LINES[ref].tos ? ED_LINES[ref].tos.map(([k, dh, t]) => `<span class="ed-c" data-j="${Math.max(0, ED.list.findIndex(x => x.k === k))}"><b>${big(dh)}.</b> ${t} </span>`).join('') : (amudim[ref].tosafot || []).map(e => `<span class="ed-c"><b>${big(e.dh)}.</b> ${e.content.replace(/<[^>]+>/g, '').replace(/\s*\((קריאה|הדיבור)[^)]*\)/g, '')} </span>`).join('');
   const side = (cls, body) => `<div class="ed-col ${cls}">${body}</div>`;
-  ov.innerHTML = `<div class="po-bar ed-bar">${poDafBtn(-1)}<span>${AMUD_NAME[ref]} · המהדורה שלנו</span>${poDafBtn(1)}<button class="modal-close" onclick="closeEdition()" aria-label="סגור">✕</button></div>
+  ov.innerHTML = `<div class="po-bar ed-bar">${poDafBtn(-1)}<span class="po-pick" role="button" tabindex="0" onclick="openPicker(true)" onkeydown="if(event.key==='Enter')openPicker(true)" aria-label="בחר דף">${AMUD_NAME[ref]} · המהדורה שלנו <i aria-hidden="true">▾</i></span>${poDafBtn(1)}<button class="modal-close" onclick="closeEdition()" aria-label="סגור">✕</button></div>
     <div class="ed-scroll" id="edScroll"><div class="ed-fix" id="edFix"><article class="ed-page" lang="he">
       ${(() => { const num = `<b>${AMUD_NAME[ref].replace(/ ע״א$/, '.').replace(/ ע״ב$/, ':').replace(/׳/, '')}</b>`, t = `<span>${(amudim[ref].perek || 'מאימתי')}</span><span>פרק ראשון</span><span>תענית</span>`;
         return `<header class="ed-head">${amud ? t + num : num + t}</header>`; })()}
@@ -5584,6 +5592,7 @@ function openTranslation() {
 }
 
 function closeModal() {
+  if (PK.prev) { pickerHide(); return; }   // ״בחר דף״ מתוך הדף המלא — חוזרים לדף המלא
   state.modal = null;
   setTimeout(showLoc, 50);
   document.getElementById('modalOverlay').classList.remove('open');
@@ -5597,7 +5606,10 @@ function closeModal() {
 // =======================================================
 // DAF PICKER
 // =======================================================
-function openPicker() {
+function openPicker(full) {
+  full = full === true && (state.modal === 'edition' || state.modal === 'photo');   // מהדף המלא: הבחירה נשארת בדף המלא
+  PK.prev = full ? state.modal : null;
+  document.getElementById('pickerModal').classList.toggle('po-pk', full);
   const content = document.getElementById('pickerContent');
   content.innerHTML = '';
 
@@ -5636,7 +5648,9 @@ function openPicker() {
         }
         // Show daf number with side
         btn.textContent = `${heb(d)}${a === 'a' ? '.' : ':'}`;
+        if (full && !btn.classList.contains('has-content')) btn.disabled = true;
         btn.addEventListener('click', () => {
+          if (full) { pickerHide(); poGoRef(ref); return; }
           goToRef(ref);
           closeModal();
         });
@@ -5648,10 +5662,12 @@ function openPicker() {
     content.appendChild(section);
   });
 
-  state.modal = 'picker';
-  document.getElementById('modalOverlay').classList.add('open');
+  if (!full) { state.modal = 'picker'; document.getElementById('modalOverlay').classList.add('open'); }
   document.getElementById('pickerModal').classList.add('open');
+  { const c = content.querySelector('.daf-btn.current'); if (c) c.scrollIntoView({ block: 'center' }); }
 }
+var PK = { prev: null };
+function pickerHide() { document.getElementById('pickerModal').classList.remove('open'); PK.prev = null; }
 
 // =======================================================
 // EVENT BINDINGS
