@@ -1921,6 +1921,8 @@
   .ed-geo .ed-big { font-size: 1.85em; line-height: .8; align-self: flex-start; margin-top: -.02em; }
   .ed-geo .ed-gl .ed-gm { font-size: 1.25em; }
   .ed-geo .ed-l-mid { justify-content: center; column-gap: .25em; }
+  .ed-geo .ed-l-endp { justify-content: flex-start; column-gap: .3em; }
+  .ed-geo .ed-fl .ed-big { font-size: 1.5em; line-height: 1; align-self: center; margin-top: 0; }
   .ed-geo .ed-l-catch { justify-content: flex-end; column-gap: .25em; }
   .ed-geo .ed-gbox { justify-content: center; align-items: center; }
   .ed-geo .ed-gbox .ed-open { margin: 0; font-size: 46px; padding: 10px 26px 14px; }
@@ -3473,6 +3475,14 @@ const ED_LINES = {
 // יחידות: פיקסלים בדף (W = רוחב). בלוק = {c: g/r/t, x: [שמאל, ימין], y: ראש השורה הראשונה, p: גובה שורה, n?: מספר שורות גמרא, L?: שורות}
 // בשורה: {…} = דיבור המתחיל (מודגש, נמשך בין שורות), *מילה* = אות גדולה, ~ בהתחלה = שורה קצרה באמצע, >N = הזחה מימין
 const ED_GEO = {
+  // ב: — צורת וילנא (ע״ב: רש״י משמאל, תוספות מימין; תוספות נגמר ראשון והגמרא מתרחבת לצדו, ואחר כך על כל הרוחב).
+  // flow: רש״י ותוספות לא מועתקים שורה־שורה אלא נשפכים לתוך התיבות (R/T) בשורות שלנו — כך זה עובד לכל דף בש״ס
+  '2b': { W: 791, X: 12, Y: 64, H: 1340, flow: true, B: [
+    { c: 'g', x: [248, 568], y: 155, p: 22.25, from: 'narrow' },
+    { c: 'g', x: [248, 803], y: 1067.25, p: 22.25, from: 'wide' },
+    { c: 'g', x: [12, 803], y: 1134, p: 22.25, from: 'full' } ],
+    R: [ { x: [12, 396], top: true }, { x: [12, 220], until: 1134 }, { x: [12, 396], after: 1226 } ],
+    T: [ { x: [419, 803], top: true }, { x: [595, 803], until: 1067 }, { x: [419, 803], after: 1226 } ] },
   '2a': { W: 791, X: 12, Y: 64, H: 1302, box: [290, 182, 525, 307], B: [
     { c: 'g', x: [248, 568], y: 329, p: 22.25, from: 'narrow' },
     { c: 'g', x: [248, 803], y: 1066, p: 22, from: 'wide' },
@@ -3631,7 +3641,7 @@ function openEdition(ref) {
     <div class="ed-scroll" id="edScroll"><div class="ed-fix" id="edFix"><article class="ed-page" lang="he">
       ${(() => { const num = `<b>${AMUD_NAME[ref].replace(/ ע״א$/, '.').replace(/ ע״ב$/, ':').replace(/׳/, '')}</b>`, t = `<span>${(amudim[ref].perek || 'מאימתי')}</span><span>פרק ראשון</span><span>תענית</span>`;
         return `<header class="ed-head">${amud ? t + num : num + t}</header>`; })()}
-      ${ED_LINES[ref] ? (ED_GEO[ref] ? edGeoHTML(ref, amud) : edLinesHTML(ref, rs, ts, amud)) : `<div class="ed-flow${amud ? '' : ' ed-amud-b'}">
+      ${ED_LINES[ref] ? (ED_GEO[ref] ? edGeoHTML(ref, amud, rs, ts) : edLinesHTML(ref, rs, ts, amud)) : `<div class="ed-flow${amud ? '' : ' ed-amud-b'}">
         ${side('ed-rashi', rs)}${side('ed-tos', ts)}
         <div class="ed-gemara">${gm}</div>
       </div>`}
@@ -3676,7 +3686,7 @@ function edLinesHTML(ref, rs, ts, amud) {
 }
 // 📐 דף אחד לאחד: כל שורה בגובה ובמקום שלה (ED_GEO), גמרא מ־ED_LINES (עם ‖ = גבול שלב), רש״י ותוספות מ־ED_GEO. רוחב התוכן קבוע (ED_GW)
 const ED_GW = 680;
-function edGeoHTML(ref, amud) {
+function edGeoHTML(ref, amud, rs, ts) {
   const G = ED_GEO[ref], L = ED_LINES[ref], k = ED_GW / G.W, px = v => (v * k).toFixed(2) + 'px';
   const isM = ED.list.map(x => mgOf(ref, x.si, x.bi) === 'm');
   let j = 0, bold = false, out = '';
@@ -3698,24 +3708,97 @@ function edGeoHTML(ref, amud) {
       if (close) bold = false; return o; }).join('');
     return { h, cls, ind }; };
   if (G.box && L.open) { const [x0, y0, x1, y1] = G.box; out += box(x0, y0, x1 - x0, y1 - y0, 'ed-l ed-l-open ed-gbox', `<span class="ed-open ed-b r-${ED.list[0].role}" data-j="0">${L.open}</span>`); }
+  const lastFrom = [...G.B].reverse().find(b => b.c === 'g' && (L[b.from] || []).length);
   for (const b of G.B) {
     const w = b.x[1] - b.x[0];
     if (b.c === 'g') { const arr = L[b.from] || [];
-      arr.forEach((t, i) => { const g = gline(t, b.from === 'wide' && i === arr.length - 1); out += box(b.x[0], b.y + i * b.p, w, b.p, g.cls, g.h); }); continue; }
+      arr.forEach((t, i) => { const g = gline(t, b === lastFrom && i === arr.length - 1); out += box(b.x[0], b.y + i * b.p, w, b.p, g.cls, g.h); }); continue; }
     b.L.forEach((t, i) => { const c = cline(t); out += box(b.x[0], b.y + i * b.p, w - c.ind, b.p, `${c.cls} ed-c-${b.c}${b.k ? ' ed-l-catch' : ''}`, c.h); });
   }
-  return `<div class="ed-vil ed-geo${amud ? '' : ' ed-amud-b'}" style="width:${ED_GW}px;height:${px(G.H)}">${out}</div>`;
+  const src = G.flow ? `<template id="edRsSrc">${rs || ''}</template><template id="edTsSrc">${ts || ''}</template>` : '';
+  return `<div class="ed-vil ed-geo${amud ? '' : ' ed-amud-b'}" data-ref="${ref}" style="width:${ED_GW}px;height:${px(G.H)}">${out}</div>${src}`;
 }
 // כל שורה ממלאת בדיוק את הרוחב שלה: גודל האות לפי גובה השורה, והמילים נמתחות/מתכווצות לרוחב (scaleX) — כמו בדפוס
+// 🧩 מנוע הזרימה: רש״י ותוספות נשפכים לתוך תיבות הדף (מעל הגמרא, בצדדים, מתחת), שורה אחר שורה, בגודל אות שממלא את הצד בדיוק כמו בדף
+function edGeoFlow(v) {
+  const ref = v.dataset.ref, G = ED_GEO[ref]; if (!G || !G.flow) return;
+  v.querySelectorAll('.ed-fl').forEach(n => n.remove());
+  const k = ED_GW / G.W, px = q => (q * k).toFixed(2) + 'px';
+  // מילים מתוך הפירוש: רגילה / דיבור המתחיל (מרובע, מודגש) / מילה גדולה (תחילת דיבור בתוספות)
+  const toks = id => { const t = document.getElementById(id); if (!t) return [];
+    const out = [];
+    [...t.content.querySelectorAll('.ed-c')].forEach((c, ci) => {
+      const j = c.dataset.j;
+      const walk = (n, dh, big) => { if (n.nodeType === 3) { n.textContent.split(/\s+/).filter(Boolean).forEach(w => { w = w.replace(/^[״"“”„']+/, '').replace(/[״"“”]+(?=[.:,;]?$)/, ''); if (w && !/^[—–-]+$/.test(w)) out.push({ w, dh, big, j, item: ci }); }); return; }
+        const tg = n.tagName; [...n.childNodes].forEach(m => walk(m, dh || tg === 'B', big || tg === 'I')); };
+      [...c.childNodes].forEach(n => walk(n, false, false));
+    });
+    return out; };
+  const meas = document.createElement('div'); meas.className = 'ed-geo-meas'; meas.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:100px'; v.appendChild(meas);
+  const width = (tk) => { meas.innerHTML = `<span class="ed-cl ed-fl"><span class="ed-w${tk.dh ? ' ed-dh' : ''}${tk.big ? ' ed-big' : ''}">${tk.w}</span></span>`; return meas.firstChild.firstChild.getBoundingClientRect().width / 100; };
+  const run = (stream, boxes, isTos) => {
+    const T = toks(stream); if (!T.length) return;
+    T.forEach(t => t.wd = width(t));
+    // שורות לפי גודל: גובה שורה p (ביחידות הדף), אות = p*.74
+    const lay = (p, commit) => {
+      const fs = p * .74 * k, gap = fs * .3;
+      let bi = 0, b = boxes[0], y = b.top ? G.Y + 6 : 0, lines = [], cur = [], curW = 0, indent = 0;
+      const topEnd = () => G.Y + 6 + 4 * p;
+      const boxY0 = (bx) => bx.top ? G.Y + 6 : bx.after ? bx.after : topEnd();
+      const boxY1 = (bx) => bx.top ? topEnd() : bx.until ? bx.until : 1e9;
+      y = boxY0(b);
+      const lineW = () => (b.x[1] - b.x[0]) * k - indent;
+      const flush = (last) => { lines.push({ b, y, toks: cur, last, indent }); cur = []; curW = 0;
+        indent = 0; y += p;
+        while (b && y + p > boxY1(b) + .5) { bi++; b = boxes[bi]; if (!b) return false; y = Math.max(boxY0(b), b.top ? 0 : (bi && boxes[bi - 1].top ? topEnd() : 0)); }
+        return true; };
+      let prevItem = T[0].item;
+      for (const t of T) {
+        if (!b) break;
+        if (isTos && t.item !== prevItem && cur.length) { if (!flush(true)) break; }
+        prevItem = t.item;
+        const w = t.wd * fs;
+        if (cur.length && curW + gap + w > lineW()) { if (!flush(false)) break; }
+        if (!b) break;
+        cur.push(t); curW += (cur.length > 1 ? gap : 0) + w;
+        if (t.big && cur.length === 1) indent = -1;   // הסימון: השורה הבאה מוזחת ברוחב המילה הגדולה
+        if (indent === -1) indent = 0;
+      }
+      if (cur.length && b) lines.push({ b, y, toks: cur, last: true, indent: 0 });
+      return { lines, endB: lines.length ? boxes.indexOf(lines[lines.length - 1].b) : 0, endY: lines.length ? lines[lines.length - 1].y + p : 0 };
+    };
+    // גודל: הכי קרוב ל־19.7, אבל כך שהפירוש ייגמר בתוך הצד (ולא ישאיר חור) — אם אפשר
+    let best = null;
+    for (let p = 15.5; p <= 20.6; p += .1) {
+      const r = lay(p); const sideEnd = boxes[1].until;
+      const inSide = r.endB === 1 && r.endY > sideEnd - p * 1.5;
+      const score = (inSide ? 0 : r.endB === 1 ? (sideEnd - r.endY) / p : 3 + (r.endB > 1 ? r.lines.filter(l => l.b === boxes[2]).length : 0)) + Math.abs(p - 19.7) * .05;
+      if (!best || score < best.score) best = { p, score, r };
+    }
+    const { p, r } = best;
+    let html = '';
+    r.lines.forEach(l => {
+      const w = (l.b.x[1] - l.b.x[0]);
+      html += `<div class="ed-cl ed-fl ed-c-${isTos ? 't' : 'r'}${l.last ? ' ed-l-endp' : ''}" style="left:${px(l.b.x[0] - G.X)};top:${px(l.y - G.Y)};width:${px(w)};height:${px(p)};--lh:${px(p)}">${l.toks.map(t => `<span class="ed-w${t.dh ? ' ed-dh' : ''}${t.big ? ' ed-big' : ''}" data-cj="${t.j}">${t.w}</span>`).join('')}</div>`;
+    });
+    v.insertAdjacentHTML('beforeend', html);
+    return r.lines.length ? r.lines[r.lines.length - 1].y + p : 0;
+  };
+  const e1 = run('edRsSrc', G.R, false), e2 = run('edTsSrc', G.T, true);
+  meas.remove();
+  const gEnd = Math.max(...[...v.querySelectorAll('.ed-gl')].map(l => parseFloat(l.style.top) / k + G.Y + parseFloat(l.style.height) / k));
+  v.style.height = px(Math.max(e1 || 0, e2 || 0, gEnd) - G.Y + 8);
+}
 function edGeoFit() {
   const v = document.querySelector('#edOverlay .ed-geo'); if (!v) return;
+  edGeoFlow(v);
   v.querySelectorAll('.ed-gl, .ed-cl').forEach(l => {
     const H = parseFloat(l.style.height), gem = l.classList.contains('ed-gl');
     l.style.fontSize = (H * (gem ? 1.06 : .74)).toFixed(2) + 'px';   // גמרא: גובה האות = 61% מהשורה, כמו בוילנא
     const ws = [...l.querySelectorAll('.ed-w')]; ws.forEach(w => { w.style.transform = ''; w.style.margin = ''; });
     if (!ws.length || l.classList.contains('ed-l-open')) return;
     const fs = parseFloat(l.style.fontSize), W = ws.reduce((a, w) => a + w.offsetWidth, 0), gap = fs * (gem ? .26 : .22) * Math.max(0, ws.length - 1);
-    const catchL = l.classList.contains('ed-l-catch'), mid = l.classList.contains('ed-l-mid');
+    const catchL = l.classList.contains('ed-l-catch') || l.classList.contains('ed-l-endp'), mid = l.classList.contains('ed-l-mid');
     let S = (l.clientWidth - gap) / W;
     if (catchL || mid) S = Math.min(1, S); else S = Math.max(.6, Math.min(1.16, S));   // מתיחה מתונה — אותיות לא ״מעוותות״, השאר ברווחים כמו בדפוס
     if (Math.abs(S - 1) < .01) return;
