@@ -3908,7 +3908,7 @@ function edAutoFlow(v, ref, G) {
   gl.forEach(l => { const m = l.toks.some(t => isM[t.j]), last = l.last && !best.full && (l.short || l.toks.length < 6);   // שורה אחרונה קצרה — לא נמתחת
     html += `<div class="ed-l ed-gl${m ? ' ed-ml' : ''}${last ? ' ed-l-endp' : ''}" data-fs="${fsc.toFixed(3)}" style="left:${px(l.x[0] - G.X)};top:${px(l.y - G.Y)};width:${px(l.x[1] - l.x[0])};height:${px(P)};--lh:${px(P)}">${l.toks.map(t => `<span class="ed-w ed-b r-${(ED.list[t.j] || {}).role || 'k'}${t.gm ? ' ed-gm' : ''}" data-j="${t.j}">${t.w}</span>`).join('')}</div>`; });
   if (catchW && gl.length) { const L3 = gl[gl.length - 1];
-    html += `<div class="ed-catchw" style="left:${px(L3.x[0] - G.X)};top:${px(L3.y + P - G.Y)};height:${px(P * .9)};font-size:${px(P * .8)}">${catchW.w}</div>`; }
+    html += `<div class="ed-catchw" style="left:${px(L3.x[0] - G.X)};top:${px(L3.y + P - G.Y)};height:${px(P * .58)};font-size:${px(P * .55)}">${catchW.w}</div>`; }
   // הפירוש בפועל: מעל הגמרא, בצד עד גבול השורה, ומה שנשאר — מתחת לגמרא (חצי רוחב)
   let maxY = gEnd;
   const ovR = a.end > gEnd + 2, ovL = b.end > gEnd + 2;
@@ -3921,7 +3921,7 @@ function edAutoFlow(v, ref, G) {
     let target = ov ? gEnd : (() => { const idx = Math.ceil((e.end - GY) / P - .5); return GY + Math.max(0, idx) * P; })();
     target = Math.min(target, gEnd);
     let p2 = ns ? (target - sideTop) / ns : p; if (!(p2 > p * .88 && p2 < p * 1.2)) p2 = p;
-    const ys = [TOPY, sideTop, gEnd + (catchW ? P * .9 : 0) + 8], cnt = [0, 0, 0];
+    const ys = [TOPY, sideTop, gEnd + (catchW ? P * .58 : 0) + 3], cnt = [0, 0, 0];
     ls.forEach(l => { const sg = l.si, h = sg === 0 ? PT : sg === 1 ? p2 : 19.7, fh = sg === 0 ? PT : sg === 1 ? p : 19.7, x = sg === 0 ? topW(isR) : sg === 1 ? sideW(isR) : bot, y = ys[sg] + cnt[sg] * h; cnt[sg]++;
       maxY = Math.max(maxY, y + h);
       html += `<div class="ed-cl ed-fl ed-c-${tos ? 't' : 'r'}${l.last ? ' ed-l-endp' : ''}" data-cf="${(CF * fh / h).toFixed(4)}" style="left:${px(x[0] - G.X)};top:${px(y - G.Y)};width:${px(x[1] - x[0])};height:${px(h)};--lh:${px(h)}">${l.toks.map(t => `<span class="ed-w${t.dh ? ' ed-dh' : ''}${t.big ? ' ed-big' : ''}" data-cj="${t.j}">${t.w}</span>`).join('')}</div>`; }); };
