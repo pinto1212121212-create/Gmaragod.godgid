@@ -11,6 +11,9 @@
 <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=()">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>תענית — אנימציה לכל המסכת</title>
+<script>/* כשהלימוד ייפתח בדף המלא — לא מציגים לרגע את התצוגה הרגילה (בלי ״קפיצה״ בכניסה) */
+try { if (sessionStorage.getItem('gemara:pomode3') !== '0' && localStorage.getItem('gemara:help') && !/-daf/.test(location.hash)) { document.documentElement.classList.add('po-boot'); setTimeout(() => document.documentElement.classList.remove('po-boot'), 3000); } } catch (e) {}</script>
+<style>html.po-boot, html.po-boot body { background: #0a0a0a; } html.po-boot body > *:not(#edOverlay):not(#photoOverlay) { visibility: hidden; }</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Noto+Rashi+Hebrew:wght@400;700&display=swap" rel="stylesheet">
@@ -4380,7 +4383,7 @@ function hlRects(crop, loc, span) {
     return { top, height: bot - top, right: 1 - c.xs - 0.003, width: c.xs - c.xe + 0.006 };
   });
 }
-let focusBeat = null;
+let focusBeat = null, hashBeat = null;
 const srcPan = { on: false, until: 0 };
 document.addEventListener('touchstart', e => { if (e.target.closest && e.target.closest('.src-wrap')) { srcPan.on = true; } }, { passive: true, capture: true });
 ['touchend', 'touchcancel'].forEach(t => document.addEventListener(t, () => { if (srcPan.on) { srcPan.on = false; srcPan.until = Date.now() + 1500; } }, { passive: true, capture: true }));
@@ -4595,6 +4598,7 @@ function setPoMode(on) { poMode = on; try { sessionStorage.setItem('gemara:pomod
 function poModeOpen() {
   const sc = amudim[state.ref] && amudim[state.ref].scenes[state.sceneIdx];
   if (!poMode || state.modal || !sc || !sc.src || !poHasMarks(state.ref, state.sceneIdx)) return false;
+  if (hashBeat && hashBeat.ref === state.ref && hashBeat.si === state.sceneIdx && sc.beats[hashBeat.b]) focusBeat = hashBeat.b;   // שלב מהקישור — בלי לקפוץ קודם לשלב הראשון
   if (focusBeat == null) {   // עוד לא נבחר שלב (state.beat = כל השלבים): מתחילים בשלב הראשון, או בשלב שעצרו בו
     let b = 0; try { const p = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
       if (p && p.ref === state.ref && p.sceneIdx === state.sceneIdx && p.bi > 0 && p.bi < sc.beats.length) b = p.bi; } catch (e) {}
@@ -4609,7 +4613,8 @@ function dockUpdate(force) {
   if (!sc || !sc.beats || !sc.beats.length || state.modal) { dock.hidden = true; document.body.classList.remove('dock-open'); return; }
   const bi = activeBeatIdx(sc), key = `${state.ref}:${state.sceneIdx}:${bi}`;
   dock.hidden = false;
-  if (poMode) setTimeout(poModeOpen, 0);
+  if (poMode) setTimeout(() => { poModeOpen(); document.documentElement.classList.remove('po-boot'); }, 0);
+  else document.documentElement.classList.remove('po-boot');
   if (key === dockKey && !force) return;
   dockKey = key;
   const tabs = beatTabs(state.ref, state.sceneIdx, bi), on = tabs.some(t => t[0] === dockTab && t[2]) ? dockTab : '';
@@ -5805,7 +5810,7 @@ function readHash() {
     renderScenes();
     if (m[3] != null && sc.beats && sc.beats[+m[3]]) {
       focusBeat = +m[3];
-      const fb = +m[3];
+      const fb = +m[3]; hashBeat = { ref: m[1], si: +m[2], b: fb }; setTimeout(() => { hashBeat = null; }, 1500);
       setTimeout(() => { focusBeat = fb; try { showLoc(); } catch (e) {}   // scrollSpy עלול לשנות את השלב בינתיים
         if (m[4] && sc.src) { focusBeat = fb; openPhoto(sc.src.ref, sc.src.box); } }, 350);
     }
