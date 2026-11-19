@@ -7,11 +7,14 @@ from ttf import build
 samples = pickle.load(open(sys.argv[1], 'rb')); out = sys.argv[2]
 import glyphs as _G, os
 ST = os.environ.get('GM_STYLE', 'classic')      # classic / modern / open
-_G.STYLE.update({'classic': {}, 'modern': {'ex': 5, 'dy': 3}, 'open': {'ex': 6, 'dy': 4}}[ST])
-WX = {'classic': 1.0, 'modern': 1.05, 'open': 1.12}[ST]
+import json
+PRESET = {'classic': {}, 'modern': {'ex': 5, 'dy': 3, 'wx': 1.05}, 'open': {'ex': 6, 'dy': 4, 'wx': 1.12, 'gap': 2.3}}
+P = dict(PRESET.get(ST, {})); P.update(json.loads(os.environ.get('GM_PARAMS', '{}')))
+_G.STYLE.update(P)
+WX = P.get('wx', 1.0)
 XH = float(np.median([s['xh'] for v in samples.values() for s in v]))
 u = 560 / XH                    # גובה האות הרגילה (מ, ב, ר) = 560 יחידות
-GAP = (1.6 if ST != 'open' else 2.3) * u                    # רווח בין אותיות (חצי מכל צד)
+GAP = P.get('gap', 1.6) * u                    # רווח בין אותיות (חצי מכל צד)
 glyphs = [('.notdef', [], 500, []), ('space', [0x20, 0xA0], int(0.32 * XH * u), [])]
 _cache = sys.argv[1] + '.av'
 if os.path.exists(_cache) and os.path.getmtime(_cache) > os.path.getmtime(sys.argv[1]): AV = pickle.load(open(_cache, 'rb'))
