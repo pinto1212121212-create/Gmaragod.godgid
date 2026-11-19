@@ -76,36 +76,73 @@ def _ang(a, b, c):
     if n1 == 0 or n2 == 0: return 180.0
     return float(np.degrees(np.arccos(max(-1, min(1, (v1[0] * v2[0] + v1[1] * v2[1]) / (n1 * n2))))))
 
-def smooth_loop(loop, eps=1.8, it=3, S=8, corner=135, snap=10):
-    """שיפור כמו במהדורות החדשות: פינות חדות נשארות חדות, קווים כמעט ישרים/אנכיים/אופקיים — ישרים לגמרי, והשאר מוחלק"""
-    pts = loop + [loop[0]]
-    k = len(pts) // 2
-    p = rdp(pts[:k + 1], eps * S / 8 * 1.4)[:-1] + rdp(pts[k:], eps * S / 8 * 1.4)[:-1]
-    p = [tuple(map(float, q)) for q in p]
-    n = len(p)
-    if n < 4: return p
-    isc = [_ang(p[i - 1], p[i], p[(i + 1) % n]) < corner for i in range(n)]
-    # יישור: קטע ארוך שכמעט אנכי/אופקי — אנכי/אופקי בדיוק
-    for i in range(n):
-        a, b2 = p[i], p[(i + 1) % n]; dx, dy = b2[0] - a[0], b2[1] - a[1]; L = np.hypot(dx, dy)
-        if L < S * 1.2: continue
-        an = np.degrees(np.arctan2(abs(dy), abs(dx)))
-        if an > 90 - snap:
-            mx = (a[0] + b2[0]) / 2; p[i] = (mx, a[1]); p[(i + 1) % n] = (mx, b2[1])
-        elif an < snap:
-            my = (a[1] + b2[1]) / 2; p[i] = (a[0], my); p[(i + 1) % n] = (b2[0], my)
-    for _ in range(it):   # Chaikin רק על נקודות שאינן פינה
-        q, qc = [], []
-        n = len(p)
-        for i in range(n):
-            v = p[i]
-            if isc[i]: q.append(v); qc.append(True); continue
-            a0, a1 = p[i - 1], p[(i + 1) % n]
-            q += [(.75 * v[0] + .25 * a0[0], .75 * v[1] + .25 * a0[1]), (.75 * v[0] + .25 * a1[0], .75 * v[1] + .25 * a1[1])]; qc += [False, False]
-        p, isc = q, qc
-    return p
+def _gauss(P, sig, circular=True):
+    if sig <= 0 or len(P) < 3: return P.copy()
+    r = int(3 * sig); k = np.exp(-np.arange(-r, r + 1) ** 2 / (2 * sig * sig)); k /= k.sum()
+    if circular:
+        Q = np.concatenate([P[-r:], P, P[:r]]) if r < len(P) else np.tile(P, (3, 1))[len(P) - r:2 * len(P) + r]
+    else:
+        Q = np.concatenate([np.repeat(P[:1], r, 0), P, np.repeat(P[-1:], r, 0)])
+    return np.stack([np.convolve(Q[:, 0], k, 'valid'), np.convolve(Q[:, 1], k, 'valid')], 1)
+
+def smooth_loop(loop, S=8, corner=140, snap=8):
+    """שיפור כמו במהדורות החדשות: מוצאים את הפינות האמיתיות (נשארות חדות), מחליקים רק ביניהן,
+    קטע כמעט ישר — ישר לגמרי (ואנכי/אופקי אם הוא קרוב לזה). מחזיר [(x, y, 1)]"""
+    P = np.array(loop, float); N = len(P)
+    if N < 12: return [(x, y, 1) for x, y in P]
+    Ps = _gauss(P, S * .5)
+    k = max(3, int(S * 1.6))
+    def ang(i):
+        a, b, c = Ps[(i - k) % N], Ps[i], Ps[(i + k) % N]
+        v1, v2 = a - b, c - b; n = np.hypot(*v1) * np.hypot(*v2)
+        return 180.0 if n == 0 else float(np.degrees(np.arccos(np.clip((v1 @ v2) / n, -1, 1))))
+    A = np.array([ang(i) for i in range(N)])
+    cs = [i for i in range(N) if A[i] < corner and A[i] == min(A[(i + j) % N] for j in range(-k, k + 1))]
+    ded = []
+    for i in cs:
+        if not ded or i - ded[-1] > k: ded.append(i)
+    if len(ded) >= 2 and (ded[0] + N - ded[-1]) <= k: ded.pop()
+    out = []
+    if not ded:   # לולאה עגולה בלי פינות
+        Q = _gauss(P, S * 1.1)
+        return [(x, y, 1) for x, y in rdp(list(map(tuple, Q)) + [tuple(Q[0])], S * .1)[:-1]]
+    for j, i0 in enumerate(ded):
+        i1 = ded[(j + 1) % len(ded)]
+        span = (i1 - i0) % N or N
+        idx = [(i0 + t) % N for t in range(span + 1)]
+        seg = P[idx]
+        a, b2 = seg[0], seg[-1]; ch = b2 - a; L = np.hypot(*ch)
+        dev = np.abs(ch[0] * (seg[:, 1] - a[1]) - ch[1] * (seg[:, 0] - a[0])) / L if L else np.zeros(len(seg))
+        if L > S and dev.max() < S * .45:     # קו ישר
+            an = np.degrees(np.arctan2(abs(ch[1]), abs(ch[0])))
+            out.append(('L', a.copy(), b2.copy(), an)); continue
+        sm = _gauss(seg, S * 1.1, circular=False)
+        sm[0], sm[-1] = a, b2
+        pts = rdp(list(map(tuple, sm)), S * .1)
+        out.append(('C', pts))
+    # בונים את הלולאה, ומיישרים קווים כמעט אנכיים/אופקיים
+    res = []
+    for seg in out:
+        if seg[0] == 'L':
+            _, a, b2, an = seg
+            if an > 90 - snap: mx = (a[0] + b2[0]) / 2; a[0] = b2[0] = mx
+            elif an < snap: my = (a[1] + b2[1]) / 2; a[1] = b2[1] = my
+            res += [tuple(a), tuple(b2)]
+        else: res += seg[1]
+    clean = [res[0]]
+    for q in res[1:]:
+        if np.hypot(q[0] - clean[-1][0], q[1] - clean[-1][1]) > S * .05: clean.append(q)
+    return [(x, y, 1) for x, y in clean]
 
 def area(c): return 0.5 * sum(c[i][0] * c[(i + 1) % len(c)][1] - c[(i + 1) % len(c)][0] * c[i][1] for i in range(len(c)))
+
+def sides(b, pad, S):
+    # ריווח אופטי: כמה ״אוויר״ יש בממוצע בין קצה האות לדיו, בכל צד (בפיקסלים של המקור)
+    ys = [y for y in range(b.shape[0]) if b[y].any()]
+    if not ys: return 0.0, 0.0
+    xs = np.nonzero(b.any(0))[0]; x0, x1 = xs.min(), xs.max()
+    L = [np.nonzero(b[y])[0].min() - x0 for y in ys]; R = [x1 - np.nonzero(b[y])[0].max() for y in ys]
+    return float(np.mean(L)) / S, float(np.mean(R)) / S
 
 def stem(m, S=8, thr=0.5):
     b, pad = shape(m, S, thr=thr); h = b.shape[0]
@@ -135,14 +172,15 @@ def to_font(m, W, H, top, bot, u, lsb, S=8, **kw):
     for lp in loops:
         p = smooth_loop(lp, S=S)
         c = []
-        for x, y in p:
+        for x, y, o in p:
             fx = lsb + (x - pad) / S * u
             fy = (top - (y - pad) / S * (top - bot) / H) * u
-            c.append((int(round(fx)), int(round(fy))))
-        cc = [c[0]] + [q for i, q in enumerate(c[1:]) if q != c[i]]
+            c.append((int(round(fx)), int(round(fy)), o))
+        cc = [c[0]] + [q for i, q in enumerate(c[1:]) if q[:2] != c[i][:2]]
         if len(cc) >= 3 and abs(area(cc)) > 20: out.append(cc)
     # TrueType: חיצוני עם כיוון השעון (y למעלה). כל הלולאות כבר בכיוון עקבי — מכוונים לפי הגדולה ביותר
     if out:
         big = max(out, key=lambda c: abs(area(c)))
         if area(big) > 0: out = [c[::-1] for c in out]
+    to_font.sides = sides(b, pad, S)
     return out

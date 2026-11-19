@@ -16,9 +16,10 @@ def _glyf(contours):
     flags, dx, dy = [], [], []
     px = py = 0
     for c in contours:
-        for x, y in c:
+        for pt in c:
+            x, y = pt[0], pt[1]; on = pt[2] if len(pt) > 2 else 1
             ddx, ddy = x - px, y - py; px, py = x, y
-            f = 1
+            f = 1 if on else 0
             if ddx == 0: f |= 0x10
             elif -255 <= ddx <= 255: f |= 0x02 | (0x10 if ddx > 0 else 0); dx.append(struct.pack('>B', abs(ddx)))
             else: dx.append(struct.pack('>h', ddx))

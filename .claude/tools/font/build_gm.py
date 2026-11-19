@@ -28,11 +28,14 @@ for ch in sorted(samples):
     t = thr_for(m, TGT) if ch not in '׳י' else 0.5
     t = min(.6, max(.4, t))
     cont = to_font(m, W, H, top, bot, u, GAP, thr=t)
-    adv = int(round(W * u + 2 * GAP))
+    L, R = to_font.sides                       # ריווח אופטי: מקזזים 40% מה״אוויר״ שבצדי האות (ר, ו, ל, י...)
+    k = .4; dl, dr = k * L * u, k * R * u
+    cont = [[(x - int(round(dl)), y, o) for x, y, o in c] for c in cont]
+    adv = int(round(W * u + 2 * GAP - dl - dr))
     glyphs.append(('u%04X' % ord(ch), [ord(ch)] + ([0x27] if ch == '׳' else []), adv, cont))
     if ch == '׳':   # ״ = שני גרשים
         sh = adv - int(GAP)
-        glyphs.append(('u05F4', [0x5F4, 0x22], adv + sh, cont + [[(x + sh, y) for x, y in c] for c in cont]))
+        glyphs.append(('u05F4', [0x5F4, 0x22], adv + sh, cont + [[(x + sh, y, o) for x, y, o in c] for c in cont]))
 # ץ לא הופיעה בצילום: ן (הרגל הארוכה) + ראש של י בצד ימין למעלה — שתיהן מאותו דפוס
 if 'ץ' not in samples and 'ן' in samples and 'י' in samples:
     Sx = 8
