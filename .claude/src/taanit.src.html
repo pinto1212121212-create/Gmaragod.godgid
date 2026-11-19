@@ -6607,7 +6607,7 @@ function edFontsThenFit(v) {
 // כששניהם נגמרו — על כל הרוחב. אם הגמרא נגמרת קודם — הפירוש ממשיך מתחתיה בשני חצאים. גובה שורת הפירוש בכל צד נבחר כך
 // שהצד נגמר בדיוק בגבול של שורת גמרא (בלי חורים)
 function edAutoFlow(v, ref, G) {
-  v.querySelectorAll('.ed-fl, .ed-gl').forEach(n => n.remove());
+  v.querySelectorAll('.ed-fl, .ed-gl, .ed-catchw').forEach(n => n.remove());
   const L = ED_LINES[ref], k = ED_GW / G.W, px = q => (q * k).toFixed(2) + 'px', amudA = ref.endsWith('a');
   const X0 = 12, X1 = 803, NAR = [248, 568], SIDE_R = [595, 803], SIDE_L = [12, 220], TOP_R = [419, 803], TOP_L = [12, 396];
   const PT = 19.75, TOPY = G.Y + 6, TOPEND = TOPY + 4 * PT, GY = TOPEND + 6, P = 22.25, GF = P * 1.06;
