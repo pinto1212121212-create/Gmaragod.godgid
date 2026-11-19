@@ -1926,6 +1926,7 @@
   .ed-dh.dr-q { --c: 232,86,106; } .ed-dh.dr-x { --c: 230,140,60; } .ed-dh.dr-a { --c: 108,195,90; } .ed-dh.dr-c { --c: 242,193,78; } .ed-dh.dr-s, .ed-dh.dr-n { --c: 94,168,224; } .ed-dh.dr-k { --c: 169,141,224; }
   .ed-geo .ed-c.on, .ed-geo .ed-cl.on { background: none !important; box-shadow: none !important; }
   .ed-geo .ed-catchw { position: absolute; font-family: 'VilnaGM', 'Frank Ruhl Libre', serif; color: #000; line-height: 1; display: flex; align-items: center; }
+  .ed-geo .ed-fl { color: #111 !important; -webkit-text-stroke: .25px #111; }   /* רש״י ותוספות בולטים יותר */
   .ed-geo .ed-l-endp { justify-content: flex-start; column-gap: .3em; }
   .ed-geo .ed-fl .ed-big { font-size: 1.5em; line-height: 1; align-self: center; margin-top: 0; }
   .ed-geo .ed-l-catch { justify-content: flex-end; column-gap: .25em; }
@@ -3842,6 +3843,7 @@ function edAutoFlow(v, ref, G) {
         [...n.childNodes].forEach(m => walk(m, dh || n.tagName === 'B', big || n.tagName === 'I')); };
       [...c.childNodes].forEach(n => walk(n, false, false)); });
     out.forEach(t => { const inner = (t.dh ? ' ed-dh' : '') + (t.big ? ' ed-big' : ''); t.wk = 'ed-cl ed-fl|' + inner + '|' + t.w; wOf('ed-cl ed-fl', inner, t.w); }); return out; };
+  const CF = .8;   // גודל אות הפירוש ביחס לגובה השורה — גדול וברור
   const RS = toks('edRsSrc'), TS = toks('edTsSrc');
   // גמרא → מילים (‖ = גבול שלב)
   const GT = []; { let j = 0, first = true;
@@ -3862,9 +3864,9 @@ function edAutoFlow(v, ref, G) {
     const flush = last => { if (!seg()) return; lines.push({ si, toks: cur, last }); cur = []; cw = 0; cnt++; while (seg() && cnt >= seg().n) { si++; cnt = 0; } };
     for (const t of T) { if (!seg()) break;
       if (tos && t.item !== prev && cur.length) flush(true); prev = t.item; if (!seg()) break;
-      const f = seg().h * .74, w = t.wd * f, g = f * .3;
+      const f = seg().h * CF, w = t.wd * f, g = f * .3;
       if (cur.length && cw + g + w > seg().w) { flush(false); if (!seg()) break; }
-      const f2 = seg().h * .74; cw += (cur.length ? f2 * .3 : 0) + t.wd * f2; cur.push(t); }
+      const f2 = seg().h * CF; cw += (cur.length ? f2 * .3 : 0) + t.wd * f2; cur.push(t); }
     if (cur.length && seg()) lines.push({ si, toks: cur, last: true });
     return lines; };
   const rsRight = amudA;   // רש״י בטור הפנימי
@@ -3909,13 +3911,19 @@ function edAutoFlow(v, ref, G) {
   // הפירוש בפועל: מעל הגמרא, בצד עד גבול השורה, ומה שנשאר — מתחת לגמרא (חצי רוחב)
   let maxY = gEnd;
   const ovR = a.end > gEnd + 2, ovL = b.end > gEnd + 2;
-  const put = (T, tos, isR, e) => { const only = isR ? ovR && !ovL : ovL && !ovR; const p = e.p, sideTop = TOPEND, sideEnd = Math.min(e.end, gEnd + .1), nSide = Math.max(0, Math.floor((sideEnd - sideTop) / p + .01));
+  const put = (T, tos, isR, e) => { const only = isR ? ovR && !ovL : ovL && !ovR; const p = e.p, sideTop = TOPEND, ov = isR ? ovR : ovL;
+    const sideEnd = Math.min(e.end, gEnd + .1), nSide = Math.max(0, Math.floor((sideEnd - sideTop) / p + .01));
     const bot = only ? [X0, X1] : isR ? [ (X0 + X1) / 2 + 11, X1 ] : [ X0, (X0 + X1) / 2 - 11 ];
     const ls = wrapC(T, tos, [{ w: topW(isR)[1] - topW(isR)[0], h: PT, n: 4 }, { w: sideW(isR)[1] - sideW(isR)[0], h: p, n: nSide || 1e-9 }, { w: bot[1] - bot[0], h: 19.7, n: 1e9 }]);
+    // צמוד כמו בדפוס: הצד נגמר בדיוק בשורה שבה הגמרא מתרחבת (או בסוף הגמרא) — מותחים מעט את הרווח בין השורות
+    const ns = ls.filter(l => l.si === 1).length;
+    let target = ov ? gEnd : (() => { const idx = Math.ceil((e.end - GY) / P - .5); return GY + Math.max(0, idx) * P; })();
+    target = Math.min(target, gEnd);
+    let p2 = ns ? (target - sideTop) / ns : p; if (!(p2 > p * .88 && p2 < p * 1.2)) p2 = p;
     const ys = [TOPY, sideTop, gEnd + (catchW ? P * .9 : 0) + 8], cnt = [0, 0, 0];
-    ls.forEach(l => { const sg = l.si, h = sg === 0 ? PT : sg === 1 ? p : 19.7, x = sg === 0 ? topW(isR) : sg === 1 ? sideW(isR) : bot, y = ys[sg] + cnt[sg] * h; cnt[sg]++;
+    ls.forEach(l => { const sg = l.si, h = sg === 0 ? PT : sg === 1 ? p2 : 19.7, fh = sg === 0 ? PT : sg === 1 ? p : 19.7, x = sg === 0 ? topW(isR) : sg === 1 ? sideW(isR) : bot, y = ys[sg] + cnt[sg] * h; cnt[sg]++;
       maxY = Math.max(maxY, y + h);
-      html += `<div class="ed-cl ed-fl ed-c-${tos ? 't' : 'r'}${l.last ? ' ed-l-endp' : ''}" style="left:${px(x[0] - G.X)};top:${px(y - G.Y)};width:${px(x[1] - x[0])};height:${px(h)};--lh:${px(h)}">${l.toks.map(t => `<span class="ed-w${t.dh ? ' ed-dh' : ''}${t.big ? ' ed-big' : ''}" data-cj="${t.j}">${t.w}</span>`).join('')}</div>`; }); };
+      html += `<div class="ed-cl ed-fl ed-c-${tos ? 't' : 'r'}${l.last ? ' ed-l-endp' : ''}" data-cf="${(CF * fh / h).toFixed(4)}" style="left:${px(x[0] - G.X)};top:${px(y - G.Y)};width:${px(x[1] - x[0])};height:${px(h)};--lh:${px(h)}">${l.toks.map(t => `<span class="ed-w${t.dh ? ' ed-dh' : ''}${t.big ? ' ed-big' : ''}" data-cj="${t.j}">${t.w}</span>`).join('')}</div>`; }); };
   put(rightT, rightTos, true, a); put(leftT, leftTos, false, b);
   v.insertAdjacentHTML('beforeend', html);
   v.style.height = px(maxY - G.Y + 10);
@@ -3925,7 +3933,7 @@ function edGeoFit() {
   edGeoFlow(v);
   // שלושה מעברים (כתיבה ← קריאה ← כתיבה) — בלי ״לחשב את הדף מחדש״ בכל שורה; פי 10 מהר יותר בטלפון
   const ls = [...v.querySelectorAll('.ed-gl, .ed-cl')].map(l => ({ l, gem: l.classList.contains('ed-gl'), H: parseFloat(l.style.height), ws: [...l.querySelectorAll('.ed-w')] }));
-  ls.forEach(o => { o.fs = o.H * (o.gem ? 1.06 * (+o.l.dataset.fs || 1) : .74); o.l.style.fontSize = o.fs.toFixed(2) + 'px'; o.l.style.columnGap = (o.fs * (o.gem ? .26 : .22)).toFixed(2) + 'px';
+  ls.forEach(o => { o.fs = o.H * (o.gem ? 1.06 * (+o.l.dataset.fs || 1) : (+o.l.dataset.cf || .74)); o.l.style.fontSize = o.fs.toFixed(2) + 'px'; o.l.style.columnGap = (o.fs * (o.gem ? .26 : .22)).toFixed(2) + 'px';
     o.ws.forEach(w => { w.style.transform = ''; w.style.margin = ''; }); });
   ls.forEach(o => { if (!o.ws.length || o.l.classList.contains('ed-l-open')) return; o.cw = o.l.clientWidth; o.W = o.ws.map(w => w.offsetWidth); });
   ls.forEach(o => { if (!o.W) return;
