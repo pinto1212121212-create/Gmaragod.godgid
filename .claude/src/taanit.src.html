@@ -6505,6 +6505,10 @@ function edGeoHTML(ref, amud, rs, ts) {
 // 🧩 מנוע הזרימה: רש״י ותוספות נשפכים לתוך תיבות הדף (מעל הגמרא, בצדדים, מתחת), שורה אחר שורה, בגודל אות שממלא את הצד בדיוק כמו בדף
 function edGeoFlow(v) {
   const ref = v.dataset.ref, G = ED_GEO[ref]; if (!G || !G.flow) return;
+  // הגופנים חייבים להיות טעונים לפני המדידה (בטלפון כתב רש״י נטען אחרי, והשורות נמחצו) — אם עוד לא, טוענים ומסדרים שוב
+  if (document.fonts && !v.dataset.fw) { v.dataset.fw = '1';
+    Promise.all(['16px "Noto Rashi Hebrew"', '16px VilnaGM', '700 16px "Frank Ruhl Libre"'].map(f => document.fonts.load(f, 'אבג').catch(() => {})))
+      .then(() => document.fonts.ready).then(() => { if (document.getElementById('edOverlay').classList.contains('open')) edFit(); }); }
   v.querySelectorAll('.ed-fl').forEach(n => n.remove());
   const k = ED_GW / G.W, px = q => (q * k).toFixed(2) + 'px';
   // מילים מתוך הפירוש: רגילה / דיבור המתחיל (מרובע, מודגש) / מילה גדולה (תחילת דיבור בתוספות)
@@ -6518,7 +6522,7 @@ function edGeoFlow(v) {
     });
     return out; };
   const meas = document.createElement('div'); meas.className = 'ed-geo-meas'; meas.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:100px'; v.appendChild(meas);
-  const width = (tk) => { meas.innerHTML = `<span class="ed-cl ed-fl"><span class="ed-w${tk.dh ? ' ed-dh' : ''}${tk.big ? ' ed-big' : ''}">${tk.w}</span></span>`; return meas.firstChild.firstChild.getBoundingClientRect().width / 100; };
+  const width = (tk) => { meas.innerHTML = `<span class="ed-cl ed-fl"><span class="ed-w${tk.dh ? ' ed-dh' : ''}${tk.big ? ' ed-big' : ''}">${tk.w}</span></span>`; return meas.firstChild.firstChild.offsetWidth / 100; };   // offsetWidth — לא מושפע מהקטנת הדף בטלפון (transform)
   const run = (stream, boxes, isTos) => {
     const T = toks(stream); if (!T.length) return;
     T.forEach(t => t.wd = width(t));
@@ -6581,9 +6585,10 @@ function edGeoFit() {
     const ws = [...l.querySelectorAll('.ed-w')]; ws.forEach(w => { w.style.transform = ''; w.style.margin = ''; });
     if (!ws.length || l.classList.contains('ed-l-open')) return;
     const fs = parseFloat(l.style.fontSize), W = ws.reduce((a, w) => a + w.offsetWidth, 0), gap = fs * (gem ? .26 : .22) * Math.max(0, ws.length - 1);
+    l.style.columnGap = (fs * (gem ? .26 : .22)).toFixed(2) + 'px';   // רווח בין מילים תמיד נשמר — גם כשהשורה מכווצת
     const catchL = l.classList.contains('ed-l-catch') || l.classList.contains('ed-l-endp'), mid = l.classList.contains('ed-l-mid');
     let S = (l.clientWidth - gap) / W;
-    if (catchL || mid) S = Math.min(1, S); else S = Math.max(.6, Math.min(1.16, S));   // מתיחה מתונה — אותיות לא ״מעוותות״, השאר ברווחים כמו בדפוס
+    if (catchL || mid) S = Math.min(1, S); else S = Math.max(gem || !l.classList.contains('ed-fl') ? .6 : .85, Math.min(1.16, S));   // מתיחה מתונה — אותיות לא ״מעוותות״, השאר ברווחים כמו בדפוס
     if (Math.abs(S - 1) < .01) return;
     ws.forEach(w => { const m = w.offsetWidth * (S - 1) / 2; w.style.transform = `scaleX(${S.toFixed(3)})`; w.style.margin = `0 ${m.toFixed(2)}px`; });
   });
