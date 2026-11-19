@@ -1925,6 +1925,7 @@
   .ed-geo .ed-dh.dh-on { background: rgba(var(--c), .38); border-radius: 2px; box-shadow: 0 0 0 1px rgba(var(--c), .38); }
   .ed-dh.dr-q { --c: 232,86,106; } .ed-dh.dr-x { --c: 230,140,60; } .ed-dh.dr-a { --c: 108,195,90; } .ed-dh.dr-c { --c: 242,193,78; } .ed-dh.dr-s, .ed-dh.dr-n { --c: 94,168,224; } .ed-dh.dr-k { --c: 169,141,224; }
   .ed-geo .ed-c.on, .ed-geo .ed-cl.on { background: none !important; box-shadow: none !important; }
+  .ed-geo .ed-catchw { position: absolute; font-family: 'VilnaGM', 'Frank Ruhl Libre', serif; color: #000; line-height: 1; display: flex; align-items: center; }
   .ed-geo .ed-l-endp { justify-content: flex-start; column-gap: .3em; }
   .ed-geo .ed-fl .ed-big { font-size: 1.5em; line-height: 1; align-self: center; margin-top: 0; }
   .ed-geo .ed-l-catch { justify-content: flex-end; column-gap: .25em; }
@@ -6632,6 +6633,10 @@ function edAutoFlow(v, ref, G) {
       const gm = first && /^(מתני|גמ)[׳']:?$/.test(x); first = false;
       wOf('ed-gl', gm ? ' ed-gm' : '', x); GT.push({ w: x, j, gm, wk: 'ed-gl|' + (gm ? ' ed-gm' : '') + '|' + x }); } }
   measAll(); [...RS, ...TS, ...GT].forEach(t => t.wd = WC.get(t.wk) || 0);
+  // ״שומר״: המילה האחרונה של העמוד = המילה הראשונה של העמוד הבא → בפינה, לא בתוך הטקסט (כמו בדפוס)
+  let catchW = null; { const rs = Object.keys(ED_LINES).sort((x, y) => parseInt(x) - parseInt(y) || x.localeCompare(y)), nx = ED_LINES[rs[rs.indexOf(ref) + 1]];
+    if (nx && GT.length) { const nf = [nx.open || '', ...(nx.narrow || [])].join(' ').split(/\s+/).filter(w => w && w !== '‖')[0];
+      if (nf && GT[GT.length - 1].w === nf) catchW = GT.pop(); } }
   meas.remove();
   const isM = ED.list.map(x => mgOf(ref, x.si, x.bi) === 'm');
   // שבירת פירוש לשורות: segs = [{w, h, n}] (n = מקסימום שורות בקטע)
@@ -6650,11 +6655,11 @@ function edAutoFlow(v, ref, G) {
   const sideLines = (T, tos, isR, p) => { const ls = wrapC(T, tos, [{ w: topW(isR)[1] - topW(isR)[0], h: PT, n: 4 }, { w: sideW(isR)[1] - sideW(isR)[0], h: p, n: 1e9 }]);
     return ls.filter(l => l.si === 1).length; };
   // הגמרא לפי סוף הצדדים
-  const layG = (endR, endL) => { const out = []; let i = 0, y = GY, cur = [], cw = 0;
+  const layG = (endR, endL, fsc = 1) => { const out = []; let i = 0, y = GY, cur = [], cw = 0; const GFs = GF * fsc;
     const span = y => { const r = endR > y + P * .5, l = endL > y + P * .5; return r && l ? NAR : r ? [X0, NAR[1]] : l ? [NAR[0], X1] : [X0, X1]; };
     let x = span(y);
-    const g = GF * .26;
-    for (const t of GT) { const w = t.wd * GF;
+    const g = GFs * .26;
+    for (const t of GT) { const w = t.wd * GFs;
       if (cur.length && cw + g + w > x[1] - x[0]) { out.push({ y, x, toks: cur }); y += P; x = span(y); cur = []; cw = 0; }
       cw += (cur.length ? g : 0) + w; cur.push(t); }
     if (cur.length) out.push({ y, x, toks: cur, last: true, short: cw < (x[1] - x[0]) * .88 });
@@ -6671,17 +6676,26 @@ function edAutoFlow(v, ref, G) {
     const score = hole(a.end) * 3 + hole(b.end) * 3 + (Math.abs(a.p - 19.7) + Math.abs(b.p - 19.7)) * .25 + Math.min(over(a.end), over(b.end)) * .3 + Math.abs(a.p - b.p) * .15;
     if (!best || score < best.score) best = { score, a, b, gl, gEnd };
   }
-  const { a, b, gl, gEnd } = best;
+  // השורה האחרונה מלאה כמו בדף: מכווננים את גודל אותיות הגמרא (±5%) כך שהטקסט ממלא את השורה האחרונה
+  { let bb = null; const hole2 = (e, gEnd) => { if (e >= gEnd) return 0; const idx = Math.ceil((e - GY) / P - .5); return Math.abs(GY + Math.max(0, idx) * P - e) / P; };
+    for (let f = .92; f <= 1.0801; f += .005) { const gl2 = layG(best.a.n ? best.a.end : 0, best.b.n ? best.b.end : 0, f), L2 = gl2[gl2.length - 1]; if (!L2) continue;
+      const gEnd2 = L2.y + P, wid = L2.x[1] - L2.x[0], used = L2.toks.reduce((q, t) => q + t.wd * GF * f, 0) + GF * f * .26 * (L2.toks.length - 1);
+      const fill = Math.min(1, used / wid), sc = (1 - fill) * 4 + Math.abs(f - 1) * 2.2 + (hole2(best.a.end, gEnd2) + hole2(best.b.end, gEnd2)) * 3;
+      if (!bb || sc < bb.sc) bb = { sc, f, gl: gl2, gEnd: gEnd2, fill }; }
+    if (bb) { best.gl = bb.gl; best.gEnd = bb.gEnd; best.fsc = bb.f; best.full = bb.fill > .9; } }
+  const { a, b, gl, gEnd } = best; const fsc = best.fsc || 1;
   let html = '';
-  gl.forEach(l => { const m = l.toks.some(t => isM[t.j]), last = l.last && (l.short || l.toks.length < 6);   // שורה אחרונה קצרה — לא נמתחת
-    html += `<div class="ed-l ed-gl${m ? ' ed-ml' : ''}${last ? ' ed-l-endp' : ''}" style="left:${px(l.x[0] - G.X)};top:${px(l.y - G.Y)};width:${px(l.x[1] - l.x[0])};height:${px(P)};--lh:${px(P)}">${l.toks.map(t => `<span class="ed-w ed-b r-${(ED.list[t.j] || {}).role || 'k'}${t.gm ? ' ed-gm' : ''}" data-j="${t.j}">${t.w}</span>`).join('')}</div>`; });
+  gl.forEach(l => { const m = l.toks.some(t => isM[t.j]), last = l.last && !best.full && (l.short || l.toks.length < 6);   // שורה אחרונה קצרה — לא נמתחת
+    html += `<div class="ed-l ed-gl${m ? ' ed-ml' : ''}${last ? ' ed-l-endp' : ''}" data-fs="${fsc.toFixed(3)}" style="left:${px(l.x[0] - G.X)};top:${px(l.y - G.Y)};width:${px(l.x[1] - l.x[0])};height:${px(P)};--lh:${px(P)}">${l.toks.map(t => `<span class="ed-w ed-b r-${(ED.list[t.j] || {}).role || 'k'}${t.gm ? ' ed-gm' : ''}" data-j="${t.j}">${t.w}</span>`).join('')}</div>`; });
+  if (catchW && gl.length) { const L3 = gl[gl.length - 1];
+    html += `<div class="ed-catchw" style="left:${px(L3.x[0] - G.X)};top:${px(L3.y + P - G.Y)};height:${px(P * .9)};font-size:${px(P * .8)}">${catchW.w}</div>`; }
   // הפירוש בפועל: מעל הגמרא, בצד עד גבול השורה, ומה שנשאר — מתחת לגמרא (חצי רוחב)
   let maxY = gEnd;
   const ovR = a.end > gEnd + 2, ovL = b.end > gEnd + 2;
   const put = (T, tos, isR, e) => { const only = isR ? ovR && !ovL : ovL && !ovR; const p = e.p, sideTop = TOPEND, sideEnd = Math.min(e.end, gEnd + .1), nSide = Math.max(0, Math.floor((sideEnd - sideTop) / p + .01));
     const bot = only ? [X0, X1] : isR ? [ (X0 + X1) / 2 + 11, X1 ] : [ X0, (X0 + X1) / 2 - 11 ];
     const ls = wrapC(T, tos, [{ w: topW(isR)[1] - topW(isR)[0], h: PT, n: 4 }, { w: sideW(isR)[1] - sideW(isR)[0], h: p, n: nSide || 1e-9 }, { w: bot[1] - bot[0], h: 19.7, n: 1e9 }]);
-    const ys = [TOPY, sideTop, gEnd + 8], cnt = [0, 0, 0];
+    const ys = [TOPY, sideTop, gEnd + (catchW ? P * .9 : 0) + 8], cnt = [0, 0, 0];
     ls.forEach(l => { const sg = l.si, h = sg === 0 ? PT : sg === 1 ? p : 19.7, x = sg === 0 ? topW(isR) : sg === 1 ? sideW(isR) : bot, y = ys[sg] + cnt[sg] * h; cnt[sg]++;
       maxY = Math.max(maxY, y + h);
       html += `<div class="ed-cl ed-fl ed-c-${tos ? 't' : 'r'}${l.last ? ' ed-l-endp' : ''}" style="left:${px(x[0] - G.X)};top:${px(y - G.Y)};width:${px(x[1] - x[0])};height:${px(h)};--lh:${px(h)}">${l.toks.map(t => `<span class="ed-w${t.dh ? ' ed-dh' : ''}${t.big ? ' ed-big' : ''}" data-cj="${t.j}">${t.w}</span>`).join('')}</div>`; }); };
@@ -6694,7 +6708,7 @@ function edGeoFit() {
   edGeoFlow(v);
   // שלושה מעברים (כתיבה ← קריאה ← כתיבה) — בלי ״לחשב את הדף מחדש״ בכל שורה; פי 10 מהר יותר בטלפון
   const ls = [...v.querySelectorAll('.ed-gl, .ed-cl')].map(l => ({ l, gem: l.classList.contains('ed-gl'), H: parseFloat(l.style.height), ws: [...l.querySelectorAll('.ed-w')] }));
-  ls.forEach(o => { o.fs = o.H * (o.gem ? 1.06 : .74); o.l.style.fontSize = o.fs.toFixed(2) + 'px'; o.l.style.columnGap = (o.fs * (o.gem ? .26 : .22)).toFixed(2) + 'px';
+  ls.forEach(o => { o.fs = o.H * (o.gem ? 1.06 * (+o.l.dataset.fs || 1) : .74); o.l.style.fontSize = o.fs.toFixed(2) + 'px'; o.l.style.columnGap = (o.fs * (o.gem ? .26 : .22)).toFixed(2) + 'px';
     o.ws.forEach(w => { w.style.transform = ''; w.style.margin = ''; }); });
   ls.forEach(o => { if (!o.ws.length || o.l.classList.contains('ed-l-open')) return; o.cw = o.l.clientWidth; o.W = o.ws.map(w => w.offsetWidth); });
   ls.forEach(o => { if (!o.W) return;
