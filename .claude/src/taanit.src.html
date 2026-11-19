@@ -6625,6 +6625,7 @@ function edAutoFlow(v, ref, G) {
       const walk = (n, dh, big) => { if (n.nodeType === 3) { n.textContent.split(/\s+/).filter(Boolean).forEach(w => { w = w.replace(/^[״"“”„']+/, '').replace(/[״"“”]+(?=[.:,;]?$)/, ''); if (w && !/^[—–-]+$/.test(w)) out.push({ w, dh, big, j, item: ci }); }); return; }
         [...n.childNodes].forEach(m => walk(m, dh || n.tagName === 'B', big || n.tagName === 'I')); };
       [...c.childNodes].forEach(n => walk(n, false, false)); });
+    if (id === 'edTsSrc') out.forEach(t => t.big = false);   // תוספות רצוף: בלי מילה גדולה באמצע שורה
     out.forEach(t => { const inner = (t.dh ? ' ed-dh' : '') + (t.big ? ' ed-big' : ''); t.wk = 'ed-cl ed-fl|' + inner + '|' + t.w; wOf('ed-cl ed-fl', inner, t.w); }); return out; };
   const CF = .8;   // גודל אות הפירוש ביחס לגובה השורה — גדול וברור
   const RS = toks('edRsSrc'), TS = toks('edTsSrc');
@@ -6646,7 +6647,7 @@ function edAutoFlow(v, ref, G) {
     const seg = () => segs[si];
     const flush = last => { if (!seg()) return; lines.push({ si, toks: cur, last }); cur = []; cw = 0; cnt++; while (seg() && cnt >= seg().n) { si++; cnt = 0; } };
     for (const t of T) { if (!seg()) break;
-      if (tos && t.item !== prev && cur.length) flush(true); prev = t.item; if (!seg()) break;
+      prev = t.item; if (!seg()) break;   // תוספות רצוף כמו רש״י — בלי שורה חצי ריקה בסוף כל דיבור
       const f = seg().h * CF, w = t.wd * f, g = f * .3;
       if (cur.length && cw + g + w > seg().w) { flush(false); if (!seg()) break; }
       const f2 = seg().h * CF; cw += (cur.length ? f2 * .3 : 0) + t.wd * f2; cur.push(t); }
