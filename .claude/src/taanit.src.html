@@ -1922,6 +1922,9 @@
   .ed-geo .ed-gl .ed-gm { font-size: 1.25em; }
   .ed-geo .ed-l-mid { justify-content: center; column-gap: .25em; }
   body.daf-busy .po-daf-arr { opacity: .45; pointer-events: none; } body.daf-busy #edFix { opacity: .55; transition: opacity .15s; }
+  .ed-geo .ed-dh.dh-on { background: rgba(var(--c), .38); border-radius: 2px; box-shadow: 0 0 0 1px rgba(var(--c), .38); }
+  .ed-dh.dr-q { --c: 232,86,106; } .ed-dh.dr-x { --c: 230,140,60; } .ed-dh.dr-a { --c: 108,195,90; } .ed-dh.dr-c { --c: 242,193,78; } .ed-dh.dr-s, .ed-dh.dr-n { --c: 94,168,224; } .ed-dh.dr-k { --c: 169,141,224; }
+  .ed-geo .ed-c.on, .ed-geo .ed-cl.on { background: none !important; box-shadow: none !important; }
   .ed-geo .ed-l-endp { justify-content: flex-start; column-gap: .3em; }
   .ed-geo .ed-fl .ed-big { font-size: 1.5em; line-height: 1; align-self: center; margin-top: 0; }
   .ed-geo .ed-l-catch { justify-content: flex-end; column-gap: .25em; }
@@ -6770,6 +6773,10 @@ function edFit() {
 function edMarks() {
   const v = document.querySelector('#edOverlay .ed-vil'); if (!v) return;
   v.querySelectorAll('.ed-mk').forEach(m => m.remove());
+  // הדיבור המתחיל של רש״י ותוספות על השלב המסומן — באותו צבע, ורק הוא (לא כל הפירוש)
+  const role = (ED.list[ED.cur] || {}).role || 'k';
+  v.querySelectorAll('.ed-dh.dh-on').forEach(w => w.className = w.className.replace(/\s*(dh-on|dr-\w)/g, ''));
+  v.querySelectorAll(`.ed-fl .ed-dh[data-cj="${ED.cur}"]`).forEach(w => w.classList.add('dh-on', 'dr-' + role));
   const vr = v.getBoundingClientRect(), z = vr.width / (v.offsetWidth || vr.width);   // בזמן צביטה יש scale
   v.querySelectorAll('.ed-l:not(.ed-l-open)').forEach(l => {
     const on = l.querySelectorAll('.ed-b.on'); if (!on.length) return;
