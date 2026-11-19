@@ -1,7 +1,7 @@
 # בונה את ״וילנא שלנו — גמרא״ (fonts/gm.ttf) מהדוגמאות שנחתכו מש״ס וילנא הישן (ראם, תרמ״א) — ראו .claude/vilna-src
 import sys, pickle, numpy as np
 sys.path.insert(0, __file__.rsplit('/', 1)[0])
-from glyphs import average, to_font
+from glyphs import average, to_font, stem, thr_for
 from ttf import build
 
 samples = pickle.load(open(sys.argv[1], 'rb')); out = sys.argv[2]
@@ -9,11 +9,25 @@ XH = float(np.median([s['xh'] for v in samples.values() for s in v]))
 u = 560 / XH                    # גובה האות הרגילה (מ, ב, ר) = 560 יחידות
 GAP = 1.6 * u                    # רווח בין אותיות (חצי מכל צד)
 glyphs = [('.notdef', [], 500, []), ('space', [0x20, 0xA0], int(0.32 * XH * u), [])]
+AV = {ch: average(samples[ch]) for ch in samples}
+# משקל אחיד: עובי הקו האנכי של כל אות קרוב לחציון של האותיות עם קו אנכי ברור
+STEMS = [stem(AV[c][0]) for c in 'דהוזחכנןרתגק' if c in AV]
+TGT = float(np.median(STEMS))
+# גבהים אחידים: ראש האות בגובה אחד, בסיס על קו אחד, ירידות ועליות באורך אחד
+DESC_L = 'ךןףץק'; ASC = float(np.median([s['top'] for s in samples.get('ל', [])])) if 'ל' in samples else XH * 1.4
+DSC = float(np.median([AV[c][4] for c in 'ןךף' if c in AV]))
+def snap(ch, top, bot):
+    if ch == 'ל': top = ASC
+    elif abs(top - XH) < XH * .15: top = XH
+    if ch in DESC_L: bot = DSC if ch != 'ק' else DSC * .9
+    elif abs(bot) < XH * .15: bot = 0.0
+    return top, bot
 for ch in sorted(samples):
-    ss = samples[ch]
-    if ch == '׳': ss = [s for s in ss]
-    m, W, H, top, bot = average(ss)
-    cont = to_font(m, W, H, top, bot, u, GAP)
+    m, W, H, top, bot = AV[ch]
+    top, bot = snap(ch, top, bot)
+    t = thr_for(m, TGT) if ch not in '׳י' else 0.5
+    t = min(.6, max(.4, t))
+    cont = to_font(m, W, H, top, bot, u, GAP, thr=t)
     adv = int(round(W * u + 2 * GAP))
     glyphs.append(('u%04X' % ord(ch), [ord(ch)] + ([0x27] if ch == '׳' else []), adv, cont))
     if ch == '׳':   # ״ = שני גרשים
@@ -22,7 +36,7 @@ for ch in sorted(samples):
 # ץ לא הופיעה בצילום: ן (הרגל הארוכה) + ראש של י בצד ימין למעלה — שתיהן מאותו דפוס
 if 'ץ' not in samples and 'ן' in samples and 'י' in samples:
     Sx = 8
-    mn, Wn, Hn, tn, bn = average(samples['ן']); my, Wy, Hy, ty, by = average(samples['י'])
+    mn, Wn, Hn, tn, bn = AV['ן']; my, Wy, Hy, ty, by = AV['י']; tn, bn = snap('ן', tn, bn)
     scale = (Hn * Sx) / (tn - bn) / Sx          # שורות לפיקסל
     off = int(Wy * Sx * .55)                    # כמה הי בולטת ימינה מעבר לן
     W2 = mn.shape[1] + off; m = np.zeros((mn.shape[0], W2)); m[:, :mn.shape[1]] = mn

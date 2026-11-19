@@ -70,28 +70,70 @@ def rdp(pts, eps):
     if dist[i] > eps: return rdp(pts[:i + 1], eps)[:-1] + rdp(pts[i:], eps)
     return [pts[0], pts[-1]]
 
-def smooth_loop(loop, eps=0.9, it=2):
-    n = len(loop); i0 = 0
-    pts = loop[i0:] + loop[:i0 + 1]
+def _ang(a, b, c):
+    v1 = (a[0] - b[0], a[1] - b[1]); v2 = (c[0] - b[0], c[1] - b[1])
+    n1 = np.hypot(*v1); n2 = np.hypot(*v2)
+    if n1 == 0 or n2 == 0: return 180.0
+    return float(np.degrees(np.arccos(max(-1, min(1, (v1[0] * v2[0] + v1[1] * v2[1]) / (n1 * n2))))))
+
+def smooth_loop(loop, eps=1.8, it=3, S=8, corner=135, snap=10):
+    """שיפור כמו במהדורות החדשות: פינות חדות נשארות חדות, קווים כמעט ישרים/אנכיים/אופקיים — ישרים לגמרי, והשאר מוחלק"""
+    pts = loop + [loop[0]]
     k = len(pts) // 2
-    p = rdp(pts[:k + 1], eps)[:-1] + rdp(pts[k:], eps)[:-1]
+    p = rdp(pts[:k + 1], eps * S / 8 * 1.4)[:-1] + rdp(pts[k:], eps * S / 8 * 1.4)[:-1]
     p = [tuple(map(float, q)) for q in p]
-    for _ in range(it):   # Chaikin
-        q = []
-        for i in range(len(p)):
-            a, b = p[i], p[(i + 1) % len(p)]
-            q += [(.75 * a[0] + .25 * b[0], .75 * a[1] + .25 * b[1]), (.25 * a[0] + .75 * b[0], .25 * a[1] + .75 * b[1])]
-        p = q
+    n = len(p)
+    if n < 4: return p
+    isc = [_ang(p[i - 1], p[i], p[(i + 1) % n]) < corner for i in range(n)]
+    # יישור: קטע ארוך שכמעט אנכי/אופקי — אנכי/אופקי בדיוק
+    for i in range(n):
+        a, b2 = p[i], p[(i + 1) % n]; dx, dy = b2[0] - a[0], b2[1] - a[1]; L = np.hypot(dx, dy)
+        if L < S * 1.2: continue
+        an = np.degrees(np.arctan2(abs(dy), abs(dx)))
+        if an > 90 - snap:
+            mx = (a[0] + b2[0]) / 2; p[i] = (mx, a[1]); p[(i + 1) % n] = (mx, b2[1])
+        elif an < snap:
+            my = (a[1] + b2[1]) / 2; p[i] = (a[0], my); p[(i + 1) % n] = (b2[0], my)
+    for _ in range(it):   # Chaikin רק על נקודות שאינן פינה
+        q, qc = [], []
+        n = len(p)
+        for i in range(n):
+            v = p[i]
+            if isc[i]: q.append(v); qc.append(True); continue
+            a0, a1 = p[i - 1], p[(i + 1) % n]
+            q += [(.75 * v[0] + .25 * a0[0], .75 * v[1] + .25 * a0[1]), (.75 * v[0] + .25 * a1[0], .75 * v[1] + .25 * a1[1])]; qc += [False, False]
+        p, isc = q, qc
     return p
 
 def area(c): return 0.5 * sum(c[i][0] * c[(i + 1) % len(c)][1] - c[(i + 1) % len(c)][0] * c[i][1] for i in range(len(c)))
+
+def stem(m, S=8, thr=0.5):
+    b, pad = shape(m, S, thr=thr); h = b.shape[0]
+    runs = []
+    for y in range(int(h * .35), int(h * .65), 2):
+        r = b[y]; x = 0
+        while x < len(r):
+            if r[x]:
+                x0 = x
+                while x < len(r) and r[x]: x += 1
+                runs.append(x - x0)
+            x += 1
+    return float(np.median(runs)) if runs else 0.0
+
+def thr_for(m, target, S=8):
+    lo, hi = .32, .68
+    for _ in range(8):
+        t = (lo + hi) / 2; w = stem(m, S, t)
+        if w > target: lo = t
+        else: hi = t
+    return (lo + hi) / 2
 
 def to_font(m, W, H, top, bot, u, lsb, S=8, **kw):
     b, pad = shape(m, S, **kw)
     loops = trace(b)
     out = []
     for lp in loops:
-        p = smooth_loop(lp)
+        p = smooth_loop(lp, S=S)
         c = []
         for x, y in p:
             fx = lsb + (x - pad) / S * u
