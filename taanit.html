@@ -3912,20 +3912,30 @@ function edAutoFlow(v, ref, G) {
   // הפירוש בפועל: מעל הגמרא, בצד עד גבול השורה, ומה שנשאר — מתחת לגמרא (חצי רוחב)
   let maxY = gEnd;
   const ovR = a.end > gEnd + 2, ovL = b.end > gEnd + 2;
-  const put = (T, tos, isR, e) => { const only = isR ? ovR && !ovL : ovL && !ovR; const p = e.p, sideTop = TOPEND, ov = isR ? ovR : ovL;
+  // מתחת לגמרא: שני הצדדים בחצי רוחב עד שהקצר נגמר, ואז הארוך ממשיך על כל הרוחב — בלי חור לבן בצד אחד
+  const BH = 19.7, botY = gEnd + (catchW ? P * .58 : 0) + 3;
+  const put = (T, tos, isR, e, halfN, dry) => { const p = e.p, sideTop = TOPEND, ov = isR ? ovR : ovL;
     const sideEnd = Math.min(e.end, gEnd + .1), nSide = Math.max(0, Math.floor((sideEnd - sideTop) / p + .01));
-    const bot = only ? [X0, X1] : isR ? [ (X0 + X1) / 2 + 11, X1 ] : [ X0, (X0 + X1) / 2 - 11 ];
-    const ls = wrapC(T, tos, [{ w: topW(isR)[1] - topW(isR)[0], h: PT, n: 4 }, { w: sideW(isR)[1] - sideW(isR)[0], h: p, n: nSide || 1e-9 }, { w: bot[1] - bot[0], h: 19.7, n: 1e9 }]);
-    // צמוד כמו בדפוס: הצד נגמר בדיוק בשורה שבה הגמרא מתרחבת (או בסוף הגמרא) — מותחים מעט את הרווח בין השורות
-    const ns = ls.filter(l => l.si === 1).length;
+    const half = isR ? [ (X0 + X1) / 2 + 11, X1 ] : [ X0, (X0 + X1) / 2 - 11 ];
+    const segs = [{ k: 0, x: topW(isR), w: topW(isR)[1] - topW(isR)[0], h: PT, n: 4 }, { k: 1, x: sideW(isR), w: sideW(isR)[1] - sideW(isR)[0], h: p, n: nSide },
+                  { k: 2, x: half, w: half[1] - half[0], h: BH, n: halfN }, { k: 3, x: [X0, X1], w: X1 - X0, h: BH, n: 1e9 }].filter(g => g.n > 0);
+    const ls = wrapC(T, tos, segs).map(l => Object.assign(l, { g: segs[l.si] }));
+    const nb = ls.filter(l => l.g.k >= 2).length;
+    if (dry) return nb;
+    const ns = ls.filter(l => l.g.k === 1).length;
     let target = ov ? gEnd : (() => { const idx = Math.ceil((e.end - GY) / P - .5); return GY + Math.max(0, idx) * P; })();
+    if (e.end > gEnd - P * 1.6) target = gEnd;   // נגמר שורה לפני סוף הגמרא — נמתח עד הסוף (בלי חור לידה)
     target = Math.min(target, gEnd);
     let p2 = ns ? (target - sideTop) / ns : p; if (!(p2 > p * .88 && p2 < p * 1.2)) p2 = p;
-    const ys = [TOPY, sideTop, gEnd + (catchW ? P * .58 : 0) + 3], cnt = [0, 0, 0];
-    ls.forEach(l => { const sg = l.si, h = sg === 0 ? PT : sg === 1 ? p2 : 19.7, fh = sg === 0 ? PT : sg === 1 ? p : 19.7, x = sg === 0 ? topW(isR) : sg === 1 ? sideW(isR) : bot, y = ys[sg] + cnt[sg] * h; cnt[sg]++;
+    const cnt = [0, 0, 0, 0];
+    ls.forEach(l => { const k = l.g.k, h = k === 0 ? PT : k === 1 ? p2 : BH, fh = k === 1 ? p : h, x = l.g.x;
+      const y = k === 0 ? TOPY + cnt[0] * h : k === 1 ? sideTop + cnt[1] * h : k === 2 ? botY + cnt[2] * h : botY + (halfN || 0) * BH + cnt[3] * h; cnt[k]++;
       maxY = Math.max(maxY, y + h);
-      html += `<div class="ed-cl ed-fl ed-c-${tos ? 't' : 'r'}${l.last ? ' ed-l-endp' : ''}" data-cf="${(CF * fh / h).toFixed(4)}" style="left:${px(x[0] - G.X)};top:${px(y - G.Y)};width:${px(x[1] - x[0])};height:${px(h)};--lh:${px(h)}">${l.toks.map(t => `<span class="ed-w${t.dh ? ' ed-dh' : ''}${t.big ? ' ed-big' : ''}" data-cj="${t.j}">${t.w}</span>`).join('')}</div>`; }); };
-  put(rightT, rightTos, true, a); put(leftT, leftTos, false, b);
+      html += `<div class="ed-cl ed-fl ed-c-${tos ? 't' : 'r'}${l.last ? ' ed-l-endp' : ''}" data-cf="${(CF * fh / h).toFixed(4)}" style="left:${px(x[0] - G.X)};top:${px(y - G.Y)};width:${px(x[1] - x[0])};height:${px(h)};--lh:${px(h)}">${l.toks.map(t => `<span class="ed-w${t.dh ? ' ed-dh' : ''}${t.big ? ' ed-big' : ''}" data-cj="${t.j}">${t.w}</span>`).join('')}</div>`; });
+    return nb; };
+  const nR = put(rightT, rightTos, true, a, 1e9, true), nL = put(leftT, leftTos, false, b, 1e9, true);
+  const hN = Math.min(nR, nL);   // הצד הקצר — כולו בחצי; הארוך — חצי עד שם, ואז כל הרוחב
+  put(rightT, rightTos, true, a, nR <= nL ? 1e9 : hN); put(leftT, leftTos, false, b, nL < nR ? 1e9 : hN);
   v.insertAdjacentHTML('beforeend', html);
   v.style.height = px(maxY - G.Y + 10);
 }
