@@ -13,7 +13,7 @@
 <title>תענית — אנימציה לכל המסכת</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@400;500;700;900&family=Noto+Rashi+Hebrew:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Noto+Rashi+Hebrew:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="theme.css">
 <script src="prefs.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -1927,6 +1927,15 @@
   .ed-geo .ed-b.on { background: none !important; box-shadow: none !important; }
   .ed-geo .ed-gbox .ed-open.ed-b.on { background: rgba(var(--c), .16) !important; }
   .ed-geo .ed-l.ed-ml::before { top: 0; bottom: 0; right: -9px; }
+  /* כמו דף גמרא, לא כמו עיתון: כותרת מודגשת בלי קווים, מסגרת מעוטרת (עיצוב שלנו) למילה הפותחת, מתיחה מתונה */
+  .ed-head { justify-content: center; gap: 1.6em; font-family: 'Frank Ruhl Libre', serif; font-weight: 900; font-size: 15.5em; letter-spacing: 0; color: #111; padding: 0 0 6px; margin-bottom: 8px; }
+  .ed-head::after { display: none; }
+  .ed-head b { position: absolute; left: 0; top: -.15em; font-size: 1.6em; }
+  .ed-vil.ed-amud-b ~ * .ed-head b, .ed-page .ed-head b:first-child { left: auto; right: 0; }
+  .ed-foot { border-top: 0 !important; color: #b5b5b5 !important; }
+  .ed-geo .ed-gbox .ed-open { border: 30px solid transparent; border-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2296%22%20height%3D%2296%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%231a1a1a%22%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%2293%22%20height%3D%2293%22%20stroke-width%3D%222%22/%3E%3Crect%20x%3D%2228.5%22%20y%3D%2228.5%22%20width%3D%2239%22%20height%3D%2239%22%20stroke-width%3D%221.2%22/%3E%3C/g%3E%3Cg%20fill%3D%22%231a1a1a%22%3E%3Cpath%20d%3D%22M48%209l6%206-6%206-6-6zM48%2075l6%206-6%206-6-6zM9%2048l6-6%206%206-6%206zM75%2048l6-6%206%206-6%206z%22/%3E%3Cpath%20d%3D%22M48%2012l3%203-3%203-3-3z%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M48%2078l3%203-3%203-3-3zM12%2048l3-3%203%203-3%203zM78%2048l3-3%203%203-3%203z%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2215%22%20r%3D%226%22/%3E%3Ccircle%20cx%3D%2281%22%20cy%3D%2215%22%20r%3D%226%22/%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2281%22%20r%3D%226%22/%3E%3Ccircle%20cx%3D%2281%22%20cy%3D%2281%22%20r%3D%226%22/%3E%3C/g%3E%3Cg%20fill%3D%22%23fff%22%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2215%22%20r%3D%222.4%22/%3E%3Ccircle%20cx%3D%2281%22%20cy%3D%2215%22%20r%3D%222.4%22/%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2281%22%20r%3D%222.4%22/%3E%3Ccircle%20cx%3D%2281%22%20cy%3D%2281%22%20r%3D%222.4%22/%3E%3C/g%3E%3Cg%20stroke%3D%22%231a1a1a%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M24%2015h12M60%2015h12M24%2081h12M60%2081h12M15%2024v12M15%2060v12M81%2024v12M81%2060v12%22/%3E%3C/g%3E%3C/svg%3E") 32 round; outline: 0; padding: 4px 14px 10px; font-size: 44px; background: #fff; }
+  .ed-geo .ed-gbox .ed-open.ed-b.on { background: #fff !important; }
+  .ed-geo .ed-gl { font-weight: 900; }
   /* המילה הפותחת: מסגרת כפולה דקה בלבד, בלי צבע מלא; כשהשלב נבחר — גוון עדין בלבד */
   .ed-open { border: 1.6px solid #1a1a1a; outline: .6px solid #1a1a1a; outline-offset: 3px; border-radius: 1px; padding: 4px 20px 6px; background: #fff; letter-spacing: .02em; }
   .ed-vil .ed-open.ed-b.on { background: rgba(var(--c), .16) !important; box-shadow: none !important; }
@@ -6484,7 +6493,7 @@ function edGeoFit() {
     const fs = parseFloat(l.style.fontSize), W = ws.reduce((a, w) => a + w.offsetWidth, 0), gap = fs * (gem ? .26 : .22) * Math.max(0, ws.length - 1);
     const catchL = l.classList.contains('ed-l-catch'), mid = l.classList.contains('ed-l-mid');
     let S = (l.clientWidth - gap) / W;
-    if (catchL || mid) S = Math.min(1, S); else S = Math.max(.5, Math.min(gem ? 1.4 : 1.5, S));
+    if (catchL || mid) S = Math.min(1, S); else S = Math.max(.6, Math.min(1.16, S));   // מתיחה מתונה — אותיות לא ״מעוותות״, השאר ברווחים כמו בדפוס
     if (Math.abs(S - 1) < .01) return;
     ws.forEach(w => { const m = w.offsetWidth * (S - 1) / 2; w.style.transform = `scaleX(${S.toFixed(3)})`; w.style.margin = `0 ${m.toFixed(2)}px`; });
   });
