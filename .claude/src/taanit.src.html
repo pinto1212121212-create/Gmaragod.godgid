@@ -1939,6 +1939,10 @@
   @font-face { font-family: 'VilnaGM'; src: url('fonts/gm.ttf') format('truetype'); font-display: block; }
   .ed-geo .ed-gl, .ed-vil .ed-gem { font-family: 'VilnaGM', 'Frank Ruhl Libre', serif; font-weight: 400; font-synthesis: none; color: #000; }
   .ed-geo .ed-gl .ed-gm, .ed-vil .ed-w.ed-gm { font-weight: 400; }
+  /* כל האותיות המרובעות בדף בגופן שלנו: כותרת, מילה פותחת, דיבור המתחיל ברש״י ובתוספות, מילים גדולות */
+  .ed-page .ed-head, .ed-page .ed-head b, .ed-open, .ed-geo .ed-cl .ed-dh, .ed-geo .ed-big, .ed-c b { font-family: 'VilnaGM', 'Frank Ruhl Libre', serif !important; font-weight: 400 !important; font-synthesis: none; color: #000; }
+  .ed-geo .ed-cl .ed-dh { font-size: 1.1em; }
+  .ed-geo .ed-cl .ed-big { font-size: 2.05em; line-height: .8; align-self: flex-start; margin-top: -.06em; }
   /* המילה הפותחת: מסגרת כפולה דקה בלבד, בלי צבע מלא; כשהשלב נבחר — גוון עדין בלבד */
   .ed-open { border: 1.6px solid #1a1a1a; outline: .6px solid #1a1a1a; outline-offset: 3px; border-radius: 1px; padding: 4px 20px 6px; background: #fff; letter-spacing: .02em; }
   .ed-vil .ed-open.ed-b.on { background: rgba(var(--c), .16) !important; box-shadow: none !important; }
