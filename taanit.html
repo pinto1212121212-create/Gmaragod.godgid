@@ -3610,6 +3610,23 @@ const ED_GEO = {
   ] },
 };
 
+// 🧩 צורת דף אוטומטית לכל דף שיש לו ED_LINES ואין לו ED_GEO ידני: לפי ע״א/ע״ב, מספר השורות הצרות/הרחבות/המלאות,
+// ולאיזה צד הגמרא מתרחבת (side). רש״י בטור הפנימי (ע״א מימין, ע״ב משמאל), תוספות בחיצוני — כמו בוילנא
+function edAutoGeo(ref) {
+  const L = ED_LINES[ref]; if (!L) return null;
+  const amudA = ref.endsWith('a'), P = 22.25, Y0 = 155;
+  const RIGHT = [595, 803], LEFT = [12, 220], TOPR = [419, 803], TOPL = [12, 396];
+  const rsRight = amudA, nN = (L.narrow || []).length, nW = (L.wide || []).length, nF = (L.full || []).length;
+  const yW = Y0 + nN * P, yF = yW + nW * P, yEnd = yF + nF * P;
+  const widenRight = (L.side === 'tos') ? !rsRight : rsRight;      // הגמרא מתרחבת לצד של מי שנגמר קודם
+  const B = [{ c: 'g', x: [248, 568], y: Y0, p: P, from: 'narrow' }];
+  if (nW) B.push({ c: 'g', x: widenRight ? [248, 803] : [12, 568], y: yW, p: P, from: 'wide' });
+  if (nF) B.push({ c: 'g', x: [12, 803], y: yF, p: P, from: 'full' });
+  const sideUntil = isRight => !nW ? yF : (isRight === widenRight ? yW : yF);
+  const col = isRight => [{ x: isRight ? TOPR : TOPL, top: true }, { x: isRight ? RIGHT : LEFT, until: sideUntil(isRight) }, { x: isRight ? TOPR : TOPL, after: yEnd + 4 }];
+  return { W: 791, X: 12, Y: 64, H: yEnd + 320 - 64, flow: true, auto: true, B, R: col(rsRight), T: col(!rsRight) };
+}
+for (const r in ED_LINES) if (!ED_GEO[r]) ED_GEO[r] = edAutoGeo(r);
 let edPref = true; try { edPref = localStorage.getItem('gemara:ed') !== '0'; } catch (e) {}
 const ED = { ref: null, list: [], cur: 0, k: 1 };
 // גודל הדף: בטלפון נפתח מוגדל (האותיות קריאות), והדף עוקב אחרי השלב; הגודל שבוחרים בצביטה/🔍 נזכר
