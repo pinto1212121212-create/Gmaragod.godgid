@@ -6797,6 +6797,8 @@ function edFit() {
 function edMarks() {
   const v = document.querySelector('#edOverlay .ed-vil'); if (!v) return;
   v.querySelectorAll('.ed-mk').forEach(m => m.remove());
+  // אחרי סידור מחדש (טעינת גופנים) השורות נבנות מחדש בלי הסימון — מחזירים אותו לשלב הנוכחי
+  if (ED.cur != null) v.querySelectorAll('.ed-b[data-j]').forEach(el => el.classList.toggle('on', +el.dataset.j === ED.cur));
   // הדיבור המתחיל של רש״י ותוספות על השלב המסומן — באותו צבע, ורק הוא (לא כל הפירוש)
   const role = (ED.list[ED.cur] || {}).role || 'k';
   v.querySelectorAll('.ed-dh.dh-on').forEach(w => w.className = w.className.replace(/\s*(dh-on|dr-\w)/g, ''));
