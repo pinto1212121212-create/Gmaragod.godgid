@@ -5,11 +5,25 @@ from glyphs import average, to_font, stem, thr_for
 from ttf import build
 
 samples = pickle.load(open(sys.argv[1], 'rb')); out = sys.argv[2]
+import glyphs as _G, os
+ST = os.environ.get('GM_STYLE', 'light')     # ברירת מחדל: ״מודרני קל״ (נבחר ע״י המשתמש)      # classic / modern / open
+import json
+PRESET = {'light': {'ero': 2, 'ex': 1, 'wx': 1.1, 'gap': 2.2}, 'classic': {}, 'modern': {'ex': 5, 'dy': 3, 'wx': 1.05}, 'open': {'ex': 6, 'dy': 4, 'wx': 1.12, 'gap': 2.3}}
+P = dict(PRESET.get(ST, {})); P.update(json.loads(os.environ.get('GM_PARAMS', '{}')))
+_G.STYLE.update(P)
+WX = P.get('wx', 1.0)
 XH = float(np.median([s['xh'] for v in samples.values() for s in v]))
 u = 560 / XH                    # גובה האות הרגילה (מ, ב, ר) = 560 יחידות
-GAP = 1.6 * u                    # רווח בין אותיות (חצי מכל צד)
+GAP = P.get('gap', 1.6) * u                    # רווח בין אותיות (חצי מכל צד)
 glyphs = [('.notdef', [], 500, []), ('space', [0x20, 0xA0], int(0.32 * XH * u), [])]
-AV = {ch: average(samples[ch]) for ch in samples}
+_cache = sys.argv[1] + '.av'
+if os.path.exists(_cache) and os.path.getmtime(_cache) > os.path.getmtime(sys.argv[1]): AV = pickle.load(open(_cache, 'rb'))
+else: AV = {ch: average(samples[ch]) for ch in samples}; pickle.dump(AV, open(_cache, 'wb'))
+if WX != 1.0:   # אותיות רחבות יותר
+    from PIL import Image as _I
+    for ch, (m, W, H, top, bot) in list(AV.items()):
+        m2 = np.array(_I.fromarray(m.clip(0, 255).astype('uint8')).resize((int(round(m.shape[1] * WX)), m.shape[0]), _I.BICUBIC)).astype(float)
+        AV[ch] = (m2, W * WX, H, top, bot)
 # משקל אחיד: עובי הקו האנכי של כל אות קרוב לחציון של האותיות עם קו אנכי ברור
 STEMS = [stem(AV[c][0]) for c in 'דהוזחכנןרתגק' if c in AV]
 TGT = float(np.median(STEMS))
