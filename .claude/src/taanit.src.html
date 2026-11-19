@@ -6396,18 +6396,8 @@ const ED_GEO = {
 // 🧩 צורת דף אוטומטית לכל דף שיש לו ED_LINES ואין לו ED_GEO ידני: לפי ע״א/ע״ב, מספר השורות הצרות/הרחבות/המלאות,
 // ולאיזה צד הגמרא מתרחבת (side). רש״י בטור הפנימי (ע״א מימין, ע״ב משמאל), תוספות בחיצוני — כמו בוילנא
 function edAutoGeo(ref) {
-  const L = ED_LINES[ref]; if (!L) return null;
-  const amudA = ref.endsWith('a'), P = 22.25, Y0 = 155;
-  const RIGHT = [595, 803], LEFT = [12, 220], TOPR = [419, 803], TOPL = [12, 396];
-  const rsRight = amudA, nN = (L.narrow || []).length, nW = (L.wide || []).length, nF = (L.full || []).length;
-  const yW = Y0 + nN * P, yF = yW + nW * P, yEnd = yF + nF * P;
-  const widenRight = (L.side === 'tos') ? !rsRight : rsRight;      // הגמרא מתרחבת לצד של מי שנגמר קודם
-  const B = [{ c: 'g', x: [248, 568], y: Y0, p: P, from: 'narrow' }];
-  if (nW) B.push({ c: 'g', x: widenRight ? [248, 803] : [12, 568], y: yW, p: P, from: 'wide' });
-  if (nF) B.push({ c: 'g', x: [12, 803], y: yF, p: P, from: 'full' });
-  const sideUntil = isRight => !nW ? yF : (isRight === widenRight ? yW : yF);
-  const col = isRight => [{ x: isRight ? TOPR : TOPL, top: true }, { x: isRight ? RIGHT : LEFT, until: sideUntil(isRight) }, { x: isRight ? TOPR : TOPL, after: yEnd + 4 }];
-  return { W: 791, X: 12, Y: 64, H: yEnd + 320 - 64, flow: true, auto: true, B, R: col(rsRight), T: col(!rsRight) };
+  if (!ED_LINES[ref]) return null;
+  return { W: 791, X: 12, Y: 64, H: 1300, flow: true, auto: true, B: [] };   // הצורה נקבעת לפי הפירוש — edAutoFlow
 }
 for (const r in ED_LINES) if (!ED_GEO[r]) ED_GEO[r] = edAutoGeo(r);
 let edPref = true; try { edPref = localStorage.getItem('gemara:ed') !== '0'; } catch (e) {}
@@ -6522,6 +6512,7 @@ function edGeoHTML(ref, amud, rs, ts) {
 // 🧩 מנוע הזרימה: רש״י ותוספות נשפכים לתוך תיבות הדף (מעל הגמרא, בצדדים, מתחת), שורה אחר שורה, בגודל אות שממלא את הצד בדיוק כמו בדף
 function edGeoFlow(v) {
   const ref = v.dataset.ref, G = ED_GEO[ref]; if (!G || !G.flow) return;
+  if (G.auto) { edFontsThenFit(v); return edAutoFlow(v, ref, G); }
   // הגופנים חייבים להיות טעונים לפני המדידה (בטלפון כתב רש״י נטען אחרי, והשורות נמחצו) — אם עוד לא, טוענים ומסדרים שוב
   if (document.fonts && !v.dataset.fw) { v.dataset.fw = '1';
     Promise.all(['16px "Noto Rashi Hebrew"', '16px VilnaGM', '700 16px "Frank Ruhl Libre"'].map(f => document.fonts.load(f, 'אבג').catch(() => {})))
@@ -6595,6 +6586,93 @@ function edGeoFlow(v) {
   meas.remove();
   const gEnd = Math.max(...[...v.querySelectorAll('.ed-gl')].map(l => parseFloat(l.style.top) / k + G.Y + parseFloat(l.style.height) / k));
   v.style.height = px(Math.max(e1 || 0, e2 || 0, gEnd) - G.Y + 8);
+}
+// הגופנים חייבים להיות טעונים לפני המדידה — אם עוד לא, טוענים ומסדרים שוב
+function edFontsThenFit(v) {
+  if (!document.fonts || v.dataset.fw) return; v.dataset.fw = '1';
+  Promise.all(['16px "Noto Rashi Hebrew"', '16px VilnaGM', '700 16px "Frank Ruhl Libre"'].map(f => document.fonts.load(f, 'אבג').catch(() => {})))
+    .then(() => document.fonts.ready).then(() => { if (document.getElementById('edOverlay').classList.contains('open')) edFit(); });
+}
+// 🧩 עטיפה כמו בדפוס: הפירוש קובע את צורת הדף. הגמרא צרה כל עוד יש רש״י ותוספות משני הצדדים; כשאחד נגמר — מתרחבת לצדו;
+// כששניהם נגמרו — על כל הרוחב. אם הגמרא נגמרת קודם — הפירוש ממשיך מתחתיה בשני חצאים. גובה שורת הפירוש בכל צד נבחר כך
+// שהצד נגמר בדיוק בגבול של שורת גמרא (בלי חורים)
+function edAutoFlow(v, ref, G) {
+  v.querySelectorAll('.ed-fl, .ed-gl').forEach(n => n.remove());
+  const L = ED_LINES[ref], k = ED_GW / G.W, px = q => (q * k).toFixed(2) + 'px', amudA = ref.endsWith('a');
+  const X0 = 12, X1 = 803, NAR = [248, 568], SIDE_R = [595, 803], SIDE_L = [12, 220], TOP_R = [419, 803], TOP_L = [12, 396];
+  const PT = 19.75, TOPY = G.Y + 6, TOPEND = TOPY + 4 * PT, GY = TOPEND + 6, P = 22.25, GF = P * 1.06;
+  const meas = document.createElement('div'); meas.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;left:0;top:0'; v.appendChild(meas);
+  const wOf = (cls, inner, w) => { meas.innerHTML = `<div class="${cls}" style="font-size:100px;display:inline-flex"><span class="ed-w${inner}">${w}</span></div>`; return meas.firstChild.firstChild.offsetWidth / 100; };
+  // פירוש → מילים
+  const toks = id => { const t = document.getElementById(id); if (!t) return []; const out = [];
+    [...t.content.querySelectorAll('.ed-c')].forEach((c, ci) => { const j = c.dataset.j;
+      const walk = (n, dh, big) => { if (n.nodeType === 3) { n.textContent.split(/\s+/).filter(Boolean).forEach(w => { w = w.replace(/^[״"“”„']+/, '').replace(/[״"“”]+(?=[.:,;]?$)/, ''); if (w && !/^[—–-]+$/.test(w)) out.push({ w, dh, big, j, item: ci }); }); return; }
+        [...n.childNodes].forEach(m => walk(m, dh || n.tagName === 'B', big || n.tagName === 'I')); };
+      [...c.childNodes].forEach(n => walk(n, false, false)); });
+    out.forEach(t => t.wd = wOf('ed-cl ed-fl', (t.dh ? ' ed-dh' : '') + (t.big ? ' ed-big' : ''), t.w)); return out; };
+  const RS = toks('edRsSrc'), TS = toks('edTsSrc');
+  // גמרא → מילים (‖ = גבול שלב)
+  const GT = []; { let j = 0, first = true;
+    for (const t of [...(L.narrow || []), ...(L.wide || []), ...(L.full || [])]) for (const x of t.split(/\s+/).filter(Boolean)) {
+      if (x === '‖') { j++; first = true; continue; }
+      const gm = first && /^(מתני|גמ)[׳']:?$/.test(x); first = false;
+      GT.push({ w: x, j, gm, wd: wOf('ed-gl', gm ? ' ed-gm' : '', x) }); } }
+  meas.remove();
+  const isM = ED.list.map(x => mgOf(ref, x.si, x.bi) === 'm');
+  // שבירת פירוש לשורות: segs = [{w, h, n}] (n = מקסימום שורות בקטע)
+  const wrapC = (T, tos, segs) => { const lines = []; let si = 0, cnt = 0, cur = [], cw = 0, prev = T.length ? T[0].item : 0;
+    const seg = () => segs[si];
+    const flush = last => { if (!seg()) return; lines.push({ si, toks: cur, last }); cur = []; cw = 0; cnt++; while (seg() && cnt >= seg().n) { si++; cnt = 0; } };
+    for (const t of T) { if (!seg()) break;
+      if (tos && t.item !== prev && cur.length) flush(true); prev = t.item; if (!seg()) break;
+      const f = seg().h * .74, w = t.wd * f, g = f * .3;
+      if (cur.length && cw + g + w > seg().w) { flush(false); if (!seg()) break; }
+      const f2 = seg().h * .74; cw += (cur.length ? f2 * .3 : 0) + t.wd * f2; cur.push(t); }
+    if (cur.length && seg()) lines.push({ si, toks: cur, last: true });
+    return lines; };
+  const rsRight = amudA;   // רש״י בטור הפנימי
+  const sideW = isR => (isR ? SIDE_R : SIDE_L), topW = isR => (isR ? TOP_R : TOP_L);
+  const sideLines = (T, tos, isR, p) => { const ls = wrapC(T, tos, [{ w: topW(isR)[1] - topW(isR)[0], h: PT, n: 4 }, { w: sideW(isR)[1] - sideW(isR)[0], h: p, n: 1e9 }]);
+    return ls.filter(l => l.si === 1).length; };
+  // הגמרא לפי סוף הצדדים
+  const layG = (endR, endL) => { const out = []; let i = 0, y = GY, cur = [], cw = 0;
+    const span = y => { const r = endR > y + P * .5, l = endL > y + P * .5; return r && l ? NAR : r ? [X0, NAR[1]] : l ? [NAR[0], X1] : [X0, X1]; };
+    let x = span(y);
+    const g = GF * .26;
+    for (const t of GT) { const w = t.wd * GF;
+      if (cur.length && cw + g + w > x[1] - x[0]) { out.push({ y, x, toks: cur }); y += P; x = span(y); cur = []; cw = 0; }
+      cw += (cur.length ? g : 0) + w; cur.push(t); }
+    if (cur.length) out.push({ y, x, toks: cur, last: true });
+    return out; };
+  const rightT = rsRight ? RS : TS, leftT = rsRight ? TS : RS, rightTos = !rsRight, leftTos = rsRight;
+  // חיפוש גובה שורה לכל צד: הצד נגמר על גבול שורת גמרא, קרוב ל־19.7
+  const ends = (T, tos, isR) => { const r = []; for (let p = 16; p <= 22.5; p += .25) { const n = sideLines(T, tos, isR, p); r.push({ p, n, end: TOPEND + n * p }); } return r; };
+  const ER = ends(rightT, rightTos, true), EL = ends(leftT, leftTos, false);
+  let best = null;
+  for (const a of ER) for (const b of EL) {
+    const gl = layG(a.n ? a.end : 0, b.n ? b.end : 0), gEnd = gl.length ? gl[gl.length - 1].y + P : GY;
+    const hole = e => { if (e >= gEnd) return 0; const idx = Math.ceil((e - GY) / P - .5); const yb = GY + Math.max(0, idx) * P; return Math.abs(yb - e) / P; };
+    const over = e => Math.max(0, e - gEnd) / P;   // פירוש שממשיך מתחת לגמרא — מותר, אבל עדיף מעט
+    const score = hole(a.end) * 3 + hole(b.end) * 3 + (Math.abs(a.p - 19.7) + Math.abs(b.p - 19.7)) * .25 + Math.min(over(a.end), over(b.end)) * .3 + Math.abs(a.p - b.p) * .15;
+    if (!best || score < best.score) best = { score, a, b, gl, gEnd };
+  }
+  const { a, b, gl, gEnd } = best;
+  let html = '';
+  gl.forEach(l => { const m = l.toks.some(t => isM[t.j]), last = l.last && l.toks.length < 6;
+    html += `<div class="ed-l ed-gl${m ? ' ed-ml' : ''}${last ? ' ed-l-endp' : ''}" style="left:${px(l.x[0] - G.X)};top:${px(l.y - G.Y)};width:${px(l.x[1] - l.x[0])};height:${px(P)};--lh:${px(P)}">${l.toks.map(t => `<span class="ed-w ed-b r-${(ED.list[t.j] || {}).role || 'k'}${t.gm ? ' ed-gm' : ''}" data-j="${t.j}">${t.w}</span>`).join('')}</div>`; });
+  // הפירוש בפועל: מעל הגמרא, בצד עד גבול השורה, ומה שנשאר — מתחת לגמרא (חצי רוחב)
+  let maxY = gEnd;
+  const ovR = a.end > gEnd + 2, ovL = b.end > gEnd + 2;
+  const put = (T, tos, isR, e) => { const only = isR ? ovR && !ovL : ovL && !ovR; const p = e.p, sideTop = TOPEND, sideEnd = Math.min(e.end, gEnd + .1), nSide = Math.max(0, Math.floor((sideEnd - sideTop) / p + .01));
+    const bot = only ? [X0, X1] : isR ? [ (X0 + X1) / 2 + 11, X1 ] : [ X0, (X0 + X1) / 2 - 11 ];
+    const ls = wrapC(T, tos, [{ w: topW(isR)[1] - topW(isR)[0], h: PT, n: 4 }, { w: sideW(isR)[1] - sideW(isR)[0], h: p, n: nSide || 1e-9 }, { w: bot[1] - bot[0], h: 19.7, n: 1e9 }]);
+    const ys = [TOPY, sideTop, gEnd + 8], cnt = [0, 0, 0];
+    ls.forEach(l => { const sg = l.si, h = sg === 0 ? PT : sg === 1 ? p : 19.7, x = sg === 0 ? topW(isR) : sg === 1 ? sideW(isR) : bot, y = ys[sg] + cnt[sg] * h; cnt[sg]++;
+      maxY = Math.max(maxY, y + h);
+      html += `<div class="ed-cl ed-fl ed-c-${tos ? 't' : 'r'}${l.last ? ' ed-l-endp' : ''}" style="left:${px(x[0] - G.X)};top:${px(y - G.Y)};width:${px(x[1] - x[0])};height:${px(h)};--lh:${px(h)}">${l.toks.map(t => `<span class="ed-w${t.dh ? ' ed-dh' : ''}${t.big ? ' ed-big' : ''}" data-cj="${t.j}">${t.w}</span>`).join('')}</div>`; }); };
+  put(rightT, rightTos, true, a); put(leftT, leftTos, false, b);
+  v.insertAdjacentHTML('beforeend', html);
+  v.style.height = px(maxY - G.Y + 10);
 }
 function edGeoFit() {
   const v = document.querySelector('#edOverlay .ed-geo'); if (!v) return;
