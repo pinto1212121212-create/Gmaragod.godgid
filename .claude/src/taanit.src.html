@@ -6527,49 +6527,52 @@ function edGeoFlow(v) {
     const T = toks(stream); if (!T.length) return;
     T.forEach(t => t.wd = width(t));
     // שורות לפי גודל: גובה שורה p (ביחידות הדף), אות = p*.74
-    const lay = (p, commit) => {
-      const fs = p * .74 * k, gap = fs * .3;
-      let bi = 0, b = boxes[0], y = b.top ? G.Y + 6 : 0, lines = [], cur = [], curW = 0, indent = 0;
-      const topEnd = () => G.Y + 6 + 4 * p;
+    const lay = (p) => {
+      const pt = Math.min(p, 19.75);                       // מעל הגמרא: 4 שורות בגובה קבוע (שלא ייכנס לגמרא)
+      let bi = 0, b = boxes[0], lines = [], cur = [], curW = 0;
+      const topEnd = () => G.Y + 6 + 4 * pt;
       const boxY0 = (bx) => bx.top ? G.Y + 6 : bx.after ? bx.after : topEnd();
       const boxY1 = (bx) => bx.top ? topEnd() : bx.until ? bx.until : 1e9;
-      y = boxY0(b);
-      const lineW = () => (b.x[1] - b.x[0]) * k - indent;
-      const flush = (last) => { lines.push({ b, y, toks: cur, last, indent }); cur = []; curW = 0;
-        indent = 0; y += p;
-        while (b && y + p > boxY1(b) + .5) { bi++; b = boxes[bi]; if (!b) return false; y = Math.max(boxY0(b), b.top ? 0 : (bi && boxes[bi - 1].top ? topEnd() : 0)); }
+      const ph = () => b.top ? pt : p;
+      let y = boxY0(b);
+      const fsz = () => ph() * .74 * k;
+      const lineW = () => (b.x[1] - b.x[0]) * k;
+      const flush = (last) => { lines.push({ b, y, h: ph(), toks: cur, last }); cur = []; curW = 0;
+        y += ph();
+        while (b && y + ph() > boxY1(b) + .5) { bi++; b = boxes[bi]; if (!b) return false; y = boxY0(b); }
         return true; };
       let prevItem = T[0].item;
       for (const t of T) {
         if (!b) break;
         if (isTos && t.item !== prevItem && cur.length) { if (!flush(true)) break; }
         prevItem = t.item;
-        const w = t.wd * fs;
+        const fs = fsz(), gap = fs * .3, w = t.wd * fs;
         if (cur.length && curW + gap + w > lineW()) { if (!flush(false)) break; }
         if (!b) break;
-        cur.push(t); curW += (cur.length > 1 ? gap : 0) + w;
-        if (t.big && cur.length === 1) indent = -1;   // הסימון: השורה הבאה מוזחת ברוחב המילה הגדולה
-        if (indent === -1) indent = 0;
+        const fs2 = fsz();
+        cur.push(t); curW += (cur.length > 1 ? fs2 * .3 : 0) + t.wd * fs2;
       }
-      if (cur.length && b) lines.push({ b, y, toks: cur, last: true, indent: 0 });
-      return { lines, endB: lines.length ? boxes.indexOf(lines[lines.length - 1].b) : 0, endY: lines.length ? lines[lines.length - 1].y + p : 0 };
+      if (cur.length && b) lines.push({ b, y, h: ph(), toks: cur, last: true });
+      const L = lines[lines.length - 1];
+      return { lines, endB: L ? boxes.indexOf(L.b) : 0, endY: L ? L.y + L.h : 0 };
     };
-    // גודל: הכי קרוב ל־19.7, אבל כך שהפירוש ייגמר בתוך הצד (ולא ישאיר חור) — אם אפשר
+    // גודל: הפירוש צריך למלא את הצד עד הסוף (כמו בדף — בלי חור לבן), והכי קרוב ל־19.7. אם יש מעט טקסט — שורות גדולות יותר
     let best = null;
-    for (let p = 15.5; p <= 20.6; p += .1) {
+    for (let p = 15.5; p <= 24; p += .1) {
       const r = lay(p); const sideEnd = boxes[1].until;
-      const inSide = r.endB === 1 && r.endY > sideEnd - p * 1.5;
-      const score = (inSide ? 0 : r.endB === 1 ? (sideEnd - r.endY) / p : 3 + (r.endB > 1 ? r.lines.filter(l => l.b === boxes[2]).length : 0)) + Math.abs(p - 19.7) * .05;
+      const holeLines = r.endB === 1 ? (sideEnd - r.endY) / p : r.endB === 0 ? 99 : 0;
+      const below = r.endB > 1 ? r.lines.filter(l => l.b === boxes[2]).length : 0;
+      const score = (holeLines > 1.2 ? 10 + holeLines : 0) + below * 1.5 + Math.abs(p - 19.7) * .08;
       if (!best || score < best.score) best = { p, score, r };
     }
     const { p, r } = best;
     let html = '';
     r.lines.forEach(l => {
       const w = (l.b.x[1] - l.b.x[0]);
-      html += `<div class="ed-cl ed-fl ed-c-${isTos ? 't' : 'r'}${l.last ? ' ed-l-endp' : ''}" style="left:${px(l.b.x[0] - G.X)};top:${px(l.y - G.Y)};width:${px(w)};height:${px(p)};--lh:${px(p)}">${l.toks.map(t => `<span class="ed-w${t.dh ? ' ed-dh' : ''}${t.big ? ' ed-big' : ''}" data-cj="${t.j}">${t.w}</span>`).join('')}</div>`;
+      html += `<div class="ed-cl ed-fl ed-c-${isTos ? 't' : 'r'}${l.last ? ' ed-l-endp' : ''}" style="left:${px(l.b.x[0] - G.X)};top:${px(l.y - G.Y)};width:${px(w)};height:${px(l.h)};--lh:${px(l.h)}">${l.toks.map(t => `<span class="ed-w${t.dh ? ' ed-dh' : ''}${t.big ? ' ed-big' : ''}" data-cj="${t.j}">${t.w}</span>`).join('')}</div>`;
     });
     v.insertAdjacentHTML('beforeend', html);
-    return r.lines.length ? r.lines[r.lines.length - 1].y + p : 0;
+    return r.lines.length ? r.lines[r.lines.length - 1].y + r.lines[r.lines.length - 1].h : 0;
   };
   const e1 = run('edRsSrc', G.R, false), e2 = run('edTsSrc', G.T, true);
   meas.remove();
