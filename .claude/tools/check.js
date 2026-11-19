@@ -13,7 +13,7 @@ const srv = http.createServer((q, r) => {
 }).listen(8799);
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 412, height: 915 } });
-  await p.addInitScript(() => { try { localStorage.setItem('gemara:pomode2', '0'); } catch (e) {} });   // הבדיקה רצה בתצוגה הרגילה (ברירת המחדל היא הדף המלא)
+  await p.addInitScript(() => { try { localStorage.setItem('gemara:pomode2', '0'); sessionStorage.setItem('gemara:pomode3', '0'); } catch (e) {} });   // הבדיקה רצה בתצוגה הרגילה (ברירת המחדל היא הדף המלא)
   const errs = []; p.on('pageerror', e => errs.push(p.url().split('/').pop() + ': ' + e.message)); p.on('requestfailed', r => errs.push('לא נטען: ' + r.url()));
   const U = 'http://localhost:8799/';
   for (const f of ['', 'taanit.html', 'tree.html', 'words.html', 'zevachim.html']) {
