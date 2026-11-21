@@ -50,3 +50,35 @@
     });
   };
 })();
+
+// 🙏 תפילה קודם הלימוד ולאחר הלימוד (ברכות כח:) — חלון משותף לכל הדפים: openTefila('pre'|'post')
+(function () {
+  const PRE = `<p><b class="tf-big">יְהִי רָצוֹן</b> מִלְּפָנֶיךָ, יְהוָה אֱלֹהַי, שֶׁלֹּא יֶאֱרַע דְּבַר תַּקָּלָה עַל יָדִי, וְלֹא אֶכָּשֵׁל בִּדְבַר הֲלָכָה וְיִשְׂמְחוּ בִּי חֲבֵרַי, וְלֹא אֹמַר עַל טָמֵא: ״טָהוֹר״, וְלֹא עַל טָהוֹר: ״טָמֵא״, וְלֹא יִכָּשְׁלוּ חֲבֵרַי בִּדְבַר הֲלָכָה וְאֶשְׂמַח בָּהֶם.</p>
+    <p><b class="tf-big">כִּי</b> יְהוָה יִתֵּן חָכְמָה מִפִּיו דַּעַת וּתְבוּנָה. גַּל עֵינַי וְאַבִּיטָה נִפְלָאוֹת מִתּוֹרָתֶךָ.</p>`;
+  const POST = `<p><b class="tf-big">מוֹדֶה</b> אֲנִי לְפָנֶיךָ, יְהוָה אֱלֹהַי, שֶׁשַּׂמְתָּ חֶלְקִי מִיּוֹשְׁבֵי בֵּית הַמִּדְרָשׁ וְלֹא שַׂמְתָּ חֶלְקִי מִיּוֹשְׁבֵי קְרָנוֹת; שֶׁאֲנִי מַשְׁכִּים וְהֵם מַשְׁכִּימִים: אֲנִי מַשְׁכִּים לְדִבְרֵי תוֹרָה וְהֵם מַשְׁכִּימִים לִדְבָרִים בְּטֵלִים; אֲנִי עָמֵל וְהֵם עֲמֵלִים: אֲנִי עָמֵל וּמְקַבֵּל שָׂכָר וְהֵם עֲמֵלִים וְאֵינָם מְקַבְּלִים שָׂכָר; אֲנִי רָץ וְהֵם רָצִים: אֲנִי רָץ לְחַיֵּי הָעוֹלָם הַבָּא וְהֵם רָצִים לִבְאֵר שַׁחַת. [שֶׁנֶּאֱמַר: וְאַתָּה אֱלֹהִים תּוֹרִדֵם לִבְאֵר שַׁחַת, אַנְשֵׁי דָמִים וּמִרְמָה לֹא יֶחֱצוּ יְמֵיהֶם, וַאֲנִי אֶבְטַח בָּךְ.]</p>`;
+  const CSS = `.tf-ov{position:fixed;inset:0;z-index:200;background:rgba(5,5,5,.88);display:flex;align-items:center;justify-content:center;padding:16px}
+  .tf-box{width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#121212;border:1px solid rgba(200,168,90,.45);border-radius:28px;padding:20px 20px 16px;color:#f5f1e8;direction:rtl}
+  .tf-top{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .tf-tabs{display:flex;gap:6px;flex:1}
+  .tf-tabs button,.tf-x{font:inherit;font-size:15px;border-radius:999px;border:1px solid rgba(200,168,90,.45);background:transparent;color:#dcc078;padding:8px 14px;min-height:40px;cursor:pointer}
+  .tf-tabs button.on{background:#c8a85a;color:#0a0a0a;font-weight:700}
+  .tf-x{min-width:40px;padding:8px 0}
+  .tf-h{font-family:'Frank Ruhl Libre',serif;font-size:21px;font-weight:700;color:#dcc078;text-align:center;margin:6px 0 12px;padding-bottom:8px;border-bottom:1px solid rgba(200,168,90,.3)}
+  .tf-txt p{font-family:'Frank Ruhl Libre',serif;font-size:calc(22px * var(--fz,1));line-height:1.85;margin:0 0 12px;text-align:justify}
+  .tf-big{font-size:1.25em;color:#dcc078}
+  .tf-src{font-size:13px;color:#a09a8c;border-top:1px solid rgba(245,241,232,.12);padding-top:8px;margin-top:4px}`;
+  window.openTefila = function (which) {
+    let ov = document.getElementById('tfOv');
+    if (!ov) {
+      const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
+      ov = document.createElement('div'); ov.id = 'tfOv'; ov.className = 'tf-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'תפילה ללימוד');
+      ov.addEventListener('click', e => { if (e.target === ov || e.target.closest('.tf-x')) ov.remove(); const t = e.target.closest('[data-tf]'); if (t) openTefila(t.dataset.tf); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('tfOv')) document.getElementById('tfOv').remove(); });
+      document.body.appendChild(ov);
+    }
+    const pre = which !== 'post';
+    ov.innerHTML = `<div class="tf-box"><div class="tf-top"><div class="tf-tabs"><button type="button" data-tf="pre" class="${pre ? 'on' : ''}">לפני הלימוד</button><button type="button" data-tf="post" class="${pre ? '' : 'on'}">אחרי הלימוד</button></div><button type="button" class="tf-x" aria-label="סגור">✕</button></div>
+      <div class="tf-h">${pre ? 'תפלה קודם הלימוד' : 'תפלה לאחר הלימוד'}</div><div class="tf-txt">${pre ? PRE : POST}</div>
+      <div class="tf-src">${pre ? 'ברכות כח: · משלי ב, ו · תהלים קיט, יח' : 'ברכות כח: · תהלים נה, כד'}</div></div>`;
+  };
+})();

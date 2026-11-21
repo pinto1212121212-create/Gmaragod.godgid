@@ -1993,6 +1993,7 @@ try { if (sessionStorage.getItem('gemara:pomode3') !== '0' && localStorage.getIt
   .po-b.po-daf { background: linear-gradient(135deg, #dcc078, #c8a85a); box-shadow: 0 0 0 3px rgba(111,211,92,.35); }
   .toc-words { display: flex; flex-direction: column; gap: 1px; padding: 10px 12px; margin-bottom: 10px; border-radius: 12px; text-decoration: none; color: var(--parchment); background: linear-gradient(135deg, rgba(95,178,255,.14), rgba(95,178,255,.05)); border: 1px solid rgba(95,178,255,.4); }
   .toc-words b { color: #a9d4f5; font-size: 14.5px; } .toc-words small { font-size: 12px; color: var(--parchment-dim); }
+  button.toc-words { font: inherit; text-align: right; width: 100%; cursor: pointer; align-items: flex-start; }
   .ww-go { display: inline-flex; align-items: center; min-height: 36px; margin-top: 6px; font-size: 13px; font-weight: 800; color: var(--gold-bright); text-decoration: none; }
   .po-wrap img { background: #2a3350; }
 
@@ -10541,6 +10542,7 @@ function openToc() {
   const ex = k => typeof EXPLAIN !== 'undefined' && EXPLAIN[k];
   ov.innerHTML = `<div class="toc-box" role="dialog" aria-modal="true" aria-label="כל הקטעים">
     <div class="toc-h"><b>${state.tab === 'masechet' ? AMUD_NAME[state.ref] || '' : 'איך לקרוא גמרא'} · כל הקטעים</b><button type="button" class="toc-x" aria-label="סגור">✕</button></div>
+    <button type="button" class="toc-words" onclick="closeToc(); openTefila('pre')"><b>תפלה לפני ואחרי הלימוד</b><small>״יהי רצון שלא יארע דבר תקלה על ידי״ · ״מודה אני״</small></button>
     <details class="toc-pf"><summary>נוחות ונגישות <small>גודל אותיות · ניגודיות · מרווח · תנועה</small></summary>${prefsHTML()}</details>
     ${state.tab === 'masechet' ? `<a class="toc-words" href="words.html?ref=${state.ref}"><b>לימוד מילים ומבחן</b><small>כל המילים של ${AMUD_NAME[state.ref] || 'הדף'} — כרטיסיות ומבחן</small></a>` : ''}
     ${state.tab === 'masechet' ? histHTML() : ''}${state.tab === 'masechet' ? starsHTML() : ''}<div class="toc-sec">הקטעים בדף${state.tab === 'masechet' ? readSum() : ''}</div>
