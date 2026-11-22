@@ -2409,24 +2409,25 @@ function openPhoto(ref, box) {
 function poDafRef(d) { const refs = MAS.refs.filter(r => MAS.titles[r]); const i = refs.indexOf(state.ref) + d; return i >= 0 && i < refs.length ? refs[i] : null; }
 function poDafBtn(d) { const r = poDafRef(d);
   return `<button type="button" class="po-daf-arr" ${r ? `onclick="poDaf(${d})" aria-label="${d < 0 ? 'לדף הקודם' : 'לדף הבא'}: ${AMUD_NAME[r]}" title="${AMUD_NAME[r]}"` : 'disabled aria-hidden="true"'}>${d < 0 ? '‹' : '›'}</button>`; }
-function poDaf(d) {
+function poDaf(d, toEnd) {   // toEnd: לסוף הדף (מהשלב הראשון אחורה — ממשיכים מאיפה שהדף הקודם נגמר)
   if (poDaf.busy || Date.now() - (poDaf.t || 0) < 350) return;   // לחיצה כפולה — לא מדלגת על דף
   poDaf.t = Date.now();
-  const ref = poDafRef(d); if (ref) poGoRef(ref);
+  const ref = poDafRef(d); if (ref) poGoRef(ref, toEnd);
 }
 // מעבר לדף אחר בלי לצאת מהדף המלא (מהחצים ‹ › או מ״בחר דף״)
-function poGoRef(ref) {
+function poGoRef(ref, toEnd) {
   if (poDaf.busy) return;
   if (!isLoaded(ref)) { poDaf.busy = true; document.body.classList.add('daf-busy');
-    loadPage(ref).then(ok => { poDaf.busy = false; document.body.classList.remove('daf-busy'); if (ok) poGoRef(ref); }, () => { poDaf.busy = false; document.body.classList.remove('daf-busy'); }); return; }
+    loadPage(ref).then(ok => { poDaf.busy = false; document.body.classList.remove('daf-busy'); if (ok) poGoRef(ref, toEnd); }, () => { poDaf.busy = false; document.body.classList.remove('daf-busy'); }); return; }
   const n = scenesCount(ref); let i = 0; while (i < n && !poHasMarks(ref, i)) i++;
   if (i >= n) return;
+  if (toEnd) { let e = n - 1; while (e > i && !poHasMarks(ref, e)) e--; i = e; }
   const back = PO.back;
   goToRef(ref);
   const sc = amudim[ref].scenes[i];
-  state.sceneIdx = i; state.beat = 0; renderScenes(); focusBeat = 0;
+  state.sceneIdx = i; state.beat = 0; renderScenes(); focusBeat = toEnd ? Math.max(0, sc.beats.length - 1) : 0;
   if (state.modal === 'edition') edHide();
-  if (EDITION.has(ref)) { openEdition(ref); return; }
+  if (EDITION.has(ref)) { openEdition(ref); if (toEnd && ED.list.length) edSelect(ED.list.length - 1, true); return; }
   PO.back = back; openPhoto(sc.src.ref, sc.src.box);
   try { history.replaceState(null, '', `#${ref}-${i}`); } catch (e) {}
 }
@@ -4189,7 +4190,7 @@ function edMarks() {
 function edRefit() { clearTimeout(ED.rt); ED.rt = setTimeout(() => { edAutoFlow.wc = null; if (document.getElementById('edOverlay').classList.contains('open')) edFit(); }, 150); }
 function edSelect(j, instant) {
   if (!ED.list.length) return;
-  if (j >= ED.list.length) { poDaf(1); return; } if (j < 0) { poDaf(-1); return; }
+  if (j >= ED.list.length) { poDaf(1); return; } if (j < 0) { poDaf(-1, true); return; }
   ED.cur = j; const x = ED.list[j], ov = document.getElementById('edOverlay');
   ov.querySelectorAll('[data-j]').forEach(el => el.classList.toggle('on', +el.dataset.j === j));
   ov.querySelector('.ed-page').classList.add('has-sel');
