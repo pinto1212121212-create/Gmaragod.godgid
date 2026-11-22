@@ -1864,6 +1864,7 @@ try { if (sessionStorage.getItem('gemara:pomode3') !== '0' && localStorage.getIt
   .ed-vil { position: relative; } .ed-vil .ed-gem { position: relative; z-index: 1; }
   .ed-vil .ed-gem .ed-b.on { background: none !important; box-shadow: none; }   /* בשורות — המרקר המחובר (.ed-mk) במקום תיבה לכל מילה */
   .ed-mk { position: absolute; z-index: 0; pointer-events: none; background: rgba(var(--c), .38); border-radius: 3px; }
+  .ed-mk.ed-mk-c { background: rgba(var(--c), .26); }
   .ed-mk.r-q { --c: 232,86,106; } .ed-mk.r-x { --c: 230,140,60; } .ed-mk.r-a { --c: 108,195,90; } .ed-mk.r-c { --c: 242,193,78; } .ed-mk.r-s, .ed-mk.r-n { --c: 94,168,224; } .ed-mk.r-k { --c: 169,141,224; }
   .ed-b.r-q { --c: 232,86,106; } .ed-b.r-x { --c: 230,140,60; } .ed-b.r-a { --c: 108,195,90; } .ed-b.r-c { --c: 242,193,78; } .ed-b.r-s, .ed-b.r-n { --c: 94,168,224; } .ed-b.r-k { --c: 169,141,224; }
   .ed-gemara mark.rs-dh { background: none; color: inherit; border-bottom: 0; }
@@ -6654,13 +6655,14 @@ function edGeoHTML(ref, amud, rs, ts) {
     for (let q = Math.max(0, ptr[c] - 3); q < Math.min(S.length, ptr[c] + 4); q++) if (!S[q].used && ns.some(n => S[q].t.includes(n))) { S[q].used = 1; ptr[c] = Math.max(ptr[c], q + 1); return S[q].j; }
     return S[Math.max(0, ptr[c] - 1)] ? S[Math.max(0, ptr[c] - 1)].j : -1; };
   // שורת פירוש: {…} מודגש, *מילה* גדולה, ~ קצרה באמצע, >N הזחה
-  const cline = (t, c) => { let ind = 0, cls = 'ed-cl'; t = t.replace(/^>(\d+)\s+/, (_, n) => { ind = +n; return ''; });
+  let lastC = null;
+  const cline = (t, blk) => { const c = blk.c; let ind = 0, cls = 'ed-cl'; t = t.replace(/^>(\d+)\s+/, (_, n) => { ind = +n; return ''; });
     if (t.startsWith('~')) { t = t.slice(1); cls += ' ed-l-mid'; }
     const h = t.split(/\s+/).filter(Boolean).map(w => { let o = '';
       if (w.startsWith('{')) { bold = true; w = w.slice(1); cj = findJ(c, t.slice(t.indexOf('{' + w) + 1).split('}')[0].replace(/\*/g, '')); }
       let close = false; if (w.endsWith('}')) { close = true; w = w.slice(0, -1); }
       let big = false; const mm = w.match(/^\*(.+)\*(.*)$/); if (mm) { big = true; w = mm[1] + mm[2]; }
-      o = `<span class="ed-w${bold ? ' ed-dh' : ''}${big ? ' ed-big' : ''}"${bold && cj >= 0 ? ` data-cj="${cj}"` : ''}>${w}</span>`;
+      o = `<span class="ed-w${bold ? ' ed-dh' : ''}${big ? ' ed-big' : ''}"${cj >= 0 && !blk.k ? ` data-cj="${cj}"` : ''}>${w}</span>`;
       if (close) bold = false; return o; }).join('');
     return { h, cls, ind }; };
   if (G.box && L.open) { const [x0, y0, x1, y1] = G.box; out += box(x0, y0, x1 - x0, y1 - y0, 'ed-l ed-l-open ed-gbox', `<span class="ed-open ed-b r-${ED.list[0].role}" data-j="0">${L.open}</span>`); }
@@ -6669,7 +6671,8 @@ function edGeoHTML(ref, amud, rs, ts) {
     const w = b.x[1] - b.x[0];
     if (b.c === 'g') { const arr = L[b.from] || [];
       arr.forEach((t, i) => { const g = gline(t, b === lastFrom && i === arr.length - 1); out += box(b.x[0], b.y + i * b.p, w, b.p, g.cls, g.h); }); continue; }
-    b.L.forEach((t, i) => { const c = cline(t, b.c); out += box(b.x[0], b.y + i * b.p, w - c.ind, b.p, `${c.cls} ed-c-${b.c}${b.k ? ' ed-l-catch' : ''}`, c.h); });
+    if (b.c !== lastC) { cj = -1; lastC = b.c; }   // טור אחר — הפירוש שלפני הדיבור הראשון לא שייך לשלב
+    b.L.forEach((t, i) => { const c = cline(t, b);  out += box(b.x[0], b.y + i * b.p, w - c.ind, b.p, `${c.cls} ed-c-${b.c}${b.k ? ' ed-l-catch' : ''}`, c.h); });
   }
   const src = G.flow ? `<template id="edRsSrc">${rs || ''}</template><template id="edTsSrc">${ts || ''}</template>` : '';
   return `<div class="ed-vil ed-geo${amud ? '' : ' ed-amud-b'}" data-ref="${ref}" style="width:${ED_GW}px;height:${px(G.H)}">${out}</div>${src}`;
@@ -6950,16 +6953,17 @@ function edMarks() {
   v.querySelectorAll('.ed-mk').forEach(m => m.remove());
   // אחרי סידור מחדש (טעינת גופנים) השורות נבנות מחדש בלי הסימון — מחזירים אותו לשלב הנוכחי
   if (ED.cur != null) v.querySelectorAll('.ed-b[data-j]').forEach(el => el.classList.toggle('on', +el.dataset.j === ED.cur));
-  // הדיבור המתחיל של רש״י ותוספות על השלב המסומן — באותו צבע, ורק הוא (לא כל הפירוש)
+  // רש״י ותוספות על השלב המסומן: כל הפירוש (מהדיבור המתחיל עד הדיבור הבא) — פס מחובר בכל שורה, בצבע השלב; הדיבור המתחיל עצמו כהה יותר
   const role = (ED.list[ED.cur] || {}).role || 'k';
   v.querySelectorAll('.ed-dh.dh-on').forEach(w => w.className = w.className.replace(/\s*(dh-on|dr-\w)/g, ''));
   v.querySelectorAll(`.ed-dh[data-cj="${ED.cur}"]`).forEach(w => w.classList.add('dh-on', 'dr-' + role));
   const vr = v.getBoundingClientRect(), z = vr.width / (v.offsetWidth || vr.width);   // בזמן צביטה יש scale
-  v.querySelectorAll('.ed-l:not(.ed-l-open)').forEach(l => {
-    const on = l.querySelectorAll('.ed-b.on'); if (!on.length) return;
+  v.querySelectorAll('.ed-l:not(.ed-l-open), .ed-cl').forEach(l => {
+    const cmt = l.classList.contains('ed-cl');
+    const on = cmt ? (ED.cur != null ? l.querySelectorAll(`.ed-w[data-cj="${ED.cur}"]`) : []) : l.querySelectorAll('.ed-b.on'); if (!on.length) return;
     let L = 1e9, R = -1e9; on.forEach(w => { const r = w.getBoundingClientRect(); L = Math.min(L, r.left); R = Math.max(R, r.right); });
     const lr = l.getBoundingClientRect(), m = document.createElement('i');
-    m.className = 'ed-mk r-' + (ED.list[ED.cur] || {}).role;
+    m.className = 'ed-mk r-' + (ED.list[ED.cur] || {}).role + (cmt ? ' ed-mk-c' : '');
     const pad = 2;
     m.style.cssText = `left:${(L - vr.left) / z - pad}px;top:${(lr.top - vr.top) / z}px;width:${(R - L) / z + pad * 2}px;height:${lr.height / z}px`;
     v.appendChild(m);
