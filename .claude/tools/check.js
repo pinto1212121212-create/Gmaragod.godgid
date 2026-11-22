@@ -16,7 +16,7 @@ const srv = http.createServer((q, r) => {
   await p.addInitScript(() => { try { localStorage.setItem('gemara:pomode2', '0'); sessionStorage.setItem('gemara:pomode3', '0'); } catch (e) {} });   // הבדיקה רצה בתצוגה הרגילה (ברירת המחדל היא הדף המלא)
   const errs = []; p.on('pageerror', e => errs.push(p.url().split('/').pop() + ': ' + e.message)); p.on('requestfailed', r => errs.push('לא נטען: ' + r.url()));
   const U = 'http://localhost:8799/';
-  for (const f of ['', 'taanit.html', 'tree.html', 'words.html', 'zevachim.html']) {
+  for (const f of ['', 'taanit.html', 'tree.html', 'words.html', 'hitbodedut.html', 'zevachim.html']) {
     await p.goto(U + f); await p.waitForTimeout(800);
     await p.evaluate(() => { try { localStorage.setItem('gemara:help', '1'); } catch (e) {} });
     const w = await p.evaluate(() => document.documentElement.scrollWidth); if (w > 412) errs.push(`גלילה אופקית ב־${f || 'index'}: ${w}px`);
