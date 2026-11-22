@@ -35,6 +35,7 @@ for (const ref of refs) {
   m = miss(P.wbw, dafBeats); ok(!m.length, 'מילה במילה (WBW) לכל שלב שבדף', m.slice(0, 6).join(' '));
   m = miss(P.span && Object.fromEntries(Object.entries(P.span).flatMap(([si, o]) => Object.keys(o).map(bi => [`${ref}:${si}:${bi}`, 1]))), dafBeats);
   ok(EDITION.includes(`'${ref}'`) || !m.length, 'הדגשה (BEAT_SPAN) — או מהדורה', m.slice(0, 6).join(' '));
+  m = sc.map((s, si) => si).filter(si => ((P.loc || {})[si] || []).some(x => x) && !(P.src || {})[si]); ok(!m.length, 'DAF_SRC לכל קטע (בלעדיו אין סימון בתצוגה הרגילה)', m.join(' '));
   const nodes = []; const walk = n => { nodes.push(n); (n.k || []).forEach(walk); }; ((P.tree || {}).roots || []).forEach(walk);
   ok(nodes.length > 0, `עץ הסוגיה (TREE): ${nodes.length} צמתים`);
   ok((P.cx || []).length === nodes.length, 'TREE_CX לכל צומת', `${(P.cx || []).length}/${nodes.length}`);
