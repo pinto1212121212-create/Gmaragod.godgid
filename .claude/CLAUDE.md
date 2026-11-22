@@ -268,6 +268,21 @@ node .claude/tools/check.js                   # חייב: "בלי הדגשה: א
 - [ ] `report` = 0, ו־`check.js` בלי שגיאות.
 - [ ] merge ל־main, וקישור ישיר למשתמש.
 
+### 🧾 4א. דף חדש — הכל כולל הכל (נוב׳ 2026, המשתמש: ״שכל השינויים יעשו בכל דף חדש, הכל כולל הכל״)
+**הבדיקה האוטומטית:** `node .claude/tools/page_check.js <ref>` (בלי ref — כל הדפים). מדפיסה ✓/✗ לכל פריט למטה, ו**אסור להעלות דף עם ✗**. שורות ״·״ הן מידע (דיבורים שלא סומנו, צורת המהדורה). כל תכונה חדשה שנבנית — **להוסיף לה שורה ב־page_check.js** וברשימה הזו, כדי שתיעשה גם בדפים הבאים.
+מקור מומלץ: **צילום מסך של דף דיגיטלי** (daf-yomi.com, 1080×2340) — חד מספיק לרש״י ותוספות בזום ×3. רק כמקור טקסט.
+1. **תוכן הלימוד** (סעיף 3, שלבים 3–7): scenes, TAKHLES, CONTEXT, PUNCT, WBW, TREE + TREE_CX + SECTION_NAMES + SUGYA_TOPIC, PEOPLE, תרגום, MISHNA/PAIRS בסתירה.
+2. **רש״י המקורי, מלא**: `.claude/tools/rashi/<ref>.py` → `merge.py <ref>`. לא סיכום שלנו.
+3. **תוספות**: `amudim[ref].tosafot` + `ED_LINES[ref].tos` (הטקסט המלא).
+4. **המהדורה**: `ED_LINES[ref]` שורה־שורה כמו בדף (narrow/wide/full, `side`), ה־ref ב־`EDITION` (loader.js), `node .claude/tools/ed-check.js`. אם יש צילום חד — גם `ED_GEO[ref]` שורה־שורה לרש״י ותוספות (כמו ט.).
+5. **מילים קשות**: `.claude/tools/words/<ref>.py` → `add.py <ref>`.
+6. **״הפסוק״**: `python3 .claude/tools/psuk/build.py`, וכתיבת הסבר לכל פרק ב״חסר הסבר ל:״.
+7. **הסבר מאויר** לכל סוגיה מסובכת (`explain/`, `explain-data.js`).
+8. **שם הדף**: AMUD_NAME, `AM` ב־index.html, `AMN` ב־words.html.
+9. `build.py` → `page_check.js <ref>` (בלי ✗) → `check.js` → צילומי מסך (412×915 ו־1440×900): הדף המלא, המהדורה, העץ.
+10. VERSION ב־sw.js, commit → PR → merge, קישור למשתמש.
+יוצאים מן הכלל מתועדים ב־page_check.js (`NO_TOS`: ו. בלי תוספות). **חסר ידוע:** רש״י של ג. הוא עדיין סיכום — צריך צילום מסך.
+
 ---
 
 ## 5. סגנון וכתיבה
