@@ -47,7 +47,9 @@ for (const ref of refs) {
   ok((P.people || []).length > 0, `אנשים (PEOPLE): ${(P.people || []).length}`);
   const rk = Object.keys(P.rashiAt || {}); ok(rk.length > 0, `רש״י מלא (RASHI_AT): ${rk.reduce((t, k) => t + P.rashiAt[k].length, 0)} דיבורים`);
   const nz = t => t.replace(/[֑-ׇ]/g, '').replace(/<[^>]+>/g, '');
-  const unm = rk.flatMap(k => P.rashiAt[k].filter(e => !nz((P.punct || {})[k] || '').includes(nz(e[0]).replace(/״|"/g, ''))).map(e => k + ' ' + e[0]));
+  // כמו rashiMark: סימני פיסוק, מירכאות ומקפים לא משנים — משווים רק את המילים
+  const wz = t => ' ' + nz(t).replace(/[״"׳'.,:;?!()\[\]—–-]/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
+  const unm = rk.flatMap(k => P.rashiAt[k].filter(e => !wz((P.punct || {})[k] || '').includes(wz(e[0]))).map(e => k + ' ' + e[0]));
   // דפים ישנים (ב.–ט:) — מידע; מדף י. והלאה — חובה
   (parseInt(ref) >= 10 ? ok : (c, t, x) => out.push(`  · ${t}${x ? ' — ' + x : ''}`))(unm.length <= 2, `דיבורי רש״י מסומנים בגמרא (כתיב כמו ב־PUNCT; עד 2 חריגים)`, unm.length ? unm.length + ': ' + unm.slice(0, 4).join(' | ') : '');
   ok(!!fs.existsSync(path.join(ROOT, '.claude/tools/rashi', ref + '.py')), 'מקור רש״י: .claude/tools/rashi/' + ref + '.py');
