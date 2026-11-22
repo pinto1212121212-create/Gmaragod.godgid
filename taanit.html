@@ -5136,11 +5136,11 @@ function edGeoHTML(ref, amud, rs, ts) {
   let j = 0, bold = false, out = '';
   const box = (x, y, w, h, cls, inner) => `<div class="${cls}" style="left:${px(x - G.X)};top:${px(y - G.Y)};width:${px(w)};height:${px(h)};--lh:${px(h)}">${inner}</div>`;
   // שורת גמרא: מילים לחיצות לפי שלב
-  const gline = (t, last) => { let h = '', m = isM[j], first = !!/^‖/.test(t), nw = 0;
+  const gline = (t, last, pen) => { let h = '', m = isM[j], first = !!/^‖/.test(t), nw = 0;
     for (const x of t.split(/\s+/).filter(Boolean)) { if (x === '‖') { j++; first = true; continue; } nw++;
       h += `<span class="ed-w ed-b r-${(ED.list[j] || {}).role || 'k'}${first && /^(מתני|גמ)[׳']:?$/.test(x) ? ' ed-gm' : ''}" data-j="${j}">${x}</span>`; first = false; }
     m = m || isM[j];
-    return { h, cls: 'ed-l ed-gl' + (m ? ' ed-ml' : '') + (last && nw < 3 ? ' ed-l-catch' : '') }; };
+    return { h, cls: 'ed-l ed-gl' + (m ? ' ed-ml' : '') + (last && nw < 3 ? ' ed-l-catch' : '') + (pen && nw < 5 ? ' ed-l-endp' : '') }; };   // שורה קצרה לפני השומר: בלי מתיחה
   // כל דיבור המתחיל בשורות של רש״י/תוספות — לאיזה שלב הוא שייך (לפי סדר RASHI_AT / ED_LINES.tos והמילה הראשונה), כדי שהמרקר יסמן אותו
   const nz = w => w.replace(/[^א-ת]/g, '').replace(/^[ווד](?=[א-ת]{3})/, '');
   const DS = { r: ED.list.flatMap((x, j) => (RASHI_AT[x.k] || []).map(e => ({ j, t: (e[0] + ' ' + e[1]).split(/\s+/).slice(0, 8).map(nz) }))),
@@ -5168,7 +5168,7 @@ function edGeoHTML(ref, amud, rs, ts) {
   for (const b of G.B) {
     const w = b.x[1] - b.x[0];
     if (b.c === 'g') { const arr = L[b.from] || [];
-      arr.forEach((t, i) => { const g = gline(t, b === lastFrom && i === arr.length - 1); out += box(b.x[0], b.y + i * b.p, w, b.p, g.cls, g.h); }); continue; }
+      arr.forEach((t, i) => { const g = gline(t, b === lastFrom && i === arr.length - 1, b === lastFrom && i === arr.length - 2); out += box(b.x[0], b.y + i * b.p, w, b.p, g.cls, g.h); }); continue; }
     if (b.c !== lastC) { cj = -1; lastC = b.c; }   // טור אחר — הפירוש שלפני הדיבור הראשון לא שייך לשלב
     b.L.forEach((t, i) => { const c = cline(t, b);  out += box(b.x[0], b.y + i * b.p, w - c.ind, b.p, `${c.cls} ed-c-${b.c}${b.k ? ' ed-l-catch' : ''}`, c.h); });
   }
