@@ -180,14 +180,14 @@
 </div>
 
 <script src="data/common.js?v=2c7990a2"></script>
-<script src="data/taanit/index.js?v=a404688f"></script>
-<script src="data/taanit/words.js?v=fd0ee156"></script>
-<script src="loader.js?v=c12420ff"></script>
+<script src="data/taanit/index.js?v=5d6026a2"></script>
+<script src="data/taanit/words.js?v=daf16860"></script>
+<script src="loader.js?v=cbe54280"></script>
 <script>
 // ===== לימוד מילים — כל המילים והביטויים מ״מילה במילה״, המילון והמונחים (מחושב מראש ב־data/<מסכת>/words.js) =====
 // התקדמות: localStorage 'gemara:words' = { מילה: {b: תיבה 0..5, d: מתי לחזור (ms), r: נכון, w: טעות} } — שיטת לייטנר
 const $ = id => document.getElementById(id);
-const AMN = { '2a': 'ב׳ ע״א', '2b': 'ב׳ ע״ב', '3a': 'ג׳ ע״א', '3b': 'ג׳ ע״ב', '4a': 'ד׳ ע״א', '4b': 'ד׳ ע״ב', '5a': 'ה׳ ע״א', '5b': 'ה׳ ע״ב', '6a': 'ו׳ ע״א', '6b': 'ו׳ ע״ב', '7a': 'ז׳ ע״א', '7b': 'ז׳ ע״ב', '8a': 'ח׳ ע״א', '8b': 'ח׳ ע״ב', '9a': 'ט׳ ע״א', '9b': 'ט׳ ע״ב', '10a': 'י׳ ע״א' };
+const AMN = { '2a': 'ב׳ ע״א', '2b': 'ב׳ ע״ב', '3a': 'ג׳ ע״א', '3b': 'ג׳ ע״ב', '4a': 'ד׳ ע״א', '4b': 'ד׳ ע״ב', '5a': 'ה׳ ע״א', '5b': 'ה׳ ע״ב', '6a': 'ו׳ ע״א', '6b': 'ו׳ ע״ב', '7a': 'ז׳ ע״א', '7b': 'ז׳ ע״ב', '8a': 'ח׳ ע״א', '8b': 'ח׳ ע״ב', '9a': 'ט׳ ע״א', '9b': 'ט׳ ע״ב', '10a': 'י׳ ע״א', '10b': 'י׳ ע״ב' };
 const REFS = Object.keys(AMN);
 const clean = s => String(s || '').replace(/<[^>]+>/g, '').replace(/[֑-ׇ״"׳'.,:;!?()\[\]]/g, '').replace(/\s+/g, ' ').trim();
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
