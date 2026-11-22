@@ -12,7 +12,7 @@ const EXPLAIN = {
   '6a:1': '6a-yoreh', '6a:2': '6a-yoreh', '6a:3': '6a-yoreh', '6a:4': '6a-revios',
   '6b:0': '6b-sheniya', '6b:1': '6b-sheniya', '6b:2': '6b-sheniya', '6b:3': '6b-sheniya', '6b:4': '6b-kelala', '6b:5': '6b-kelala', '6b:6': '6b-kelala', '6b:7': '6b-bracha',
   '5b:1': '5b-shmuel', '5b:2': '5b-shmuel', '5b:3': '5b-shmuel', '5b:4': '5b-yaakov',
-  '10b:0': '10b-derech', '10b:1': '10b-derech', '10b:2': '10b-derech', '10b:3': '10b-derech', '10b:4': '10b-derech', '10b:5': '10b-derech',
+  '10b:0': '10b-derech', '10b:1': '10b-derech', '10b:2': '10b-derech', '10b:3': '10b-derech', '10b:4': '10b-derech', '10b:5': '10b-derech', '10b:6': '10b-derech', '10b:7': '10b-derech',
   '10a:0': '10a-erets', '10a:1': '10a-erets', '10a:2': '10a-erets', '10a:3': '10a-erets', '10a:4': '10a-erets', '10a:5': '10a-erets',
   '10a:6': '10a-shoalin', '10a:7': '10a-shoalin', '10a:8': '10a-shoalin', '10a:9': '10a-shoalin', '10a:10': '10a-shoalin',
   '9b:2': '9b-mayim', '9b:3': '9b-mayim', '9b:4': '9b-mayim', '9b:5': '9b-mayim', '9b:6': '9b-mayim', '9b:7': '9b-mayim', '9b:8': '9b-mayim', '9b:9': '9b-mayim', '9b:10': '9b-mayim', '9b:11': '9b-mayim', '9b:12': '9b-mayim',

@@ -283,7 +283,7 @@ node .claude/tools/check.js                   # חייב: "בלי הדגשה: א
 8. **שם הדף**: AMUD_NAME, `AM` ב־index.html, `AMN` ב־words.html.
 9. `build.py` → `page_check.js <ref>` (בלי ✗) → `check.js` → צילומי מסך (412×915 ו־1440×900): הדף המלא, המהדורה, העץ.
 10. VERSION ב־sw.js, commit → PR → merge, קישור למשתמש.
-יוצאים מן הכלל מתועדים ב־page_check.js (`NO_TOS`: ו. בלי תוספות). `rashi/merge.py` עובד לכל דף בש״ס (2a–199b). **חסר ידוע:** רש״י של ג. הוא עדיין סיכום — צריך צילום מסך.
+**מדף י. והלאה page_check חמור יותר:** דיבורי רש״י חייבים להיות מסומנים בגמרא (הדיבור ב־RASHI_AT בכתיב של PUNCT, לא של רש״י), ו־WDICT חייב לכסות 70% ממילה־במילה (`python3 .claude/tools/wdict_fill.py <ref>`). יוצאים מן הכלל מתועדים ב־page_check.js (`NO_TOS`: ו. בלי תוספות). `rashi/merge.py` עובד לכל דף בש״ס (2a–199b). **חסר ידוע:** רש״י של ג. הוא עדיין סיכום — צריך צילום מסך.
 
 ---
 
