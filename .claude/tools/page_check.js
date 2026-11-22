@@ -36,6 +36,9 @@ for (const ref of refs) {
   m = miss(P.span && Object.fromEntries(Object.entries(P.span).flatMap(([si, o]) => Object.keys(o).map(bi => [`${ref}:${si}:${bi}`, 1]))), dafBeats);
   ok(EDITION.includes(`'${ref}'`) || !m.length, 'הדגשה (BEAT_SPAN) — או מהדורה', m.slice(0, 6).join(' '));
   m = sc.map((s, si) => si).filter(si => ((P.loc || {})[si] || []).some(x => x) && !(P.src || {})[si]); ok(!m.length, 'DAF_SRC לכל קטע (בלעדיו אין סימון בתצוגה הרגילה)', m.join(' '));
+  { const W = new Function(fs.readFileSync(path.join(ROOT, 'data/common.js'), 'utf8') + ';return WDICT')(); let a = 0, b = 0;
+    for (const k in P.wbw || {}) for (const x of P.wbw[k].split('|')) { const w = x.split('=')[0].trim(); if (!w) continue; a++; if (W[w]) b++; }
+    (parseInt(ref) >= 10 ? ok : (c, t, x) => out.push(`  · ${t}`))(!a || b / a >= .7, `מילון (WDICT) מכסה את מילה־במילה: ${a ? Math.round(100 * b / a) : 0}% (להריץ wdict_fill.py)`); }
   const nodes = []; const walk = n => { nodes.push(n); (n.k || []).forEach(walk); }; ((P.tree || {}).roots || []).forEach(walk);
   ok(nodes.length > 0, `עץ הסוגיה (TREE): ${nodes.length} צמתים`);
   ok((P.cx || []).length === nodes.length, 'TREE_CX לכל צומת', `${(P.cx || []).length}/${nodes.length}`);
@@ -45,7 +48,8 @@ for (const ref of refs) {
   const rk = Object.keys(P.rashiAt || {}); ok(rk.length > 0, `רש״י מלא (RASHI_AT): ${rk.reduce((t, k) => t + P.rashiAt[k].length, 0)} דיבורים`);
   const nz = t => t.replace(/[֑-ׇ]/g, '').replace(/<[^>]+>/g, '');
   const unm = rk.flatMap(k => P.rashiAt[k].filter(e => !nz((P.punct || {})[k] || '').includes(nz(e[0]).replace(/״|"/g, ''))).map(e => k + ' ' + e[0]));
-  out.push(`  · דיבורים שלא מסומנים בגמרא (כתיב שונה מ־PUNCT): ${unm.length}${unm.length ? ' — ' + unm.slice(0, 4).join(' | ') : ''}`);
+  // דפים ישנים (ב.–ט:) — מידע; מדף י. והלאה — חובה
+  (parseInt(ref) >= 10 ? ok : (c, t, x) => out.push(`  · ${t}${x ? ' — ' + x : ''}`))(unm.length <= 2, `דיבורי רש״י מסומנים בגמרא (כתיב כמו ב־PUNCT; עד 2 חריגים)`, unm.length ? unm.length + ': ' + unm.slice(0, 4).join(' | ') : '');
   ok(!!fs.existsSync(path.join(ROOT, '.claude/tools/rashi', ref + '.py')), 'מקור רש״י: .claude/tools/rashi/' + ref + '.py');
   ok(NO_TOS.has(ref) || !!(amudim[ref].tosafot || []).length, 'תוספות (amudim.tosafot)');
   ok(!!(amudim[ref].translation || []).length, 'תרגום (amudim.translation)');
